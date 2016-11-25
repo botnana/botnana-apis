@@ -14,6 +14,17 @@ botnana.ws.on('message', function(data, flags) {
     console.log(data);
 });
 
+botnana.version = {
+    info: function() {
+        var json = {
+            spec_version: "0.0.1",
+            target: "version",
+            command: "info"
+        };
+        botnana.ws.send(JSON.stringify(json));
+    }
+}
+
 botnana.motion = {
     evaluate: function(script) {
         var json = {
@@ -24,7 +35,6 @@ botnana.motion = {
                 script: script
             }
         };
-        console.log(JSON.stringify(json));
         botnana.ws.send(JSON.stringify(json));
     }
 }
@@ -38,11 +48,11 @@ botnana.config = {
         };
         botnana.ws.send(JSON.stringify(json));
     },
-    set_device: function(args) {
+    set_slave: function(args) {
         var json = {
             spec_version: "0.0.1",
             target: "config",
-            command: "set_device",
+            command: "set_slave",
             arguments: args
         };
         botnana.ws.send(JSON.stringify(json));
@@ -51,13 +61,14 @@ botnana.config = {
 
 function test_botnana() {
     var script = "words";
+    botnana.version.info();
     botnana.motion.evaluate(script);
-    botnana.config.set_device({
+    botnana.config.set_slave({
         position: 1,
         tag: "homing_method",
         value: 33
     });
-    botnana.config.set_device({
+    botnana.config.set_slave({
         position: 1,
         tag: "homing_speed_1",
         value: 18000
