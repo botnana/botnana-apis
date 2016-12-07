@@ -1,0 +1,29 @@
+{
+  "name": "botnanajs",
+  "version": "0.0.1",
+  "description": "Botnana Control API for Javascript",
+  "main": "index.js",
+  "directories": {
+    "example": "examples"
+  },
+  "dependencies": {},
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/botnana/botnanajs.git"
+  },
+  "keywords": [
+    "botnana",
+    "robot",
+    "ethercat"
+  ],
+  "author": "Sirius Wu <ccwu660601@mapacode.tw> (http://www.mapacode.tw)",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/botnana/botnanajs/issues"
+  },
+  "homepage": "https://github.com/botnana/botnanajs#readme"
+}
