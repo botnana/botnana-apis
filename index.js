@@ -1,61 +1,101 @@
 "use strict";
 
-var WebSocket = require('ws');
 var botnana = {};
 
-// botnana.ws = new WebSocket('ws://192.168.7.2:3012');
-botnana.ws = new WebSocket('ws://localhost:3012');
+// Event API
+botnana.handlers = {}
 
-botnana.ws.on('open', function open() {
-    botnana.is_connected = true;
-});
+botnana.on = function(tag, handler) {
+    botnana.handlers[tag] = handler;
+};
 
-botnana.ws.on('message', function(data, flags) {
-    console.log(data);
-});
+botnana.motion = {};
+botnana.motion.handlers = {};
+botnana.motion.on = function(tag, handler) {
+    botnana.motion.handlers[tag] = handler;
+}
 
+botnana.handle_response = function(resp) {
+    let r = resp.split("|");
+    for (var i=0; i< r.length; i=i+2) {
+        if(botnana.handlers[r[i]]) {
+            botnana.handlers[r[i]](r[i+1]);
+        }
+    }
+};
+
+// Version API
 botnana.version = {
-    info: function() {
+    get: function(sender) {
         var json = {
             spec_version: "0.0.1",
             target: "version",
-            command: "info"
+            command: "get"
         };
-        botnana.ws.send(JSON.stringify(json));
+        sender.send(JSON.stringify(json));
     }
 }
 
-botnana.motion = {
-    evaluate: function(script) {
-        var json = {
-            spec_version: "0.0.1",
-            target: "motion",
-            command: "evaluate",
-            arguments: {
-                script: script
-            }
+// Real-time script API
+botnana.motion.evaluate = function(sender, script) {
+    var json = {
+        spec_version: "0.0.1",
+        target: "motion",
+        command: "evaluate",
+        arguments: {
+            script: script
+        }
+    };
+    sender.send(JSON.stringify(json));
+};
+
+// Slave API
+class Slave {
+    constructor() {
+        this.on = (tag, handler) => {
+            this.handlers[tag] = hanlder;
         };
-        botnana.ws.send(JSON.stringify(json));
+        this.set = function(args) {};
+        this.get = function(tag) {};
+        this.set_homing_method = function(value) {};
+        this.set_dout = function(index, value) {};
+        this.get_dout = function(index) {};
+        this.get_din = function(index) {};
+        this.disable_aout(index);
+        this.enable_aout(index);
+        this.set_aout = function(index, value) {};
+        this.get_aout = function(index) {};
+        this.disable_ain = function(index) {};
+        this.enable_ain = function(index) {};
+        this.get_ain = function(index) {};
     }
 }
 
+botnana.motion.slaves = [];
+botnana.motion.slave = function(n) {
+    if (botnana.motion.slaves.len >= n) {
+        return botnana.motion.slaves[n-1];
+    }
+}
+
+// Configuration API
 botnana.config = {
-    save: function() {
+    save: function(sender) {
         var json = {
             spec_version: "0.0.1",
             target: "config",
             command: "save"
         };
-        botnana.ws.send(JSON.stringify(json));
+        sender.send(JSON.stringify(json));
     },
-    set_slave: function(args) {
+    set_slave: function(sender, args) {
         var json = {
             spec_version: "0.0.1",
             target: "config",
             command: "set_slave",
             arguments: args
         };
-        botnana.ws.send(JSON.stringify(json));
+        sender.send(JSON.stringify(json));
     }
 }
 
