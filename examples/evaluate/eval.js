@@ -18,6 +18,10 @@ function test_botnana() {
         botnana.on("version", function(version) {
             console.log("version: " + version);
         });
+        botnana.on("slaves", function(slaves) {
+            let s = slaves.split(",");
+            console.log("slave count: " + s.length/2);
+        })
         botnana.version.get(ws);
         // Real-time script API
         var script = "words";
@@ -34,6 +38,14 @@ function test_botnana() {
             value: 18000
         });
         botnana.config.save(ws);
+        // Slave API
+        botnana.motion.get_slaves(ws);
+//        botnana.motion.get_slave(ws, 1);
+        /*
+        botnana.motion.slave(1).set(ws, {
+            tag: "homing_method",
+            value: 33
+        });*/
     });
 }
 

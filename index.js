@@ -28,9 +28,7 @@ botnana.handle_response = function(resp) {
 botnana.version = {
     get: function(sender) {
         var json = {
-            spec_version: "0.0.1",
-            target: "version",
-            command: "get"
+            command: "version.get",
         };
         sender.send(JSON.stringify(json));
     }
@@ -39,9 +37,7 @@ botnana.version = {
 // Real-time script API
 botnana.motion.evaluate = function(sender, script) {
     var json = {
-        spec_version: "0.0.1",
-        target: "motion",
-        command: "evaluate",
+        command: "motion.evaluate",
         arguments: {
             script: script
         }
@@ -49,6 +45,12 @@ botnana.motion.evaluate = function(sender, script) {
     sender.send(JSON.stringify(json));
 };
 
+botnana.motion.get_slaves = function(sender) {
+    var json = {
+        command: "motion.get_slaves"
+    };
+    sender.send(JSON.stringify(json));
+}
 // Slave API
 class Slave {
     constructor() {
@@ -82,17 +84,13 @@ botnana.motion.slave = function(n) {
 botnana.config = {
     save: function(sender) {
         var json = {
-            spec_version: "0.0.1",
-            target: "config",
-            command: "save"
+            command: "config.save"
         };
         sender.send(JSON.stringify(json));
     },
     set_slave: function(sender, args) {
         var json = {
-            spec_version: "0.0.1",
-            target: "config",
-            command: "set_slave",
+            command: "config.set_slave",
             arguments: args
         };
         sender.send(JSON.stringify(json));
