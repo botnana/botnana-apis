@@ -14,6 +14,7 @@ function test_botnana() {
     });
 
     ws.on('open', function () {
+        botnana.ws = ws;
         // Version API
         botnana.on("version", function(version) {
             console.log("version: " + version);

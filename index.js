@@ -28,7 +28,8 @@ botnana.handle_response = function(resp) {
 botnana.version = {
     get: function(sender) {
         var json = {
-            command: "version.get",
+            jsonrpc: "2.0",
+            method: "version.get",
         };
         sender.send(JSON.stringify(json));
     }
@@ -37,8 +38,9 @@ botnana.version = {
 // Real-time script API
 botnana.motion.evaluate = function(sender, script) {
     var json = {
-        command: "motion.evaluate",
-        arguments: {
+        jsonrpc: "2.0",
+        method: "motion.evaluate",
+        params: {
             script: script
         }
     };
@@ -47,7 +49,8 @@ botnana.motion.evaluate = function(sender, script) {
 
 botnana.motion.get_slaves = function(sender) {
     var json = {
-        command: "motion.get_slaves"
+        jsonrpc: "2.0",
+        method: "motion.get_slaves"
     };
     sender.send(JSON.stringify(json));
 }
@@ -84,14 +87,16 @@ botnana.motion.slave = function(n) {
 botnana.config = {
     save: function(sender) {
         var json = {
-            command: "config.save"
+            jsonrpc: "2.0",
+            method: "config.save"
         };
         sender.send(JSON.stringify(json));
     },
     set_slave: function(sender, args) {
         var json = {
-            command: "config.set_slave",
-            arguments: args
+            jsonrpc: "2.0",
+            method: "config.set_slave",
+            params: args
         };
         sender.send(JSON.stringify(json));
     }
