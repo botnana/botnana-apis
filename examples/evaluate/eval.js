@@ -14,7 +14,7 @@ function test_botnana() {
     });
 
     ws.on('open', function () {
-        botnana.ws = ws;
+        botnana.sender = ws;
         // Version API
         botnana.on("version", function(version) {
             console.log("version: " + version);
@@ -23,27 +23,27 @@ function test_botnana() {
             let s = slaves.split(",");
             console.log("slave count: " + s.length/2);
         })
-        botnana.version.get(ws);
+        botnana.version.get();
         // Real-time script API
         var script = "words";
-        botnana.motion.evaluate(ws, script);
+        botnana.motion.evaluate(script);
         // Configuration API
-        botnana.config.set_slave(ws, {
+        botnana.config.set_slave({
             position: 1,
             tag: "homing_method",
             value: 33
         });
-        botnana.config.set_slave(ws, {
+        botnana.config.set_slave({
             position: 1,
             tag: "homing_speed_1",
             value: 18000
         });
-        botnana.config.save(ws);
+        botnana.config.save();
         // Slave API
-        botnana.motion.get_slaves(ws);
-//        botnana.motion.get_slave(ws, 1);
+        botnana.motion.get_slaves();
+//        botnana.motion.get_slave(1);
         /*
-        botnana.motion.slave(1).set(ws, {
+        botnana.motion.slave(1).set({
             tag: "homing_method",
             value: 33
         });*/

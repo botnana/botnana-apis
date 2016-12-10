@@ -1,6 +1,8 @@
 "use strict";
 
-var botnana = {};
+var botnana = {
+    sender: null
+};
 
 // Event API
 botnana.handlers = {}
@@ -26,17 +28,17 @@ botnana.handle_response = function(resp) {
 
 // Version API
 botnana.version = {
-    get: function(sender) {
+    get: function() {
         var json = {
             jsonrpc: "2.0",
             method: "version.get",
         };
-        sender.send(JSON.stringify(json));
+        botnana.sender.send(JSON.stringify(json));
     }
 }
 
 // Real-time script API
-botnana.motion.evaluate = function(sender, script) {
+botnana.motion.evaluate = function(script) {
     var json = {
         jsonrpc: "2.0",
         method: "motion.evaluate",
@@ -44,15 +46,15 @@ botnana.motion.evaluate = function(sender, script) {
             script: script
         }
     };
-    sender.send(JSON.stringify(json));
+    botnana.sender.send(JSON.stringify(json));
 };
 
-botnana.motion.get_slaves = function(sender) {
+botnana.motion.get_slaves = function() {
     var json = {
         jsonrpc: "2.0",
         method: "motion.get_slaves"
     };
-    sender.send(JSON.stringify(json));
+    botnana.sender.send(JSON.stringify(json));
 }
 // Slave API
 class Slave {
@@ -85,20 +87,20 @@ botnana.motion.slave = function(n) {
 
 // Configuration API
 botnana.config = {
-    save: function(sender) {
+    save: function() {
         var json = {
             jsonrpc: "2.0",
             method: "config.save"
         };
-        sender.send(JSON.stringify(json));
+        botnana.sender.send(JSON.stringify(json));
     },
-    set_slave: function(sender, args) {
+    set_slave: function(args) {
         var json = {
             jsonrpc: "2.0",
             method: "config.set_slave",
             params: args
         };
-        sender.send(JSON.stringify(json));
+        botnana.sender.send(JSON.stringify(json));
     }
 }
 
