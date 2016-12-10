@@ -1,7 +1,8 @@
 "use strict";
 
 var botnana = {
-    sender: null
+    sender: null,
+    _: {}
 };
 
 // Event API
@@ -49,13 +50,25 @@ botnana.motion.evaluate = function(script) {
     botnana.sender.send(JSON.stringify(json));
 };
 
-botnana.motion.get_slaves = function() {
+botnana._.get_slaves = function() {
     var json = {
         jsonrpc: "2.0",
-        method: "motion.get_slaves"
+        method: "_.get_slaves"
     };
     botnana.sender.send(JSON.stringify(json));
 }
+
+botnana._.get_slave = function(i) {
+    var json = {
+        jsonrpc: "2.0",
+        method: "_.get_slave",
+        params: {
+            position: i
+        }
+    };
+    botnana.sender.send(JSON.stringify(json));
+}
+
 // Slave API
 class Slave {
     constructor() {
@@ -102,6 +115,32 @@ botnana.config = {
         };
         botnana.sender.send(JSON.stringify(json));
     }
+}
+
+// Start API
+botnana.start = function(ip) {
+    var WebSocket = require('ws');
+    var ws = new WebSocket(ip);
+    ws.on('message', function(data, flags) {
+        console.log(data);
+        botnana.handle_response(data);
+    });
+    ws.on('open', function () {
+        botnana._.get_slaves();
+    });
+    botnana.sender = ws;
+    botnana.on("slaves", function(slaves) {
+        let s = slaves.split(",");
+        let slave_count = s.length/2;
+        console.log("slave count: " + slave_count);
+        for (var i = 0; i < slave_count; i = i + 1) {
+            botnana._.get_slave(i+1);
+        }
+        let ready_handler = botnana.handlers["ready"];
+        if (ready_handler) {
+            ready_handler();
+        };
+    });
 }
 
 module.exports = botnana;

@@ -3,26 +3,12 @@
 var botnana = require('../../index');
 
 function test_botnana() {
-    // Websocket
-    var WebSocket = require('ws');
-    var ws = new WebSocket('ws://192.168.7.2:3012');
-    // ws = new WebSocket('ws://localhost:3012');
-
-    ws.on('message', function(data, flags) {
-        console.log(data);
-        botnana.handle_response(data);
+    // Event API
+    botnana.on("version", function(version) {
+        console.log("version: " + version);
     });
-
-    ws.on('open', function () {
-        botnana.sender = ws;
+    botnana.on("ready", function() {
         // Version API
-        botnana.on("version", function(version) {
-            console.log("version: " + version);
-        });
-        botnana.on("slaves", function(slaves) {
-            let s = slaves.split(",");
-            console.log("slave count: " + s.length/2);
-        })
         botnana.version.get();
         // Real-time script API
         var script = "words";
@@ -40,14 +26,14 @@ function test_botnana() {
         });
         botnana.config.save();
         // Slave API
-        botnana.motion.get_slaves();
-//        botnana.motion.get_slave(1);
         /*
         botnana.motion.slave(1).set({
             tag: "homing_method",
             value: 33
         });*/
+                
     });
-}
+    botnana.start("ws://192.168.7.2:3012");
+ }
 
 setTimeout(test_botnana, 500);
