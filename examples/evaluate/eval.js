@@ -26,11 +26,17 @@ function test_botnana() {
         });
         botnana.config.save();
         // Slave API
-        /*
-        botnana.motion.slave(1).set({
+        botnana.ethercat.slave(1).on("product", function(product) {
+            console.log(product);
+        });
+        botnana.ethercat.slave(1).on("drive", function(drive) {
+            console.log(drive);
+        });
+        botnana.ethercat.slave(1).get();
+        botnana.ethercat.slave(1).set({
             tag: "homing_method",
             value: 33
-        });*/
+        });
                 
     });
     botnana.start("ws://192.168.7.2:3012");
