@@ -14,18 +14,9 @@ botnana.on = function(tag, handler) {
 
 botnana.handle_response = function(resp) {
     let r = resp.split("|");
-    if(r[0]==="slave") {
-        let slave = botnana.ethercat.slave(parseInt(r[1]));
-        for (var i=2; i<r.length; i=i+2) {
-            if(slave.handlers[r[i]]) {
-                slave.handlers[r[i]](r[i+1]);
-            }
-        }
-    } else {
-        for (var i=0; i< r.length; i=i+2) {
-            if(botnana.handlers[r[i]]) {
-                botnana.handlers[r[i]](r[i+1]);
-            }
+    for (var i=0; i< r.length; i=i+2) {
+        if(botnana.handlers[r[i]]) {
+            botnana.handlers[r[i]](r[i+1]);
         }
     }
 };
@@ -68,10 +59,6 @@ botnana._.get_slaves = function() {
 class Slave {
     constructor(i) {
         this.position = i;
-        this.handlers = {};
-        this.on = (tag, handler) => {
-            this.handlers[tag] = handler;
-        };
         this.set = function(args) {};
         this.get = function() {
             var json = {
