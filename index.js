@@ -59,7 +59,18 @@ botnana._.get_slaves = function() {
 class Slave {
     constructor(i) {
         this.position = i;
-        this.set = function(args) {};
+        this.set = function(tag, value) {
+            var json = {
+                jsonrpc: "2.0",
+                method: "ethercat.slave.set",
+                params: {
+                    position: this.position,
+                    tag: tag,
+                    value: value
+                }
+            };
+            botnana.sender.send(JSON.stringify(json));
+        };
         this.get = function() {
             var json = {
                 jsonrpc: "2.0",
@@ -70,7 +81,16 @@ class Slave {
             };
             botnana.sender.send(JSON.stringify(json));
         };
-        this.set_homing_method = function(value) {};
+        this.get_diff = function() {
+            var json = {
+                jsonrpc: "2.0",
+                method: "ethercat.slave.get_diff",
+                params: {
+                    position: this.position 
+                }
+            };
+            botnana.sender.send(JSON.stringify(json));
+        }
         this.set_dout = function(index, value) {};
         this.get_dout = function(index) {};
         this.get_din = function(index) {};
