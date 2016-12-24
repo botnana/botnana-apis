@@ -90,17 +90,75 @@ class Slave {
                 }
             };
             botnana.sender.send(JSON.stringify(json));
-        }
-        this.set_dout = function(index, value) {};
-        this.get_dout = function(index) {};
-        this.get_din = function(index) {};
-        this.disable_aout = function(index) {};
-        this.enable_aout = function(index) {};
-        this.set_aout = function(index, value) {};
-        this.get_aout = function(index) {};
-        this.disable_ain = function(index) {};
-        this.enable_ain = function(index) {};
-        this.get_ain = function(index) {};
+        };
+        this.set_dout = function(channel, value) {
+            var json = {
+                jsonrpc: "2.0",
+                method: "ethercat.slave.set_dout",
+                params: {
+                    position: this.position,
+                    channel: channel,
+                    value: value
+                }
+            };
+            botnana.sender.send(JSON.stringify(json));
+        };
+        this.disable_aout = function(channel) {
+            var json = {
+                jsonrpc: "2.0",
+                method: "ethercat.slave.disable_aout",
+                params: {
+                    position: this.position,
+                    channel: channel
+                }
+            };
+            botnana.sender.send(JSON.stringify(json));
+        };
+        this.enable_aout = function(channel) {
+            var json = {
+                jsonrpc: "2.0",
+                method: "ethercat.slave.enable_aout",
+                params: {
+                    position: this.position,
+                    channel: channel
+                }
+            };
+            botnana.sender.send(JSON.stringify(json));
+        };
+        this.set_aout = function(channel, value) {
+            var json = {
+                jsonrpc: "2.0",
+                method: "ethercat.slave.set_aout",
+                params: {
+                    position: this.position,
+                    channel: channel,
+                    value: value
+                }
+            };
+            botnana.sender.send(JSON.stringify(json));
+        };
+        this.disable_ain = function(channel) {
+            var json = {
+                jsonrpc: "2.0",
+                method: "ethercat.slave.disable_ain",
+                params: {
+                    position: this.position,
+                    channel: channel
+                }
+            };
+            botnana.sender.send(JSON.stringify(json));
+        };
+        this.enable_ain = function(channel) {
+            var json = {
+                jsonrpc: "2.0",
+                method: "ethercat.slave.enable_ain",
+                params: {
+                    position: this.position,
+                    channel: channel
+                }
+            };
+            botnana.sender.send(JSON.stringify(json));
+        };
     }
 }
 

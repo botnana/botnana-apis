@@ -10,10 +10,6 @@ function test_botnana() {
     botnana.on("ready", function() {
         // Version API
         botnana.version.get();
-        // Real-time script API
-        var script = "words";
-        botnana.motion.evaluate(script);
-    	botnana.motion.evaluate("1 reset-fault");
         // Configuration API
         botnana.config.set_slave({
             position: 1,
