@@ -91,6 +91,16 @@ class Slave {
             };
             botnana.sender.send(JSON.stringify(json));
         };
+        this.reset_fault = function() {
+            var json = {
+                jsonrpc: "2.0",
+                method: "ethercat.slave.reset_fault",
+                params: {
+                    position: this.position 
+                }
+            };
+            botnana.sender.send(JSON.stringify(json));
+        };
         this.set_dout = function(channel, value) {
             var json = {
                 jsonrpc: "2.0",
