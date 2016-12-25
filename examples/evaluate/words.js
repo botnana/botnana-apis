@@ -3,6 +3,7 @@
 var botnana = require('../../index');
 
 function test_botnana() {
+    botnana.debug_level = 1;
     botnana.on("ready", function() {
         // Real-time script API
         var script = "words";
