@@ -46,10 +46,10 @@ function test_botnana() {
     botnana.start("ws://192.168.7.2:3012");
  }
 
-setTimeout(test_botnana, 500);
+test_botnana();
 
 setTimeout(function() {
     console.log("set homing_speed_1.1 to 490000");
     botnana.ethercat.slave(1).set("homing_speed_1",4900000);
     botnana.ethercat.slave(1).get_diff();
-}, 5000)
+}, 2000)

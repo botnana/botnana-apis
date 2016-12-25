@@ -2,6 +2,7 @@
 
 var botnana = {
     sender: null,
+    log: function () {},
     _: {}
 };
 
@@ -206,8 +207,10 @@ botnana.start = function(ip) {
     var WebSocket = require('ws');
     var ws = new WebSocket(ip);
     ws.on('message', function(data, flags) {
-        console.log(data);
-        botnana.handle_response(data);
+        if (data) {
+            botnana.log(data);
+            botnana.handle_response(data);
+        }
     });
     ws.on('open', function () {
         botnana._.get_slaves();
