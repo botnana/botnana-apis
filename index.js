@@ -60,116 +60,126 @@ botnana._.get_slaves = function() {
 class Slave {
     constructor(i) {
         this.position = i;
-        this.set = function(tag, value) {
-            var json = {
-                jsonrpc: "2.0",
-                method: "ethercat.slave.set",
-                params: {
-                    position: this.position,
-                    tag: tag,
-                    value: value
-                }
-            };
-            botnana.sender.send(JSON.stringify(json));
+    }
+
+    set(tag, value) {
+        var json = {
+            jsonrpc: "2.0",
+            method: "ethercat.slave.set",
+            params: {
+                position: this.position,
+                tag: tag,
+                value: value
+            }
         };
-        this.get = function() {
-            var json = {
-                jsonrpc: "2.0",
-                method: "ethercat.slave.get",
-                params: {
-                    position: this.position 
-                }
-            };
-            botnana.sender.send(JSON.stringify(json));
+        botnana.sender.send(JSON.stringify(json));
+    }
+
+    get() {
+        var json = {
+            jsonrpc: "2.0",
+            method: "ethercat.slave.get",
+            params: {
+                position: this.position 
+            }
         };
-        this.get_diff = function() {
-            var json = {
-                jsonrpc: "2.0",
-                method: "ethercat.slave.get_diff",
-                params: {
-                    position: this.position 
-                }
-            };
-            botnana.sender.send(JSON.stringify(json));
+        botnana.sender.send(JSON.stringify(json));
+    }
+
+    get_diff() {
+        var json = {
+            jsonrpc: "2.0",
+            method: "ethercat.slave.get_diff",
+            params: {
+                position: this.position 
+            }
         };
-        this.reset_fault = function() {
-            var json = {
-                jsonrpc: "2.0",
-                method: "ethercat.slave.reset_fault",
-                params: {
-                    position: this.position 
-                }
-            };
-            botnana.sender.send(JSON.stringify(json));
+        botnana.sender.send(JSON.stringify(json));
+    }
+
+    reset_fault() {
+        var json = {
+            jsonrpc: "2.0",
+            method: "ethercat.slave.reset_fault",
+            params: {
+                position: this.position 
+            }
         };
-        this.set_dout = function(channel, value) {
-            var json = {
-                jsonrpc: "2.0",
-                method: "ethercat.slave.set_dout",
-                params: {
-                    position: this.position,
-                    channel: channel,
-                    value: value
-                }
-            };
-            botnana.sender.send(JSON.stringify(json));
+        botnana.sender.send(JSON.stringify(json));
+    }
+
+    set_dout(channel, value) {
+        var json = {
+            jsonrpc: "2.0",
+            method: "ethercat.slave.set_dout",
+            params: {
+                position: this.position,
+                channel: channel,
+                value: value
+            }
         };
-        this.disable_aout = function(channel) {
-            var json = {
-                jsonrpc: "2.0",
-                method: "ethercat.slave.disable_aout",
-                params: {
-                    position: this.position,
-                    channel: channel
-                }
-            };
-            botnana.sender.send(JSON.stringify(json));
+        botnana.sender.send(JSON.stringify(json));
+    }
+
+    disable_aout(channel) {
+        var json = {
+            jsonrpc: "2.0",
+            method: "ethercat.slave.disable_aout",
+            params: {
+                position: this.position,
+                channel: channel
+            }
         };
-        this.enable_aout = function(channel) {
-            var json = {
-                jsonrpc: "2.0",
-                method: "ethercat.slave.enable_aout",
-                params: {
-                    position: this.position,
-                    channel: channel
-                }
-            };
-            botnana.sender.send(JSON.stringify(json));
+        botnana.sender.send(JSON.stringify(json));
+    }
+
+    enable_aout(channel) {
+        var json = {
+            jsonrpc: "2.0",
+            method: "ethercat.slave.enable_aout",
+            params: {
+                position: this.position,
+                channel: channel
+            }
         };
-        this.set_aout = function(channel, value) {
-            var json = {
-                jsonrpc: "2.0",
-                method: "ethercat.slave.set_aout",
-                params: {
-                    position: this.position,
-                    channel: channel,
-                    value: value
-                }
-            };
-            botnana.sender.send(JSON.stringify(json));
+        botnana.sender.send(JSON.stringify(json));
+    }
+
+    set_aout(channel, value) {
+        var json = {
+            jsonrpc: "2.0",
+            method: "ethercat.slave.set_aout",
+            params: {
+                position: this.position,
+                channel: channel,
+                value: value
+            }
         };
-        this.disable_ain = function(channel) {
-            var json = {
-                jsonrpc: "2.0",
-                method: "ethercat.slave.disable_ain",
-                params: {
-                    position: this.position,
-                    channel: channel
-                }
-            };
-            botnana.sender.send(JSON.stringify(json));
+        botnana.sender.send(JSON.stringify(json));
+    }
+
+    disable_ain(channel) {
+        var json = {
+            jsonrpc: "2.0",
+            method: "ethercat.slave.disable_ain",
+            params: {
+                position: this.position,
+                channel: channel
+            }
         };
-        this.enable_ain = function(channel) {
-            var json = {
-                jsonrpc: "2.0",
-                method: "ethercat.slave.enable_ain",
-                params: {
-                    position: this.position,
-                    channel: channel
-                }
-            };
-            botnana.sender.send(JSON.stringify(json));
+        botnana.sender.send(JSON.stringify(json));
+    }
+
+    enable_ain(channel) {
+        var json = {
+            jsonrpc: "2.0",
+            method: "ethercat.slave.enable_ain",
+            params: {
+                position: this.position,
+                channel: channel
+            }
         };
+        botnana.sender.send(JSON.stringify(json));
     }
 }
 
