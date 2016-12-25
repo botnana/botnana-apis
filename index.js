@@ -2,7 +2,7 @@
 
 var botnana = {
     sender: null,
-    log: function () {},
+    debug_level: 0,
     _: {}
 };
 
@@ -208,7 +208,9 @@ botnana.start = function(ip) {
     var ws = new WebSocket(ip);
     ws.on('message', function(data, flags) {
         if (data) {
-            botnana.log(data);
+            if (botnana.debug_level > 0) {
+                console.log(data);
+            }
             botnana.handle_response(data);
         }
     });

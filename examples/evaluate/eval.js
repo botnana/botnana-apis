@@ -3,6 +3,8 @@
 var botnana = require('../../index');
 
 function test_botnana() {
+    // Show reponse data
+    botnana.debug_level = 1;
     // Event API
     botnana.on("version", function(version) {
         console.log("version: " + version);
