@@ -1,17 +1,11 @@
 "use strict";
 
-var botnana = require('../../index');
+var botnana = require('../index');
 
 function test_botnana() {
     // Show reponse data
-    botnana.debug_level = 1;
-    // Event API
-    botnana.on("version", function(version) {
-        console.log("version: " + version);
-    });
+    botnana.debug_level = 0;
     botnana.on("ready", function() {
-        // Version API
-        botnana.version.get();
         // Configuration API
         botnana.config.set_slave({
             position: 1,
@@ -36,15 +30,12 @@ function test_botnana() {
         botnana.on("homing_speed_1.1", function(value) {
             console.log("homing_speed_1.1 = " + value);
         });
-        botnana.ethercat.slave(1).get();
-        botnana.ethercat.slave(3).get();
-        botnana.ethercat.slave(4).get();
-        botnana.ethercat.slave(5).get();
-        botnana.ethercat.slave(6).get();
-        botnana.ethercat.slave(7).get();
+        for (var i = 1; i <= botnana.ethercat.slave_count; i = i + 1) {
+            botnana.ethercat.slave(i).get();
+        }
         botnana.ethercat.slave(1).get_diff();
-                
     });
+
     botnana.start("ws://192.168.7.2:3012");
  }
 
