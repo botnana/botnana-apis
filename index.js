@@ -139,7 +139,7 @@ class Program {
             }
             var json = {
                 jsonrpc: "2.0",
-                method: "forth.deploy",
+                method: "script.deploy",
                 params: params
             };
             botnana.sender.send(JSON.stringify(json));
