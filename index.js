@@ -57,7 +57,7 @@ botnana.empty = function() {
 }
 
 const WAITING_NONE = 0;
-const WAITING_SDO = 1;
+const WAITING_REQUESTS = 1;
 const WAITING_TARGET_REACHED = 2;
 
 class ProgrammedEtherCATSlave {
@@ -72,7 +72,7 @@ class ProgrammedEtherCATSlave {
             this.until_target_reached();
         }
         this.program.lines.push("hm " + this.position + " op-mode!");
-        this.state = WAITING_SDO;
+        this.state = WAITING_REQUESTS;
     }
 
     pp() {
@@ -80,7 +80,7 @@ class ProgrammedEtherCATSlave {
             this.until_target_reached();
         }
         this.program.lines.push("pp " + this.position + " op-mode!");
-        this.state = WAITING_SDO;
+        this.state = WAITING_REQUESTS;
     }
 
     move_to(target) {
@@ -88,7 +88,7 @@ class ProgrammedEtherCATSlave {
     }
 
     go() {
-        if (this.state == WAITING_SDO) {
+        if (this.state == WAITING_REQUESTS) {
             this.until_no_requests();
         }
         this.program.lines.push("go");
@@ -129,7 +129,7 @@ class Program {
         if (!this.deployed) {
             for (var i = 1; i <= botnana.slave_count; i = i + 1) {
                 let slave = this.ethercat._slaves[i];
-                if (slave.state = WAITING_SDO) {
+                if (slave.state = WAITING_REQUESTS) {
                     slave.until_no_requests();
                 }
                 if (slave.state = WAITING_TARGET_REACHED) {
