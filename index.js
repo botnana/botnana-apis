@@ -89,7 +89,7 @@ class ProgrammedEtherCATSlave {
 
     go() {
         if (this.state == WAITING_SDO) {
-            this.program.until_no_sdos();
+            this.until_no_requests();
         }
         this.program.lines.push("go");
         this.state = WAITING_TARGET_REACHED;
@@ -97,6 +97,12 @@ class ProgrammedEtherCATSlave {
 
     until_target_reached() {
         this.program.lines.push(this.position + " until-target-reached");
+        this.state = WAITING_NONE;
+    }
+
+    until_no_requests() {
+        this.lines.push(this.position + " until-no-requests");
+        this.state = WAITING_NONE;
     }
 
 }
@@ -118,20 +124,18 @@ class Program {
         }
     }
 
-    until_no_sdos() {
-        this.lines.push("until-no-sdos");
-    }
-
     deploy() {
         var that = this;
         if (!this.deployed) {
-            this.until_no_sdos();
             for (var i = 1; i <= botnana.slave_count; i = i + 1) {
                 let slave = this.ethercat._slaves[i];
+                if (slave.state = WAITING_SDO) {
+                    slave.until_no_requests();
+                }
                 if (slave.state = WAITING_TARGET_REACHED) {
                     slave.until_target_reached();
-                    slave.state = WAITING_NONE;
                 }
+                slave.state = WAITING_NONE;
             }
             this.lines.push(";");
             var params = {
