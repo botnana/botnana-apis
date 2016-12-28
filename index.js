@@ -33,7 +33,7 @@ botnana.version = {
     }
 }
 
-// Real-time script API
+// Real-time scripting API
 botnana.motion = {};
 
 botnana.motion.evaluate = function(script) {
@@ -46,6 +46,123 @@ botnana.motion.evaluate = function(script) {
     };
     botnana.sender.send(JSON.stringify(json));
 };
+
+botnana.programs = [];
+
+botnana.empty = function() {
+    for (var p in botnana.programs) {
+        p.deployed = false;
+    }
+    botnana.motion.evaluate("empty");
+}
+
+const WAITING_NONE = 0;
+const WAITING_SDO = 1;
+const WAITING_TARGET_REACHED = 2;
+
+class ProgrammedEtherCATSlave {
+    constructor(program, i) {
+        this.program = program;
+        this.position = i;
+        this.state = WAITING_NONE;
+    }
+
+    hm() {
+        if (this.state == WAITING_TARGET_REACHED) {
+            this.until_target_reached();
+        }
+        this.program.lines.push("hm " + this.position + " op-mode!");
+        this.state = WAITING_SDO;
+    }
+
+    pp() {
+        if (this.state == WAITING_TARGET_REACHED) {
+            this.until_target_reached();
+        }
+        this.program.lines.push("pp " + this.position + " op-mode!");
+        this.state = WAITING_SDO;
+    }
+
+    move_to(target) {
+        this.program.lines.push(target + " " + this.position + " jog");
+    }
+
+    go() {
+        if (this.state == WAITING_SDO) {
+            this.program.until_no_sdos();
+        }
+        this.program.lines.push("go");
+        this.state = WAITING_TARGET_REACHED;
+    }
+
+    until_target_reached() {
+        this.program.lines.push(this.position + " until-target-reached");
+    }
+
+}
+
+class Program {
+    constructor(name) {
+        var that = this;
+        this.name = name;
+        this.deployed = false;
+        botnana.programs.push(this);
+        this.lines = [": " + "user$" + name];
+        this.ethercat = {};
+        this.ethercat._slaves = [];
+        for (var i = 1; i <= botnana.slave_count; i = i + 1) {
+            this.ethercat._slaves[i] = new ProgrammedEtherCATSlave(this);
+        }
+        this.ethercat.slave = function(n) {
+            return that.ethercat._slaves[n];
+        }
+    }
+
+    until_no_sdos() {
+        this.lines.push("until-no-sdos");
+    }
+
+    deploy() {
+        var that = this;
+        if (!this.deployed) {
+            this.until_no_sdos();
+            for (var i = 1; i <= botnana.slave_count; i = i + 1) {
+                let slave = this.ethercat._slaves[i];
+                if (slave.state = WAITING_TARGET_REACHED) {
+                    slave.until_target_reached();
+                    slave.state = WAITING_NONE;
+                }
+            }
+            this.lines.push(";");
+            var params = {
+                script: this.lines.join("\n")
+            }
+            var json = {
+                jsonrpc: "2.0",
+                method: "forth.deploy",
+                params: params
+            };
+            botnana.sender.send(JSON.stringify(json));
+//            console.log("Generated program for " + this.name + ":");
+//            console.log(params.script)
+            botnana.on("deployed", function() {
+                that.deployed = true;
+                botnana.on("deployed", function () {});
+            });
+        }
+    }
+
+    run() {
+        if (this.deployed) {
+            botnana.motion.evaluate("user$" + this.name);
+        } else {
+            console.log("Error: program " + this.name + " not deployed.");
+        }
+    }
+
+}
+
+botnana.Program = Program;
 
 /// Hidden API
 botnana._.get_slaves = function() {
@@ -184,10 +301,10 @@ class Slave {
 }
 
 botnana.ethercat = {};
-botnana.ethercat.slaves = [];
+botnana.ethercat._slaves = [];
 botnana.ethercat.slave = function(n) {
-    if (1 <= n && n <= botnana.ethercat.slaves.length) {
-        return botnana.ethercat.slaves[n-1];
+    if (1 <= n && n <= botnana.ethercat._slaves.length) {
+        return botnana.ethercat._slaves[n-1];
     } else {
         console.log("Invalid slave index " + n + ".")
     }
@@ -231,9 +348,10 @@ botnana.start = function(ip) {
     botnana.on("slaves", function(slaves) {
         let s = slaves.split(",");
         let slave_count = s.length/2;
-        console.log("slave count: " + slave_count);
+//        console.log("slave count: " + slave_count);
+        botnana.slave_count = slave_count;
         for (var i = 0; i < slave_count; i = i + 1) {
-            botnana.ethercat.slaves[i] = new Slave(i+1);
+            botnana.ethercat._slaves[i] = new Slave(i+1);
         }
         let ready_handler = botnana.handlers["ready"];
         if (ready_handler) {
