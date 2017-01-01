@@ -1,6 +1,6 @@
 "use strict";
 
-var botnana = require('../../index');
+var botnana = require('../index');
 
 function test_version_api() {
     // Show reponse data

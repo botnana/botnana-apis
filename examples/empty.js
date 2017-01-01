@@ -1,6 +1,6 @@
 "use strict";
 
-var botnana = require('../../index');
+var botnana = require('../index');
 
 botnana.on("ready", function() {
     // Real-time script API
