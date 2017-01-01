@@ -3,15 +3,16 @@
 
 var botnana = require('../../index')
 
-function test_programming_api() {
+function test() {
     // Show reponse data
     botnana.debug_level = 0;
     botnana.on("ready", function() {
         // Programming API                
-        var p1 = new botnana.Program("p1");
-//        var s1 = p1.ethercat.slave(1);
-//        s1.hm();
+        var Program = botnana.Program;
+        // Program p1
+        var p1 = new Program("p1");
         p1.deploy();
+        // Run Program p1
         setTimeout(function() {
             p1.run();
         }, 1000);
@@ -19,4 +20,4 @@ function test_programming_api() {
     botnana.start("ws://192.168.7.2:3012");
 }
 
-test_programming_api();
+test();
