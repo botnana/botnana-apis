@@ -2,7 +2,7 @@
 
 var botnana = require('../index');
 
-function test_botnana() {
+function words() {
     botnana.debug_level = 1;
     botnana.on("ready", function() {
         // Real-time script API
@@ -12,4 +12,4 @@ function test_botnana() {
     botnana.start("ws://192.168.7.2:3012");
  }
 
-setTimeout(test_botnana, 500);
+words();

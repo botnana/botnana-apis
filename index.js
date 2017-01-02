@@ -14,13 +14,24 @@ botnana.on = function(tag, handler) {
 };
 
 botnana.handle_response = function(resp) {
-    let r = resp.split("|");
-    for (var i=0; i< r.length; i=i+2) {
-        if(botnana.handlers[r[i]]) {
-            botnana.handlers[r[i]](r[i+1]);
+    let lines = resp.split("\n");
+    for (var j=0; j<lines.length; j=j+1) {
+        let r = lines[j].split("|");
+        for (var i=0; i< r.length; i=i+2) {
+            if(botnana.handlers[r[i]]) {
+                botnana.handlers[r[i]](r[i+1]);
+            }
         }
     }
 };
+
+botnana.poll = function() {
+    var json = {
+        jsonrpc: "2.0",
+        method: "motion.poll",
+    };
+    botnana.sender.send(JSON.stringify(json));
+}
 
 // Version API
 botnana.version = {
@@ -50,9 +61,6 @@ botnana.motion.evaluate = function(script) {
 botnana.programs = [];
 
 botnana.empty = function() {
-    for (var p in botnana.programs) {
-        p.deployed = false;
-    }
     botnana.motion.evaluate("empty");
 }
 
@@ -111,7 +119,6 @@ class Program {
     constructor(name) {
         var that = this;
         this.name = name;
-        this.deployed = false;
         botnana.programs.push(this);
         this.lines = [": " + "user$" + name];
         this.ethercat = {};
@@ -125,44 +132,31 @@ class Program {
     }
 
     deploy() {
-        var that = this;
-        if (!this.deployed) {
-            for (var i = 1; i <= botnana.slave_count; i = i + 1) {
-                let slave = this.ethercat._slaves[i];
-                if (slave.state = WAITING_REQUESTS) {
-                    slave.until_no_requests();
-                }
-                if (slave.state = WAITING_TARGET_REACHED) {
-                    slave.until_target_reached();
-                }
-                slave.state = WAITING_NONE;
+        for (var i = 1; i <= botnana.slave_count; i = i + 1) {
+            let slave = this.ethercat._slaves[i];
+            if (slave.state = WAITING_REQUESTS) {
+                slave.until_no_requests();
             }
-            this.lines.push(";");
-            var params = {
-                script: this.lines.join("\n")
+            if (slave.state = WAITING_TARGET_REACHED) {
+                slave.until_target_reached();
             }
-            var json = {
-                jsonrpc: "2.0",
-                method: "script.deploy",
-                params: params
-            };
-            botnana.sender.send(JSON.stringify(json));
-//            console.log("Generated program for " + this.name + ":");
-//            console.log(params.script)
-            botnana.on("deployed", function() {
-                that.deployed = true;
-                botnana.on("deployed", function () {});
-            });
+            slave.state = WAITING_NONE;
         }
+        this.lines.push(";");
+        var params = {
+            script: this.lines.join("\n")
+        }
+        var json = {
+            jsonrpc: "2.0",
+            method: "script.deploy",
+            params: params
+        };
+        botnana.sender.send(JSON.stringify(json));
+//        console.log("Generated program for " + this.name + ":");
+//        console.log(params.script)
     }
 
-    run() {
-        if (this.deployed) {
-            botnana.motion.evaluate("user$" + this.name);
-        } else {
-            console.log("Error: program " + this.name + " not deployed.");
-        }
-    }
+    run() { botnana.motion.evaluate("user$" + this.name); }
 
 }
 
@@ -334,7 +328,8 @@ botnana.config = {
 }
 
 // Start API
-botnana.start = function(ip) {
+botnana.start = function(ip, period) {
+    period = period | 100;
     var WebSocket = require('ws');
     var ws = new WebSocket(ip);
     ws.on('message', function(data, flags) {
@@ -362,6 +357,7 @@ botnana.start = function(ip) {
             ready_handler();
         };
     });
+    setInterval(function() { botnana.poll(); }, period);
 }
 
 module.exports = botnana;

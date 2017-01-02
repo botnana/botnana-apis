@@ -18,9 +18,7 @@ function test() {
         s1.go();
         p2.deploy();
         // Run Program p1
-        setTimeout(function() {
-            p2.run();
-        }, 1000);
+        botnana.on("deployed", function() { p2.run(); });
     })
     botnana.start("ws://192.168.7.2:3012");
 }
