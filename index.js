@@ -99,7 +99,7 @@ class ProgrammedEtherCATSlave {
         if (this.state == WAITING_REQUESTS) {
             this.until_no_requests();
         }
-        this.program.lines.push("go");
+        this.program.lines.push(this.position + " go");
         this.state = WAITING_TARGET_REACHED;
     }
 
@@ -109,7 +109,7 @@ class ProgrammedEtherCATSlave {
     }
 
     until_no_requests() {
-        this.lines.push(this.position + " until-no-requests");
+        this.program.lines.push(this.position + " until-no-requests");
         this.state = WAITING_NONE;
     }
 
@@ -124,7 +124,7 @@ class Program {
         this.ethercat = {};
         this.ethercat._slaves = [];
         for (var i = 1; i <= botnana.slave_count; i = i + 1) {
-            this.ethercat._slaves[i] = new ProgrammedEtherCATSlave(this);
+            this.ethercat._slaves[i] = new ProgrammedEtherCATSlave(this, i);
         }
         this.ethercat.slave = function(n) {
             return that.ethercat._slaves[n];
@@ -134,10 +134,10 @@ class Program {
     deploy() {
         for (var i = 1; i <= botnana.slave_count; i = i + 1) {
             let slave = this.ethercat._slaves[i];
-            if (slave.state = WAITING_REQUESTS) {
+            if (slave.state === WAITING_REQUESTS) {
                 slave.until_no_requests();
             }
-            if (slave.state = WAITING_TARGET_REACHED) {
+            if (slave.state === WAITING_TARGET_REACHED) {
                 slave.until_target_reached();
             }
             slave.state = WAITING_NONE;
@@ -151,9 +151,11 @@ class Program {
             method: "script.deploy",
             params: params
         };
+        if(botnana.debug_level > 0) {
+            console.log("Generated program for " + this.name + ":");
+            console.log(params.script);
+        }
         botnana.sender.send(JSON.stringify(json));
-//        console.log("Generated program for " + this.name + ":");
-//        console.log(params.script)
     }
 
     run() { botnana.motion.evaluate("user$" + this.name); }

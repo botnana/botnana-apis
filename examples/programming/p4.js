@@ -11,8 +11,8 @@ function test() {
         // Program p1
         // Program p4
         var p4 = new Program("p4");
-        var s1 = p3.ethercat.slave(1);
-        var s2 = p3.ethercat.slave(2);
+        var s1 = p4.ethercat.slave(1);
+        var s2 = p4.ethercat.slave(2);
         s1.hm();
         s2.hm();
         s1.go();
