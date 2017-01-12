@@ -123,7 +123,7 @@ class Program {
         this.lines = [": " + "user$" + name];
         this.ethercat = {};
         this.ethercat._slaves = [];
-        for (var i = 1; i <= botnana.slave_count; i = i + 1) {
+        for (var i = 1; i <= botnana.ethercat.slave_count; i = i + 1) {
             this.ethercat._slaves[i] = new ProgrammedEtherCATSlave(this, i);
         }
         this.ethercat.slave = function(n) {
@@ -132,7 +132,7 @@ class Program {
     }
 
     deploy() {
-        for (var i = 1; i <= botnana.slave_count; i = i + 1) {
+        for (var i = 1; i <= botnana.ethercat.slave_count; i = i + 1) {
             let slave = this.ethercat._slaves[i];
             if (slave.state === WAITING_REQUESTS) {
                 slave.until_no_requests();
@@ -350,7 +350,7 @@ botnana.start = function(ip, period) {
         let s = slaves.split(",");
         let slave_count = s.length/2;
 //        console.log("slave count: " + slave_count);
-        botnana.slave_count = slave_count;
+        botnana.ethercat.slave_count = slave_count;
         for (var i = 0; i < slave_count; i = i + 1) {
             botnana.ethercat._slaves[i] = new Slave(i+1);
         }
