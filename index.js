@@ -109,7 +109,7 @@ class ProgrammedEtherCATSlave {
     }
 
     until_no_requests() {
-        this.program.lines.push(this.position + " until-no-requests");
+        this.program.lines.push("until-no-requests");
         this.state = WAITING_NONE;
     }
 
@@ -142,7 +142,7 @@ class Program {
             }
             slave.state = WAITING_NONE;
         }
-        this.lines.push(";");
+        this.lines.push("end-of-program ;");
         var params = {
             script: this.lines.join("\n")
         }
