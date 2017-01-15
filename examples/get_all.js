@@ -5,7 +5,7 @@ var botnana = require('../index');
 function get_all() {
     // Show reponse data
     botnana.debug_level = 1;
-    botnana.on("ready", function() {
+    botnana.once("ready", function() {
         for (var i = 1; i <= botnana.ethercat.slave_count; i = i + 1) {
             botnana.ethercat.slave(i).get();
         }

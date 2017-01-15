@@ -5,7 +5,7 @@ var botnana = require('../index');
 function test_botnana() {
     // Show reponse data
     botnana.debug_level = 0;
-    botnana.on("ready", function() {
+    botnana.once("ready", function() {
         // Configuration API
         botnana.config.set_slave({
             position: 1,

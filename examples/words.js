@@ -4,7 +4,7 @@ var botnana = require('../index');
 
 function words() {
     botnana.debug_level = 1;
-    botnana.on("ready", function() {
+    botnana.once("ready", function() {
         // Real-time script API
         var script = "words";
         botnana.motion.evaluate(script);

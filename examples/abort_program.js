@@ -2,7 +2,7 @@
 
 var botnana = require('../index');
 
-botnana.on("ready", function() {
+botnana.once("ready", function() {
     // Real-time script API
     var script = "abort-program";
     botnana.motion.evaluate(script);

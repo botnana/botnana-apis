@@ -6,20 +6,65 @@ var botnana = {
     _: {}
 };
 
-// Event API
+// Events API
+botnana.do_nothing = function() {}
+botnana.do_nothing.nothing = true;
 botnana.handlers = {}
+botnana.handler_counters = [];
 
-botnana.on = function(tag, handler) {
-    botnana.handlers[tag] = handler;
+botnana.times = function(event, handler, count) {
+    let handlers = botnana.handlers;
+    let handler_counters = botnana.handler_counters;
+    if (!handlers[event]) {
+        handlers[event] = [handler];
+        handler_counters[event] = [count];
+    } else {
+        let found = handlers[event].length;
+        for(let h in handlers[event]) {
+            if(handlers[event][h] === botnana.do_nothing) {
+                found = h;
+                handlers[event][h] = handler;
+                handler_counters[event][h] = count;
+                break;
+            }
+        }
+        if (found === handlers[event].length) {
+            handlers[event].push(handler);
+            handler_counters[event].push(count);
+        }
+    }
 };
+
+botnana.on = function(event, handler) {
+    botnana.times(event, handler, 0);
+}
+
+botnana.once = function(event, handler) {
+    botnana.times(event, handler, 1);
+}
 
 botnana.handle_response = function(resp) {
     let lines = resp.split("\n");
-    for (var j=0; j<lines.length; j=j+1) {
+    for (let j=0; j<lines.length; j=j+1) {
+        if(botnana.debug_level > 0 && lines[j].length) {
+            console.log(lines[j]);
+        }
         let r = lines[j].split("|");
-        for (var i=0; i< r.length; i=i+2) {
-            if(botnana.handlers[r[i]]) {
-                botnana.handlers[r[i]](r[i+1]);
+        for (let i=0; i< r.length; i=i+2) {
+            let event = r[i];
+            let handlers = botnana.handlers[event];
+            let handler_counters = botnana.handler_counters[event];
+            if(handlers) {
+                let data = r[i+1];
+                for (let h in handlers) {
+                    handlers[h](data);
+                    if (handler_counters[h] >= 1) {
+                        --handler_counters[h];
+                        if (handler_counters[h] === 0) {
+                            handlers[h] = botnana.do_nothing;
+                        }
+                    }
+                }
             }
         }
     }
@@ -336,9 +381,9 @@ botnana.start = function(ip, period) {
     var ws = new WebSocket(ip);
     ws.on('message', function(data, flags) {
         if (data) {
-            if (botnana.debug_level > 0) {
-                console.log(data);
-            }
+            // if (botnana.debug_level > 0) {
+            //     console.log(data);
+            // }
             botnana.handle_response(data);
         }
     });
@@ -346,7 +391,7 @@ botnana.start = function(ip, period) {
         botnana._.get_slaves();
     });
     botnana.sender = ws;
-    botnana.on("slaves", function(slaves) {
+    botnana.once("slaves", function(slaves) {
         let s = slaves.split(",");
         let slave_count = s.length/2;
 //        console.log("slave count: " + slave_count);
@@ -354,10 +399,7 @@ botnana.start = function(ip, period) {
         for (var i = 0; i < slave_count; i = i + 1) {
             botnana.ethercat._slaves[i] = new Slave(i+1);
         }
-        let ready_handler = botnana.handlers["ready"];
-        if (ready_handler) {
-            ready_handler();
-        };
+        botnana.handle_response("ready|ok");
     });
     setInterval(function() { botnana.poll(); }, period);
 }

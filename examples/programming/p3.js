@@ -5,7 +5,7 @@ var botnana = require('../../index')
 function test() {
     // Show reponse data
     botnana.debug_level = 0;
-    botnana.on("ready", function() {
+    botnana.once("ready", function() {
         // Programming API                
         var Program = botnana.Program;
         // Program p3
@@ -24,7 +24,7 @@ function test() {
         s2.go();
         p3.deploy();
         // Run Program p3
-        botnana.on("deployed", function() { p3.run(); });
+        botnana.once("deployed", function() { p3.run(); });
     })
     botnana.start("ws://192.168.7.2:3012");
 }

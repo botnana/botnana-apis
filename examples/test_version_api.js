@@ -6,11 +6,11 @@ function test_version_api() {
     // Show reponse data
     botnana.debug_level = 0;
     // Event API
-    botnana.on("version", function(version) {
+    botnana.once("version", function(version) {
         console.log("version: " + version);
         process.exit();
     });
-    botnana.on("ready", function() {
+    botnana.once("ready", function() {
         // Version API
         botnana.version.get();
     });
