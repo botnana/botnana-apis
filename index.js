@@ -10,7 +10,7 @@ var botnana = {
 botnana.do_nothing = function() {}
 botnana.do_nothing.nothing = true;
 botnana.handlers = {}
-botnana.handler_counters = [];
+botnana.handler_counters = {};
 
 botnana.times = function(event, handler, count) {
     let handlers = botnana.handlers;
