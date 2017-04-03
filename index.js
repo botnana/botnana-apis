@@ -401,12 +401,7 @@ botnana.start = function(ip, period) {
     }
     botnana.handle_response("ready|ok");
   });
-  setInterval(
-    function() {
-      botnana.poll();
-    },
-    period
-  );
+  setInterval(botnana.poll, period);
 };
 
 module.exports = botnana;
