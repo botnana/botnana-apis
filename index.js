@@ -160,30 +160,34 @@ class ProgrammedEtherCATSlave {
 
   disable_aout(channel) {
     this.program.lines.push(channel + " " + this.position + " -ec-aout");
-    this.state = WAITING_NONE;
+    this.state = WAITING_REQUEST;
   }
 
   disable_ain(channel) {
     this.program.lines.push(channel + " " + this.position + " -ec-ain");
-    this.state = WAITING_NONE;
+    this.state = WAITING_REQUEST;
   }
 
   enable_aout(channel) {
     this.program.lines.push(channel + " " + this.position + " +ec-aout");
-    this.state = WAITING_NONE;
+    this.state = WAITING_REQUEST;
   }
 
   enable_ain(channel) {
     this.program.lines.push(channel + " " + this.position + " +ec-ain");
-    this.state = WAITING_NONE;
+    this.state = WAITING_REQUEST;
   }
   set_aout(channel, value) {
-    this.program.lines.push(value + " " + channel + " " + this.position + " ec-aout!");
+    this.program.lines.push(
+      value + " " + channel + " " + this.position + " ec-aout!"
+    );
     this.state = WAITING_NONE;
   }
 
   set_dout(channel, t) {
-    this.program.lines.push(t + " " + channel + " " + this.position + " ec-dout!");
+    this.program.lines.push(
+      t + " " + channel + " " + this.position + " ec-dout!"
+    );
     this.state = WAITING_NONE;
   }
 
@@ -194,9 +198,9 @@ class ProgrammedEtherCATSlave {
   }
 
   dout(channel) {
-    this.program.lines.push(channel + " " + this.position  + " ec-dout@");
+    this.program.lines.push(channel + " " + this.position + " ec-dout@");
     this.state = WAITING_NONE;
-    return this; //可能可以這樣寫，看到許多作法都是回傳 this
+    return this;
   }
 
   ain(channel) {
