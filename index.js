@@ -157,6 +157,148 @@ class ProgrammedEtherCATSlave {
     this.program.lines.push("until-no-requests");
     this.state = WAITING_NONE;
   }
+
+  disable_aout(channel) {
+    this.program.lines.push(channel + " " + this.position + " -ec-aout");
+    this.state = WAITING_REQUEST;
+  }
+
+  disable_ain(channel) {
+    this.program.lines.push(channel + " " + this.position + " -ec-ain");
+    this.state = WAITING_REQUEST;
+  }
+
+  enable_aout(channel) {
+    this.program.lines.push(channel + " " + this.position + " +ec-aout");
+    this.state = WAITING_REQUEST;
+  }
+
+  enable_ain(channel) {
+    this.program.lines.push(channel + " " + this.position + " +ec-ain");
+    this.state = WAITING_REQUEST;
+  }
+  set_aout(channel, value) {
+    this.program.lines.push(
+      value + " " + channel + " " + this.position + " ec-aout!"
+    );
+    this.state = WAITING_NONE;
+  }
+
+  set_dout(channel, t) {
+    this.program.lines.push(
+      t + " " + channel + " " + this.position + " ec-dout!"
+    );
+    this.state = WAITING_NONE;
+  }
+
+  aout(channel) {
+    this.program.line.push(channel + " " + this.position + " ec-aout@");
+    this.state = WAITING_NONE;
+    return this;
+  }
+
+  dout(channel) {
+    this.program.lines.push(channel + " " + this.position + " ec-dout@");
+    this.state = WAITING_NONE;
+    return this;
+  }
+
+  ain(channel) {
+    this.program.lines.push(channel + " " + this.position + " ec-ain@");
+    this.state = WAITING_NONE;
+    return this;
+  }
+
+  din(channel) {
+    this.program.lines.push(channel + " " + this.position + " ec-din@");
+    this.state = WAITING_NONE;
+    return this;
+  }
+
+  IF() {
+    this.program.lines.push(" if");
+    this.state = WAITING_NONE;
+  }
+
+  ELSE() {
+    this.program.lines.push(" else");
+    this.state = WAITING_NONE;
+  }
+
+  THEN() {
+    this.program.lines.push(" then");
+    this.state = WAITING_NONE;
+  }
+
+  BEGIN() {
+    this.program.lines.push(" begin");
+    this.state = WAITING_NONE;
+  }
+
+  WHILE() {
+    this.program.lines.push(" while");
+    this.state = WAITING_NONE;
+  }
+
+  REPEAT() {
+    this.program.lines.push(" pause repeat");
+    this.state = WAITING_NONE;
+  }
+
+  /*UNTIL() {
+    this.program.lines.push(" until");
+    this.state = WAITING_NONE;
+  }
+
+  DO() {
+    this.program.lines.push(" do");
+    this.state = WAITING_NONE;
+  }
+
+  LOOP() {
+    this.program.lines.push(" loop");
+    this.state = WAITING_NONE;
+  }
+
+  AGAIN() {
+    this.program.lines.push(" again");
+    this.state = WAITING_NONE;
+  }*/
+
+  GT(value) {
+    this.program.lines.push(value + " >");
+    this.state = WAITING_NONE;
+  }
+
+  GE(value) {
+    this.program.lines.push(value + " 2dup > >R = R> or");
+    this.state = WAITING_NONE;
+  }
+
+  LT(value) {
+    this.program.lines.push(value + " <");
+    this.state = WAITING_NONE;
+  }
+
+  LE(value) {
+    this.program.lines.push(value + " 2dup < >R = R> or");
+    this.state = WAITING_NONE;
+  }
+
+  EQ(value) {
+    this.program.lines.push(value + " =");
+    this.state = WAITING_NONE;
+  }
+
+  NE(value) {
+    this.program.lines.push(value + " = not");
+    this.state = WAITING_NONE;
+  }
+
+  ms(value) {
+    this.program.lines.push(value + " ms");
+    this.state = WAITING_NONE;
+  }
 }
 
 class Program {
