@@ -345,7 +345,11 @@ class Program {
   }
 
   run() {
-    botnana.motion.evaluate("user$" + this.name);
+    botnana.motion.evaluate("deploy user$" + this.name + " ;deploy");
+  }
+
+  abort_program() {
+    botnana.motion.evaluate("deploy abort-program ;deploy");
   }
 }
 
