@@ -2,7 +2,7 @@
 
 var botnana = {
   sender: null,
-  debug_level: 0,
+  debug_level: 1,
   _: {}
 };
 
@@ -295,10 +295,6 @@ class ProgrammedEtherCATSlave {
     this.state = WAITING_NONE;
   }
 
-  ms(value) {
-    this.program.lines.push(value + " ms");
-    this.state = WAITING_NONE;
-  }
 }
 
 class Program {
@@ -348,8 +344,16 @@ class Program {
     botnana.motion.evaluate("deploy user$" + this.name + " ;deploy");
   }
 
+  ms(value) {
+    this.program.lines.push(value + " ms");
+  }
+
   abort_program() {
-    botnana.motion.evaluate("deploy abort-program ;deploy");
+    botnana.motion.evaluate("kill-task0");
+  }
+
+  println(str){
+    this.program.lines.push(str);
   }
 }
 
@@ -366,8 +370,15 @@ botnana._.get_slaves = function() {
 
 // Slave API
 class Slave {
-  constructor(i) {
-    this.position = i;
+  constructor(p, i, c, o) {
+    this.position = p;
+    this.vendor_id = i;
+    this.product_code = c;
+    this.old_pds_state = o;
+    //vendor id & product code
+    // is_drive
+    // pds_state
+    // old_pds_state
   }
 
   set(tag, value) {
@@ -544,6 +555,15 @@ botnana.start = function(ip, period) {
     botnana.ethercat.slave_count = slave_count;
     for (var i = 0; i < slave_count; i = i + 1) {
       botnana.ethercat._slaves[i] = new Slave(i + 1);
+      // is_drive
+
+      //如果是驅動器的話 偵測pds state事件 根據事件 設定slave的pds-goal 狀態
+      botnana.on("pds_state.1", function() {
+        botnana.motion.evaluate("4 1 pds-goal!");
+      })
+      botnana.on("pds_state.2", function() {
+        botnana.motion.evaluate("4 2 pds-goal!");
+      })
     }
     botnana.handle_response("ready|ok");
   });
