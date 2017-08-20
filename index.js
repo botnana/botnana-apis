@@ -294,7 +294,6 @@ class ProgrammedEtherCATSlave {
     this.program.lines.push(value + " = not");
     this.state = WAITING_NONE;
   }
-
 }
 
 class Program {
@@ -352,7 +351,7 @@ class Program {
     botnana.motion.evaluate("kill-task0");
   }
 
-  println(str){
+  println(str) {
     this.program.lines.push(str);
   }
 }
@@ -555,15 +554,6 @@ botnana.start = function(ip, period) {
     botnana.ethercat.slave_count = slave_count;
     for (var i = 0; i < slave_count; i = i + 1) {
       botnana.ethercat._slaves[i] = new Slave(i + 1);
-      // is_drive
-
-      //如果是驅動器的話 偵測pds state事件 根據事件 設定slave的pds-goal 狀態
-      botnana.on("pds_state.1", function() {
-        botnana.motion.evaluate("4 1 pds-goal!");
-      })
-      botnana.on("pds_state.2", function() {
-        botnana.motion.evaluate("4 2 pds-goal!");
-      })
     }
     botnana.handle_response("ready|ok");
   });
