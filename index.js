@@ -535,29 +535,32 @@ botnana.start = function(ip, period) {
   period = period | 100;
   var WebSocket = require("ws");
   var ws = new WebSocket(ip);
-  ws.on("message", function(data, flags) {
-    if (data) {
-      // if (botnana.debug_level > 0) {
-      //     console.log(data);
-      // }
-      botnana.handle_response(data);
-    }
-  });
+  console.log("opening websocket...");
   ws.on("open", function() {
+    console.log("websocket opened.");
+    botnana.sender = ws;
     botnana._.get_slaves();
+    console.log("polling for every " + period + "ms.");
+    setInterval(botnana.poll, period);
+    ws.on("message", function(data, flags) {
+      if (data) {
+        // if (botnana.debug_level > 0) {
+        //     console.log(data);
+        // }
+        botnana.handle_response(data);
+      }
+    });
+    botnana.once("slaves", function(slaves) {
+      let s = slaves.split(",");
+      let slave_count = s.length / 2;
+      //        console.log("slave count: " + slave_count);
+      botnana.ethercat.slave_count = slave_count;
+      for (var i = 0; i < slave_count; i = i + 1) {
+        botnana.ethercat._slaves[i] = new Slave(i + 1);
+      }
+      botnana.handle_response("ready|ok");
+    });
   });
-  botnana.sender = ws;
-  botnana.once("slaves", function(slaves) {
-    let s = slaves.split(",");
-    let slave_count = s.length / 2;
-    //        console.log("slave count: " + slave_count);
-    botnana.ethercat.slave_count = slave_count;
-    for (var i = 0; i < slave_count; i = i + 1) {
-      botnana.ethercat._slaves[i] = new Slave(i + 1);
-    }
-    botnana.handle_response("ready|ok");
-  });
-  setInterval(botnana.poll, period);
 };
 
 module.exports = botnana;
