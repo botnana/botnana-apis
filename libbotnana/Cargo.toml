@@ -1,0 +1,6 @@
+[package]
+name = "libbotnana"
+version = "0.1.0"
+authors = ["Sirius Wu <ccwu660601@gmail.com>"]
+
+[dependencies]
