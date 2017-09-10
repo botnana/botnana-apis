@@ -1,12 +1,13 @@
 using System;
+using System.Runtime.InteropServices;
 
-namespace ConsoleApplication
+class Botnana
 {
-    public class Program
+    [DllImport("libbotnana", EntryPoint="start")]
+    public static extern void Start(string connection);
+
+    static public void Main()
     {
-        public static void Main()
-        {
-            Console.WriteLine("Hello World!");
-        }
+        Botnana.Start("ws://127.0.0.1:2794");
     }
 }

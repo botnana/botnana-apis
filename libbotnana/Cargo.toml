@@ -3,4 +3,10 @@ name = "libbotnana"
 version = "0.1.0"
 authors = ["Sirius Wu <ccwu660601@gmail.com>"]
 
+[lib]
+name = "botnana"
+crate-type = ["cdylib"]
+
 [dependencies]
+libc = "*"
+botnanars = { path = "../botnanars" }

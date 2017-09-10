@@ -1,0 +1,11 @@
+[package]
+name = "botnana-api"
+version = "0.1.0"
+authors = ["Sirius Wu <ccwu660601@gmail.com>"]
+
+[lib]
+name = "botnana_api"
+
+[dependencies]
+botnanars = { path = "./botnanars" }
+libbotnana = { path = "./libbotnana" }

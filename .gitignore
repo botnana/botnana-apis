@@ -2,3 +2,4 @@
 **/_book
 **/Cargo.lock
 **/target
+**/*.exe
