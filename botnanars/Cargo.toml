@@ -4,3 +4,6 @@ version = "0.1.0"
 authors = ["Sirius Wu <ccwu660601@gmail.com>"]
 
 [dependencies]
+websocket = "0.20.2"
+futures = "0.1"
+tokio-core = "0.1"

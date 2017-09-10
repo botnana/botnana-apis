@@ -1,2 +1,4 @@
 **/node_modules
 **/_book
+**/Cargo.lock
+**/target
