@@ -20,6 +20,7 @@ pub extern "C" fn start(connection: *const c_char) -> *mut mpsc::Sender<websocke
     Box::into_raw(Box::new(botnanars::start(r_connection)))
 }
 
+#[no_mangle]
 pub extern "C" fn poll(sender: *mut mpsc::Sender<websocket::OwnedMessage>) {
     let sender = unsafe {
         assert!(!sender.is_null());
@@ -28,6 +29,7 @@ pub extern "C" fn poll(sender: *mut mpsc::Sender<websocket::OwnedMessage>) {
     botnanars::poll(sender);
 }
 
+#[no_mangle]
 pub extern "C" fn sender_free(sender: *mut mpsc::Sender<websocket::OwnedMessage>) {
     if sender.is_null() { return }
         unsafe { Box::from_raw(sender); }
