@@ -10,3 +10,5 @@ crate-type = ["cdylib"]
 [dependencies]
 libc = "*"
 botnanars = { path = "../botnanars" }
+futures = "0.1"
+websocket = "0.20.2"

@@ -12,7 +12,7 @@ use futures::sync::mpsc;
 use websocket::result::WebSocketError;
 use websocket::{ClientBuilder, OwnedMessage};
 
-pub fn start(connection: &str) {
+pub fn start(connection: &str) -> mpsc::Sender<OwnedMessage> {
     println!("Connecting to {}", connection);
 
     let (usr_msg, stdin_ch) = mpsc::channel(0);
@@ -39,9 +39,12 @@ pub fn start(connection: &str) {
             });
         core.run(runner).unwrap();
     });
+    usr_msg
+}
 
+pub fn poll(sender: &mut mpsc::Sender<websocket::OwnedMessage>) {
     let mut input = String::new();
-    let mut stdin_sink = usr_msg.wait();
+    let mut stdin_sink = sender.wait();
     loop {
         input.clear();
         stdin().read_line(&mut input).unwrap();
