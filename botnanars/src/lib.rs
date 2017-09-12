@@ -12,10 +12,11 @@ use futures::sync::mpsc;
 use websocket::result::WebSocketError;
 use websocket::{ClientBuilder, OwnedMessage};
 
+/// Starts a communication thread and returns a sender.
 pub fn start(connection: &str) -> mpsc::Sender<OwnedMessage> {
     println!("Connecting to {}", connection);
 
-    let (usr_msg, stdin_ch) = mpsc::channel(0);
+    let (sender, receiver) = mpsc::channel(0);
     let connection = connection.to_owned();
     thread::spawn(move || {
         let mut core = Core::new().unwrap();
@@ -34,17 +35,17 @@ pub fn start(connection: &str) -> mpsc::Sender<OwnedMessage> {
                             _ => None,
                         }
                     })
-                    .select(stdin_ch.map_err(|_| WebSocketError::NoDataAvailable))
+                    .select(receiver.map_err(|_| WebSocketError::NoDataAvailable))
                     .forward(sink)
             });
         core.run(runner).unwrap();
     });
-    usr_msg
+    sender
 }
 
 pub fn poll(sender: &mut mpsc::Sender<websocket::OwnedMessage>) {
     let mut input = String::new();
-    let mut stdin_sink = sender.wait();
+    let mut sender = sender.wait();
     loop {
         input.clear();
         stdin().read_line(&mut input).unwrap();
@@ -56,7 +57,7 @@ pub fn poll(sender: &mut mpsc::Sender<websocket::OwnedMessage>) {
             _ => (false, OwnedMessage::Text(trimmed.to_string())),
         };
 
-        stdin_sink
+        sender
             .send(msg)
             .expect("Sending message across stdin channel.");
 

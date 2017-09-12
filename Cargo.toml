@@ -8,4 +8,3 @@ name = "botnana_api"
 
 [dependencies]
 botnanars = { path = "./botnanars" }
-libbotnana = { path = "./libbotnana" }

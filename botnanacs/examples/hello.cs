@@ -28,15 +28,15 @@ internal class SenderHandle : SafeHandle {
     }
 }
 
-class Sender : IDisposable
+class Botnana : IDisposable
 {
     private SenderHandle sender;
 
-    public Sender(string connection)
+    public Botnana(string connection)
     {
         sender = Native.start(connection);
     }
-    public void poll() {
+    public void Poll() {
         Native.poll(sender);
     }
     public void Dispose()
@@ -46,7 +46,7 @@ class Sender : IDisposable
 
     static public void Main()
     {
-        var sender = new Sender("ws://127.0.0.1:2794");
-        sender.poll();
+        var botnana = new Botnana("ws://127.0.0.1:2794");
+        botnana.Poll();
     }
 }
