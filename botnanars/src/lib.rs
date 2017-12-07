@@ -16,7 +16,7 @@ use websocket::{ClientBuilder, OwnedMessage};
 pub fn start(connection: &str) -> mpsc::Sender<OwnedMessage> {
     println!("Connecting to {}", connection);
 
-    let (sender, receiver) = mpsc::channel(0);
+    let (sender, receiver) = mpsc::channel(0);    
     let connection = connection.to_owned();
     thread::spawn(move || {
         let mut core = Core::new().unwrap();
@@ -40,6 +40,7 @@ pub fn start(connection: &str) -> mpsc::Sender<OwnedMessage> {
             });
         core.run(runner).unwrap();
     });
+ 
     sender
 }
 
@@ -67,10 +68,32 @@ pub fn poll(sender: &mut mpsc::Sender<websocket::OwnedMessage>) {
     }
 }
 
-#[cfg(test)]
-mod tests {
+fn evaluate (script: &str, sender: &mut mpsc::Sender<websocket::OwnedMessage>) {
+    let msg = "{\"jsonrpc\":\"2.0\",\"method\":\"motion.evaluate\",\"params\":{\"script\":\"".to_owned() + script + "\"}}";
+    let msg = websocket::OwnedMessage::Text(msg.to_string());
+    
+    let mut sender = sender.wait();
+
+    sender
+        .send(msg)
+        .expect("Sending message across stdin channel.");    
+}
+
+pub fn slaves(sender: &mut mpsc::Sender<websocket::OwnedMessage>) {  
+    let message = "list-slaves";  
+    evaluate(message, sender);    
+}
+
+pub mod tests {
     #[test]
-    fn it_works() {
+    pub fn it_works() {
         assert_eq!(2 + 2, 4);
     }
+    fn test (){
+        println!("test");
+    }
 }
+
+
+pub mod botnana;
+pub mod slave;
