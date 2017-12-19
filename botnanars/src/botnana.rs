@@ -15,7 +15,7 @@ use futures::sync::mpsc;
 use websocket::result::WebSocketError;
 use websocket::{ClientBuilder, OwnedMessage};
 
-use slave::Slave;
+use ethercat::{Ethercat, Slave};
 
 #[derive(Debug)]
 pub enum BotNanaError {}
@@ -33,104 +33,58 @@ struct Config {}
 
 impl Config {}
 
-
 // #[derive(Clone, Debug)]
 #[derive(Clone)]
 #[warn(non_snake_case)]
 pub struct botnana {
-    // sender: mpsc::Sender<OwnedMessage>,
     sender: Option<mpsc::Sender<OwnedMessage>>,
     debug_level: i32,
-    slave: Arc<Mutex<Vec<Slave>>>,
+    pub ethercat: Ethercat,
     handlers: Arc<Mutex<HashMap<&'static str, Vec<Box<Fn(&str) + Send>>>>>,
     handlers_counters: Arc<Mutex<HashMap<&'static str, Vec<i32>>>>,
 }
 
 impl botnana {
-    /*
-    pub fn new(connection: &str) -> Result<botnana> {
-        println!("Connecting to {}", connection);
-        let (sender, receiver) = mpsc::channel(0);
-        let connection = connection.to_owned();
-
-        let mut btn = botnana {
-            sender: sender,        
-            debug_level: 1,
-            slave: Arc::new(Mutex::new(Vec::new())),
-            handlers: Arc::new(Mutex::new(HashMap::new())),
-            handlers_counters: Arc::new(Mutex::new(HashMap::new())),
-        };        
-
-        let mut tb = btn.clone();
-
-        thread::spawn(move || {
-            let mut core = Core::new().unwrap();
-            let runner = ClientBuilder::new(&connection)
-                .unwrap()
-                .add_protocol("rust-websocket")
-                .async_connect_insecure(&core.handle())
-                .and_then(|(duplex, _)| {                   
-                    let (sink, stream) = duplex.split();
-                    stream
-                        .filter_map(|message| {                            
-                            match message {
-                                OwnedMessage::Close(e) => Some(OwnedMessage::Close(e)),
-                                OwnedMessage::Ping(d) => Some(OwnedMessage::Pong(d)),
-                                OwnedMessage::Text(m) => {
-                                    tb.handle_message(m);
-                                    None
-                                }
-                                _ => None,
-                            }
-                        })
-                        .select(receiver.map_err(|_| WebSocketError::NoDataAvailable))
-                        .forward(sink)
-                });
-
-            core.run(runner).unwrap();
-        });
-
-        btn.poll();
-        Ok(btn)
-    }*/
     pub fn new(connection: &str) -> Result<botnana> {
         Ok(botnana {
             sender: None,
             debug_level: 1,
-            slave: Arc::new(Mutex::new(Vec::new())),
+            ethercat: Ethercat::new(),
             handlers: Arc::new(Mutex::new(HashMap::new())),
             handlers_counters: Arc::new(Mutex::new(HashMap::new())),
         })
     }
 
-    fn setSlave(&self, p: usize) {
-        let mut mutself = self.clone();
-        let mut slave = mutself.slave.lock().unwrap();
-        slave.push(Slave::new(p));
-    }
-    
     fn ok(&self) {
         let mut mutself = self.clone();
-        mutself.handle_message("ready|ok".to_string());
+        thread::spawn(move || {
+            mutself.handle_message("ready|ok".to_string());
+        });
+    }
+
+    fn set_ethercat_slave(&self, i: usize) {
+        self.ethercat.set_slave(i, self.sender.clone().unwrap());
     }
 
     pub fn start(&mut self, connection: &str) {
         println!("Connecting to {}", connection);
 
         let (sender, receiver) = mpsc::channel(0);
+        let se = sender.clone();
         self.sender = Some(sender);
 
         let mut botnana = self.clone();
-        let t = self.clone();
-        let slave = self.slave.lock().unwrap();
+        let btn = self.clone();
 
         botnana.once("slaves", move |slaves| {
             let s: Vec<&str> = slaves.split(",").collect();
             let length = s.len() / 2;
 
             for i in 0..length {
-                t.setSlave(i + 1);
+                btn.set_ethercat_slave(i + 1);
             }
+
+            btn.ok();
         });
 
         let connection = connection.to_owned();
@@ -143,7 +97,6 @@ impl botnana {
                 .async_connect_insecure(&core.handle())
                 .and_then(|(duplex, _)| {
                     let (sink, stream) = duplex.split();
-
                     stream
                         .filter_map(|message| match message {
                             OwnedMessage::Close(e) => Some(OwnedMessage::Close(e)),
@@ -160,14 +113,12 @@ impl botnana {
 
             core.run(runner).unwrap();
         });
-    }
 
-    fn start_handler(&self, event: &str, msg: &str) {
-        let mut botnana = self.clone();  
+        self.poll();
+        self.slaves();
     }
 
     fn handle_message(&mut self, message: String) {
-        println!("receiver :: {:?}", message);
         let lines: Vec<&str> = message.split("\n").collect();
         let mut handlers = self.handlers.try_lock().unwrap();
         let mut handlers_counters = self.handlers_counters.try_lock().unwrap();
@@ -176,21 +127,22 @@ impl botnana {
             if self.debug_level > 0 {
                 println!("{:?}", line);
             }
-
             let mut r: Vec<&str> = line.split("|").collect();
             let mut index = 0;
-            let mut removeList = Vec::new();
             let mut event = "";
             for e in r {
                 if index % 2 == 0 {
                     event = e;
                 } else {
+                    let mut removeList = Vec::new();
+
                     match handlers.get(event) {
                         Some(handle) => {
                             let counter = handlers_counters.get_mut(event).unwrap();
                             let mut idx = 0;
                             for h in handle {
                                 h(e);
+
                                 if counter[idx] == 1 {
                                     removeList.push(idx);
                                 }
@@ -203,9 +155,9 @@ impl botnana {
                     if (removeList.len() > 0) {
                         let handlers = handlers.get_mut(event).unwrap();
                         let counter = handlers_counters.get_mut(event).unwrap();
-                        for i in removeList.clone() {
-                            handlers.remove(i);
-                            counter.remove(i);
+                        for i in &removeList {
+                            handlers.remove(*i);
+                            counter.remove(*i);
                         }
                     }
                 }
@@ -219,7 +171,6 @@ impl botnana {
     where
         F: Fn(&str) + Send + 'static,
     {
-        // fn times(&mut sel   f, event: &str, count:i8, handler:Box<Fn(&str) + Send>){
         let mut handlers = self.handlers.lock().unwrap();
         let mut handlers_counters = self.handlers_counters.lock().unwrap();
 
@@ -228,30 +179,6 @@ impl botnana {
 
         h.push(Box::new(handler));
         hc.push(count);
-
-        // let a = handlers.get_mut(event).unwrap();
-
-
-        // a.push(Box::new(|s|{println!("hello")}));
-
-        // h[0]("hello how are you");
-        // println!("{:?}",f[0]);
-        // let handler_counters = self.handler_counters.lock().unwrap();
-        // let mut getFlag = false;
-
-        // match handlers.get(event) {
-        //     Some(h) => true,
-        //     None => false,
-        // };
-
-        // if getFlag {
-
-        // }
-        // else {
-
-        // }
-
-        // handler("hello times");
     }
 
     fn send(&self, msg: &str, expect: &str) {
@@ -263,7 +190,7 @@ impl botnana {
                 sender.send(msg).expect(expect);
             }
             None => {
-                println!("Error Happen");
+                println!("No sender can find");
             }
         }
     }
@@ -283,17 +210,12 @@ impl botnana {
     }
 
     fn poll(&self) {
-        // let mut sender = self.sender.clone().wait();
         let timer = 100;
         let ten_millis = time::Duration::from_millis(timer);
-        let bt = self.clone();
-        thread::spawn(move || {
-            loop {
-                // let msg = OwnedMessage::Text("".to_string());
-                // sender.send(msg).expect("send Polling");
-
-                thread::sleep(ten_millis);
-            }
+        let btn = self.clone();
+        thread::spawn(move || loop {
+            btn.send("{\"jsonrpc\":\"2.0\",\"method\":\"motion.poll\"}", "");
+            thread::sleep(ten_millis);
         });
     }
 
@@ -302,28 +224,22 @@ impl botnana {
             .to_owned() + script + "\"}}";
 
         self.send(&msg, "Sending message");
-        // let msg = OwnedMessage::Text(msg.to_string());
-
-        // let mut sender = self.sender.clone().wait();
-
-        // sender
-        //     .send(msg)
-        //     .expect("Sending message across stdin channel.");
-    }
-
-    /* pub fn version(&self) {
-        let msg = "{\"jsonrpc\":\"2.0\",\"method\":\"version.get\"}";
-        // let mut sender = self.sender.clone().wait();
-        
-        let msg = OwnedMessage::Text(msg.to_string());
-
-        sender.send(msg).expect("Sending get version message");
     }
 
     pub fn empty(&self) {
         self.evaluate("empty");
     }
 
+    pub fn slaves(&self) {
+        let message = "list-slaves";
+        self.evaluate(message);
+    }
+
+    pub fn version(&self) {
+        let msg = "{\"jsonrpc\":\"2.0\",\"method\":\"version.get\"}";
+        self.send(msg, "");
+    }
+    
     // pub fn set_slave(&self, args: &str) {
     //     let mut sender = self.sender.clone().wait();
 
@@ -335,9 +251,5 @@ impl botnana {
     //         .send(msg)
     //         .expect("Sending message across stdin channel");
     // }
-*/
-    pub fn slaves(&self) {
-        let message = "list-slaves";
-        self.evaluate(message);
-    }
+
 }
