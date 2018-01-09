@@ -15,14 +15,17 @@ use futures::sync::mpsc;
 use websocket::result::WebSocketError;
 use websocket::{ClientBuilder, OwnedMessage};
 
-use ethercat::{Ethercat, Slave};
+use ethercat::{Ethercat};
+use programmed::Program;
 
 #[derive(Debug)]
 pub enum BotNanaError {}
 
 pub type Result<T> = result::Result<T, BotNanaError>;
 
+
 // Real-time scripwting API
+/*
 struct Motion {
     sender: mpsc::Sender<OwnedMessage>,
 }
@@ -32,8 +35,8 @@ impl Motion {}
 struct Config {}
 
 impl Config {}
+*/
 
-// #[derive(Clone, Debug)]
 #[derive(Clone)]
 #[warn(non_snake_case)]
 pub struct botnana {
@@ -41,11 +44,16 @@ pub struct botnana {
     debug_level: i32,
     pub ethercat: Ethercat,
     handlers: Arc<Mutex<HashMap<&'static str, Vec<Box<Fn(&str) + Send>>>>>,
-    handlers_counters: Arc<Mutex<HashMap<&'static str, Vec<i32>>>>,
+    handlers_counters: Arc<Mutex<HashMap<&'static str, Vec<i32>>>>,    
 }
-
+/**
+ * TODO 
+ * 
+ * botnana.programs = []
+ * 
+ */
 impl botnana {
-    pub fn new(connection: &str) -> Result<botnana> {
+    pub fn new() -> Result<botnana> {
         Ok(botnana {
             sender: None,
             debug_level: 1,
@@ -74,7 +82,7 @@ impl botnana {
         self.sender = Some(sender);
 
         let mut botnana = self.clone();
-        let btn = self.clone();
+        let mut btn = self.clone();
 
         botnana.once("slaves", move |slaves| {
             let s: Vec<&str> = slaves.split(",").collect();
@@ -118,56 +126,58 @@ impl botnana {
         self.slaves();
     }
 
-    fn handle_message(&mut self, message: String) {
-        let lines: Vec<&str> = message.split("\n").collect();
-        let mut handlers = self.handlers.try_lock().unwrap();
-        let mut handlers_counters = self.handlers_counters.try_lock().unwrap();
+    fn handle_message(&mut self, message: String) {        
+        if message != "" {
+            let lines: Vec<&str> = message.split("\n").collect();
+            let mut handlers = self.handlers.try_lock().unwrap();
+            let mut handlers_counters = self.handlers_counters.try_lock().unwrap();
 
-        for line in lines {
-            if self.debug_level > 0 {
-                println!("{:?}", line);
-            }
-            let mut r: Vec<&str> = line.split("|").collect();
-            let mut index = 0;
-            let mut event = "";
-            for e in r {
-                if index % 2 == 0 {
-                    event = e;
-                } else {
-                    let mut removeList = Vec::new();
+            for line in lines {
+                if self.debug_level > 0 {
+                    println!("{:?}", line);
+                }
 
-                    match handlers.get(event) {
-                        Some(handle) => {
-                            let counter = handlers_counters.get_mut(event).unwrap();
-                            let mut idx = 0;
-                            for h in handle {
-                                h(e);
+                let mut r: Vec<&str> = line.split("|").collect();
+                let mut index = 0;
+                let mut event = "";
+                for e in r {
+                    if index % 2 == 0 {
+                        event = e;
+                    } else {
+                        let mut removeList = Vec::new();
 
-                                if counter[idx] == 1 {
-                                    removeList.push(idx);
+                        match handlers.get(event) {
+                            Some(handle) => {
+                                let counter = handlers_counters.get_mut(event).unwrap();
+
+                                let mut idx = 0;
+                                for h in handle {
+                                    h(e);
+                                    if counter[idx] == 1 {
+                                        removeList.push(idx);
+                                    }
+                                    counter[idx] -= 1;
+                                    idx += 1;
                                 }
-                                idx += 1;
                             }
-                        }
-                        None => {}
-                    };
+                            None => {}
+                        };
 
-                    if (removeList.len() > 0) {
-                        let handlers = handlers.get_mut(event).unwrap();
                         let counter = handlers_counters.get_mut(event).unwrap();
+                        let handler = handlers.get_mut(event).unwrap();
                         for i in &removeList {
-                            handlers.remove(*i);
+                            handler.remove(*i);
                             counter.remove(*i);
                         }
                     }
-                }
 
-                index += 1;
+                    index += 1;
+                }
             }
         }
     }
 
-    fn times<F>(&mut self, event: &'static str, count: i32, handler: F)
+    pub fn times<F>(&mut self, event: &'static str, count: i32, handler: F)
     where
         F: Fn(&str) + Send + 'static,
     {
@@ -182,14 +192,14 @@ impl botnana {
     }
 
     fn send(&self, msg: &str, expect: &str) {
-        let s = self.sender.clone();
+        let s = &self.sender;
         match s {
-            Some(sender) => {
+            &Some(ref sender) => {
                 let mut sender = sender.clone().wait();
                 let msg = OwnedMessage::Text(msg.to_string());
                 sender.send(msg).expect(expect);
             }
-            None => {
+            &None => {
                 println!("No sender can find");
             }
         }
@@ -219,7 +229,7 @@ impl botnana {
         });
     }
 
-    fn evaluate(&self, script: &str) {
+    pub fn evaluate(&self, script: &str) {
         let msg = "{\"jsonrpc\":\"2.0\",\"method\":\"motion.evaluate\",\"params\":{\"script\":\""
             .to_owned() + script + "\"}}";
 
@@ -239,7 +249,30 @@ impl botnana {
         let msg = "{\"jsonrpc\":\"2.0\",\"method\":\"version.get\"}";
         self.send(msg, "");
     }
-    
+
+    pub fn program(&self, name: &str) -> Program {
+        let slave_len = self.ethercat.get_slaves_count();
+        let sender = self.sender.clone().unwrap();
+
+        // let program = Program::new(name);        
+
+        let program = Program::new(name, slave_len, sender);
+
+        /*
+              push program to programms: Vec<Program>                   
+        */
+
+        program
+    }
+
+    pub fn get_self(&self) -> &Self  {
+        self
+    }
+
+    pub fn get_mut_self(&mut self) -> &mut Self {
+        self
+    }
+
     // pub fn set_slave(&self, args: &str) {
     //     let mut sender = self.sender.clone().wait();
 
@@ -251,5 +284,4 @@ impl botnana {
     //         .send(msg)
     //         .expect("Sending message across stdin channel");
     // }
-
 }

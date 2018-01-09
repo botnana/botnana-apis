@@ -13,87 +13,89 @@ use websocket::result::WebSocketError;
 use websocket::{ClientBuilder, OwnedMessage};
 
 /// Starts a communication thread and returns a sender.
-pub fn start(connection: &str) -> mpsc::Sender<OwnedMessage> {
-    println!("Connecting to {}", connection);
+// pub fn start(connection: &str) -> mpsc::Sender<OwnedMessage> {
+//     println!("Connecting to {}", connection);
 
-    let (sender, receiver) = mpsc::channel(0);    
-    let connection = connection.to_owned();
-    thread::spawn(move || {
-        let mut core = Core::new().unwrap();
-        let runner = ClientBuilder::new(&connection)
-            .unwrap()
-            .add_protocol("rust-websocket")
-            .async_connect_insecure(&core.handle())
-            .and_then(|(duplex, _)| {
-                let (sink, stream) = duplex.split();
-                stream
-                    .filter_map(|message| {
-                        println!("Received Message: {:?}", message);
-                        match message {
-                            OwnedMessage::Close(e) => Some(OwnedMessage::Close(e)),
-                            OwnedMessage::Ping(d) => Some(OwnedMessage::Pong(d)),
-                            _ => None,
-                        }
-                    })
-                    .select(receiver.map_err(|_| WebSocketError::NoDataAvailable))
-                    .forward(sink)
-            });
-        core.run(runner).unwrap();
-    });
- 
-    sender
-}
+//     let (sender, receiver) = mpsc::channel(0);
+//     let connection = connection.to_owned();
+//     thread::spawn(move || {
+//         let mut core = Core::new().unwrap();
+//         let runner = ClientBuilder::new(&connection)
+//             .unwrap()
+//             .add_protocol("rust-websocket")
+//             .async_connect_insecure(&core.handle())
+//             .and_then(|(duplex, _)| {
+//                 let (sink, stream) = duplex.split();
+//                 stream
+//                     .filter_map(|message| {
+//                         println!("Received Message: {:?}", message);
+//                         match message {
+//                             OwnedMessage::Close(e) => Some(OwnedMessage::Close(e)),
+//                             OwnedMessage::Ping(d) => Some(OwnedMessage::Pong(d)),
+//                             _ => None,
+//                         }
+//                     })
+//                     .select(receiver.map_err(|_| WebSocketError::NoDataAvailable))
+//                     .forward(sink)
+//             });
+//         core.run(runner).unwrap();
+//     });
 
-pub fn poll(sender: &mut mpsc::Sender<websocket::OwnedMessage>) {
-    let mut input = String::new();
-    let mut sender = sender.wait();
-    loop {
-        input.clear();
-        stdin().read_line(&mut input).unwrap();
-        let trimmed = input.trim();
+//     sender
+// }
 
-        let (close, msg) = match trimmed {
-            "/close" => (true, OwnedMessage::Close(None)),
-            "/ping" => (false, OwnedMessage::Ping(b"PING".to_vec())),
-            _ => (false, OwnedMessage::Text(trimmed.to_string())),
-        };
+// pub fn poll(sender: &mut mpsc::Sender<websocket::OwnedMessage>) {
+//     let mut input = String::new();
+//     let mut sender = sender.wait();
+//     loop {
+//         input.clear();
+//         stdin().read_line(&mut input).unwrap();
+//         let trimmed = input.trim();
 
-        sender
-            .send(msg)
-            .expect("Sending message across stdin channel.");
+//         let (close, msg) = match trimmed {
+//             "/close" => (true, OwnedMessage::Close(None)),
+//             "/ping" => (false, OwnedMessage::Ping(b"PING".to_vec())),
+//             _ => (false, OwnedMessage::Text(trimmed.to_string())),
+//         };
 
-        if close {
-            break;
-        }
-    }
-}
+//         sender
+//             .send(msg)
+//             .expect("Sending message across stdin channel.");
 
-fn evaluate (script: &str, sender: &mut mpsc::Sender<websocket::OwnedMessage>) {
-    let msg = "{\"jsonrpc\":\"2.0\",\"method\":\"motion.evaluate\",\"params\":{\"script\":\"".to_owned() + script + "\"}}";
-    let msg = websocket::OwnedMessage::Text(msg.to_string());
-    
-    let mut sender = sender.wait();
+//         if close {
+//             break;
+//         }
+//     }
+// }
 
-    sender
-        .send(msg)
-        .expect("Sending message across stdin channel.");    
-}
+// fn evaluate(script: &str, sender: &mut mpsc::Sender<websocket::OwnedMessage>) {
+//     let msg = "{\"jsonrpc\":\"2.0\",\"method\":\"motion.evaluate\",\"params\":{\"script\":\""
+//         .to_owned() + script + "\"}}";
+//     let msg = websocket::OwnedMessage::Text(msg.to_string());
 
-pub fn slaves(sender: &mut mpsc::Sender<websocket::OwnedMessage>) {  
-    let message = "list-slaves";  
-    evaluate(message, sender);    
-}
+//     let mut sender = sender.wait();
 
-pub mod tests {
-    #[test]
-    pub fn it_works() {
-        assert_eq!(2 + 2, 4);
-    }
-    fn test (){
-        println!("test");
-    }
-}
+//     sender
+//         .send(msg)
+//         .expect("Sending message across stdin channel.");
+// }
+
+// pub fn slaves(sender: &mut mpsc::Sender<websocket::OwnedMessage>) {
+//     let message = "list-slaves";
+//     evaluate(message, sender);
+// }
+
+// pub mod tests {
+//     #[test]
+//     pub fn it_works() {
+//         assert_eq!(2 + 2, 4);
+//     }
+//     fn test() {
+//         println!("test");
+//     }
+// }
 
 
 pub mod botnana;
-pub mod slave;
+pub mod programmed;
+pub mod ethercat;

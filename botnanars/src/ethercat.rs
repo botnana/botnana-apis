@@ -3,7 +3,6 @@ use futures::sync::mpsc;
 use std::sync::{Arc, Mutex};
 use futures::sink::Sink;
 
-struct EthercatJson {}
 #[derive(Clone, Debug)]
 pub struct Slave {
     sender: mpsc::Sender<OwnedMessage>,
@@ -80,7 +79,7 @@ impl Slave {
 
         msg.push_str("}}");
 
-        println!("{}", msg);
+        // println!("{}", msg);
         OwnedMessage::Text(msg)
     }
 
@@ -147,14 +146,14 @@ impl Slave {
 #[derive(Clone)]
 pub struct Ethercat {
     _slaves: Arc<Mutex<Vec<Slave>>>,
-    slave_count: usize,
+    slaves_count: Arc<Mutex<usize>>,
 }
 
 impl Ethercat {
     pub fn new() -> Ethercat {
         Ethercat {
             _slaves: Arc::new(Mutex::new(Vec::new())),
-            slave_count: 0,
+            slaves_count: Arc::new(Mutex::new(0)),
         }
     }
 
@@ -168,8 +167,12 @@ impl Ethercat {
     }
 
     pub fn set_slave(&self, p: usize, sender: mpsc::Sender<OwnedMessage>) {
-        let mut mut_self = self.clone();
-        let mut slave = mut_self._slaves.lock().unwrap();
+        let mut slave = self._slaves.lock().unwrap();
         slave.push(Slave::new(p, sender));
+        *self.slaves_count.lock().unwrap() += 1;
+    }
+
+    pub fn get_slaves_count(&self) -> usize {
+        *self.slaves_count.lock().unwrap()
     }
 }
