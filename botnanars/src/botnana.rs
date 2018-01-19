@@ -15,14 +15,13 @@ use futures::sync::mpsc;
 use websocket::result::WebSocketError;
 use websocket::{ClientBuilder, OwnedMessage};
 
-use ethercat::{Ethercat};
+use ethercat::Ethercat;
 use programmed::Program;
 
 #[derive(Debug)]
 pub enum BotNanaError {}
 
 pub type Result<T> = result::Result<T, BotNanaError>;
-
 
 // Real-time scripwting API
 /*
@@ -44,13 +43,13 @@ pub struct botnana {
     debug_level: i32,
     pub ethercat: Ethercat,
     handlers: Arc<Mutex<HashMap<&'static str, Vec<Box<Fn(&str) + Send>>>>>,
-    handlers_counters: Arc<Mutex<HashMap<&'static str, Vec<i32>>>>,    
+    handlers_counters: Arc<Mutex<HashMap<&'static str, Vec<i32>>>>,
 }
 /**
- * TODO 
- * 
+ * TODO
+ *
  * botnana.programs = []
- * 
+ *
  */
 impl botnana {
     pub fn new() -> Result<botnana> {
@@ -122,11 +121,11 @@ impl botnana {
             core.run(runner).unwrap();
         });
 
-        self.poll();
-        self.slaves();
+        self.get_slaves();
+        self.poll();        
     }
 
-    fn handle_message(&mut self, message: String) {        
+    fn handle_message(&mut self, message: String) {
         if message != "" {
             let lines: Vec<&str> = message.split("\n").collect();
             let mut handlers = self.handlers.try_lock().unwrap();
@@ -145,9 +144,11 @@ impl botnana {
                         event = e;
                     } else {
                         let mut removeList = Vec::new();
+                        let mut counter_exist = false;
 
                         match handlers.get(event) {
                             Some(handle) => {
+                                counter_exist = true;
                                 let counter = handlers_counters.get_mut(event).unwrap();
 
                                 let mut idx = 0;
@@ -163,12 +164,16 @@ impl botnana {
                             None => {}
                         };
 
-                        let counter = handlers_counters.get_mut(event).unwrap();
-                        let handler = handlers.get_mut(event).unwrap();
-                        for i in &removeList {
-                            handler.remove(*i);
-                            counter.remove(*i);
+                        if (counter_exist) {
+                            let counter = handlers_counters.get_mut(event).unwrap();
+                            let handler = handlers.get_mut(event).unwrap();
+
+                            for i in &removeList {
+                                handler.remove(*i);
+                                counter.remove(*i);
+                            }
                         }
+                        
                     }
 
                     index += 1;
@@ -254,7 +259,7 @@ impl botnana {
         let slave_len = self.ethercat.get_slaves_count();
         let sender = self.sender.clone().unwrap();
 
-        // let program = Program::new(name);        
+        // let program = Program::new(name);
 
         let program = Program::new(name, slave_len, sender);
 
@@ -265,23 +270,19 @@ impl botnana {
         program
     }
 
-    pub fn get_self(&self) -> &Self  {
-        self
+    pub fn set_slave(&self, args: &str) {
+        let msg = "{\"jsonrpc\":\"2.0\",\"method\":\"config.set_slave\",\"params\":{\"script\":"
+            .to_owned() + args + "}}";
+        self.send(&msg, "");
     }
 
-    pub fn get_mut_self(&mut self) -> &mut Self {
-        self
+    pub fn save(&self) {
+        let msg = "{\"jsonrpc\":\"2.0\",\"method\":\"config.save\"}";
+        self.send(&msg, "");
     }
 
-    // pub fn set_slave(&self, args: &str) {
-    //     let mut sender = self.sender.clone().wait();
-
-    //     let msg = "{\"jsonrpc\":\"2.0\",\"method\":\"config.set_slave\",\"params\":{\"script\":\""
-    //         .to_owned() + args + "\"}}";
-    //     let msg = OwnedMessage::Text(msg.to_string());
-
-    //     sender
-    //         .send(msg)
-    //         .expect("Sending message across stdin channel");
-    // }
+    fn get_slaves(&self){
+        let msg = "{\"jsonrpc\":\"2.0\",\"method\":\"_.get_slaves\"}";
+        self.send(&msg,"");
+    }
 }

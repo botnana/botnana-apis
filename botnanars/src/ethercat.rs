@@ -40,7 +40,7 @@ impl Slave {
     fn get_json(
         &self,
         method: &str,
-        tag: Option<usize>,
+        tag: Option<&str>,
         channel: Option<usize>,
         value: Option<usize>,
     ) -> OwnedMessage {
@@ -55,8 +55,9 @@ impl Slave {
         msg.push_str(p);
         match tag {
             Some(v) => {
-                msg.push_str(",\"tag\":");
+                msg.push_str(",\"tag\":\"");
                 msg.push_str(&v.to_string());
+                msg.push_str("\"");
             }
             None => {}
         }
@@ -79,11 +80,11 @@ impl Slave {
 
         msg.push_str("}}");
 
-        // println!("{}", msg);
+        
         OwnedMessage::Text(msg)
     }
 
-    fn send_tag_json(&self, method: &str, tag: usize, value: usize) {
+    fn send_tag_json(&self, method: &str, tag: &str, value: usize) {
         let message = self.get_json(method, Some(tag), None, Some(value));
         self.sender.clone().wait().send(message).expect("");
     }
@@ -102,7 +103,7 @@ impl Slave {
         let message = self.get_json(method, None, Some(channel), Some(value));
     }
 
-    pub fn set(&self, tag: usize, value: usize) {
+    pub fn set(&self, tag: &str, value: usize) {
         self.send_tag_json("set", tag, value);
     }
 

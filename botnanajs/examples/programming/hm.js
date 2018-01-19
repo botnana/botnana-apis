@@ -13,12 +13,13 @@ function test() {
     var s1 = p.ethercat.slave(1);
     s1.hm();
     p.deploy();
-    // Run Program p1
+    // Run Program p1    
     botnana.once("deployed", function() {
       p.run();
     });
   });
-  botnana.start("ws://192.168.7.2:3012");
+  //botnana.start("ws://192.168.7.2:3012");
+botnana.start("ws://192.168.50.222:3012");
 }
 
 test();

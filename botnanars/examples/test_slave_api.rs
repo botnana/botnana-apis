@@ -1,17 +1,66 @@
 extern crate botnanars;
 use botnanars::botnana;
 use std::{thread, time};
+use std::sync::{Arc, Mutex};
 
-fn main() {         
-    let mut botnana =  botnana::botnana::new("ws://localhost:3012").unwrap();         
-    botnana.start("ws://localhost:3012");
-    // let mut botnana = botnana::start().unwrap();  // get botnana
-    //botnana.connect(wsAddress);
-    botnana.slaves();  
-    // botnana.on("a",|msg|{
-    //     println!("{}",msg);        
-    // });
-    loop{                
-        thread::sleep(time::Duration::from_millis(2000));        
+fn main() {
+    let mut botnana = Arc::new(Mutex::new(botnana::botnana::new().unwrap()));
+
+    // TODO botnana.lock().unwrap().set_debug(0);
+
+    let btn = botnana.clone();
+    botnana.lock().unwrap().once("ready", move |msg| {
+        btn.lock()
+            .unwrap()
+            .set_slave("{\"position\":\"1\",\"tag\":\"homing_method\",\"value\":\"33\"}");
+        btn.lock()
+            .unwrap()
+            .set_slave("{\"position\":\"1\",\"tag\":\"homing_speed_1\",\"value\":\"18000\"}");
+        btn.lock().unwrap().save();
+
+        match btn.lock().unwrap().ethercat.slave(1) {
+            Some(slave) => {
+                slave.set("home_offset", 2800);
+                slave.set("homing_method", 32);
+                slave.set("homing_speed_1", 1900000);
+                slave.set("homing_speed_2", 29000);
+                slave.set("homing_acceleration", 39000);
+                slave.set("profile_velocity", 18000000);
+                slave.set("profile_acceleration", 280000);
+                slave.set("profile_deceleration", 380000);
+            }
+            None => {}
+        }
+
+        let slave_count = btn.lock().unwrap().ethercat.get_slaves_count();
+
+        for i in 1..slave_count {
+            match btn.lock().unwrap().ethercat.slave(i) {
+                Some(slave) => {
+                    slave.get();
+                }
+                None => {}
+            }
+        }
+
+        match btn.lock().unwrap().ethercat.slave(1) {
+            Some(slave) => {
+                slave.get_diff();
+            }
+            None => {}
+        }
+    });
+
+    botnana
+        .lock()
+        .unwrap()
+        .on("homing_speed_1.1", move |value| {
+            println!("homing_speed_1.1 = {:?}", value);
+        });
+
+    botnana.lock().unwrap().start("ws://localhost:3012");
+
+    loop {
+        thread::sleep(time::Duration::from_millis(2000));
     }
 }

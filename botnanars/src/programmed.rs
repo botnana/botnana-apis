@@ -309,7 +309,7 @@ impl ProgrammedEtherCAT {
 
 #[derive(Debug, Clone)]
 pub struct Program {
-    name: &'static str,
+    name: String,
     line: String,
     lines: Arc<Mutex<String>>,
     sender: mpsc::Sender<OwnedMessage>,
@@ -327,7 +327,7 @@ impl Program {
         let mut eth = ethercat.clone();
 
         let program = Program {
-            name: "",
+            name: name.to_string(),
             line: line.clone(),
             lines: Arc::new(Mutex::new(line.clone())),
             sender: sender,
@@ -336,7 +336,7 @@ impl Program {
 
         for i in 0..slave {
             let pg = program.clone();
-            eth.set_slave(ProgrammedEtherCATSlave::new(pg, i));
+            eth.set_slave(ProgrammedEtherCATSlave::new(pg, i+1));
         }
 
         program.clone()
@@ -374,8 +374,8 @@ impl Program {
             .send(OwnedMessage::Text(message))
             .expect("error");
     }
-    pub fn run(&self) {
-        let msg = "deploy user$".to_owned() + self.name + " ;deploy";
+    pub fn run(&self) {                
+        let msg = "deploy user$".to_owned() + &self.name + " ;deploy";
         self.evaluate(&msg);
     }
     pub fn ms(&mut self, value: usize) {
