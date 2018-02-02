@@ -1,20 +1,18 @@
 extern crate botnanars;
 use botnanars::botnana;
-use botnanars::programmed::Program;
-use std::{thread, time};
 use std::sync::{Arc, Mutex};
 
 fn main() {
-    let mut botnana = Arc::new(Mutex::new(botnana::botnana::new().unwrap()));
+    let botnana = Arc::new(Mutex::new(botnana::botnana::new().unwrap()));
 
     let btn = botnana.clone();
-    botnana.lock().unwrap().once("ready", move |msg| {
+    botnana.lock().unwrap().once("ready", move |_| {
         let mut p = btn.lock().unwrap().program("p1");
         p.deploy();
     });
 
     let btn = botnana.clone();
-    botnana.lock().unwrap().once("deployed", move |msg| {
+    botnana.lock().unwrap().once("deployed", move |_| {
         let p = btn.lock().unwrap().program("p1");
         p.run();
     });

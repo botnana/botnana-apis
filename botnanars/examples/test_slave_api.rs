@@ -4,12 +4,12 @@ use std::{thread, time};
 use std::sync::{Arc, Mutex};
 
 fn main() {
-    let mut botnana = Arc::new(Mutex::new(botnana::botnana::new().unwrap()));
+    let botnana = Arc::new(Mutex::new(botnana::botnana::new().unwrap()));
 
     // TODO botnana.lock().unwrap().set_debug(0);
 
     let btn = botnana.clone();
-    botnana.lock().unwrap().once("ready", move |msg| {
+    botnana.lock().unwrap().once("ready", move |_| {
         btn.lock()
             .unwrap()
             .set_slave("{\"position\":\"1\",\"tag\":\"homing_method\",\"value\":\"33\"}");

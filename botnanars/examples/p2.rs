@@ -1,14 +1,12 @@
 extern crate botnanars;
 use botnanars::botnana;
-use botnanars::programmed::Program;
-use std::{thread, time};
 use std::sync::{Arc, Mutex};
 
 fn main() {
-    let mut botnana = Arc::new(Mutex::new(botnana::botnana::new().unwrap()));
+    let botnana = Arc::new(Mutex::new(botnana::botnana::new().unwrap()));
 
     let btn = botnana.clone();
-    botnana.lock().unwrap().once("ready", move |msg| {
+    botnana.lock().unwrap().once("ready", move |_| {
         let mut p = btn.lock().unwrap().program("p2");
         let s1 = p.ethercat.slave(1);
         match s1 {
@@ -17,7 +15,7 @@ fn main() {
                 s.go();
                 s.pp();
                 s.move_to(30000);
-                s.go();                
+                s.go();
             }
             None => {}
         }
@@ -26,7 +24,7 @@ fn main() {
     });
 
     let btn = botnana.clone();
-    botnana.lock().unwrap().once("deployed", move |msg| {
+    botnana.lock().unwrap().once("deployed", move |_| {
         let p = btn.lock().unwrap().program("p2");
         p.run();
     });
