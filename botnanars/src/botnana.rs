@@ -1,6 +1,3 @@
-#[warn(unused_parens)]
-#[warn(unused_imports)]
-
 use std::result;
 use std::thread;
 use std::time;
@@ -37,7 +34,6 @@ impl Config {}
 */
 
 #[derive(Clone)]
-#[warn(non_snake_case)]
 pub struct Botnana {
     sender: Option<mpsc::Sender<OwnedMessage>>,
     debug_level: i32,
