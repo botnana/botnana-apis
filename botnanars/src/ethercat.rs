@@ -1,4 +1,4 @@
-use websocket::{ClientBuilder, OwnedMessage};
+use websocket::OwnedMessage;
 use futures::sync::mpsc;
 use std::sync::{Arc, Mutex};
 use futures::sink::Sink;
@@ -80,7 +80,6 @@ impl Slave {
 
         msg.push_str("}}");
 
-        
         OwnedMessage::Text(msg)
     }
 

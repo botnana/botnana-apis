@@ -1,7 +1,6 @@
 use websocket::OwnedMessage;
 use futures::sync::mpsc;
 use std::sync::{Arc, Mutex};
-use std::result::Result;
 use futures::sink::Sink;
 
 const WAITING_NONE: i8 = 0;
@@ -288,9 +287,9 @@ impl ProgrammedEtherCAT {
     }
 
     pub fn slave<'a>(&self, p: usize) -> Option<ProgrammedEtherCATSlave> {
-        let slave = self._slaves.lock().unwrap();        
-        if 1 <= p && p <= slave.len() {            
-            Some(slave[p - 1].clone()) // ProgramEtherCATSlave clone            
+        let slave = self._slaves.lock().unwrap();
+        if 1 <= p && p <= slave.len() {
+            Some(slave[p - 1].clone()) // ProgramEtherCATSlave clone
         } else {
             None
         }
@@ -323,7 +322,7 @@ impl Program {
         line.push_str(name);
         line.push_str("\\n");
 
-        let mut ethercat = ProgrammedEtherCAT::new();
+        let ethercat = ProgrammedEtherCAT::new();
         let mut eth = ethercat.clone();
 
         let program = Program {
@@ -336,13 +335,13 @@ impl Program {
 
         for i in 0..slave {
             let pg = program.clone();
-            eth.set_slave(ProgrammedEtherCATSlave::new(pg, i+1));
+            eth.set_slave(ProgrammedEtherCATSlave::new(pg, i + 1));
         }
 
         program.clone()
     }
 
-    fn deployJson(&self) -> String {
+    fn deploy_json(&self) -> String {
         let msg = "{\"jsonrpc\":\"2.0\",\"method\":\"script.deploy\",\"params\":{\"script\":\""
             .to_owned() + &self.lines.lock().unwrap() + "\"}}";
         msg.to_string()
@@ -367,14 +366,14 @@ impl Program {
         }
 
         self.lines.lock().unwrap().push_str("end-of-program ;");
-        let message = self.deployJson();
+        let message = self.deploy_json();
         self.sender
             .clone()
             .wait()
             .send(OwnedMessage::Text(message))
             .expect("error");
     }
-    pub fn run(&self) {                
+    pub fn run(&self) {
         let msg = "deploy user$".to_owned() + &self.name + " ;deploy";
         self.evaluate(&msg);
     }
@@ -393,7 +392,7 @@ impl Program {
     fn evaluate(&self, script: &str) {
         let msg = "{\"jsonrpc\":\"2.0\",\"method\":\"motion.evaluate\",\"params\":{\"script\":\""
             .to_owned() + script + "\"}}";
-        
+
         self.sender
             .clone()
             .wait()

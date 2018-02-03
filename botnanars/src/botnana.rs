@@ -38,7 +38,7 @@ impl Config {}
 
 #[derive(Clone)]
 #[warn(non_snake_case)]
-pub struct botnana {
+pub struct Botnana {
     sender: Option<mpsc::Sender<OwnedMessage>>,
     debug_level: i32,
     pub ethercat: Ethercat,
@@ -51,9 +51,9 @@ pub struct botnana {
  * botnana.programs = []
  *
  */
-impl botnana {
-    pub fn new() -> Result<botnana> {
-        Ok(botnana {
+impl Botnana {
+    pub fn new() -> Result<Botnana> {
+        Ok(Botnana {
             sender: None,
             debug_level: 1,
             ethercat: Ethercat::new(),
@@ -81,7 +81,7 @@ impl botnana {
         self.sender = Some(sender);
 
         let mut botnana = self.clone();
-        let mut btn = self.clone();
+        let btn = self.clone();
 
         botnana.once("slaves", move |slaves| {
             let s: Vec<&str> = slaves.split(",").collect();
@@ -122,7 +122,7 @@ impl botnana {
         });
 
         self.get_slaves();
-        self.poll();        
+        self.poll();
     }
 
     fn handle_message(&mut self, message: String) {
@@ -143,7 +143,7 @@ impl botnana {
                     if index % 2 == 0 {
                         event = e;
                     } else {
-                        let mut removeList = Vec::new();
+                        let mut remove_list = Vec::new();
                         let mut counter_exist = false;
 
                         match handlers.get(event) {
@@ -155,7 +155,7 @@ impl botnana {
                                 for h in handle {
                                     h(e);
                                     if counter[idx] == 1 {
-                                        removeList.push(idx);
+                                        remove_list.push(idx);
                                     }
                                     counter[idx] -= 1;
                                     idx += 1;
@@ -164,16 +164,15 @@ impl botnana {
                             None => {}
                         };
 
-                        if (counter_exist) {
+                        if counter_exist {
                             let counter = handlers_counters.get_mut(event).unwrap();
                             let handler = handlers.get_mut(event).unwrap();
 
-                            for i in &removeList {
+                            for i in &remove_list {
                                 handler.remove(*i);
                                 counter.remove(*i);
                             }
                         }
-                        
                     }
 
                     index += 1;
@@ -189,8 +188,8 @@ impl botnana {
         let mut handlers = self.handlers.lock().unwrap();
         let mut handlers_counters = self.handlers_counters.lock().unwrap();
 
-        let mut h = handlers.entry(event).or_insert(Vec::new());
-        let mut hc = handlers_counters.entry(event).or_insert(Vec::new());
+        let h = handlers.entry(event).or_insert(Vec::new());
+        let hc = handlers_counters.entry(event).or_insert(Vec::new());
 
         h.push(Box::new(handler));
         hc.push(count);
@@ -281,8 +280,8 @@ impl botnana {
         self.send(&msg, "");
     }
 
-    fn get_slaves(&self){
+    fn get_slaves(&self) {
         let msg = "{\"jsonrpc\":\"2.0\",\"method\":\"_.get_slaves\"}";
-        self.send(&msg,"");
+        self.send(&msg, "");
     }
 }

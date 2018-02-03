@@ -1,10 +1,10 @@
 extern crate botnanars;
-use botnanars::botnana;
+use botnanars::Botnana;
 use std::{thread, time};
 use std::sync::{Arc, Mutex};
 
 fn main() {
-    let botnana = Arc::new(Mutex::new(botnana::botnana::new().unwrap()));
+    let botnana = Arc::new(Mutex::new(Botnana::new().unwrap()));
 
     // TODO botnana.lock().unwrap().set_debug(0);
 

@@ -1,9 +1,9 @@
 extern crate botnanars;
-use botnanars::botnana;
+use botnanars::Botnana;
 use std::sync::{Arc, Mutex};
 
 fn main() {
-    let botnana = Arc::new(Mutex::new(botnana::botnana::new().unwrap()));
+    let botnana = Arc::new(Mutex::new(Botnana::new().unwrap()));
     let btn = botnana.clone();
 
     botnana.lock().unwrap().once("version", move |version| {
