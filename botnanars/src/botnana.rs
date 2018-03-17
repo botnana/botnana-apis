@@ -1,14 +1,9 @@
 use std::result;
 use std::thread;
 use std::time;
-use std::sync::{Arc, Mutex};
+use std::sync::{Arc, Mutex, mpsc};
 use std::collections::HashMap;
 
-use tokio_core::reactor::Core;
-use futures::future::Future;
-use futures::sink::Sink;
-use futures::stream::Stream;
-use futures::sync::mpsc;
 use websocket::result::WebSocketError;
 use websocket::{ClientBuilder, OwnedMessage};
 
@@ -66,14 +61,20 @@ impl Botnana {
     }
 
     fn set_ethercat_slave(&self, i: usize) {
-        self.ethercat.set_slave(i, self.sender.clone().unwrap());
+        match self.sender {
+            Some(ref sender) => {
+                self.ethercat.set_slave(i, sender.clone());
+            }
+            None => {
+                eprintln!("No sender found");
+            }
+        }
     }
 
     pub fn start(&mut self, connection: &str) {
         println!("Connecting to {}", connection);
 
-        let (sender, receiver) = mpsc::channel(0);
-        let se = sender.clone();
+        let (sender, receiver) = mpsc::channel();
         self.sender = Some(sender);
 
         let mut botnana = self.clone();
@@ -90,31 +91,39 @@ impl Botnana {
             btn.ok();
         });
 
-        let connection = connection.to_owned();
+        let client = ClientBuilder::new(connection)
+            .unwrap()
+            .connect_insecure()
+            .unwrap();
+
+        let (mut rx, mut tx) = client.split().unwrap();
 
         thread::spawn(move || {
-            let mut core = Core::new().unwrap();
-            let runner = ClientBuilder::new(&connection)
-                .unwrap()
-                .add_protocol("rust-websocket")
-                .async_connect_insecure(&core.handle())
-                .and_then(|(duplex, _)| {
-                    let (sink, stream) = duplex.split();
-                    stream
-                        .filter_map(|message| match message {
-                            OwnedMessage::Close(e) => Some(OwnedMessage::Close(e)),
-                            OwnedMessage::Ping(d) => Some(OwnedMessage::Pong(d)),
+            for message in rx.incoming_messages() {
+                match message {
+                    Ok(msg) => {
+                        match msg {
                             OwnedMessage::Text(m) => {
                                 botnana.handle_message(m);
-                                None
                             }
-                            _ => None,
-                        })
-                        .select(receiver.map_err(|_| WebSocketError::NoDataAvailable))
-                        .forward(sink)
-                });
+                            _ => panic!("Invalid message {:?}", msg)
+                        };
+                    }
+                    Err(e) => {
+                        eprintln!("{}", e);
+                    }
+                }
+            }
+        });
 
-            core.run(runner).unwrap();
+        thread::spawn(move || {
+            loop {
+                // TODO: Handle error.
+                let _error = match receiver.recv() {
+                    Ok(msg) => tx.send_message(&msg),
+                    Err(_) => Err(WebSocketError::NoDataAvailable)
+                };
+            }
         });
 
         self.get_slaves();
@@ -195,7 +204,6 @@ impl Botnana {
         let s = &self.sender;
         match s {
             &Some(ref sender) => {
-                let mut sender = sender.clone().wait();
                 let msg = OwnedMessage::Text(msg.to_string());
                 sender.send(msg).expect(expect);
             }
@@ -259,7 +267,7 @@ impl Botnana {
         let program = Program::new(name, slave_len, sender);
 
         /*
-              push program to programms: Vec<Program>                   
+              push program to programms: Vec<Program>
         */
 
         program
