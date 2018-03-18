@@ -28,84 +28,13 @@ struct Config {}
 impl Config {}
 */
 
-pub struct EventManager {
-    handlers: HashMap<&'static str, Vec<Box<Fn(&str) + Send>>>,
-    handlers_counters: HashMap<&'static str, Vec<i32>>,
-    events: Vec<String>,
-}
-
-impl EventManager {
-
-    fn emit(&mut self, message: String) {
-       self.events.push(message);
-    }
-
-    fn handle_messages(&mut self, debug_level: i32) {
-        while let Some(message) = self.events.pop() {
-            if message != "" {
-                let lines: Vec<&str> = message.split("\n").collect();
-                let mut handlers = &mut self.handlers;
-                let mut handlers_counters = &mut self.handlers_counters;
-
-                for line in lines {
-                    if debug_level > 0 {
-                        println!("{:?}", line);
-                    }
-
-                    let mut r: Vec<&str> = line.split("|").collect();
-                    let mut index = 0;
-                    let mut event = "";
-                    for e in r {
-                        if index % 2 == 0 {
-                            event = e;
-                        } else {
-                            let mut remove_list = Vec::new();
-                            let mut counter_exist = false;
-
-                            match handlers.get(event) {
-                                Some(handle) => {
-                                    counter_exist = true;
-                                    let counter = handlers_counters.get_mut(event).unwrap();
-
-                                    let mut idx = 0;
-                                    for h in handle {
-                                        h(e);
-                                        if counter[idx] == 1 {
-                                            remove_list.push(idx);
-                                        }
-                                        counter[idx] -= 1;
-                                        idx += 1;
-                                    }
-                                }
-                                None => {}
-                            };
-
-                            if counter_exist {
-                                let counter = handlers_counters.get_mut(event).unwrap();
-                                let handler = handlers.get_mut(event).unwrap();
-
-                                for i in &remove_list {
-                                    handler.remove(*i);
-                                    counter.remove(*i);
-                                }
-                            }
-                        }
-
-                        index += 1;
-                    }
-                }
-            }
-        }
-    }
-
-}
-
 #[derive(Clone)]
 pub struct Botnana {
     sender: Option<mpsc::Sender<OwnedMessage>>,
     debug_level: i32,
     pub ethercat: Ethercat,
-    event_manager: Arc<Mutex<EventManager>>,
+    handlers: Arc<Mutex<HashMap<&'static str, Vec<Box<Fn(&str) + Send>>>>>,
+    handlers_counters: Arc<Mutex<HashMap<&'static str, Vec<i32>>>>,
 }
 /**
  * TODO
@@ -119,12 +48,16 @@ impl Botnana {
             sender: None,
             debug_level: 1,
             ethercat: Ethercat::new(),
-            event_manager: Arc::new(Mutex::new(EventManager {
-                handlers: HashMap::new(),
-                handlers_counters: HashMap::new(),
-                events: Vec::new(),
-            }))
+            handlers: Arc::new(Mutex::new(HashMap::new())),
+            handlers_counters: Arc::new(Mutex::new(HashMap::new())),
         })
+    }
+
+    fn ok(&self) {
+        let mut mutself = self.clone();
+        thread::spawn(move || {
+            mutself.handle_message("ready|ok".to_string());
+        });
     }
 
     fn set_ethercat_slave(&self, i: usize) {
@@ -155,7 +88,7 @@ impl Botnana {
                 btn.set_ethercat_slave(i + 1);
             }
 
-            btn.event_manager.lock().unwrap().emit("ready|ok".to_string());
+            btn.ok();
         });
 
         let client = ClientBuilder::new(connection)
@@ -165,14 +98,13 @@ impl Botnana {
 
         let (mut rx, mut tx) = client.split().unwrap();
 
-        let event_manager = botnana.event_manager.clone();
         thread::spawn(move || {
             for message in rx.incoming_messages() {
                 match message {
                     Ok(msg) => {
                         match msg {
                             OwnedMessage::Text(m) => {
-                                event_manager.lock().unwrap().emit(m);
+                                botnana.handle_message(m);
                             }
                             _ => panic!("Invalid message {:?}", msg)
                         };
@@ -198,22 +130,74 @@ impl Botnana {
         self.poll();
     }
 
+    fn handle_message(&mut self, message: String) {
+        if message != "" {
+            let lines: Vec<&str> = message.split("\n").collect();
+            let mut handlers = self.handlers.try_lock().unwrap();
+            let mut handlers_counters = self.handlers_counters.try_lock().unwrap();
+
+            for line in lines {
+                if self.debug_level > 0 {
+                    println!("{:?}", line);
+                }
+
+                let mut r: Vec<&str> = line.split("|").collect();
+                let mut index = 0;
+                let mut event = "";
+                for e in r {
+                    if index % 2 == 0 {
+                        event = e;
+                    } else {
+                        let mut remove_list = Vec::new();
+                        let mut counter_exist = false;
+
+                        match handlers.get(event) {
+                            Some(handle) => {
+                                counter_exist = true;
+                                let counter = handlers_counters.get_mut(event).unwrap();
+
+                                let mut idx = 0;
+                                for h in handle {
+                                    h(e);
+                                    if counter[idx] == 1 {
+                                        remove_list.push(idx);
+                                    }
+                                    counter[idx] -= 1;
+                                    idx += 1;
+                                }
+                            }
+                            None => {}
+                        };
+
+                        if counter_exist {
+                            let counter = handlers_counters.get_mut(event).unwrap();
+                            let handler = handlers.get_mut(event).unwrap();
+
+                            for i in &remove_list {
+                                handler.remove(*i);
+                                counter.remove(*i);
+                            }
+                        }
+                    }
+
+                    index += 1;
+                }
+            }
+        }
+    }
+
     pub fn times<F>(&mut self, event: &'static str, count: i32, handler: F)
     where
         F: Fn(&str) + Send + 'static,
     {
-        let mut event_manager = self.event_manager.lock().unwrap();
+        let mut handlers = self.handlers.lock().unwrap();
+        let mut handlers_counters = self.handlers_counters.lock().unwrap();
 
-        {
-            let handlers = &mut event_manager.handlers;
-            let h = handlers.entry(event).or_insert(Vec::new());
-            h.push(Box::new(handler));
-        }
-
-        let handlers_counters = &mut event_manager.handlers_counters;
+        let h = handlers.entry(event).or_insert(Vec::new());
         let hc = handlers_counters.entry(event).or_insert(Vec::new());
-        hc.push(count);
 
+        h.push(Box::new(handler));
+        hc.push(count);
     }
 
     fn send(&self, msg: &str, expect: &str) {
@@ -247,9 +231,7 @@ impl Botnana {
         let timer = 100;
         let ten_millis = time::Duration::from_millis(timer);
         let btn = self.clone();
-        let event_manager = btn.event_manager.clone();
         thread::spawn(move || loop {
-            event_manager.lock().unwrap().handle_messages(btn.debug_level);
             btn.send("{\"jsonrpc\":\"2.0\",\"method\":\"motion.poll\"}", "");
             thread::sleep(ten_millis);
         });
