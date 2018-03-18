@@ -9,30 +9,33 @@ fn main() {
     let btn = botnana.clone();
 
     botnana.lock().unwrap().once("ready", move |_| {
-        let slave_count = btn.lock().unwrap().ethercat.get_slaves_count();
-        for i in 1..slave_count {
-            match btn.lock().unwrap().ethercat.slave(i) {
-                Some(s) => s.get(),
-                None => {
-                    println!("get None");
-                }
-            }
-        }
-
-        loop {
+        let btn = btn.clone();
+        thread::spawn(move || {
+            let slave_count = btn.lock().unwrap().ethercat.get_slaves_count();
             for i in 1..slave_count {
                 match btn.lock().unwrap().ethercat.slave(i) {
-                    Some(s) => s.get_diff(),
+                    Some(s) => s.get(),
                     None => {
                         println!("get None");
                     }
                 }
             }
-            thread::sleep(time::Duration::from_millis(2000));
-        }
+
+            loop {
+                for i in 1..slave_count {
+                    match btn.lock().unwrap().ethercat.slave(i) {
+                        Some(s) => s.get_diff(),
+                        None => {
+                            println!("get None");
+                        }
+                    }
+                }
+                thread::sleep(time::Duration::from_millis(2000));
+            }
+        });
     });
 
-    botnana.lock().unwrap().start("ws://localhost:3012");
+    botnana.lock().unwrap().start("ws://192.168.50.222:3012");
 
     loop {}
 }

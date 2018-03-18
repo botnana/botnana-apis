@@ -133,8 +133,8 @@ impl Botnana {
     fn handle_message(&mut self, message: String) {
         if message != "" {
             let lines: Vec<&str> = message.split("\n").collect();
-            let mut handlers = self.handlers.try_lock().unwrap();
-            let mut handlers_counters = self.handlers_counters.try_lock().unwrap();
+            let mut handlers = self.handlers.lock().unwrap();
+            let mut handlers_counters = self.handlers_counters.lock().unwrap();
 
             for line in lines {
                 if self.debug_level > 0 {
