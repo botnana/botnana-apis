@@ -1,10 +1,9 @@
 extern crate botnanars;
 use botnanars::Botnana;
-use std::{thread, time};
 use std::sync::{Arc, Mutex};
 
 fn main() {
-    let botnana = Arc::new(Mutex::new(Botnana::new().unwrap()));
+    let botnana = Arc::new(Mutex::new(Botnana::new()));
 
     // TODO botnana.lock().unwrap().set_debug(0);
 
@@ -60,7 +59,5 @@ fn main() {
 
     botnana.lock().unwrap().start("ws://localhost:3012");
 
-    loop {
-        thread::sleep(time::Duration::from_millis(2000));
-    }
+    loop {}
 }

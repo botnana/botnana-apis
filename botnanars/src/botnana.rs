@@ -1,4 +1,3 @@
-use std::result;
 use std::thread;
 use std::time;
 use std::sync::{Arc, Mutex, mpsc};
@@ -9,11 +8,6 @@ use websocket::{ClientBuilder, OwnedMessage};
 
 use ethercat::Ethercat;
 use programmed::Program;
-
-#[derive(Debug)]
-pub enum BotNanaError {}
-
-pub type Result<T> = result::Result<T, BotNanaError>;
 
 // Real-time scripwting API
 /*
@@ -43,14 +37,14 @@ pub struct Botnana {
  *
  */
 impl Botnana {
-    pub fn new() -> Result<Botnana> {
-        Ok(Botnana {
+    pub fn new() -> Botnana {
+        Botnana {
             sender: None,
             debug_level: 1,
             ethercat: Ethercat::new(),
             handlers: Arc::new(Mutex::new(HashMap::new())),
             handlers_counters: Arc::new(Mutex::new(HashMap::new())),
-        })
+        }
     }
 
     fn ok(&self) {
@@ -77,10 +71,9 @@ impl Botnana {
         let (sender, receiver) = mpsc::channel();
         self.sender = Some(sender);
 
-        let mut botnana = self.clone();
         let btn = self.clone();
 
-        botnana.once("slaves", move |slaves| {
+        self.once("slaves", move |slaves| {
             let s: Vec<&str> = slaves.split(",").collect();
             let length = s.len() / 2;
 
@@ -98,13 +91,14 @@ impl Botnana {
 
         let (mut rx, mut tx) = client.split().unwrap();
 
+        let mut btn2 = self.clone();
         thread::spawn(move || {
             for message in rx.incoming_messages() {
                 match message {
                     Ok(msg) => {
                         match msg {
                             OwnedMessage::Text(m) => {
-                                botnana.handle_message(m);
+                                btn2.handle_message(m);
                             }
                             _ => panic!("Invalid message {:?}", msg)
                         };
