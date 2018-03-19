@@ -46,7 +46,7 @@ impl Slave {
         let p = &self.position.to_string();
         msg.push_str("{");
         msg.push_str("\"jsonrpc\":\"2.0\",");
-        msg.push_str("\"method:\":\"ethercat.slave.");
+        msg.push_str("\"method\":\"ethercat.slave.");
         msg.push_str(method);
         msg.push_str("\",");
         msg.push_str("\"params\":{\"position\":");
