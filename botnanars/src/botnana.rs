@@ -7,7 +7,7 @@ use websocket::result::WebSocketError;
 use websocket::{ClientBuilder, OwnedMessage};
 
 use ethercat::Ethercat;
-use programmed::Program;
+use program::Program;
 
 // Real-time scripwting API
 /*
@@ -28,7 +28,7 @@ pub struct Botnana {
     debug_level: i32,
     pub ethercat: Ethercat,
     handlers: Arc<Mutex<HashMap<&'static str, Vec<Box<Fn(&str) + Send>>>>>,
-    handlers_counters: Arc<Mutex<HashMap<&'static str, Vec<i32>>>>,
+    handler_counters: Arc<Mutex<HashMap<&'static str, Vec<i32>>>>,
 }
 /**
  * TODO
@@ -43,7 +43,7 @@ impl Botnana {
             debug_level: 1,
             ethercat: Ethercat::new(),
             handlers: Arc::new(Mutex::new(HashMap::new())),
-            handlers_counters: Arc::new(Mutex::new(HashMap::new())),
+            handler_counters: Arc::new(Mutex::new(HashMap::new())),
         }
     }
 
@@ -128,7 +128,7 @@ impl Botnana {
         if message != "" {
             let lines: Vec<&str> = message.split("\n").collect();
             let mut handlers = self.handlers.lock().unwrap();
-            let mut handlers_counters = self.handlers_counters.lock().unwrap();
+            let mut handler_counters = self.handler_counters.lock().unwrap();
 
             for line in lines {
                 if self.debug_level > 0 {
@@ -148,7 +148,7 @@ impl Botnana {
                         match handlers.get(event) {
                             Some(handle) => {
                                 counter_exist = true;
-                                let counter = handlers_counters.get_mut(event).unwrap();
+                                let counter = handler_counters.get_mut(event).unwrap();
 
                                 let mut idx = 0;
                                 for h in handle {
@@ -164,7 +164,7 @@ impl Botnana {
                         };
 
                         if counter_exist {
-                            let counter = handlers_counters.get_mut(event).unwrap();
+                            let counter = handler_counters.get_mut(event).unwrap();
                             let handler = handlers.get_mut(event).unwrap();
 
                             for i in &remove_list {
@@ -185,10 +185,10 @@ impl Botnana {
         F: Fn(&str) + Send + 'static,
     {
         let mut handlers = self.handlers.lock().unwrap();
-        let mut handlers_counters = self.handlers_counters.lock().unwrap();
+        let mut handler_counters = self.handler_counters.lock().unwrap();
 
         let h = handlers.entry(event).or_insert(Vec::new());
-        let hc = handlers_counters.entry(event).or_insert(Vec::new());
+        let hc = handler_counters.entry(event).or_insert(Vec::new());
 
         h.push(Box::new(handler));
         hc.push(count);
