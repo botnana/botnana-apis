@@ -11,10 +11,10 @@ fn main() {
     botnana.lock().unwrap().once("ready", move |_| {
         btn.lock()
             .unwrap()
-            .set_slave("{\"position\":\"1\",\"tag\":\"homing_method\",\"value\":\"33\"}");
+            .set_slave(r#"{"position":1,"tag":"homing_method","value":33}"#);
         btn.lock()
             .unwrap()
-            .set_slave("{\"position\":\"1\",\"tag\":\"homing_speed_1\",\"value\":\"18000\"}");
+            .set_slave(r#"{"position":1,"tag":"homing_speed_1","value":18000}"#);
         btn.lock().unwrap().save();
 
         match btn.lock().unwrap().ethercat.slave(1) {

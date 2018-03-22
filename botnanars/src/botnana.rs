@@ -232,8 +232,8 @@ impl Botnana {
     }
 
     pub fn evaluate(&self, script: &str) {
-        let msg = "{\"jsonrpc\":\"2.0\",\"method\":\"motion.evaluate\",\"params\":{\"script\":\""
-            .to_owned() + script + "\"}}";
+        let msg = r#"{"jsonrpc":"2.0","method":"motion.evaluate","params":{"script":""#
+            .to_owned() + script + r#""}}"#;
 
         self.send(&msg, "Sending message");
     }
@@ -248,7 +248,7 @@ impl Botnana {
     }
 
     pub fn version(&self) {
-        let msg = "{\"jsonrpc\":\"2.0\",\"method\":\"version.get\"}";
+        let msg = r#"{"jsonrpc":"2.0","method":"version.get"}"#;
         self.send(msg, "");
     }
 
@@ -268,13 +268,13 @@ impl Botnana {
     }
 
     pub fn set_slave(&self, args: &str) {
-        let msg = "{\"jsonrpc\":\"2.0\",\"method\":\"config.set_slave\",\"params\":{\"script\":"
-            .to_owned() + args + "}}";
+        let msg = r#"{"jsonrpc":"2.0","method":"config.set_slave","params":"#
+            .to_owned() + args + r#"}"#;
         self.send(&msg, "");
     }
 
     pub fn save(&self) {
-        let msg = "{\"jsonrpc\":\"2.0\",\"method\":\"config.save\"}";
+        let msg = r#"{"jsonrpc":"2.0","method":"config.save"}"#;
         self.send(&msg, "");
     }
 
