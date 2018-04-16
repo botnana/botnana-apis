@@ -1,6 +1,5 @@
 use std::thread;
 use std::sync::mpsc;
-use std::fmt::Write;
 use std::ffi::CStr;
 use std::os::raw::c_char;
 use std::str;
@@ -82,7 +81,6 @@ pub extern "C" fn connect_to_botnana(
 #[no_mangle]
 pub fn send_message(botnana: Box<Botnana>, msg: &str) {
     let botnana = Box::into_raw(botnana);
-
     let s = unsafe { &(*botnana).sender };
     match s {
         &Some(ref sender) => {
@@ -95,20 +93,15 @@ pub fn send_message(botnana: Box<Botnana>, msg: &str) {
     }
 }
 
-/// get words
-#[no_mangle]
-pub fn get_words(botnana: Box<Botnana>) {
-    motion_evaluate(botnana, &"words".to_owned());
-}
-
 /// motion motion_evaluate
 #[no_mangle]
-pub fn motion_evaluate(botnana: Box<Botnana>, cmd: &str) {
-    let mut msg = String::new();
-    write!(
-            msg,
-            "{{\"jsonrpc\": \"2.0\",\"method\": \"motion.evaluate\",\"params\": {{\"script\":\"{}\"}}}}",
-            cmd
-    ).expect("motion evaluate");
-    send_message(botnana, &msg);
+pub fn motion_evaluate(botnana: Box<Botnana>, script: *const c_char) {
+    let script = unsafe {
+        assert!(!script.is_null());
+        str::from_utf8(CStr::from_ptr(script).to_bytes()).unwrap()
+    };
+
+    let msg = r#"{"jsonrpc":"2.0","method":"motion.evaluate","params":{"script":""#.to_owned()
+        + script + r#""}}"#;
+    send_message(botnana, &msg.to_owned());
 }

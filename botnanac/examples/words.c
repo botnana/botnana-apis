@@ -15,7 +15,7 @@ void handle_meaasge (char * src)
 int main() {
 
 	botnana = connect_to_botnana("192.168.7.2:3012", handle_meaasge);
-	get_words(botnana);
+	motion_evaluate(botnana, "words");
 
 	while (1)
 	{
