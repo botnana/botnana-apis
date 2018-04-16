@@ -1,0 +1,10 @@
+[package]
+name = "botnanac"
+version = "0.1.0"
+
+[dependencies]
+websocket = "0.20.2"
+
+[lib]
+name="botnana"
+crate-type = ["staticlib","cdylib"]
