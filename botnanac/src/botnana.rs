@@ -28,7 +28,7 @@ pub extern "C" fn hello_botnana() {
 #[no_mangle]
 pub extern "C" fn connect_to_botnana(
     address: *const c_char,
-    msg_processor: fn(&str),
+    msg_processor: fn(*const c_char),
 ) -> Box<Botnana> {
     let address = unsafe {
         assert!(!address.is_null());
@@ -62,10 +62,12 @@ pub extern "C" fn connect_to_botnana(
                             match msg {
                                 OwnedMessage::Text(m) => {
                                     botnana_handle_message(&handlers, &handler_counters, &m);
-                                    //    let cstr = CString::from_slice(mystr.as_bytes());
-                                    //    cstr.as_slice().as_ptr()
-
-                                    msg_processor(&m);
+                                    let mut msg = m.into_bytes();
+                                    msg.push(0);
+                                    let msg = CStr::from_bytes_with_nul(msg.as_slice())
+                                        .expect("toCstr")
+                                        .as_ptr();
+                                    msg_processor(msg);
                                 }
                                 _ => panic!("Invalid message {:?}", msg),
                             };
