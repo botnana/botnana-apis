@@ -7,6 +7,7 @@ use std::str;
 use websocket::{ClientBuilder, OwnedMessage};
 use websocket::result::WebSocketError;
 use std::collections::HashMap;
+use std::time;
 
 /// Botnana
 #[repr(C)]
@@ -86,7 +87,8 @@ pub extern "C" fn connect_to_botnana(
                     Err(_) => Err(WebSocketError::NoDataAvailable),
                 };
             });
-
+            // 等待讓 thread 啟動
+            thread::sleep(time::Duration::from_millis(1000));
             Box::new(botnana)
         }
     }
@@ -106,7 +108,6 @@ fn botnana_handle_message(
             let mut index: u32 = 0;
             let mut event = "";
             for e in r {
-                println!("{}", e);
                 if index % 2 == 0 {
                     event = e;
                 } else {
