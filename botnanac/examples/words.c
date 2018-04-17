@@ -2,9 +2,6 @@
 #include "botnana.h"
 
 
-void * botnana;
-
-
 void handle_meaasge (char * src)
 {
 	printf("handle_meaasge: %s \n", src);
@@ -14,7 +11,7 @@ void handle_meaasge (char * src)
 
 int main() {
 
-	botnana = connect_to_botnana("192.168.7.2:3012", handle_meaasge);
+	struct Botnana * botnana = connect_to_botnana("192.168.7.2:3012", handle_meaasge);
 	motion_evaluate(botnana, "words");
 
 	while (1)
