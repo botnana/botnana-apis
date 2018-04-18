@@ -45,7 +45,7 @@ pub extern "C" fn connect_to_botnana(
         Ok(mut n) => {
             let (sender, receiver) = mpsc::channel();
             let botnana = Botnana {
-                sender: Some(sender),
+                sender: Some(sender.clone()),
                 handlers: Arc::new(Mutex::new(HashMap::new())),
                 handler_counters: Arc::new(Mutex::new(HashMap::new())),
             };
@@ -62,13 +62,16 @@ pub extern "C" fn connect_to_botnana(
                         Ok(msg) => {
                             match msg {
                                 OwnedMessage::Text(m) => {
-                                    botnana_handle_message(&handlers, &handler_counters, &m);
-                                    let mut msg = m.into_bytes();
-                                    msg.push(0);
-                                    let msg = CStr::from_bytes_with_nul(msg.as_slice())
-                                        .expect("toCstr")
-                                        .as_ptr();
-                                    msg_processor(msg);
+                                    if m != "" {
+                                        println!("botnanars: {}", m);
+                                        botnana_handle_message(&handlers, &handler_counters, &m);
+                                        let mut msg = m.into_bytes();
+                                        msg.push(0);
+                                        let msg = CStr::from_bytes_with_nul(msg.as_slice())
+                                            .expect("toCstr")
+                                            .as_ptr();
+                                        msg_processor(msg);
+                                    }
                                 }
                                 _ => panic!("Invalid message {:?}", msg),
                             };
@@ -87,8 +90,15 @@ pub extern "C" fn connect_to_botnana(
                     Err(_) => Err(WebSocketError::NoDataAvailable),
                 };
             });
-            // 等待讓 thread 啟動
-            thread::sleep(time::Duration::from_millis(1000));
+
+            let btn = sender.clone();
+            thread::spawn(move || loop {
+                let poll_message = "{\"jsonrpc\":\"2.0\",\"method\":\"motion.poll\"}".to_owned();
+                let msg = OwnedMessage::Text(poll_message);
+                btn.send(msg).expect("sender.send");
+                thread::sleep(time::Duration::from_millis(100));
+            });
+           
             Box::new(botnana)
         }
     }
@@ -174,6 +184,7 @@ fn times<F>(
 /// Send message
 #[no_mangle]
 pub fn send_message(botnana: Box<Botnana>, msg: &str) {
+    println!("{}", msg);
     let botnana = Box::into_raw(botnana);
     let s = unsafe { &(*botnana).sender.clone() };
     match s {
@@ -185,18 +196,6 @@ pub fn send_message(botnana: Box<Botnana>, msg: &str) {
             println!("No sender can find");
         }
     }
-}
-
-/// motion motion_evaluate
-#[no_mangle]
-pub fn motion_evaluate(botnana: Box<Botnana>, script: *const c_char) {
-    let script = unsafe {
-        assert!(!script.is_null());
-        str::from_utf8(CStr::from_ptr(script).to_bytes()).unwrap()
-    };
-    let msg = r#"{"jsonrpc":"2.0","method":"motion.evaluate","params":{"script":""#.to_owned()
-        + script + r#""}}"#;
-    send_message(botnana, &msg.to_owned());
 }
 
 /// attach function to event
