@@ -63,7 +63,7 @@ pub extern "C" fn connect_to_botnana(
                             match msg {
                                 OwnedMessage::Text(m) => {
                                     if m != "" {
-                                        println!("botnanars: {}", m);
+                                        //println!("botnanars: {}", m);
                                         botnana_handle_message(&handlers, &handler_counters, &m);
                                         let mut msg = m.into_bytes();
                                         msg.push(0);
@@ -98,7 +98,7 @@ pub extern "C" fn connect_to_botnana(
                 btn.send(msg).expect("sender.send");
                 thread::sleep(time::Duration::from_millis(100));
             });
-           
+
             Box::new(botnana)
         }
     }
@@ -181,8 +181,6 @@ fn times<F>(
     hc.push(count);
 }
 
-/// Send message
-#[no_mangle]
 pub fn send_message(botnana: Box<Botnana>, msg: &str) {
     println!("{}", msg);
     let botnana = Box::into_raw(botnana);
@@ -196,6 +194,12 @@ pub fn send_message(botnana: Box<Botnana>, msg: &str) {
             println!("No sender can find");
         }
     }
+}
+/// evaluate
+pub fn evaluate(botnana: Box<Botnana>, script: &str) {
+    let msg = r#"{"jsonrpc":"2.0","method":"motion.evaluate","params":{"script":""#.to_owned()
+        + script + r#""}}"#;
+    send_message(botnana, &msg.to_owned());
 }
 
 /// attach function to event

@@ -15,8 +15,8 @@ empty: build
 
 	
 verbose: build    
-	gcc ./examples/verbose.c -Isrc  -Ltarget/release -lbotnana -o botnana
-	./botnana
+	gcc ./examples/verbose.c -Isrc  -Ltarget/release -lbotnana -o verbose
+	#./verbose 192.168.7.2:3012
 	
 slave_setting: build    
 	gcc ./examples/slave_setting.c -Isrc  -Ltarget/release -lbotnana -o botnana
@@ -26,6 +26,9 @@ get_version: build
 	gcc ./examples/get_version.c -Isrc  -Ltarget/release -lbotnana -o botnana
 	./botnana		
 	
+program: build
+	gcc ./examples/program.c -Isrc  -Ltarget/release -lbotnana -o botnana
+	RUST_BACKTRACE=full ./botnana		
 	
 	
 test: build    

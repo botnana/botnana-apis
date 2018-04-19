@@ -3,7 +3,7 @@ use std::os::raw::c_char;
 use std::ffi::CStr;
 use botnana::Botnana;
 use std::str;
-use botnana::send_message;
+use botnana::{evaluate, send_message};
 
 /// motion motion_evaluate
 #[no_mangle]
@@ -12,9 +12,7 @@ pub fn motion_evaluate(botnana: Box<Botnana>, script: *const c_char) {
         assert!(!script.is_null());
         str::from_utf8(CStr::from_ptr(script).to_bytes()).unwrap()
     };
-    let msg = r#"{"jsonrpc":"2.0","method":"motion.evaluate","params":{"script":""#.to_owned()
-        + script + r#""}}"#;
-    send_message(botnana, &msg.to_owned());
+    evaluate(botnana, &script.to_owned());
 }
 
 /// get slave information
