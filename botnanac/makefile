@@ -23,10 +23,11 @@ verbose: build
 	gcc ./examples/verbose.c -Isrc  -Ltarget/release -lbotnana -o verbose
 	#./verbose 192.168.7.2:3012
 	
-slave_setting: build    
-	gcc ./examples/slave_setting.c -Isrc  -Ltarget/release -lbotnana -o botnana
-	./botnana
-	
+slave_setting: build
+	gcc $(CFLAGS) -g -c ./examples/slave_setting.c
+	gcc -o botnana slave_setting.o $(LDFLAGS)
+	RUST_BACKTRACE=1 ./botnana 	
+    
 version: build    
 	gcc $(CFLAGS) -g -c ./examples/version.c
 	gcc -o botnana version.o $(LDFLAGS)
