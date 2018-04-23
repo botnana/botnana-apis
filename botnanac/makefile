@@ -13,10 +13,9 @@ words: build
 	RUST_BACKTRACE=1 ./botnana 
 	
 empty: build
-	-rm *.o botnana
-	gcc -Isrc -c ./examples/empty.c
-	gcc empty.o -Ltarget/release -lbotnana -o botnana
-	./botnana 
+	gcc $(CFLAGS) -g -c ./examples/empty.c
+	gcc -o botnana empty.o $(LDFLAGS)
+	RUST_BACKTRACE=1 ./botnana 	 
 
 	
 verbose: build    

@@ -1,17 +1,18 @@
 #include <stdio.h>
 #include "botnana.h"
-#include "json_api.h"
+
 
 void handle_meaasge (const char * src)
 {
-	printf("C handle_meaasge: %s \n", src);
+	printf("handle_meaasge: %s \n", src);
 	
 }
 
 int main() {
 
-	struct Botnana * botnana = connect_to_botnana("192.168.7.2:3012", handle_meaasge);
-	motion_evaluate(botnana, "empty  marker empty");
+	struct Botnana * botnana = botnana_connect("192.168.7.2", handle_meaasge);
+	botnana_enable_debug (botnana);
+	botnana_motion_evaluate(botnana, "empty  marker empty");
 	
 	while (1)
 	{
