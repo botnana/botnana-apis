@@ -16,7 +16,7 @@ pub struct Program {
 }
 
 #[no_mangle]
-pub fn new_program(name: *const c_char) -> Box<Program> {
+pub fn botnana_new_program(name: *const c_char) -> Box<Program> {
     let name = unsafe {
         assert!(!name.is_null());
         str::from_utf8(CStr::from_ptr(name).to_bytes()).unwrap()
@@ -38,7 +38,7 @@ pub fn new_program(name: *const c_char) -> Box<Program> {
 
 /// deploy porgram
 #[no_mangle]
-pub fn deploy_program(botnana: Box<Botnana>, program: Box<Program>) {
+pub fn botnana_deploy_program(botnana: Box<Botnana>, program: Box<Program>) {
     let program = Box::into_raw(program);
     let lines = unsafe { (*program).lines.clone() };
 
@@ -52,19 +52,19 @@ pub fn deploy_program(botnana: Box<Botnana>, program: Box<Program>) {
 
 /// abort porgram
 #[no_mangle]
-pub fn abort_program(botnana: Box<Botnana>) {
+pub fn botnana_abort_program(botnana: Box<Botnana>) {
     evaluate(botnana, &"kill-task0".to_owned());
 }
 
 /// empty porgram
 #[no_mangle]
-pub fn empty_program(botnana: Box<Botnana>) {
+pub fn botnana_empty_program(botnana: Box<Botnana>) {
     evaluate(botnana, &"empty  marker empty".to_owned());
 }
 
 /// push program line
 #[no_mangle]
-pub fn push_program_line(program: Box<Program>, cmd: *const c_char) {
+pub fn botnana_push_program_line(program: Box<Program>, cmd: *const c_char) {
     let program = Box::into_raw(program);
     let lines = unsafe { (*program).lines.clone() };
 
@@ -78,7 +78,7 @@ pub fn push_program_line(program: Box<Program>, cmd: *const c_char) {
 
 /// run porgram
 #[no_mangle]
-pub fn run_program(botnana: Box<Botnana>, program: Box<Program>) {
+pub fn botnana_run_program(botnana: Box<Botnana>, program: Box<Program>) {
     let program = Box::into_raw(program);
     let name = unsafe { (*program).name.clone() };
     let msg = "deploy user$".to_owned() + &name + " ;deploy";
