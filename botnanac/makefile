@@ -1,11 +1,17 @@
+CFLAGS := -Isrc
+LDFLAGS := -Ltarget/release -lbotnana
+
+
 build:
 	cargo fmt
 	cargo build --release
 
 	
-words: build    
-	gcc ./examples/words.c -Isrc  -Ltarget/release -lbotnana -o botnana
-	./botnana 
+words: build   
+	-rm words
+	gcc $(CFLAGS) -g -c ./examples/words.c
+	gcc -o botnana words.o $(LDFLAGS)
+	RUST_BACKTRACE=1 ./botnana 
 	
 empty: build
 	-rm *.o botnana
@@ -36,4 +42,5 @@ test: build
 	RUST_BACKTRACE=1 ./botnana			
 	
 clean:
-	-rm *.o botnana		
+	-rm *.o botnana
+			
