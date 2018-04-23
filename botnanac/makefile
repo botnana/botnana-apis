@@ -33,6 +33,12 @@ version: build
 	gcc -o botnana version.o $(LDFLAGS)
 	RUST_BACKTRACE=1 ./botnana 	
 	
+version_debug: build    
+	gcc $(CFLAGS) -g -c ./examples/version_debug.c
+	gcc -o botnana version_debug.o $(LDFLAGS)
+	RUST_BACKTRACE=1 ./botnana 		
+	
+	
 program: build
 	gcc ./examples/program.c -Isrc  -Ltarget/release -lbotnana -o botnana
 	RUST_BACKTRACE=full ./botnana		

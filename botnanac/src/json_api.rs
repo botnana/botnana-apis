@@ -7,7 +7,7 @@ use botnana::{evaluate, send_message};
 
 /// motion_evaluate
 #[no_mangle]
-pub fn botnana_motion_evaluate(botnana: Box<Botnana>, script: *const c_char) {
+pub extern "C" fn botnana_motion_evaluate(botnana: Box<Botnana>, script: *const c_char) {
     let script = unsafe {
         assert!(!script.is_null());
         str::from_utf8(CStr::from_ptr(script).to_bytes()).unwrap()
@@ -17,7 +17,7 @@ pub fn botnana_motion_evaluate(botnana: Box<Botnana>, script: *const c_char) {
 
 /// get slave information
 #[no_mangle]
-pub fn botnana_get_slave(botnana: Box<Botnana>, position: libc::uint32_t) {
+pub extern "C" fn botnana_get_slave(botnana: Box<Botnana>, position: libc::uint32_t) {
     let msg = r#"{"jsonrpc":"2.0","method":"ethercat.slave.get","params":{"position":"#.to_owned()
         + position.to_string().as_str() + r#"}}"#;
     send_message(botnana, &msg.to_owned());
@@ -25,7 +25,7 @@ pub fn botnana_get_slave(botnana: Box<Botnana>, position: libc::uint32_t) {
 
 /// get slave diff information
 #[no_mangle]
-pub fn botnana_get_slave_diff(botnana: Box<Botnana>, position: libc::uint32_t) {
+pub extern "C" fn botnana_get_slave_diff(botnana: Box<Botnana>, position: libc::uint32_t) {
     let msg = r#"{"jsonrpc":"2.0","method":"ethercat.slave.get_diff","params":{"position":"#.to_owned()
         + position.to_string().as_str() + r#"}}"#;
     send_message(botnana, &msg.to_owned());
@@ -33,7 +33,7 @@ pub fn botnana_get_slave_diff(botnana: Box<Botnana>, position: libc::uint32_t) {
 
 /// set slave
 #[no_mangle]
-pub fn botnana_set_slave(
+pub extern "C" fn botnana_set_slave(
     botnana: Box<Botnana>,
     position: libc::uint32_t,
     tag: *const c_char,
@@ -52,7 +52,7 @@ pub fn botnana_set_slave(
 
 /// set slave config
 #[no_mangle]
-pub fn botnana_set_slave_config(
+pub extern "C" fn botnana_set_slave_config(
     botnana: Box<Botnana>,
     position: libc::uint32_t,
     tag: *const c_char,
@@ -71,14 +71,14 @@ pub fn botnana_set_slave_config(
 
 /// get version
 #[no_mangle]
-pub fn botnana_get_version(botnana: Box<Botnana>) {
+pub extern "C" fn botnana_get_version(botnana: Box<Botnana>) {
     let msg = r#"{"jsonrpc":"2.0","method":"version.get"}"#;
     send_message(botnana, &msg.to_owned());
 }
 
 /// save config
 #[no_mangle]
-pub fn botnana_save_config(botnana: Box<Botnana>) {
+pub extern "C" fn botnana_save_config(botnana: Box<Botnana>) {
     let msg = r#"{"jsonrpc":"2.0","method":"config.save"}"#;
     send_message(botnana, &msg.to_owned());
 }

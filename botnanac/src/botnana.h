@@ -14,6 +14,10 @@ void botnana_event_attach (struct Botnana * desc, const char * address, uint32_t
 
 struct Program * botnana_new_program(const char * name);
 
+void botnana_enable_debug(struct Botnana * desc);
+
+void botnana_disable_debug(struct Botnana * desc);
+
 
 // Json API
 

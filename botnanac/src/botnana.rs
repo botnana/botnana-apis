@@ -14,6 +14,7 @@ use std::boxed::Box;
 #[repr(C)]
 #[derive(Clone)]
 pub struct Botnana {
+    debug: bool,
     sender: Option<mpsc::Sender<OwnedMessage>>,
     handlers: Arc<Mutex<HashMap<&'static str, Vec<Box<Fn(*const c_char) + Send>>>>>,
     handler_counters: Arc<Mutex<HashMap<&'static str, Vec<u32>>>>,
@@ -33,6 +34,7 @@ impl Botnana {
             Ok(mut n) => {
                 let (sender, receiver) = mpsc::channel();
                 let botnana = Botnana {
+                    debug: false,
                     sender: Some(sender),
                     handlers: Arc::new(Mutex::new(HashMap::new())),
                     handler_counters: Arc::new(Mutex::new(HashMap::new())),
@@ -100,11 +102,17 @@ impl Botnana {
     pub fn send_message(&mut self, msg: &str) {
         match self.sender {
             Some(ref sender) => {
+                if self.debug {
+                    match msg.find("motion.poll") {
+                        Some(_x) => {}
+                        None => println!("{}", &msg),
+                    }
+                }
                 let msg = OwnedMessage::Text(msg.to_string());
                 sender.send(msg).expect("sender.send");
             }
             None => {
-                println!("No sender can find");
+                eprintln!("No sender can find");
             }
         }
     }
@@ -184,11 +192,20 @@ impl Botnana {
         h.push(Box::new(handler));
         hc.push(count);
     }
+
+    /// enable debug
+    pub fn enable_debug(&mut self) {
+        self.debug = true;
+    }
+
+    /// disable debug
+    pub fn disable_debug(&mut self) {
+        self.debug = false;
+    }
 }
 
 /// Send message
 pub fn send_message(botnana: Box<Botnana>, msg: &str) {
-    println!("cmd: {}", msg);
     let s = Box::into_raw(botnana);
     unsafe { (*s).send_message(msg) };
 }
@@ -219,7 +236,7 @@ pub extern "C" fn botnana_connect(
 /// attach function to event
 /// `count` = 0 : always call function if event is posted
 #[no_mangle]
-pub fn botnana_event_attach(
+pub extern "C" fn botnana_event_attach(
     botnana: Box<Botnana>,
     event: *const c_char,
     count: libc::uint32_t,
@@ -232,4 +249,20 @@ pub fn botnana_event_attach(
     let s = Box::into_raw(botnana);
 
     unsafe { (*s).times(&event, count, processor) };
+}
+
+/// enable debug
+#[no_mangle]
+pub extern "C" fn botnana_enable_debug(botnana: Box<Botnana>) {
+    let s = Box::into_raw(botnana);
+    unsafe {
+        (*s).enable_debug();
+    }
+}
+
+/// enable debug
+#[no_mangle]
+pub extern "C" fn botnana_disable_debug(botnana: Box<Botnana>) {
+    let s = Box::into_raw(botnana);
+    unsafe { (*s).disable_debug() };
 }
