@@ -8,7 +8,6 @@ build:
 
 	
 words: build   
-	-rm words
 	gcc $(CFLAGS) -g -c ./examples/words.c
 	gcc -o botnana words.o $(LDFLAGS)
 	RUST_BACKTRACE=1 ./botnana 
@@ -28,9 +27,10 @@ slave_setting: build
 	gcc ./examples/slave_setting.c -Isrc  -Ltarget/release -lbotnana -o botnana
 	./botnana
 	
-get_version: build    
-	gcc ./examples/get_version.c -Isrc  -Ltarget/release -lbotnana -o botnana
-	./botnana		
+version: build    
+	gcc $(CFLAGS) -g -c ./examples/version.c
+	gcc -o botnana version.o $(LDFLAGS)
+	RUST_BACKTRACE=1 ./botnana 	
 	
 program: build
 	gcc ./examples/program.c -Isrc  -Ltarget/release -lbotnana -o botnana

@@ -20,5 +20,8 @@ struct Program * botnana_new_program(const char * name);
 // motion_evaluate
 void botnana_motion_evaluate(struct Botnana * desc, const char * script);
 
+// get version
+void botnana_get_version(struct Botnana * desc);
+
 
 #endif
