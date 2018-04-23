@@ -23,7 +23,7 @@ void handle_version (const char * src)
 int main() {
 
 	struct Botnana * botnana = botnana_connect("192.168.7.2", handle_meaasge);
-	botnana_event_attach(botnana, "version", 12, handle_version);
+	botnana_attach_event(botnana, "version", 12, handle_version);
 
 	while (1)
 	{

@@ -1,45 +1,47 @@
 #include <stdio.h>
 #include "botnana.h"
-//#include "json_api.h"
+
 
 void handle_meaasge (const char * src)
 {
-	printf("C handle_meaasge: %s \n", src);
+	printf("handle_meaasge: %s \n", src);
 
 }
 
+void end_of_program(const char * src)
+{
+	printf("end-of-program: %s \n", src);
+
+}
+
+
 int main() {
 
-	struct Botnana * botnana = connect_to_botnana("192.168.7.2:3012", handle_meaasge);
-	struct Program * pm = new_program("test");
+	struct Botnana * botnana = botnana_connect("192.168.7.2", handle_meaasge);
+	struct Program * pm = botnana_new_program("test");
 
-	empty_program(botnana);
+	botnana_push_program_line(pm, "1 reset-fault");
+	botnana_push_program_line(pm, "100 ms");
+	botnana_push_program_line(pm, "4 1 pds-goal!");
+	botnana_push_program_line(pm, "100 ms");
+	botnana_push_program_line(pm, "hm 1 op-mode!");
+	botnana_push_program_line(pm, "100 ms");
+	botnana_push_program_line(pm, "1 go");
+	botnana_push_program_line(pm, "1 until-target-reached");
+	botnana_push_program_line(pm, "pp 1 op-mode!");
+	botnana_push_program_line(pm, "100 ms");
+	botnana_push_program_line(pm, "25000 1 target-p!");
+	botnana_push_program_line(pm, "pause pause pause pause");
+	botnana_push_program_line(pm, "1 go");
+	botnana_push_program_line(pm, "1 until-target-reached");
 
-	push_program_line(pm, "1 reset-fault");
-	push_program_line(pm, "500 ms");
-	push_program_line(pm, "4 1 pds-goal!");
-	push_program_line(pm, "500 ms");
-	push_program_line(pm, "hm 1 op-mode!");
-	push_program_line(pm, "500 ms");
-	push_program_line(pm, "1 go");
-	push_program_line(pm, "1 until-target-reached");
-	push_program_line(pm, "pp 1 op-mode!");
-	push_program_line(pm, "500 ms");
-	push_program_line(pm, "25000 1 target-p!");
-	push_program_line(pm, "1 go");
-	push_program_line(pm, "1 until-target-reached");
-
-	deploy_program(botnana,pm);
-
+	botnana_attach_event(botnana, "end-of-program", 1, end_of_program);
+	botnana_empty(botnana);
 	sleep(1);
-	run_program(botnana, pm);
+	botnana_deploy_program(botnana,pm);
+	sleep(1);
+	botnana_run_program(botnana, pm);
 
-
-	sleep(60);
-	abort_program(botnana);
-	//get_slave(botnana, 1);
-
-	//run_program(botnana, "test");
 
 	while (1)
 	{

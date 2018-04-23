@@ -236,7 +236,7 @@ pub extern "C" fn botnana_connect(
 /// attach function to event
 /// `count` = 0 : always call function if event is posted
 #[no_mangle]
-pub extern "C" fn botnana_event_attach(
+pub extern "C" fn botnana_attach_event(
     botnana: Box<Botnana>,
     event: *const c_char,
     count: libc::uint32_t,
@@ -265,4 +265,10 @@ pub extern "C" fn botnana_enable_debug(botnana: Box<Botnana>) {
 pub extern "C" fn botnana_disable_debug(botnana: Box<Botnana>) {
     let s = Box::into_raw(botnana);
     unsafe { (*s).disable_debug() };
+}
+
+/// empty
+#[no_mangle]
+pub fn botnana_empty(botnana: Box<Botnana>) {
+    evaluate(botnana, &"empty  marker empty".to_owned());
 }

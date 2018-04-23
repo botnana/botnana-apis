@@ -56,12 +56,6 @@ pub extern "C" fn botnana_abort_program(botnana: Box<Botnana>) {
     evaluate(botnana, &"kill-task0".to_owned());
 }
 
-/// empty porgram
-#[no_mangle]
-pub fn botnana_empty_program(botnana: Box<Botnana>) {
-    evaluate(botnana, &"empty  marker empty".to_owned());
-}
-
 /// push program line
 #[no_mangle]
 pub extern "C" fn botnana_push_program_line(program: Box<Program>, cmd: *const c_char) {
