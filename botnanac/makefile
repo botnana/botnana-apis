@@ -35,7 +35,17 @@ motion_setting: build
 group_setting: build
 	gcc $(CFLAGS) -g -c ./examples/group_setting.c
 	gcc -o botnana group_setting.o $(LDFLAGS)
-	RUST_BACKTRACE=1 ./botnana	 	
+	RUST_BACKTRACE=1 ./botnana	 
+	
+axis_setting: build
+	gcc $(CFLAGS) -g -c ./examples/axis_setting.c
+	gcc -o botnana axis_setting.o $(LDFLAGS)
+	RUST_BACKTRACE=1 ./botnana	 		
+    
+axis_group: build
+	gcc $(CFLAGS) -g -c ./examples/axis_group.c
+	gcc -o botnana axis_group.o $(LDFLAGS)
+	RUST_BACKTRACE=1 ./botnana    
     
 version: build    
 	gcc $(CFLAGS) -g -c ./examples/version.c

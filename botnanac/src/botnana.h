@@ -56,7 +56,6 @@ void botnana_set_motion_config_axis_capacity(struct Botnana * desc, uint32_t axi
 
 void botnana_get_motion_config(struct Botnana * desc);
 
-
 //set group config
 void botnana_set_group_config(
     struct Botnana * desc,
@@ -83,8 +82,27 @@ void botnana_set_group_config_amax(struct Botnana * desc, uint32_t position, dou
 //set group config jmax
 void botnana_set_group_config_jmax(struct Botnana * desc, uint32_t position, double jmax);
 
+void botnana_get_group_config(struct Botnana * desc, uint32_t position);
 
 
+//set axis config
+void botnana_set_axis_config( struct Botnana * desc,
+			      uint32_t position,
+			      const char * name,
+			      double home_offset,
+			      double encoder_ppu,
+			      const char * encoder_length_unit,
+			      uint32_t encoder_direction);
+
+void botnana_set_axis_config_name(struct Botnana * desc, uint32_t position, const char * name);
+
+void botnana_set_axis_config_encoder_length_unit(struct Botnana * desc, uint32_t position, const char * unit);
+
+void botnana_set_axis_config_ppu(struct Botnana * desc, uint32_t position, double ppu);
+
+void botnana_set_axis_config_home_offset(struct Botnana * desc, uint32_t position, double offset);
+
+void botnana_set_axis_config_encoder_direction(struct Botnana * desc, uint32_t position, uint32_t direction);
 
 // save configuration
 void botnana_save_configure(struct Botnana * desc);
