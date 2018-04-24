@@ -96,7 +96,6 @@ pub extern "C" fn program_push_servo_on(program: Box<Program>, position: libc::u
         let msg = position.to_string() + r#" servo-on "# + position.to_string().as_str()
             + r#" until-servo-on"#;
         (*program).push_line(&msg);
-        (*program).until_no_requests();
     }
 }
 
@@ -162,7 +161,8 @@ pub extern "C" fn program_push_go(program: Box<Program>, position: libc::uint32_
 #[no_mangle]
 pub extern "C" fn program_push_reset_fault(program: Box<Program>, position: libc::uint32_t) {
     let program = Box::into_raw(program);
-    let msg = position.to_string() + r#" reset-fault"#;
+    let msg = position.to_string() + r#" reset-fault "# + position.to_string().as_str()
+        + r#" until-no-fault"#;
     unsafe {
         (*program).push_line(&msg);
     }
