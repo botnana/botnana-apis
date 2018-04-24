@@ -270,5 +270,11 @@ pub extern "C" fn botnana_disable_debug(botnana: Box<Botnana>) {
 /// empty
 #[no_mangle]
 pub fn botnana_empty(botnana: Box<Botnana>) {
-    evaluate(botnana, &"empty  marker empty".to_owned());
+    evaluate(botnana, &r#"empty  marker empty"#.to_owned());
+}
+
+/// abort porgram
+#[no_mangle]
+pub extern "C" fn botnana_abort_program(botnana: Box<Botnana>) {
+    evaluate(botnana, &r#"kill-task0"#.to_owned());
 }

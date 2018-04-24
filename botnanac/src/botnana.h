@@ -5,8 +5,6 @@
 
 struct Botnana;
 
-struct Program;
-
 // connect
 struct Botnana * botnana_connect(const char * address, void (* fn)(const char * str));
 
@@ -22,6 +20,9 @@ void botnana_disable_debug(struct Botnana * desc);
 
 // empty
 void botnana_empty(struct Botnana * desc);
+
+//abort program
+void botnana_abort_program (struct Botnana * desc);
 
 
 // Json API
@@ -46,26 +47,5 @@ void botnana_set_slave_config(struct Botnana * desc, uint32_t position, const ch
 
 // save configuration
 void botnana_save_configure(struct Botnana * desc);
-
-
-// Program
-
-// new program
-struct Program * botnana_new_program (const char * name);
-
-// push program line
-void botnana_push_program_line(struct Program * pm, const char * cmd);
-
-// deploy program
-void botnana_deploy_program(struct Botnana * desc, struct Program * pm);
-
-// run program
-void botnana_run_program(struct Botnana * desc, struct Program * pm);
-
-
-//abort program
-void botnana_abort_program (struct Botnana * desc);
-
-
 
 #endif
