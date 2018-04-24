@@ -167,3 +167,95 @@ pub extern "C" fn program_push_reset_fault(program: Box<Program>, position: libc
         (*program).push_line(&msg);
     }
 }
+
+/// enable_ain
+#[no_mangle]
+pub extern "C" fn program_push_enable_ain(
+    program: Box<Program>,
+    position: libc::uint32_t,
+    channel: libc::uint32_t,
+) {
+    let program = Box::into_raw(program);
+    let msg = channel.to_string() + r#" "# + position.to_string().as_str() + r#" +ec-ain"#;
+    unsafe {
+        (*program).push_line(&msg);
+        (*program).until_no_requests();
+    }
+}
+
+/// disable_ain
+#[no_mangle]
+pub extern "C" fn program_push_disable_ain(
+    program: Box<Program>,
+    position: libc::uint32_t,
+    channel: libc::uint32_t,
+) {
+    let program = Box::into_raw(program);
+    let msg = channel.to_string() + r#" "# + position.to_string().as_str() + r#" -ec-ain"#;
+    unsafe {
+        (*program).push_line(&msg);
+        (*program).until_no_requests();
+    }
+}
+
+/// enable_aout
+#[no_mangle]
+pub extern "C" fn program_push_enable_aout(
+    program: Box<Program>,
+    position: libc::uint32_t,
+    channel: libc::uint32_t,
+) {
+    let program = Box::into_raw(program);
+    let msg = channel.to_string() + r#" "# + position.to_string().as_str() + r#" +ec-aout"#;
+    unsafe {
+        (*program).push_line(&msg);
+        (*program).until_no_requests();
+    }
+}
+
+/// disable_aout
+#[no_mangle]
+pub extern "C" fn program_push_disable_aout(
+    program: Box<Program>,
+    position: libc::uint32_t,
+    channel: libc::uint32_t,
+) {
+    let program = Box::into_raw(program);
+    let msg = channel.to_string() + r#" "# + position.to_string().as_str() + r#" -ec-aout"#;
+    unsafe {
+        (*program).push_line(&msg);
+        (*program).until_no_requests();
+    }
+}
+
+/// set aout
+#[no_mangle]
+pub extern "C" fn program_push_set_aout(
+    program: Box<Program>,
+    position: libc::uint32_t,
+    channel: libc::uint32_t,
+    value: libc::int32_t,
+) {
+    let program = Box::into_raw(program);
+    let msg = value.to_string() + r#" "# + channel.to_string().as_str() + r#" "#
+        + position.to_string().as_str() + r#" ec-aout!"#;
+    unsafe {
+        (*program).push_line(&msg);
+    }
+}
+
+/// set dout
+#[no_mangle]
+pub extern "C" fn program_push_set_dout(
+    program: Box<Program>,
+    position: libc::uint32_t,
+    channel: libc::uint32_t,
+    value: libc::int32_t,
+) {
+    let program = Box::into_raw(program);
+    let msg = value.to_string() + r#" "# + channel.to_string().as_str() + r#" "#
+        + position.to_string().as_str() + r#" ec-dout!"#;
+    unsafe {
+        (*program).push_line(&msg);
+    }
+}

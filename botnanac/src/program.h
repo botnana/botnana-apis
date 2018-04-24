@@ -36,4 +36,24 @@ void program_push_target_p (struct Program * pm,  uint32_t position, int32_t tar
 // reset fault
 void program_push_reset_fault (struct Program * pm,  uint32_t position);
 
+// enable ain
+void program_push_enabled_ain (struct Program * pm,  uint32_t position, uint32_t channel);
+
+// disable ain
+void program_push_disable_ain (struct Program * pm,  uint32_t position, uint32_t channel);
+
+
+// enable aout
+void program_push_enabled_aout (struct Program * pm,  uint32_t position, uint32_t channel);
+
+// disable aout
+void program_push_disable_aout (struct Program * pm,  uint32_t position, uint32_t channel);
+
+// set aout
+void program_push_set_aout (struct Program * pm,  uint32_t position, uint32_t channel, int32_t value);
+
+// set dout
+void program_push_set_dout (struct Program * pm,  uint32_t position, uint32_t channel, int32_t value);
+
+
 #endif

@@ -46,6 +46,13 @@ program: build
 program_raw: build
 	gcc ./examples/program_raw.c -Isrc  -Ltarget/release -lbotnana -o botnana
 	RUST_BACKTRACE=1 ./botnana		
+
+
+io: build
+	gcc $(CFLAGS) -g -c ./examples/io.c
+	gcc -o botnana io.o $(LDFLAGS)
+	RUST_BACKTRACE=1 ./botnana 	 
+
 	
 	
 test: build    
