@@ -76,6 +76,184 @@ pub extern "C" fn botnana_get_version(botnana: Box<Botnana>) {
     send_message(botnana, &msg.to_owned());
 }
 
+/// Set motion config
+#[no_mangle]
+pub extern "C" fn botnana_set_motion_config(
+    botnana: Box<Botnana>,
+    period_us: libc::uint32_t,
+    group_cap: libc::uint32_t,
+    axis_cap: libc::uint32_t,
+) {
+    let msg = r#"{"jsonrpc":"2.0","method":"config.motion.set","params":{"#.to_owned()
+        + r#""period_us":"# + period_us.to_string().as_str() + r#","group_capacity":"#
+        + group_cap.to_string().as_str() + r#","axis_capacity":"#
+        + axis_cap.to_string().as_str() + r#"}}"#;
+    send_message(botnana, &msg.to_owned());
+}
+
+/// Set motion config period_us
+#[no_mangle]
+pub extern "C" fn botnana_set_motion_config_period_us(
+    botnana: Box<Botnana>,
+    period_us: libc::uint32_t,
+) {
+    let msg = r#"{"jsonrpc":"2.0","method":"config.motion.set","params":{"#.to_owned()
+        + r#""period_us":"# + period_us.to_string().as_str() + r#"}}"#;
+    send_message(botnana, &msg.to_owned());
+}
+
+/// Set motion config group_capacity
+#[no_mangle]
+pub extern "C" fn botnana_set_motion_config_group_capacity(
+    botnana: Box<Botnana>,
+    group_capacity: libc::uint32_t,
+) {
+    let msg = r#"{"jsonrpc":"2.0","method":"config.motion.set","params":{"#.to_owned()
+        + r#""group_capacity":"# + group_capacity.to_string().as_str() + r#"}}"#;
+    send_message(botnana, &msg.to_owned());
+}
+
+/// Set motion config axis_capacity
+#[no_mangle]
+pub extern "C" fn botnana_set_motion_config_axis_capacity(
+    botnana: Box<Botnana>,
+    axis_capacity: libc::uint32_t,
+) {
+    let msg = r#"{"jsonrpc":"2.0","method":"config.motion.set","params":{"#.to_owned()
+        + r#""axis_capacity":"# + axis_capacity.to_string().as_str() + r#"}}"#;
+    send_message(botnana, &msg.to_owned());
+}
+
+/// Get motion config
+#[no_mangle]
+pub extern "C" fn botnana_get_motion_config(botnana: Box<Botnana>) {
+    let msg = r#"{"jsonrpc":"2.0","method":"config.motion.get"}"#;
+    send_message(botnana, &msg.to_owned());
+}
+
+/// Set group config
+#[no_mangle]
+pub extern "C" fn botnana_set_group_config(
+    botnana: Box<Botnana>,
+    position: libc::uint32_t,
+    name: *const c_char,
+    gtype: *const c_char,
+    mapping: *const c_char,
+    vmax: libc::c_double,
+    amax: libc::c_double,
+    jmax: libc::c_double,
+) {
+    let name = unsafe {
+        assert!(!name.is_null());
+        str::from_utf8(CStr::from_ptr(name).to_bytes()).unwrap()
+    };
+
+    let gtype = unsafe {
+        assert!(!gtype.is_null());
+        str::from_utf8(CStr::from_ptr(gtype).to_bytes()).unwrap()
+    };
+
+    let mapping = unsafe {
+        assert!(!mapping.is_null());
+        str::from_utf8(CStr::from_ptr(mapping).to_bytes()).unwrap()
+    };
+
+    let msg = r#"{"jsonrpc":"2.0","method":"config.group.set","params":{"#.to_owned()
+        + r#""position":"# + position.to_string().as_str() + r#","name":""# + name
+        + r#"","gtype":""# + gtype + r#"","mapping":["# + mapping + r#"],"vmax":"#
+        + vmax.to_string().as_str() + r#","amax":"# + amax.to_string().as_str()
+        + r#","jmax":"# + jmax.to_string().as_str() + r#"}}"#;
+    send_message(botnana, &msg.to_owned());
+}
+
+/// Set group config name
+#[no_mangle]
+pub extern "C" fn botnana_set_group_config_name(
+    botnana: Box<Botnana>,
+    position: libc::uint32_t,
+    name: *const c_char,
+) {
+    let name = unsafe {
+        assert!(!name.is_null());
+        str::from_utf8(CStr::from_ptr(name).to_bytes()).unwrap()
+    };
+
+    let msg = r#"{"jsonrpc":"2.0","method":"config.group.set","params":{"#.to_owned()
+        + r#""position":"# + position.to_string().as_str() + r#","name":""# + name
+        + r#""}}"#;
+    send_message(botnana, &msg.to_owned());
+}
+
+/// Set group config gtype
+#[no_mangle]
+pub extern "C" fn botnana_set_group_config_gtype(
+    botnana: Box<Botnana>,
+    position: libc::uint32_t,
+    gtype: *const c_char,
+    mapping: *const c_char,
+) {
+    let gtype = unsafe {
+        assert!(!gtype.is_null());
+        str::from_utf8(CStr::from_ptr(gtype).to_bytes()).unwrap()
+    };
+    let mapping = unsafe {
+        assert!(!mapping.is_null());
+        str::from_utf8(CStr::from_ptr(mapping).to_bytes()).unwrap()
+    };
+
+    let msg = r#"{"jsonrpc":"2.0","method":"config.group.set","params":{"#.to_owned()
+        + r#""position":"# + position.to_string().as_str() + r#","gtype":""# + gtype
+        + r#"","mapping":["# + mapping + r#"]}}"#;
+    send_message(botnana, &msg.to_owned());
+}
+
+/// Set group config vmax
+#[no_mangle]
+pub extern "C" fn botnana_set_group_config_vmax(
+    botnana: Box<Botnana>,
+    position: libc::uint32_t,
+    vmax: libc::c_double,
+) {
+    let msg = r#"{"jsonrpc":"2.0","method":"config.group.set","params":{"#.to_owned()
+        + r#""position":"# + position.to_string().as_str() + r#","vmax":"#
+        + vmax.to_string().as_str() + r#"}}"#;
+    send_message(botnana, &msg.to_owned());
+}
+
+/// Set group config amax
+#[no_mangle]
+pub extern "C" fn botnana_set_group_config_amax(
+    botnana: Box<Botnana>,
+    position: libc::uint32_t,
+    amax: libc::c_double,
+) {
+    let msg = r#"{"jsonrpc":"2.0","method":"config.group.set","params":{"#.to_owned()
+        + r#""position":"# + position.to_string().as_str() + r#","amax":"#
+        + amax.to_string().as_str() + r#"}}"#;
+    send_message(botnana, &msg.to_owned());
+}
+
+/// Set group config jmax
+#[no_mangle]
+pub extern "C" fn botnana_set_group_config_jmax(
+    botnana: Box<Botnana>,
+    position: libc::uint32_t,
+    jmax: libc::c_double,
+) {
+    let msg = r#"{"jsonrpc":"2.0","method":"config.group.set","params":{"#.to_owned()
+        + r#""position":"# + position.to_string().as_str() + r#","jmax":"#
+        + jmax.to_string().as_str() + r#"}}"#;
+    send_message(botnana, &msg.to_owned());
+}
+
+/// get group config
+#[no_mangle]
+pub extern "C" fn botnana_get_group_config(botnana: Box<Botnana>, position: libc::uint32_t) {
+    let msg = r#"{"jsonrpc":"2.0","method":"config.group.get","params":{"position":"#.to_owned()
+        + position.to_string().as_str() + r#"}}"#;
+    send_message(botnana, &msg.to_owned());
+}
+
 /// save config
 #[no_mangle]
 pub extern "C" fn botnana_save_config(botnana: Box<Botnana>) {

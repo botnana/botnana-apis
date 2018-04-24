@@ -25,7 +25,17 @@ verbose: build
 slave_setting: build
 	gcc $(CFLAGS) -g -c ./examples/slave_setting.c
 	gcc -o botnana slave_setting.o $(LDFLAGS)
-	RUST_BACKTRACE=1 ./botnana 	
+	RUST_BACKTRACE=1 ./botnana
+	
+motion_setting: build
+	gcc $(CFLAGS) -g -c ./examples/motion_setting.c
+	gcc -o botnana motion_setting.o $(LDFLAGS)
+	RUST_BACKTRACE=1 ./botnana		
+	
+group_setting: build
+	gcc $(CFLAGS) -g -c ./examples/group_setting.c
+	gcc -o botnana group_setting.o $(LDFLAGS)
+	RUST_BACKTRACE=1 ./botnana	 	
     
 version: build    
 	gcc $(CFLAGS) -g -c ./examples/version.c
