@@ -42,10 +42,11 @@ axis_setting: build
 	gcc -o botnana axis_setting.o $(LDFLAGS)
 	RUST_BACKTRACE=1 ./botnana	 		
     
-axis_group: build
-	gcc $(CFLAGS) -g -c ./examples/axis_group.c
-	gcc -o botnana axis_group.o $(LDFLAGS)
-	RUST_BACKTRACE=1 ./botnana    
+group1d: build
+	gcc $(CFLAGS) -g -c ./examples/group1D.c
+	gcc -o botnana group1D.o $(LDFLAGS)
+	RUST_BACKTRACE=1 ./botnana   	
+	    
     
 version: build    
 	gcc $(CFLAGS) -g -c ./examples/version.c
