@@ -5,3 +5,5 @@
 **/target
 **/*.exe
 .project
+botnanac/*.o
+botnanac/*.orig

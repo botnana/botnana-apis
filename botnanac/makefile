@@ -4,6 +4,7 @@ LDFLAGS := -Ltarget/release -lbotnana
 
 build:
 	cargo fmt
+	astyle --style=allman -r *.c *.h
 	cargo build --release
 
 	

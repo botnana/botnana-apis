@@ -87,12 +87,12 @@ void botnana_get_group_config(struct Botnana * desc, uint32_t position);
 
 //set axis config
 void botnana_set_axis_config( struct Botnana * desc,
-			      uint32_t position,
-			      const char * name,
-			      double home_offset,
-			      double encoder_ppu,
-			      const char * encoder_length_unit,
-			      uint32_t encoder_direction);
+                              uint32_t position,
+                              const char * name,
+                              double home_offset,
+                              double encoder_ppu,
+                              const char * encoder_length_unit,
+                              uint32_t encoder_direction);
 
 void botnana_set_axis_config_name(struct Botnana * desc, uint32_t position, const char * name);
 

@@ -4,19 +4,21 @@
 
 void handle_meaasge (const char * src)
 {
-	printf("***CMSG: %s ***\n", src);
+    printf("***CMSG: %s ***\n", src);
 
 }
 
 
-int main() {
+int main()
+{
 
-	struct Botnana * botnana = botnana_connect("192.168.7.2", handle_meaasge);
-	botnana_motion_evaluate(botnana, "words");
+    struct Botnana * botnana = botnana_connect("192.168.7.2", handle_meaasge);
+    botnana_motion_evaluate(botnana, "words");
 
-	while(1){
-		sleep(1);
-	}
-	return 0;
+    while(1)
+    {
+        sleep(1);
+    }
+    return 0;
 
 }
