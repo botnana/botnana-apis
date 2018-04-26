@@ -62,7 +62,7 @@ int main() {
 	program_push_line(pm, "start");
 	program_push_line(pm, "2000 ms");
 	program_push_line(pm, "1 group! +group");
-	program_push_line(pm, "0.0e move1d");
+	program_push_line(pm, "mcs");
 	program_push_line(pm, "0.1e feedrate!");
 	program_push_line(pm, "0.5e line1d");
 	program_push_line(pm, "0.1e feedrate!");

@@ -56,6 +56,11 @@ group3d: build
 	gcc $(CFLAGS) -g -c ./examples/group3D.c
 	gcc -o botnana group3D.o $(LDFLAGS)
 	RUST_BACKTRACE=1 ./botnana 	
+
+group1d2d: build
+	gcc $(CFLAGS) -g -c ./examples/group1D2D.c
+	gcc -o botnana group1D2D.o $(LDFLAGS)
+	RUST_BACKTRACE=1 ./botnana 	
 	    
     
 version: build    

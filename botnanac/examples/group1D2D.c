@@ -15,15 +15,26 @@ void end_of_program(const char * src)
 
 }
 
-void handle_acs(const char * src)
+void handle_acs1(const char * src)
 {
-	printf("ACS: %s ,", src);
+	printf("ACS1: %s ,", src);
 }
 
-void handle_pcs(const char * src)
+void handle_pcs1(const char * src)
 {
-	printf("PCS: %s \n", src);
+	printf("PCS1: %s ", src);
 }
+
+void handle_acs2(const char * src)
+{
+	printf("ACS2: %s ,", src);
+}
+
+void handle_pcs2(const char * src)
+{
+	printf("PCS2: %s \n", src);
+}
+
 
 void handle_pos1(const char * src)
 {
@@ -45,16 +56,6 @@ void handle_feedback2(const char * src)
 	printf("FEEDBACK2: %s ", src);
 }
 
-void handle_pos3(const char * src)
-{
-	printf("POS3: %s ", src);
-}
-
-void handle_feedback3(const char * src)
-{
-	printf("FEEDBACK3: %s ", src);
-}
-
 
 
 
@@ -64,24 +65,23 @@ int main() {
 	struct Program * pm = program_new("test");
 	//botnana_enable_debug(botnana);
 	botnana_attach_event(botnana, "end-of-program", 0, end_of_program);
-	botnana_attach_event(botnana, "ACS.1", 0, handle_acs);
-	botnana_attach_event(botnana, "PCS.1", 0, handle_pcs);
+	botnana_attach_event(botnana, "ACS.1", 0, handle_acs1);
+	botnana_attach_event(botnana, "PCS.1", 0, handle_pcs1);
+	botnana_attach_event(botnana, "ACS.2", 0, handle_acs2);
+	botnana_attach_event(botnana, "PCS.2", 0, handle_pcs2);
 	botnana_attach_event(botnana, "axis_command_position.1", 0, handle_pos1);
 	botnana_attach_event(botnana, "axis_corrected_position.1", 0, handle_feedback1);
 	botnana_attach_event(botnana, "axis_command_position.2", 0, handle_pos2);
 	botnana_attach_event(botnana, "axis_corrected_position.2", 0, handle_feedback2);
-	botnana_attach_event(botnana, "axis_command_position.3", 0, handle_pos3);
-	botnana_attach_event(botnana, "axis_corrected_position.3", 0, handle_feedback3);
 	botnana_motion_evaluate(botnana, "1 .axis 1 .group");
 	sleep(1);
 	program_push_line(pm, "-coordinator");
 	program_push_line(pm, "1 group! -group 0path");
+	program_push_line(pm, "2 group! -group 0path");
 	program_push_line(pm, "1 reset-fault");
 	program_push_line(pm, "1 until-no-fault");
 	program_push_line(pm, "2 reset-fault");
 	program_push_line(pm, "2 until-no-fault");
-	program_push_line(pm, "3 reset-fault");
-	program_push_line(pm, "3 until-no-fault");
 	program_push_line(pm, "8 1  op-mode!");
 	program_push_line(pm, "8 2  op-mode!");
 	program_push_line(pm, "8 3  op-mode!");
@@ -99,11 +99,25 @@ int main() {
 	program_push_line(pm, "1 group! +group");
 	program_push_line(pm, "mcs");
 	program_push_line(pm, "0.4e feedrate!");
-	program_push_line(pm, "1.0e 1.0e 1.0e line3d");
-	program_push_line(pm, "0.0e 1.0e -1.0e 1.0e 1 -1.0e helix3d");
-	program_push_line(pm, "0.0e 0.0e 0.0e line3d");
+	program_push_line(pm, "1.0e line1d");
+	program_push_line(pm, "0.05e vcmd!");
+	program_push_line(pm, "2 group! +group");
+	program_push_line(pm, "mcs");
+	program_push_line(pm, "0.4e feedrate!");
+	program_push_line(pm, "1.0e 1.0e line2d");
 	program_push_line(pm, "0.2e vcmd!");
 	program_push_line(pm, "1 until-grp-end");
+	program_push_line(pm, "2 until-grp-end");
+
+
+	program_push_line(pm, "1 group!");
+	program_push_line(pm, "2.0e line1d");
+	program_push_line(pm, "1 until-grp-end");
+	program_push_line(pm, "2 group!");
+	program_push_line(pm, "2.0e  2.0e line2d");
+	program_push_line(pm, "2 until-grp-end");
+
+
 	program_push_line(pm, "-coordinator");
 
 	botnana_abort_program(botnana);
@@ -118,7 +132,7 @@ int main() {
 	while (1)
 	{
 
-		botnana_motion_evaluate(botnana, "1 .axis  2 .axis 3 .axis 1 .group");
+		botnana_motion_evaluate(botnana, "1 .axis  2 .axis 1 .group 2 .group");
 		sleep(1);
 	}
 	return 0;
