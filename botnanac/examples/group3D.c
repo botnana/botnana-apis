@@ -5,7 +5,7 @@
 
 void handle_meaasge (const char * src)
 {
-	printf("handle_meaasge: %s \n", src);
+	//printf("handle_meaasge: %s \n", src);
 
 }
 
@@ -45,6 +45,16 @@ void handle_feedback2(const char * src)
 	printf("FEEDBACK2: %s ", src);
 }
 
+void handle_pos3(const char * src)
+{
+	printf("POS3: %s ", src);
+}
+
+void handle_feedback3(const char * src)
+{
+	printf("FEEDBACK3: %s ", src);
+}
+
 
 
 
@@ -60,6 +70,8 @@ int main() {
 	botnana_attach_event(botnana, "axis_corrected_position.1", 0, handle_feedback1);
 	botnana_attach_event(botnana, "axis_command_position.2", 0, handle_pos2);
 	botnana_attach_event(botnana, "axis_corrected_position.2", 0, handle_feedback2);
+	botnana_attach_event(botnana, "axis_command_position.3", 0, handle_pos3);
+	botnana_attach_event(botnana, "axis_corrected_position.3", 0, handle_feedback3);
 	botnana_motion_evaluate(botnana, "1 .axis 1 .group");
 	sleep(1);
 	program_push_line(pm, "-coordinator");
@@ -68,25 +80,28 @@ int main() {
 	program_push_line(pm, "1 until-no-fault");
 	program_push_line(pm, "2 reset-fault");
 	program_push_line(pm, "2 until-no-fault");
+	program_push_line(pm, "3 reset-fault");
+	program_push_line(pm, "3 until-no-fault");
 	program_push_line(pm, "8 1  op-mode!");
 	program_push_line(pm, "8 2  op-mode!");
+	program_push_line(pm, "8 3  op-mode!");
 	program_push_line(pm, "until-no-requests");
 	program_push_line(pm, "1 servo-on");
 	program_push_line(pm, "1 until-servo-on");
 	program_push_line(pm, "2 servo-on");
 	program_push_line(pm, "2 until-servo-on");
+	program_push_line(pm, "3 servo-on");
+	program_push_line(pm, "3 until-servo-on");
 	program_push_line(pm, "2000 ms");
 	program_push_line(pm, "+coordinator");
 	program_push_line(pm, "start");
 	program_push_line(pm, "2000 ms");
 	program_push_line(pm, "1 group! +group");
-	program_push_line(pm, "0.0e 0.0e move2d");
+	program_push_line(pm, "0.0e 0.0e  0.0e move3d");
 	program_push_line(pm, "0.4e feedrate!");
-	program_push_line(pm, "1.0e 0.0e line2d");
-	program_push_line(pm, "0.0e 0.0e 0.0e 1.0e 1 arc2d");
-	program_push_line(pm, "0.0e 0.0e 1.0e 0.0e 1 arc2d");
-	program_push_line(pm, "1.0e 1.0e line2d");
-	program_push_line(pm, "0.0e 0.0e line2d");
+	program_push_line(pm, "1.0e 1.0e 1.0e line3d");
+	program_push_line(pm, "0.0e 1.0e -1.0e 1.0e 1 -1.0e helix3d");
+	program_push_line(pm, "0.0e 0.0e 0.0e line3d");
 	program_push_line(pm, "0.2e vcmd!");
 	program_push_line(pm, "1 until-grp-end");
 	program_push_line(pm, "-coordinator");
@@ -103,7 +118,7 @@ int main() {
 	while (1)
 	{
 
-		botnana_motion_evaluate(botnana, "1 .axis  2 .axis 1 .group");
+		botnana_motion_evaluate(botnana, "1 .axis  2 .axis 3 .axis 1 .group");
 		sleep(1);
 	}
 	return 0;

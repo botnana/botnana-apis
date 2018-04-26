@@ -54,7 +54,7 @@ int main() {
 	program_push_line(pm, "1 reset-fault");
 	program_push_line(pm, "1 until-no-fault");
 	program_push_line(pm, "8 1  op-mode!");
-	program_push_line(pm, "1 until-no-requests");
+	program_push_line(pm, "until-no-requests");
 	program_push_line(pm, "1 servo-on");
 	program_push_line(pm, "1 until-servo-on");
 	program_push_line(pm, "2000 ms");
