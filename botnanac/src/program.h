@@ -1,7 +1,10 @@
 #ifndef __PROGRAM_H__
 #define __PROGRAM_H__
 
-#include <stdint.h>
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #include "botnana.h"
 
 struct Program;
@@ -54,6 +57,11 @@ void program_push_set_aout (struct Program * pm,  uint32_t position, uint32_t ch
 
 // set dout
 void program_push_set_dout (struct Program * pm,  uint32_t position, uint32_t channel, int32_t value);
+
+#ifdef __cplusplus
+}
+#endif
+
 
 
 #endif
