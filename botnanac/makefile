@@ -1,100 +1,90 @@
-CFLAGS := -Isrc
-LDFLAGS := -Ltarget/release -lbotnana
+TARGET = $(shell uname -p)-unknown-linux-gnu
+LIBBOTNANA = ./target/$(TARGET)/release/libbotnana.a
 
+CFLAGS = -Isrc
+LDFLAGS = $(LIBBOTNANA) -ldl -pthread -lssl -lcrypto
+
+
+deploy:
+	cp target/$(TARGET)/release/libbotnana.so ./lib/$(TARGET)
+	cp target/$(TARGET)/release/libbotnana.a ./lib/$(TARGET)	
 
 build:
 	cargo fmt
 	astyle --style=allman -r *.c *.h
-	cargo build --release
+	cargo build --release --target=$(TARGET)
 
-	
-words: build   
-	gcc $(CFLAGS) -g -c ./examples/words.c
-	gcc -o botnana words.o $(LDFLAGS)
-	RUST_BACKTRACE=1 ./botnana 
-	
-empty: build
-	gcc $(CFLAGS) -g -c ./examples/empty.c
-	gcc -o botnana empty.o $(LDFLAGS)
-	RUST_BACKTRACE=1 ./botnana 	 
+%.o:
+	gcc $(CFLAGS) -c ./examples/$*.c -o $@ 	
 
+words: clean words.o  
+	gcc -o botnana $@.o $(LDFLAGS)
+	./botnana 
 	
-verbose: build    
-	gcc ./examples/verbose.c -Isrc  -Ltarget/release -lbotnana -o verbose
-	#./verbose 192.168.7.2:3012
-	
-slave_setting: build
-	gcc $(CFLAGS) -g -c ./examples/slave_setting.c
-	gcc -o botnana slave_setting.o $(LDFLAGS)
-	RUST_BACKTRACE=1 ./botnana
-	
-motion_setting: build
-	gcc $(CFLAGS) -g -c ./examples/motion_setting.c
-	gcc -o botnana motion_setting.o $(LDFLAGS)
-	RUST_BACKTRACE=1 ./botnana		
-	
-group_setting: build
-	gcc $(CFLAGS) -g -c ./examples/group_setting.c
-	gcc -o botnana group_setting.o $(LDFLAGS)
-	RUST_BACKTRACE=1 ./botnana	 
-	
-axis_setting: build
-	gcc $(CFLAGS) -g -c ./examples/axis_setting.c
-	gcc -o botnana axis_setting.o $(LDFLAGS)
-	RUST_BACKTRACE=1 ./botnana	 		
-    
-group1d: build
-	gcc $(CFLAGS) -g -c ./examples/group1D.c
-	gcc -o botnana group1D.o $(LDFLAGS)
-	RUST_BACKTRACE=1 ./botnana   	
+empty: clean empty.o
+	gcc -o botnana $@.o $(LDFLAGS)
+	./botnana 
 
-group2d: build
-	gcc $(CFLAGS) -g -c ./examples/group2D.c
-	gcc -o botnana group2D.o $(LDFLAGS)
-	RUST_BACKTRACE=1 ./botnana 
-	
-group3d: build
-	gcc $(CFLAGS) -g -c ./examples/group3D.c
-	gcc -o botnana group3D.o $(LDFLAGS)
-	RUST_BACKTRACE=1 ./botnana 	
+slave_setting: clean slave_setting.o
+	gcc -o botnana $@.o $(LDFLAGS)
+	./botnana 
 
-group1d2d: build
-	gcc $(CFLAGS) -g -c ./examples/group1D2D.c
-	gcc -o botnana group1D2D.o $(LDFLAGS)
-	RUST_BACKTRACE=1 ./botnana 	
-	    
-    
-version: build    
-	gcc $(CFLAGS) -g -c ./examples/version.c
-	gcc -o botnana version.o $(LDFLAGS)
-	RUST_BACKTRACE=1 ./botnana 	
+motion_setting: clean motion_setting.o
+	gcc -o botnana $@.o $(LDFLAGS)
+	./botnana
 	
-version_debug: build    
-	gcc $(CFLAGS) -g -c ./examples/version_debug.c
-	gcc -o botnana version_debug.o $(LDFLAGS)
-	RUST_BACKTRACE=1 ./botnana 		
+group_setting: clean group_setting.o
+	gcc -o botnana $@.o $(LDFLAGS)
+	./botnana 
 	
+axis_setting: clean axis_setting.o
+	gcc -o botnana $@.o $(LDFLAGS)
+	./botnana 
+
+group1d: clean group1d.o
+	gcc -o botnana $@.o $(LDFLAGS)
+	./botnana 
 	
-program: build
-	gcc $(CFLAGS) -g -c ./examples/program.c
-	gcc -o botnana program.o $(LDFLAGS)
-	RUST_BACKTRACE=1 ./botnana 	 		
+group2d: clean group2d.o
+	gcc -o botnana $@.o $(LDFLAGS)
+	./botnana 
 	
-program_raw: build
-	gcc ./examples/program_raw.c -Isrc  -Ltarget/release -lbotnana -o botnana
-	RUST_BACKTRACE=1 ./botnana		
+group3d: clean group3d.o
+	gcc -o botnana $@.o $(LDFLAGS)
+	./botnana 		
+
+group1d2d: clean group1d2d.o
+	gcc -o botnana $@.o $(LDFLAGS)
+	./botnana 
 
 
-io: build
-	gcc $(CFLAGS) -g -c ./examples/io.c
-	gcc -o botnana io.o $(LDFLAGS)
-	RUST_BACKTRACE=1 ./botnana 	 
+version: clean version.o
+	gcc -o botnana $@.o $(LDFLAGS)
+	./botnana 
+	
+version_debug: clean version_debug.o
+	gcc -o botnana $@.o $(LDFLAGS)
+	./botnana 
 
+
+program: clean program.o
+	gcc -o botnana $@.o $(LDFLAGS)
+	./botnana 
 	
 	
-test: build    
-	gcc ./examples/test.c -Isrc  -Ltarget/release -lbotnana -o botnana
-	RUST_BACKTRACE=1 ./botnana			
+program_raw: clean program_raw.o
+	gcc -o botnana $@.o $(LDFLAGS)
+	./botnana 
+
+io: clean io.o
+	gcc -o botnana $@.o $(LDFLAGS)
+	./botnana 		
+	
+	
+verbose: clean verbose.o 
+	gcc -o verbose $@.o $(LDFLAGS)
+
+.PHONY: clean
 	
 clean:
 	-rm *.o botnana
