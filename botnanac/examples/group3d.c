@@ -64,6 +64,8 @@ int main()
     struct Botnana * botnana = botnana_connect("192.168.7.2", handle_meaasge);
     struct Program * pm = program_new("test");
     //botnana_enable_debug(botnana);
+
+    /*** catch massage tag  ***/
     botnana_attach_event(botnana, "end-of-program", 0, end_of_program);
     botnana_attach_event(botnana, "ACS.1", 0, handle_acs);
     botnana_attach_event(botnana, "PCS.1", 0, handle_pcs);
@@ -73,13 +75,25 @@ int main()
     botnana_attach_event(botnana, "axis_corrected_position.2", 0, handle_feedback2);
     botnana_attach_event(botnana, "axis_command_position.3", 0, handle_pos3);
     botnana_attach_event(botnana, "axis_corrected_position.3", 0, handle_feedback3);
-    botnana_motion_evaluate(botnana, "1 .axis 1 .group");
+
+    // get real time group configure, to check group 1 is 3D
+    botnana_get_rt_grpcfg(botnana, 1);
     sleep(1);
+
+    // disable coordinated motion
     program_push_disable_coordinator(pm);
+
+    // select group 1 as current group
     program_push_select_group(pm, 1);
+
+    // disable current group
     program_push_disable_group(pm);
+
+    // clear path of current group
     program_push_clear_path (pm);
 
+
+    /*** slave 1, 2 and 3 servo on ***/
     program_push_reset_fault(pm, 1);
     program_push_csp(pm, 1);
     program_push_servo_on(pm, 1);
@@ -93,27 +107,50 @@ int main()
     program_push_servo_on(pm, 3);
     program_push_script(pm, "500 ms");
 
-
-
+    // enable coordinated motion
     program_push_enable_coordinator(pm);
+
+    // start trajectory planner
     program_push_start_trj(pm);
+
+    // select group 1 as current group
     program_push_select_group(pm, 1);
+
+    // enable current group
     program_push_enable_group(pm);
+
+    // set current position as start position (not moving)
     program_push_move3d(pm, 0, 0, 0);
+
+    // set segment feedrate
     program_push_set_feedrate(pm, 0.4);
+
+    // insert line3d segment
     program_push_line3d(pm, 1.0, 1.0, 1.0);
+
+    // insert helix3d segment
     program_push_helix3d(pm, 0.0, 1.0, -1.0, 1.0, -1.0, 1);
+
+    // insert line3d segment
     program_push_line3d(pm, 0.0, 0.0, 0.0);
+
+    // set velocity command
     program_push_set_vcmd(pm, 0.2);
+
+    // waiting end of trajectory of group 1
     program_push_wait_group_end(pm, 1);
+
+    // disable coordinated motion
     program_push_disable_coordinator(pm);
 
-    botnana_abort_program(botnana);
-    sleep(1);
+    // empty current user program in motion server
     botnana_empty(botnana);
     sleep(1);
-    program_deploy(botnana,pm);
+
+    // deploy program to motion server
+    program_deploy(botnana, pm);
     sleep(1);
+    // execute program
     program_run(botnana, pm);
 
 

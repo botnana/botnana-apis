@@ -15,19 +15,27 @@ int main()
     struct Botnana * botnana = botnana_connect("192.168.7.2", handle_meaasge);
 
     // get motion config.
-    botnana_get_motion_config(botnana);
-    //get motion info.
-    botnana_get_motion_info(botnana);
+    botnana_get_motioncfg(botnana);
+
+    //get real time motion info.
+    botnana_get_rt_motioncfg(botnana);
     sleep(1);
+
     // set period_us of motion config.
     botnana_set_motion_config_period_us(botnana, 2000);
+
     // set group_capacity of motion config.
     botnana_set_motion_config_group_capacity(botnana,2);
+
     // set axis_capacity of motion config
     botnana_set_motion_config_axis_capacity(botnana,6);
     sleep(1);
-    botnana_get_motion_config(botnana);
-    botnana_get_motion_info(botnana);
+
+    // get motion configuration
+    botnana_get_motioncfg(botnana);
+
+    //get real time motion info.
+    botnana_get_rt_motioncfg(botnana);
     while (1)
     {
         sleep(1);

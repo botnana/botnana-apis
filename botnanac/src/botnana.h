@@ -109,7 +109,7 @@ void botnana_set_motion_config_group_capacity(struct Botnana * desc,
 
 // set motion axis capacity (need reboot)
 //
-// desc:     	   server descriptor
+// desc:     	  server descriptor
 // axis_capacity: axis_capacity
 void botnana_set_motion_config_axis_capacity(struct Botnana * desc,
         uint32_t axis_capacity);
@@ -117,12 +117,12 @@ void botnana_set_motion_config_axis_capacity(struct Botnana * desc,
 // get motion configuration
 //
 // desc: server descriptor
-void botnana_get_motion_config(struct Botnana * desc);
+void botnana_get_motioncfg(struct Botnana * desc);
 
 // get motion real time configuration
 //
 // desc: server descriptor
-void botnana_get_motion_info(struct Botnana * desc);
+void botnana_get_rt_motioncfg(struct Botnana * desc);
 
 // set group config name
 //

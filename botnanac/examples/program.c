@@ -48,9 +48,6 @@ int main()
     // catch "end-of-program" tag
     botnana_attach_event(botnana, "end-of-program", 1, end_of_program);
 
-    // abort current program
-    botnana_abort_program(botnana);
-
     // empty user program or user define command
     botnana_empty(botnana);
 

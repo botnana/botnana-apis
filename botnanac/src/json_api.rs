@@ -112,14 +112,14 @@ pub extern "C" fn botnana_set_motion_config_axis_capacity(
 
 /// Get motion config
 #[no_mangle]
-pub extern "C" fn botnana_get_motion_config(botnana: Box<Botnana>) {
+pub extern "C" fn botnana_get_motioncfg(botnana: Box<Botnana>) {
     let msg = r#"{"jsonrpc":"2.0","method":"config.motion.get"}"#;
     send_message(botnana, &msg.to_owned());
 }
 
-/// Get motion info
+/// Get real time motion config
 #[no_mangle]
-pub extern "C" fn botnana_get_motion_info(botnana: Box<Botnana>) {
+pub extern "C" fn botnana_get_rt_motioncfg(botnana: Box<Botnana>) {
     evaluate(botnana, &r#".motion"#.to_owned());
 }
 

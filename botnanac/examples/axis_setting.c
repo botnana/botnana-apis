@@ -45,6 +45,7 @@ int main()
     // get real time axis configuration of axis 1
     botnana_get_rt_axiscfg(botnana, 1);
     sleep(1);
+    //svae configuration
     botnana_save_config(botnana);
     while (1)
     {

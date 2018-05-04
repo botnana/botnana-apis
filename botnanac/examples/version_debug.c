@@ -19,18 +19,18 @@ void handle_version (const char * src)
 
 int main()
 {
-    // 連結主站
+    // connect to motion server
     struct Botnana * botnana = botnana_connect("192.168.7.2", handle_meaasge);
 
-    //顯示送出的指令格式
+    // enable debug mode, show send command
     botnana_enable_debug (botnana);
 
-    //主站回傳資料的 tag 中有 "version"，就呼叫 handle_version， 呼叫的次數為 12 次
+    // catch "version" of message tag
     botnana_attach_event(botnana, "version", 12, handle_version);
 
     while (1)
     {
-        // 要求主站回傳 version
+        // get version
         botnana_get_version(botnana);
         sleep(1);
     }
