@@ -2,6 +2,14 @@
 
 提供 C 函式庫與 C 語言的範例  
 
+函式庫下載：
+
+* 32 位元 Linux: [按此下載](https://drive.google.com/drive/u/0/folders/1GjR5ZHpLL_eU6LnyjTH6LP7dRxk1VLeX)
+* 64 位元 Linux: [按此下載](https://drive.google.com/drive/u/0/folders/1KnFODPFNMZ1bCxs9gjIfEn5fiL5brm_t)
+* 32 位元 Windows: [按此下載](https://drive.google.com/drive/u/0/folders/1La3Q5Sm-uw0dwWdELvebTIwQ9sfiQrvU)
+* 64 位元 Windows: [按此下載](https://drive.google.com/drive/u/0/folders/11hqqXQ7PoK-xYeb1H34RaQc5yyMfbFow)
+*
+
 #### C ++ 使用者
  
 如果是以 C++ 呼叫 C 語言的函式庫，因為 C++ 有名稱修飾(Name Mangling) 而 C 沒有，在函式庫已經有處理，所以可以直接引用。
@@ -31,4 +39,4 @@
 * 32 位元 Linux: `cargo build --release --target=i686-pc-windows-gnu`
 * 64 位元 Linux: `cargo build --release --target=x86_64-unknown-linux-gnu`
 * 32 位元 Windows: `cargo build --release --target=i686-pc-windows-msvc`
-* 32 位元 Windows: `cargo build --release --target=x86_64-pc-windows-msvc`
+* 64 位元 Windows: `cargo build --release --target=x86_64-pc-windows-msvc`
