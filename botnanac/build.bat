@@ -1,4 +1,10 @@
 echo "build botnana.lib"
+rd /s /q lib
+md lib
+cd lib
+md i686-pc-windows-msvc
+md x86_64-pc-windows-msvc
+cd ..
 cargo clean
 cargo update
 cargo build --release --target=i686-pc-windows-msvc
