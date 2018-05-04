@@ -10,6 +10,8 @@ fmt:
 
 build: fmt
 	cargo build --release --target=$(TARGET)
+	rm -rf lib
+	mkdir -p lib/$(TARGET)
 	cp target/$(TARGET)/release/libbotnana.so ./lib/$(TARGET)
 	cp target/$(TARGET)/release/libbotnana.a ./lib/$(TARGET)	
 
