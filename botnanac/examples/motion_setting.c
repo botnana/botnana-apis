@@ -9,22 +9,25 @@ void handle_meaasge (const char * src)
     printf("handle_meaasge (%u): %s \n", message_count, src);
 }
 
-
 int main()
 {
+    // connect motion server
     struct Botnana * botnana = botnana_connect("192.168.7.2", handle_meaasge);
-    botnana_enable_debug(botnana);
-    botnana_set_motion_config(botnana, 3000, 3, 5);
+
+    // get motion config.
     botnana_get_motion_config(botnana);
-    botnana_motion_evaluate(botnana, ".motion");
+    //get motion info.
+    botnana_get_motion_info(botnana);
     sleep(1);
+    // set period_us of motion config.
     botnana_set_motion_config_period_us(botnana, 2000);
+    // set group_capacity of motion config.
     botnana_set_motion_config_group_capacity(botnana,2);
+    // set axis_capacity of motion config
     botnana_set_motion_config_axis_capacity(botnana,6);
-    botnana_get_motion_config(botnana);
-    botnana_motion_evaluate(botnana, ".motion");
     sleep(1);
-    botnana_save_config(botnana);
+    botnana_get_motion_config(botnana);
+    botnana_get_motion_info(botnana);
     while (1)
     {
         sleep(1);

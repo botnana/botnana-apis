@@ -6,5 +6,9 @@
 **/*.exe
 .project
 botnanac/*.o
-*.orig
-
+botnanac/*.orig
+botnanac/*.a
+botnanac/*.so
+botnanac/*.dll
+botnanac/*.lib
+botnanac/botnana

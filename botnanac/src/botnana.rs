@@ -276,5 +276,5 @@ pub fn botnana_empty(botnana: Box<Botnana>) {
 /// abort porgram
 #[no_mangle]
 pub extern "C" fn botnana_abort_program(botnana: Box<Botnana>) {
-    evaluate(botnana, &r#"kill-task0"#.to_owned());
+    evaluate(botnana, &r#"abort-program"#.to_owned());
 }
