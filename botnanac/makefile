@@ -74,5 +74,5 @@ all: build words empty slave_setting motion_setting group_setting axis_setting \
 	group1d group2d group3d group1d2d version version_debug program program_raw io
 	 
 clean: fmt
-	-rm *.o botnana */*.c.orig
+	-rm *.o botnana */*.c.orig */*.h.orig
 			
