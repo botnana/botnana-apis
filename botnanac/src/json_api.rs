@@ -204,7 +204,10 @@ pub extern "C" fn botnana_set_group_map1d(
     let msg = r#"{"jsonrpc":"2.0","method":"config.group.set","params":{"#.to_owned()
         + r#""position":"# + position.to_string().as_str() + r#","mapping":["#
         + a1.to_string().as_str() + r#"]}}"#;
-    send_message(botnana, &msg.to_owned());
+    send_message(botnana.clone(), &msg.to_owned());
+
+    let cmd = a1.to_string() + r#" "# + position.to_string().as_str() + r#" map1d"#;
+    evaluate(botnana, &cmd.to_owned());
 }
 
 /// Set group config map2d
@@ -218,7 +221,10 @@ pub extern "C" fn botnana_set_group_map2d(
     let msg = r#"{"jsonrpc":"2.0","method":"config.group.set","params":{"#.to_owned()
         + r#""position":"# + position.to_string().as_str() + r#","mapping":["#
         + a1.to_string().as_str() + r#","# + a2.to_string().as_str() + r#"]}}"#;
-    send_message(botnana, &msg.to_owned());
+    send_message(botnana.clone(), &msg.to_owned());
+    let cmd = a1.to_string() + r#" "# + a2.to_string().as_str() + r#" "#
+        + position.to_string().as_str() + r#" map2d"#;
+    evaluate(botnana, &cmd.to_owned());
 }
 
 /// Set group config map3d
@@ -234,7 +240,10 @@ pub extern "C" fn botnana_set_group_map3d(
         + r#""position":"# + position.to_string().as_str() + r#","mapping":["#
         + a1.to_string().as_str() + r#","# + a2.to_string().as_str() + r#","#
         + a3.to_string().as_str() + r#"]}}"#;
-    send_message(botnana, &msg.to_owned());
+    send_message(botnana.clone(), &msg.to_owned());
+    let cmd = a1.to_string() + r#" "# + a2.to_string().as_str() + r#" "# + a3.to_string().as_str()
+        + r#" "# + position.to_string().as_str() + r#" map3d"#;
+    evaluate(botnana, &cmd.to_owned());
 }
 
 /// Set group config vmax
