@@ -4,11 +4,11 @@
 
 函式庫下載：
 
-* 32 位元 Linux: [按此下載](https://drive.google.com/drive/u/0/folders/1GjR5ZHpLL_eU6LnyjTH6LP7dRxk1VLeX)
-* 64 位元 Linux: [按此下載](https://drive.google.com/drive/u/0/folders/1KnFODPFNMZ1bCxs9gjIfEn5fiL5brm_t)
-* 32 位元 Windows: [按此下載](https://drive.google.com/drive/u/0/folders/1La3Q5Sm-uw0dwWdELvebTIwQ9sfiQrvU)
-* 64 位元 Windows: [按此下載](https://drive.google.com/drive/u/0/folders/11hqqXQ7PoK-xYeb1H34RaQc5yyMfbFow)
-*
+* 32 位元 Linux: [按此下載](https://drive.google.com/drive/u/0/folders/1GhOABXGKu7SZCmRa1uPpun9YILrbSblQ)
+* 64 位元 Linux: [按此下載](https://drive.google.com/drive/u/0/folders/10pD_OAfJw971P7gL64MwPdWdgk6dkYWd)
+* 32 位元 Windows: [按此下載](https://drive.google.com/drive/u/0/folders/1Vmy9aWYeTMhvJDM3W7UwKuqG4SfyA_n7)
+* 64 位元 Windows: [按此下載](https://drive.google.com/drive/u/0/folders/1sGibKjsuhkt0SMJ1w7id1XlOnoYKyD_W)
+
 
 #### C ++ 使用者
  
