@@ -414,7 +414,7 @@ pub extern "C" fn program_push_move2d(program: Box<Program>, x: libc::c_double, 
 #[no_mangle]
 pub extern "C" fn program_push_line2d(program: Box<Program>, x: libc::c_double, y: libc::c_double) {
     let program = Box::into_raw(program);
-    let msg = x.to_string() + r#"e "# + y.to_string().as_str() + r#"e move2d"#;
+    let msg = x.to_string() + r#"e "# + y.to_string().as_str() + r#"e line2d"#;
     unsafe {
         (*program).push_line(&msg);
     }
