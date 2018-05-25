@@ -104,7 +104,7 @@ pub extern "C" fn program_push_servo_on(program: Box<Program>, position: libc::u
 pub extern "C" fn program_push_servo_off(program: Box<Program>, position: libc::uint32_t) {
     let program = Box::into_raw(program);
     unsafe {
-        let msg = position.to_string() + r#" servo-on "# + position.to_string().as_str();
+        let msg = position.to_string() + r#" servo-off "# + position.to_string().as_str();
         (*program).push_line(&msg);
     }
 }
