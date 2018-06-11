@@ -54,6 +54,13 @@ void botnana_abort_program (struct Botnana * desc);
 void botnana_motion_evaluate(struct Botnana * desc,
                              const char * script);
 
+
+// motion poll
+//
+// desc:   server descriptor
+void botnana_motion_poll(struct Botnana * desc);
+
+
 // get version
 //
 // desc: server descriptor
