@@ -1,4 +1,3 @@
-extern crate time;
 use std::thread;
 use std::sync::{mpsc, Arc, Mutex};
 use std::ffi::CStr;
@@ -34,12 +33,6 @@ impl Botnana {
             Ok(url) => url,
         };
 
-        let sched_param = unsafe {
-            libc::sched_param {
-                sched_priority: libc::sched_get_priority_max(libc::SCHED_FIFO) - 5,
-            }
-        };
-
         // 從 user thread 送到 ws client thread
         let (user_sender, client_receiver) = mpsc::channel();
         // 從 ws client thread 送到 user thread
@@ -61,14 +54,6 @@ impl Botnana {
             .spawn(move || {
                 println!("Connecting to {:?}", url.clone());
 
-                unsafe {
-                    libc::pthread_setschedparam(
-                        libc::pthread_self(),
-                        libc::SCHED_FIFO,
-                        &sched_param,
-                    );
-                }
-
                 // connect ws server
                 if let Err(e) = connect(url.to_string(), |sender| Client {
                     ws_out: sender,
@@ -86,14 +71,6 @@ impl Botnana {
             let ws_out = ws_sender.clone();
             // 使用 thread 處理 user 傳過來的 message，透過 ws 送到 botnana
             thread::spawn(move || {
-                unsafe {
-                    libc::pthread_setschedparam(
-                        libc::pthread_self(),
-                        libc::SCHED_FIFO,
-                        &sched_param,
-                    );
-                }
-
                 loop {
                     // 如果從 mpsc channel 接收到 user 傳過來的指令，就透過 WebSocket 送到 Server
                     if let Ok(msg) = client_receiver.recv() {
@@ -109,14 +86,6 @@ impl Botnana {
             if let Err(e) = thread::Builder::new()
                 .name("MESSAGE_PROCESSOR".to_string())
                 .spawn(move || {
-                    unsafe {
-                        libc::pthread_setschedparam(
-                            libc::pthread_self(),
-                            libc::SCHED_FIFO,
-                            &sched_param,
-                        );
-                    }
-
                     loop {
                         if let Ok(msg) = user_receiver.recv() {
                             let msg = msg.trim_left().trim_left_matches('|');
