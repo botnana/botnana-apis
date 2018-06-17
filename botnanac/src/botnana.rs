@@ -19,6 +19,7 @@ pub struct Botnana {
     user_sender: mpsc::Sender<Message>,
     handlers: Arc<Mutex<HashMap<&'static str, Vec<Box<Fn(*const c_char) + Send>>>>>,
     handler_counters: Arc<Mutex<HashMap<&'static str, Vec<u32>>>>,
+    send_message_callback: Arc<Mutex<Vec<Box<Fn(*const c_char) + Send>>>>,
 }
 
 impl Botnana {
@@ -43,6 +44,7 @@ impl Botnana {
             user_sender: user_sender,
             handlers: Arc::new(Mutex::new(HashMap::new())),
             handler_counters: Arc::new(Mutex::new(HashMap::new())),
+            send_message_callback: Arc::new(Mutex::new(Vec::with_capacity(1))),
         };
 
         // 用來傳送 ws::sender
@@ -128,6 +130,16 @@ impl Botnana {
 
     /// send message to mpsc channel
     pub fn send_message(&mut self, msg: &str) {
+        let callback = self.send_message_callback.lock().unwrap();
+        if callback.len() > 0 {
+            let mut msg1 = String::from(msg).into_bytes();
+            msg1.push(0);
+            let msg = CStr::from_bytes_with_nul(msg1.as_slice())
+                .expect("toCstr")
+                .as_ptr();
+
+            callback[0](msg);
+        }
         if self.debug {
             println!("{}", &msg);
         }
@@ -219,6 +231,15 @@ impl Botnana {
         self.debug = true;
     }
 
+    pub fn send_message_callback<F>(&mut self, handler: F)
+    where
+        F: Fn(*const c_char) + Send + 'static,
+    {
+        let mut callback = self.send_message_callback.lock().unwrap();
+        let _output = callback.pop();
+        callback.push(Box::new(handler));
+    }
+
     /// disable debug
     pub fn disable_debug(&mut self) {
         self.debug = false;
@@ -302,6 +323,17 @@ pub extern "C" fn botnana_attach_event(
     let s = Box::into_raw(botnana);
 
     unsafe { (*s).times(&event, count, processor) };
+}
+
+///增加 send message callback
+#[no_mangle]
+pub extern "C" fn botnana_send_message_callback(
+    botnana: Box<Botnana>,
+    processor: fn(*const c_char),
+) {
+    let s = Box::into_raw(botnana);
+
+    unsafe { (*s).send_message_callback(processor) };
 }
 
 /// enable debug
