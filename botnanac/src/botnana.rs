@@ -318,7 +318,7 @@ pub extern "C" fn botnana_attach_event(
 ) {
     let event = unsafe {
         assert!(!event.is_null());
-        str::from_utf8(CStr::from_ptr(event).to_bytes()).unwrap()
+        CStr::from_ptr(event).to_str().unwrap()
     };
     let s = Box::into_raw(botnana);
 
