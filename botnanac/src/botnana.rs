@@ -127,7 +127,7 @@ impl Botnana {
     }
 
     /// send message to mpsc channel
-    pub fn send_message(&mut self, msg: String) {
+    pub fn send_message(&mut self, msg: &str) {
         let callback = self.debug_callback.lock().unwrap();
         if callback.len() > 0 {
             let mut temp_msg = String::from(msg.clone()).into_bytes();
@@ -139,7 +139,7 @@ impl Botnana {
             callback[0](msg);
         }
         self.user_sender
-            .send(Message::Text(msg))
+            .send(Message::Text(msg.to_string()))
             .expect("send_message");
     }
 
@@ -268,7 +268,7 @@ impl Handler for Client {
 /// Send message
 pub fn send_message(botnana: Box<Botnana>, msg: &str) {
     let s = Box::into_raw(botnana);
-    unsafe { (*s).send_message(msg.to_string()) };
+    unsafe { (*s).send_message(msg) };
 }
 
 /// evaluate
