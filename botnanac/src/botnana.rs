@@ -15,11 +15,10 @@ use url;
 #[repr(C)]
 #[derive(Clone)]
 pub struct Botnana {
-    debug: bool,
     user_sender: mpsc::Sender<Message>,
-    handlers: Arc<Mutex<HashMap<&'static str, Vec<Box<Fn(*const c_char) + Send>>>>>,
-    handler_counters: Arc<Mutex<HashMap<&'static str, Vec<u32>>>>,
-    send_message_callback: Arc<Mutex<Vec<Box<Fn(*const c_char) + Send>>>>,
+    handlers: Arc<Mutex<HashMap<String, Vec<Box<Fn(*const c_char) + Send>>>>>,
+    handler_counters: Arc<Mutex<HashMap<String, Vec<u32>>>>,
+    debug_callback: Arc<Mutex<Vec<Box<Fn(*const c_char) + Send>>>>,
 }
 
 impl Botnana {
@@ -40,11 +39,10 @@ impl Botnana {
         let (client_sender, user_receiver) = mpsc::channel();
 
         let botnana = Botnana {
-            debug: false,
             user_sender: user_sender,
             handlers: Arc::new(Mutex::new(HashMap::new())),
             handler_counters: Arc::new(Mutex::new(HashMap::new())),
-            send_message_callback: Arc::new(Mutex::new(Vec::with_capacity(1))),
+            debug_callback: Arc::new(Mutex::new(Vec::with_capacity(1))),
         };
 
         // 用來傳送 ws::sender
@@ -129,22 +127,19 @@ impl Botnana {
     }
 
     /// send message to mpsc channel
-    pub fn send_message(&mut self, msg: &str) {
-        let callback = self.send_message_callback.lock().unwrap();
+    pub fn send_message(&mut self, msg: String) {
+        let callback = self.debug_callback.lock().unwrap();
         if callback.len() > 0 {
-            let mut msg1 = String::from(msg).into_bytes();
-            msg1.push(0);
-            let msg = CStr::from_bytes_with_nul(msg1.as_slice())
+            let mut temp_msg = String::from(msg.clone()).into_bytes();
+            temp_msg.push(0);
+            let msg = CStr::from_bytes_with_nul(temp_msg.as_slice())
                 .expect("toCstr")
                 .as_ptr();
 
             callback[0](msg);
         }
-        if self.debug {
-            println!("{}", &msg);
-        }
         self.user_sender
-            .send(Message::Text(msg.to_string()))
+            .send(Message::Text(msg))
             .expect("send_message");
     }
 
@@ -216,33 +211,25 @@ impl Botnana {
     where
         F: Fn(*const c_char) + Send + 'static,
     {
+        let event = event.to_string();
         let mut handlers = self.handlers.lock().unwrap();
         let mut handler_counters = self.handler_counters.lock().unwrap();
 
-        let h = handlers.entry(event).or_insert(Vec::new());
+        let h = handlers.entry(event.clone()).or_insert(Vec::new());
         let hc = handler_counters.entry(event).or_insert(Vec::new());
-
         h.push(Box::new(handler));
         hc.push(count);
     }
 
-    /// enable debug
-    pub fn enable_debug(&mut self) {
-        self.debug = true;
-    }
-
-    pub fn send_message_callback<F>(&mut self, handler: F)
+    pub fn set_debug_callback<F>(&mut self, handler: F)
     where
         F: Fn(*const c_char) + Send + 'static,
     {
-        let mut callback = self.send_message_callback.lock().unwrap();
+        let mut callback = self.debug_callback.lock().unwrap();
+        // 移除原來的, 如果原本是空的會回傳 Error
         let _output = callback.pop();
+        // 放入新的 callback function
         callback.push(Box::new(handler));
-    }
-
-    /// disable debug
-    pub fn disable_debug(&mut self) {
-        self.debug = false;
     }
 }
 
@@ -281,7 +268,7 @@ impl Handler for Client {
 /// Send message
 pub fn send_message(botnana: Box<Botnana>, msg: &str) {
     let s = Box::into_raw(botnana);
-    unsafe { (*s).send_message(msg) };
+    unsafe { (*s).send_message(msg.to_string()) };
 }
 
 /// evaluate
@@ -321,35 +308,17 @@ pub extern "C" fn botnana_attach_event(
         CStr::from_ptr(event).to_str().unwrap()
     };
     let s = Box::into_raw(botnana);
-
     unsafe { (*s).times(&event, count, processor) };
 }
 
 ///增加 send message callback
 #[no_mangle]
-pub extern "C" fn botnana_send_message_callback(
+pub extern "C" fn botnana_set_debug_callback(
     botnana: Box<Botnana>,
     processor: fn(*const c_char),
 ) {
     let s = Box::into_raw(botnana);
-
-    unsafe { (*s).send_message_callback(processor) };
-}
-
-/// enable debug
-#[no_mangle]
-pub extern "C" fn botnana_enable_debug(botnana: Box<Botnana>) {
-    let s = Box::into_raw(botnana);
-    unsafe {
-        (*s).enable_debug();
-    }
-}
-
-/// enable debug
-#[no_mangle]
-pub extern "C" fn botnana_disable_debug(botnana: Box<Botnana>) {
-    let s = Box::into_raw(botnana);
-    unsafe { (*s).disable_debug() };
+    unsafe { (*s).set_debug_callback(processor) };
 }
 
 /// empty

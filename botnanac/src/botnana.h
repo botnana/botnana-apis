@@ -27,13 +27,11 @@ void botnana_attach_event (struct Botnana * desc,
                            void (* fn)(const char * str));
 
 
-// enable debug, display sender command
+// Set debug callback function
 // desc: server descriptor
-void botnana_enable_debug(struct Botnana * desc);
-
-// disable debug
-// desc: server descriptor
-void botnana_disable_debug(struct Botnana * desc);
+// fn:   debug callback function
+void botnana_set_debug_callback(struct Botnana * desc,
+                                void (* fn)(const char * str));
 
 // empty user program and command
 // desc: server descriptor
