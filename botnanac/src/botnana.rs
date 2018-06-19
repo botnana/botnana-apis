@@ -313,10 +313,7 @@ pub extern "C" fn botnana_attach_event(
 
 ///增加 send message callback
 #[no_mangle]
-pub extern "C" fn botnana_set_debug_callback(
-    botnana: Box<Botnana>,
-    processor: fn(*const c_char),
-) {
+pub extern "C" fn botnana_set_debug_callback(botnana: Box<Botnana>, processor: fn(*const c_char)) {
     let s = Box::into_raw(botnana);
     unsafe { (*s).set_debug_callback(processor) };
 }
