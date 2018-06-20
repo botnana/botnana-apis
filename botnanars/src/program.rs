@@ -1,7 +1,5 @@
 use websocket::OwnedMessage;
-use futures::sync::mpsc;
-use std::sync::{Arc, Mutex};
-use futures::sink::Sink;
+use std::sync::{Arc, Mutex, mpsc};
 
 const WAITING_NONE: i8 = 0;
 const WAITING_REQUESTS: i8 = 1;
@@ -368,8 +366,6 @@ impl Program {
         self.lines.lock().unwrap().push_str("end-of-program ;");
         let message = self.deploy_json();
         self.sender
-            .clone()
-            .wait()
             .send(OwnedMessage::Text(message))
             .expect("error");
     }
@@ -394,8 +390,6 @@ impl Program {
             .to_owned() + script + "\"}}";
 
         self.sender
-            .clone()
-            .wait()
             .send(OwnedMessage::Text(msg))
             .expect("error");
     }

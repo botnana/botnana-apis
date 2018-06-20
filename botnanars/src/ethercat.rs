@@ -1,7 +1,5 @@
 use websocket::OwnedMessage;
-use futures::sync::mpsc;
-use std::sync::{Arc, Mutex};
-use futures::sink::Sink;
+use std::sync::{Arc, Mutex, mpsc};
 
 #[derive(Clone, Debug)]
 pub struct Slave {
@@ -48,7 +46,7 @@ impl Slave {
         let p = &self.position.to_string();
         msg.push_str("{");
         msg.push_str("\"jsonrpc\":\"2.0\",");
-        msg.push_str("\"method:\":\"ethercat.slave.");
+        msg.push_str("\"method\":\"ethercat.slave.");
         msg.push_str(method);
         msg.push_str("\",");
         msg.push_str("\"params\":{\"position\":");
@@ -85,17 +83,17 @@ impl Slave {
 
     fn send_tag_json(&self, method: &str, tag: &str, value: usize) {
         let message = self.get_json(method, Some(tag), None, Some(value));
-        self.sender.clone().wait().send(message).expect("");
+        self.sender.send(message).expect("");
     }
 
     fn send_json(&self, method: &str) {
         let message = self.get_json(method, None, None, None);
-        self.sender.clone().wait().send(message).expect("");
+        self.sender.send(message).expect("");
     }
 
     fn send_channel_json(&self, method: &str, channel: usize) {
         let message = self.get_json(method, None, Some(channel), None);
-        self.sender.clone().wait().send(message).expect("");
+        self.sender.send(message).expect("");
     }
 
     fn send_channel_value_json(&self, method: &str, channel: usize, value: usize) {

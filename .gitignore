@@ -1,5 +1,15 @@
+**/package-lock.json
 **/node_modules
 **/_book
 **/Cargo.lock
 **/target
 **/*.exe
+.project
+botnanac/*.o
+botnanac/*/*.h.orig
+botnanac/*.c.orig
+**/libbotnana.so
+**/libbotnana.a
+**/libbotnana.dll
+**/libbotnana.lib
+botnanac/botnana
