@@ -10,7 +10,6 @@ use std::sync::{Arc, Mutex};
 #[repr(C)]
 pub struct Program {
     name: String,
-    line: String,
     lines: Arc<Mutex<String>>,
 }
 
@@ -21,6 +20,16 @@ impl Program {
         let lines = self.lines.clone();
         lines.lock().unwrap().push_str(&(cmd.to_owned() + r#"\n"#));
     }
+
+    /// clear program
+    pub fn clear(&mut self) {
+        // 此處 cmd 使用 &str，因為後續會轉成 string, 所以應該不會被設垃收集器回收
+         let lines = self.lines.clone();
+         let mut line = lines.lock().unwrap();
+         line.clear();  
+         line.push_str(&(r#": user$"#.to_owned() + &self.name + r#"\n"#));
+    }
+
 
     /// push until_target_reached command to program
     pub fn until_target_reached(&mut self, position: u32) {
@@ -48,7 +57,6 @@ pub extern "C" fn program_new(name: *const c_char) -> Box<Program> {
 
     let program = Program {
         name: name.to_string(),
-        line: line.clone(),
         lines: lines.clone(),
     };
 
@@ -82,6 +90,18 @@ pub extern "C" fn program_push_script(program: Box<Program>, cmd: *const c_char)
         (*program).push_line(cmd);
     }
 }
+
+/// clear program
+#[no_mangle]
+pub extern "C" fn program_clear(program: Box<Program>) {
+    let program = Box::into_raw(program);
+    
+    unsafe {
+        (*program).clear();
+    }
+}
+
+
 
 /// run porgram
 #[no_mangle]
