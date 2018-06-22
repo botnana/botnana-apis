@@ -9,11 +9,18 @@ void handle_meaasge (const char * src)
     printf("handle_meaasge (%u): %s \n", message_count, src);
 }
 
+void debug_callback (const char * src)
+{
+    printf("debug callback: %s \n", src);
+}
+
 
 int main()
 {
     struct Botnana * botnana = botnana_connect("192.168.7.2", handle_meaasge);
-    botnana_enable_debug(botnana);
+
+    // set debug callback function
+    botnana_set_debug_callback(botnana, debug_callback);
 
     // set name of axis 1
     botnana_set_axis_config_name(botnana, 1, "A1");

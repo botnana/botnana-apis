@@ -8,11 +8,19 @@ void handle_meaasge (const char * src)
 
 }
 
+
+void debug_callback (const char * src)
+{
+    printf("debug callback: %s \n", src);
+}
+
 int main()
 {
 
     struct Botnana * botnana = botnana_connect("192.168.7.2", handle_meaasge);
-    botnana_enable_debug (botnana);
+
+    botnana_set_debug_callback(botnana, debug_callback);
+
     //send real time script 'empty  marker empty'
     botnana_motion_evaluate(botnana, "empty  marker empty");
 

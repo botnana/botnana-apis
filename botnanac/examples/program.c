@@ -12,11 +12,20 @@ void end_of_program(const char * src)
 {
     printf("end-of-program: %s \n", src);
 }
+
+void debug_callback (const char * src)
+{
+    printf("debug callback: %s \n", src);
+}
+
+
 int main()
 {
     struct Botnana * botnana = botnana_connect("192.168.7.2", handle_meaasge);
     struct Program * pm = program_new("test");
-    botnana_enable_debug(botnana);
+
+    // set debug callback function
+    botnana_set_debug_callback(botnana, debug_callback);
 
     // reset drive 1 fault and wait
     program_push_reset_fault(pm, 1);
@@ -55,6 +64,7 @@ int main()
 
     // deploy program to motion server
     program_deploy(botnana,pm);
+    // wait deployed|ok message
     sleep(1);
 
     // run program
