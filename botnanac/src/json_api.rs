@@ -15,6 +15,15 @@ pub extern "C" fn botnana_motion_evaluate(botnana: Box<Botnana>, script: *const 
     evaluate(botnana, &script.to_owned());
 }
 
+/// Send Message
+pub extern "C" fn botnana_send_message(botnana: Box<Botnana>, msg: *const c_char) {
+    let message = unsafe {
+        assert!(!msg.is_null());
+        str::from_utf8(CStr::from_ptr(msg).to_bytes()).unwrap()
+    };
+    send_message(botnana, message);
+}
+
 /// get slave information
 #[no_mangle]
 pub extern "C" fn botnana_motion_poll(botnana: Box<Botnana>) {
