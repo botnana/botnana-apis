@@ -16,6 +16,7 @@ pub extern "C" fn botnana_motion_evaluate(botnana: Box<Botnana>, script: *const 
 }
 
 /// Send Message
+#[no_mangle]
 pub extern "C" fn botnana_send_message(botnana: Box<Botnana>, msg: *const c_char) {
     let message = unsafe {
         assert!(!msg.is_null());
