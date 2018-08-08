@@ -16,14 +16,14 @@ pub struct Program {
 impl Program {
     /// push program line
     pub fn push_line(&mut self, cmd: &str) {
-        // 此處 cmd 使用 &str，因為後續會轉成 string, 所以應該不會被設垃收集器回收
+        // 此處 cmd 使用 &str，因為後續會轉成 string, 所以應該不會被垃圾收集器回收
         let lines = self.lines.clone();
         lines.lock().unwrap().push_str(&(cmd.to_owned() + r#"\n"#));
     }
 
     /// clear program
     pub fn clear(&mut self) {
-        // 此處 cmd 使用 &str，因為後續會轉成 string, 所以應該不會被設垃收集器回收
+        // 此處 cmd 使用 &str，因為後續會轉成 string, 所以應該不會被垃圾收集器回收
         let lines = self.lines.clone();
         let mut line = lines.lock().unwrap();
         line.clear();
