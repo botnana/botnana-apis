@@ -17,13 +17,18 @@ void handle_version (const char * src)
     printf("handle_version (%u): %s \n", version_count, src);
 }
 
+void debug_callback (const char * src)
+{
+    printf("debug callback: %s \n", src);
+}
+
 int main()
 {
     // connect to motion server
     struct Botnana * botnana = botnana_connect("192.168.7.2", handle_meaasge);
 
     // enable debug mode, show send command
-    botnana_enable_debug (botnana);
+    botnana_set_debug_callback(botnana, debug_callback);
 
     // catch "version" of message tag
     botnana_attach_event(botnana, "version", 12, handle_version);

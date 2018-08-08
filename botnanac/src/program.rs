@@ -10,21 +10,33 @@ use std::sync::{Arc, Mutex};
 #[repr(C)]
 pub struct Program {
     name: String,
-    line: String,
     lines: Arc<Mutex<String>>,
 }
 
 impl Program {
+    /// push program line
     pub fn push_line(&mut self, cmd: &str) {
+        // 此處 cmd 使用 &str，因為後續會轉成 string, 所以應該不會被垃圾收集器回收
         let lines = self.lines.clone();
         lines.lock().unwrap().push_str(&(cmd.to_owned() + r#"\n"#));
     }
 
+    /// clear program
+    pub fn clear(&mut self) {
+        // 此處 cmd 使用 &str，因為後續會轉成 string, 所以應該不會被垃圾收集器回收
+        let lines = self.lines.clone();
+        let mut line = lines.lock().unwrap();
+        line.clear();
+        line.push_str(&(r#": user$"#.to_owned() + &self.name + r#"\n"#));
+    }
+
+    /// push until_target_reached command to program
     pub fn until_target_reached(&mut self, position: u32) {
         let msg = position.to_string() + r#" until-target-reached"#;
         self.push_line(&msg);
     }
 
+    /// push until_no_requests command to program
     pub fn until_no_requests(&mut self) {
         self.push_line(&r#"until-no-requests"#.to_owned());
     }
@@ -44,7 +56,6 @@ pub extern "C" fn program_new(name: *const c_char) -> Box<Program> {
 
     let program = Program {
         name: name.to_string(),
-        line: line.clone(),
         lines: lines.clone(),
     };
 
@@ -75,7 +86,17 @@ pub extern "C" fn program_push_script(program: Box<Program>, cmd: *const c_char)
     };
 
     unsafe {
-        (*program).push_line(&cmd);
+        (*program).push_line(cmd);
+    }
+}
+
+/// clear program
+#[no_mangle]
+pub extern "C" fn program_clear(program: Box<Program>) {
+    let program = Box::into_raw(program);
+
+    unsafe {
+        (*program).clear();
     }
 }
 
@@ -274,7 +295,7 @@ pub extern "C" fn program_push_set_dout(
 #[no_mangle]
 pub extern "C" fn program_push_enable_coordinator(program: Box<Program>) {
     let program = Box::into_raw(program);
-    let msg = r#"+coordinator"#;
+    let msg = r#"+coordinator"#.to_string();
     unsafe {
         (*program).push_line(&msg);
     }
@@ -284,7 +305,7 @@ pub extern "C" fn program_push_enable_coordinator(program: Box<Program>) {
 #[no_mangle]
 pub extern "C" fn program_push_start_trj(program: Box<Program>) {
     let program = Box::into_raw(program);
-    let msg = r#"start"#;
+    let msg = r#"start"#.to_string();
     unsafe {
         (*program).push_line(&msg);
     }
@@ -294,7 +315,7 @@ pub extern "C" fn program_push_start_trj(program: Box<Program>) {
 #[no_mangle]
 pub extern "C" fn program_push_disable_coordinator(program: Box<Program>) {
     let program = Box::into_raw(program);
-    let msg = r#"-coordinator"#;
+    let msg = r#"-coordinator"#.to_string();
     unsafe {
         (*program).push_line(&msg);
     }
@@ -304,7 +325,7 @@ pub extern "C" fn program_push_disable_coordinator(program: Box<Program>) {
 #[no_mangle]
 pub extern "C" fn program_push_clear_path(program: Box<Program>) {
     let program = Box::into_raw(program);
-    let msg = r#"0path"#;
+    let msg = r#"0path"#.to_string();
     unsafe {
         (*program).push_line(&msg);
     }
@@ -334,7 +355,7 @@ pub extern "C" fn program_push_set_vcmd(program: Box<Program>, vcmd: libc::c_dou
 #[no_mangle]
 pub extern "C" fn program_push_enable_group(program: Box<Program>) {
     let program = Box::into_raw(program);
-    let msg = r#"+group"#;
+    let msg = r#"+group"#.to_string();
     unsafe {
         (*program).push_line(&msg);
     }
@@ -344,7 +365,7 @@ pub extern "C" fn program_push_enable_group(program: Box<Program>) {
 #[no_mangle]
 pub extern "C" fn program_push_disable_group(program: Box<Program>) {
     let program = Box::into_raw(program);
-    let msg = r#"-group"#;
+    let msg = r#"-group"#.to_string();
     unsafe {
         (*program).push_line(&msg);
     }
@@ -374,7 +395,7 @@ pub extern "C" fn program_push_wait_group_end(program: Box<Program>, group: libc
 #[no_mangle]
 pub extern "C" fn program_push_move_mcs(program: Box<Program>) {
     let program = Box::into_raw(program);
-    let msg = r#"mcs"#;
+    let msg = r#"mcs"#.to_string();
     unsafe {
         (*program).push_line(&msg);
     }

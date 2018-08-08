@@ -17,6 +17,25 @@ pub extern "C" fn botnana_motion_evaluate(botnana: Box<Botnana>, script: *const 
 
 /// get slave information
 #[no_mangle]
+pub extern "C" fn botnana_motion_poll(botnana: Box<Botnana>) {
+    let msg = r#"{"jsonrpc":"2.0","method":"motion.poll"}"#;
+    send_message(botnana, &msg.to_owned());
+}
+
+#[no_mangle]
+pub extern "C" fn botnana_profiler_restart(botnana: Box<Botnana>) {
+    let msg = r#"{"jsonrpc":"2.0","method":"profiler.restart"}"#;
+    send_message(botnana, &msg.to_owned());
+}
+
+#[no_mangle]
+pub extern "C" fn botnana_profiler_output(botnana: Box<Botnana>) {
+    let msg = r#"{"jsonrpc":"2.0","method":"profiler.output"}"#;
+    send_message(botnana, &msg.to_owned());
+}
+
+/// get slave information
+#[no_mangle]
 pub extern "C" fn botnana_get_slave(botnana: Box<Botnana>, position: libc::uint32_t) {
     let msg = r#"{"jsonrpc":"2.0","method":"ethercat.slave.get","params":{"position":"#.to_owned()
         + position.to_string().as_str() + r#"}}"#;

@@ -39,7 +39,6 @@ int main()
 
     struct Botnana * botnana = botnana_connect("192.168.7.2", handle_meaasge);
     struct Program * pm = program_new("test");
-    //botnana_enable_debug(botnana);
 
     // get real time group configure, to check group 1 is 1D
     botnana_get_rt_grpcfg(botnana, 1);
@@ -135,6 +134,7 @@ int main()
 
     // deploy program to motion server
     program_deploy(botnana, pm);
+    // wait deployed|ok message
     sleep(1);
     // execute program
     program_run(botnana, pm);

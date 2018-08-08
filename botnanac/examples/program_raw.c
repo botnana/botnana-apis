@@ -76,6 +76,7 @@ int main()
 
     // deploy program to motion server
     program_deploy(botnana,pm);
+    // wait deployed|ok message
     sleep(1);
 
     // run program

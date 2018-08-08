@@ -13,7 +13,6 @@ void handle_meaasge (const char * src)
 int main()
 {
     struct Botnana * botnana = botnana_connect("192.168.7.2", handle_meaasge);
-    //botnana_enable_debug(botnana);
 
     // set group name
     botnana_set_group_config_name(botnana, 1, "G1N");

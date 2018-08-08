@@ -53,7 +53,6 @@ int main()
 
     struct Botnana * botnana = botnana_connect("192.168.7.2", handle_meaasge);
     struct Program * pm = program_new("test");
-    //botnana_enable_debug(botnana);
 
     /*** catch massage tag  ***/
     botnana_attach_event(botnana, "end-of-program", 0, end_of_program);
@@ -140,6 +139,7 @@ int main()
 
     // deploy program to motion server
     program_deploy(botnana, pm);
+    // wait deployed|ok message
     sleep(1);
     // execute program
     program_run(botnana, pm);

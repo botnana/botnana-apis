@@ -2,7 +2,7 @@ TARGET = $(shell uname -p)-unknown-linux-gnu
 LIBBOTNANA = ./lib/$(TARGET)/libbotnana.a
 
 CFLAGS = -Isrc
-LDFLAGS = $(LIBBOTNANA) -ldl -pthread -lssl -lcrypto
+LDFLAGS = $(LIBBOTNANA) -ldl -pthread -lssl -lcrypto -O2
 
 fmt:
 	cargo fmt
@@ -16,7 +16,7 @@ build: fmt
 	cp target/$(TARGET)/release/libbotnana.a ./lib/$(TARGET)	
 
 %.o: 
-	gcc $(CFLAGS) -c ./examples/$*.c -o $@ 	
+	gcc $(CFLAGS) -O2 -c ./examples/$*.c -o $@ 	
 
 words: clean words.o  
 	gcc -o botnana $@.o $(LDFLAGS)
