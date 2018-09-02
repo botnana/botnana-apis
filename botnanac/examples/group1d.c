@@ -1,151 +1,166 @@
 #include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
 #include "botnana.h"
-#include "program.h"
 
-void handle_meaasge(const char * src)
+// 處理主站傳回的資料
+void on_message_cb (const char * src)
 {
-    printf("handle_meaasge: %s \n", src);
+    printf("on_message:  %s\n", src);
+}
+
+// 處理 WebSocket 連線異常
+void on_ws_error_cb (const char * src)
+{
+    printf("WS client error: %s\n", src);
+    exit(1);
+}
+
+void on_send_cb (const char * src)
+{
+    printf("on_send: %s\n", src);
+}
+
+void end_of_program (const char * src)
+{
+    printf("end_of_program!!\n");
+}
+
+int deployed_ok = 0;
+void deployed_cb (const char * src)
+{
+    deployed_ok = 1;
+}
+
+int has_params = 0;
+void group_type_cb (const char * src)
+{
+    has_params |= 0x01;
+    if (strcmp(src, "1D") == 0)
+    {
+        has_params |= 0x10;
+    }
+}
+
+void group_mapping_cb (const char * src)
+{
+    has_params |= 0x02;
+    if (strcmp(src, "1") == 0)
+    {
+        has_params |= 0x20;
+    }
 
 }
 
-void end_of_program(const char * src)
+void axis_slave_position_cb (const char * src)
 {
-    printf("end-of-program: %s \n", src);
-
+    int pos = atoi(src);
+    has_params |= 0x04;
+    if (pos == 1)
+    {
+        has_params |= 0x40;
+    }
 }
 
-void handle_acs(const char * src)
+void axis_drive_channel_cb (const char * src)
 {
-    printf("ACS: %s ,", src);
+    int ch = atoi(src);
+    has_params |= 0x08;
+    if (ch == 1)
+    {
+        has_params |= 0x80;
+    }
 }
 
-void handle_pcs(const char * src)
+double acs = 0.0;
+void acs_cb (const char * src)
 {
-    printf("PCS: %s \n", src);
+    acs = atof(src);
 }
 
-void handle_pos(const char * src)
+double pcs = 0.0;
+void pcs_cb (const char * src)
 {
-    printf("POS: %s ", src);
+    pcs = atof(src);
 }
 
-void handle_feedback(const char * src)
-{
-    printf("FEEDBACK: %s ", src);
-}
 
 int main()
 {
+    // connect to motion server
+    struct Botnana * botnana = botnana_connect("192.168.7.2", on_ws_error_cb);
 
-    struct Botnana * botnana = botnana_connect("192.168.7.2", handle_meaasge);
-    struct Program * pm = program_new("test");
+    botnana_set_on_message_cb(botnana, on_message_cb);
+    //botnana_set_on_send_cb(botnana, on_send_cb);
 
-    // get real time group configure, to check group 1 is 1D
-    botnana_get_rt_grpcfg(botnana, 1);
+    botnana_set_tag_cb(botnana, "end-of-program", 0, end_of_program);
+    botnana_set_tag_cb(botnana, "deployed", 0, deployed_cb);
+    //botnana_set_tag_cb(botnana, "real_position.1.1", 0, real_position_cb);
 
-    // catch end-of-program message tag
-    botnana_attach_event(botnana, "end-of-program", 0, end_of_program);
+    botnana_set_tag_cb(botnana, "group_type.1", 0, group_type_cb);
+    botnana_set_tag_cb(botnana, "group_mapping.1", 0, group_mapping_cb);
+    botnana_set_tag_cb(botnana, "axis_slave_position.1", 0, axis_slave_position_cb);
+    botnana_set_tag_cb(botnana, "axis_drive_channel.1", 0, axis_drive_channel_cb);
+    botnana_set_tag_cb(botnana, "ACS.1", 0, acs_cb);
+    botnana_set_tag_cb(botnana, "PCS.1", 0, pcs_cb);
 
-    // catch ACS.1 message tag
-    botnana_attach_event(botnana, "ACS.1", 0, handle_acs);
+    // new program
+    struct Program * pm = program_new("group1d");
 
-    // catch PCS.1 message tag
-    botnana_attach_event(botnana, "PCS.1", 0, handle_pcs);
+    motion_evaluate(botnana, "abort-program");
+    motion_evaluate(botnana, "1 .slave 1 .grpcfg 1 .axiscfg");
 
-    // catch axis_command_position.1 message tag
-    botnana_attach_event(botnana, "axis_command_position.1", 0, handle_pos);
+    while ((has_params & 0xF) != 0xF)
+    {
+        sleep(1);
+    }
+    if (has_params != 0xFF)
+    {
+        config_group_set_string(botnana, 1, "gtype", "1D");
+        config_group_set_mapping(botnana, 1, "1");
+        config_axis_set_integer(botnana, 1, "slave_position", 1);
+        config_axis_set_integer(botnana, 1, "drive_channel", 1);
+        config_save(botnana);
+        printf("Change parameters and reboot botnana-control !!\n");
+        sleep(1);
+        exit(1);
+    }
 
-    // catch axis_corrected_position.1 message tag
-    botnana_attach_event(botnana,
-                         "axis_corrected_position.1",
-                         0,
-                         handle_feedback);
-    sleep(1);
+    program_line(pm, "1 1 reset-fault");
+    program_line(pm,"1 1 until-no-fault");
+    program_line(pm,"pp 1 1 op-mode!");
+    program_line(pm,"1 1 servo-on");
+    program_line(pm,"1 1 until-servo-on");
+    program_line(pm,"1 1 go");
+    program_line(pm,"1 1 until-target-reached");
+    program_line(pm,"csp 1 1 op-mode!");
 
-    // disable coordinated motion
-    program_push_disable_coordinator(pm);
-
-    // select group 1 as current group
-    program_push_select_group(pm, 1);
-
-    // disable current group
-    program_push_disable_group(pm);
-
-    // clear path of current group
-    program_push_clear_path (pm);
-
-    // reset fault of slave 1
-    program_push_reset_fault(pm, 1);
-
-    // change to csp mode of slave 1
-    program_push_csp(pm, 1);
-
-    // servo on of slave 1
-    program_push_servo_on(pm, 1);
-
-    // wait 2000 ms
-    program_push_script(pm, "2000 ms");
-
-    // enable coordinated motion
-    program_push_enable_coordinator(pm);
-
-    // start trajectory planner
-    program_push_start_trj(pm);
-
-    // select group 1 as current group
-    program_push_select_group(pm, 1);
-
-    // enable current group
-    program_push_enable_group(pm);
-
-    // set current position as start position (not moving)
-    program_push_move1d(pm, 0);
-
-    // set segment feedrate
-    program_push_set_feedrate (pm, 0.05);
-
-    // insert line1d segment
-    program_push_line1d(pm, 0.5);
-
-    // set segment feedrate
-    program_push_set_feedrate (pm, 0.1);
-
-    // insert line1d segment
-    program_push_line1d(pm, 1.0);
-
-    // set segment feedrate
-    program_push_set_feedrate (pm, 0.2);
-
-    // insert line1d segment
-    program_push_line1d(pm, 2.0);
-
-    // set velocity command
-    program_push_set_vcmd (pm, 0.5);
-
-    // waiting end of trajectory of group 1
-    program_push_wait_group_end(pm, 1);
-
-    // disable coordinated motion
-    program_push_disable_coordinator(pm);
-
-    // empty current user program in motion server
-    botnana_empty(botnana);
-    sleep(1);
+    program_line(pm,"+coordinator");
+    program_line(pm,"1 group! 0path +group");
+    program_line(pm,"0.0e move1d");
+    program_line(pm,"0.5e line1d");
+    program_line(pm,"-0.5e line1d");
+    program_line(pm,"0.0e line1d");
+    program_line(pm,"0.05e vcmd! start");
+    program_line(pm,"pause pause");
+    program_line(pm,"begin 1 group! gstop? not while pause repeat");
+    program_line(pm,"1 group! 0path -group -coordinator");
 
     // deploy program to motion server
-    program_deploy(botnana, pm);
-    // wait deployed|ok message
-    sleep(1);
-    // execute program
-    program_run(botnana, pm);
+    program_deploy(botnana,pm);
 
+    while (deployed_ok == 0)
+    {
+        sleep(1);
+    }
+
+    // run program
+    program_run(botnana, pm);
     while (1)
     {
-        // get axis 1  info
-        botnana_get_axis_info(botnana, 1);
-        // get group 1 info
-        botnana_get_group_info(botnana, 1);
-        sleep(2);
+        motion_evaluate(botnana, "1 .slave-diff 1 .axis 1 .group");
+        printf("ACS: %8.4f   PCS: %8.4f\n", acs, pcs);
+        sleep(1);
     }
     return 0;
 

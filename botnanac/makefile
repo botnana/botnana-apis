@@ -24,16 +24,16 @@ words: clean words.o
 empty: clean empty.o
 	gcc -o botnana $@.o $(LDFLAGS)
 
-slave_setting: clean slave_setting.o
+config_slave: clean config_slave.o
 	gcc -o botnana $@.o $(LDFLAGS)
 
-motion_setting: clean motion_setting.o
+config_motion: clean config_motion.o
 	gcc -o botnana $@.o $(LDFLAGS)
 	
-group_setting: clean group_setting.o
+config_group: clean config_group.o
 	gcc -o botnana $@.o $(LDFLAGS)
 	
-axis_setting: clean axis_setting.o
+config_axis: clean config_axis.o
 	gcc -o botnana $@.o $(LDFLAGS)
 
 group1d: clean group1d.o
@@ -54,7 +54,7 @@ version: clean version.o
 version_debug: clean version_debug.o
 	gcc -o botnana $@.o $(LDFLAGS)
 
-program: clean program.o
+drive_pp: clean drive_pp.o
 	gcc -o botnana $@.o $(LDFLAGS)
 	
 	
@@ -65,7 +65,7 @@ io: clean io.o
 	gcc -o botnana $@.o $(LDFLAGS)
 	 		
 run:
-	./botnana	
+	RUST_BACKTRACE=1 ./botnana	
 	
 verbose: clean verbose.o 
 	gcc -o verbose $@.o $(LDFLAGS)
