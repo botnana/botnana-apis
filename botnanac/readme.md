@@ -4,10 +4,10 @@
 
 C 語言函式庫下載：
 
-* 32 位元 Linux: [按此下載](https://drive.google.com/drive/u/0/folders/1GhOABXGKu7SZCmRa1uPpun9YILrbSblQ)
-* 64 位元 Linux: [按此下載](https://drive.google.com/drive/u/0/folders/10pD_OAfJw971P7gL64MwPdWdgk6dkYWd)
-* 32 位元 Windows: [按此下載](https://drive.google.com/drive/u/0/folders/1Vmy9aWYeTMhvJDM3W7UwKuqG4SfyA_n7)
-* 64 位元 Windows: [按此下載](https://drive.google.com/drive/u/0/folders/1sGibKjsuhkt0SMJ1w7id1XlOnoYKyD_W)
+* 32 位元 Linux: [https://drive.google.com/drive/u/0/folders/1sGibKjsuhkt0SMJ1w7id1XlOnoYKyD_W](https://drive.google.com/drive/u/0/folders/1GhOABXGKu7SZCmRa1uPpun9YILrbSblQ)
+* 64 位元 Linux: [https://drive.google.com/drive/u/0/folders/10pD_OAfJw971P7gL64MwPdWdgk6dkYWd](https://drive.google.com/drive/u/0/folders/10pD_OAfJw971P7gL64MwPdWdgk6dkYWd)
+* 32 位元 Windows: [https://drive.google.com/drive/u/0/folders/1Vmy9aWYeTMhvJDM3W7UwKuqG4SfyA_n7](https://drive.google.com/drive/u/0/folders/1Vmy9aWYeTMhvJDM3W7UwKuqG4SfyA_n7)
+* 64 位元 Windows: [https://drive.google.com/drive/u/0/folders/1sGibKjsuhkt0SMJ1w7id1XlOnoYKyD_W](https://drive.google.com/drive/u/0/folders/1sGibKjsuhkt0SMJ1w7id1XlOnoYKyD_W)
 
 
 目錄說明：
@@ -714,7 +714,7 @@ Botnana-API 提供使用者一個包裝好的 WebSocket Client 的函式庫，�
 
 此 C 語言函式庫是由 Rust 進行開發，如果有自行修改的需求請安裝 Rust 開發工具。
 
-請參考 [The Rust Programming Language](https://www.rust-lang.org/)
+請參考 [The Rust Programming Language](https://www.rust-lang.org/)  https://www.rust-lang.org/
 
 
 ### 4. C++ 使用者
