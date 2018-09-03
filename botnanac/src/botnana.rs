@@ -74,7 +74,7 @@ impl Botnana {
         }
 
         // 等待 WS 連線後，將 ws_sender 回傳
-        if let Ok(ws_sender) = thread_rx.recv_timeout(Duration::from_millis(5000)) {
+        if let Ok(ws_sender) = thread_rx.recv_timeout(Duration::from_millis(10000)) {
             let ws_out = ws_sender.clone();
             // 使用 thread 處理 user 傳過來的 message，透過 ws 送到 botnana
             thread::spawn(move || {

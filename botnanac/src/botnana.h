@@ -33,8 +33,8 @@ int32_t botnana_set_tag_cb (struct Botnana * desc,
 // Set on_message callback function
 // desc: server descriptor
 // cb  : on_message callback function
-void botnana_set_on_send_cb(struct Botnana * desc,
-                            void (* cb)(const char * str));
+void botnana_set_on_message_cb(struct Botnana * desc,
+                               void (* cb)(const char * str));
 
 
 // Set on_send callback function
@@ -44,10 +44,6 @@ void botnana_set_on_send_cb(struct Botnana * desc,
                             void (* cb)(const char * str));
 
 
-// abort current background program
-// desc: server descriptor
-void botnana_abort_program (struct Botnana * desc);
-
 //****** Json API ********/
 
 // motion evaluate
@@ -55,8 +51,8 @@ void botnana_abort_program (struct Botnana * desc);
 // desc:   server descriptor
 // script: real time script
 
-void motion_evaluate(struct Botnana * desc,
-                     const char * script);
+int32_t motion_evaluate(struct Botnana * desc,
+                        const char * script);
 
 // JSON-API: motion.poll
 //
@@ -229,6 +225,9 @@ struct Program * program_new (const char * name);
 // push real time script to program
 void program_line(struct Program * pm, const char * cmd);
 
+// clear program
+void program_clear(struct Program * pm);
+
 // deploy program
 void program_deploy(struct Botnana * desc, struct Program * pm);
 
@@ -237,6 +236,10 @@ void program_deploy(struct Botnana * desc, struct Program * pm);
 // desc: server descriptor
 // pm:   program descriptor
 void program_run(struct Botnana * desc, struct Program * pm);
+
+// abort current background program
+// desc: server descriptor
+void botnana_abort_program (struct Botnana * desc);
 
 #ifdef __cplusplus
 }

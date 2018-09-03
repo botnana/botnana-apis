@@ -97,6 +97,7 @@ int main()
     program_line(pm, "1 1 until-target-reached");
 
     // deploy program to motion server
+    motion_evaluate(botnana, "-work marker -work");
     program_deploy(botnana,pm);
 
     while (deployed_ok == 0)

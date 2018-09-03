@@ -89,8 +89,7 @@ int main()
 {
     // connect to motion server
     struct Botnana * botnana = botnana_connect("192.168.7.2", on_ws_error_cb);
-
-    botnana_set_on_message_cb(botnana, on_message_cb);
+    //botnana_set_on_message_cb(botnana, on_message_cb);
     //botnana_set_on_send_cb(botnana, on_send_cb);
 
     botnana_set_tag_cb(botnana, "end-of-program", 0, end_of_program);
@@ -147,6 +146,7 @@ int main()
     program_line(pm,"1 group! 0path -group -coordinator");
 
     // deploy program to motion server
+    motion_evaluate(botnana, "-work marker -work");
     program_deploy(botnana,pm);
 
     while (deployed_ok == 0)
