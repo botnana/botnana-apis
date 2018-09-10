@@ -145,11 +145,14 @@ impl Botnana {
         let cb = self.on_message_cb.lock().unwrap();
         if cb.len() > 0 && message.len() > 0 {
             let mut temp_msg = String::from(message).into_bytes();
+            // 如果不是換行結束的,補上換行符號,如果沒有在 C 的輸出有問題
+            if temp_msg[temp_msg.len() - 1] != 10 {
+                temp_msg.push(10);
+            }
             temp_msg.push(0);
             let msg = CStr::from_bytes_with_nul(temp_msg.as_slice())
                 .expect("toCstr")
                 .as_ptr();
-
             cb[0](msg);
         }
 
@@ -317,8 +320,10 @@ pub fn send_message(botnana: Box<Botnana>, msg: &str) {
 
 /// evaluate
 pub fn evaluate(botnana: Box<Botnana>, script: &str) {
+    // 處理 `"` 字元
+    let cmd = script.replace(r#"""#, r#"\""#);
     let msg = r#"{"jsonrpc":"2.0","method":"motion.evaluate","params":{"script":""#.to_owned()
-        + script + r#""}}"#;
+        + cmd.as_str() + r#""}}"#;
     send_message(botnana, &msg);
 }
 

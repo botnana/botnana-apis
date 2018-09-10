@@ -15,8 +15,11 @@ pub struct Program {
 
 impl Program {
     /// push program line
-    pub fn push_line(&mut self, cmd: &str) {
-        // 此處 cmd 使用 &str，因為後續會轉成 string, 所以應該不會被垃圾收集器回收
+    pub fn push_line(&mut self, script: &str) {
+        // 此處 script 使用 &str，因為後續會轉成 string, 所以應該不會被垃圾收集器回收
+
+        // 處理 `"` 字元
+        let cmd = script.replace(r#"""#, r#"\""#);
         let lines = self.lines.clone();
         lines.lock().unwrap().push_str(&(cmd.to_owned() + r#"\n"#));
     }
@@ -28,17 +31,6 @@ impl Program {
         let mut line = lines.lock().unwrap();
         line.clear();
         line.push_str(&(r#": user$"#.to_owned() + &self.name + r#"\n"#));
-    }
-
-    /// push until_target_reached command to program
-    pub fn until_target_reached(&mut self, position: u32) {
-        let msg = position.to_string() + r#" until-target-reached"#;
-        self.push_line(&msg);
-    }
-
-    /// push until_no_requests command to program
-    pub fn until_no_requests(&mut self) {
-        self.push_line(&r#"until-no-requests"#.to_owned());
     }
 }
 
