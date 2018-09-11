@@ -28,17 +28,17 @@ int main()
     botnana_set_on_send_cb(botnana, on_send_cb);
 
     // send `words` of real time script
-    motion_evaluate(botnana, "words");
+    script_evaluate(botnana, "words");
 
     // 新增指令 test1, test2
-    motion_evaluate(botnana, ": test1 3 ;");
-    motion_evaluate(botnana, ": test2 4 ;");
-    motion_evaluate(botnana, "words");
+    script_evaluate(botnana, ": test1 3 ;");
+    script_evaluate(botnana, ": test2 4 ;");
+    script_evaluate(botnana, "words");
     sleep(1);
 
     // 將test1, test2 從字典中移除
-    motion_evaluate(botnana, "-work marker -work");
-    motion_evaluate(botnana, "words");
+    script_evaluate(botnana, "-work marker -work");
+    script_evaluate(botnana, "words");
     sleep(1);
 
     return 0;

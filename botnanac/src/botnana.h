@@ -51,7 +51,7 @@ void botnana_set_on_send_cb(struct Botnana * desc,
 // desc:   server descriptor
 // script: real time script
 
-int32_t motion_evaluate(struct Botnana * desc,
+int32_t script_evaluate(struct Botnana * desc,
                         const char * script);
 
 // JSON-API: motion.poll

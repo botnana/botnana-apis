@@ -7,7 +7,7 @@ use botnana::{evaluate, send_message};
 
 /// motion_evaluate
 #[no_mangle]
-pub extern "C" fn motion_evaluate(botnana: Box<Botnana>, script: *const c_char) -> libc::int32_t {
+pub extern "C" fn script_evaluate(botnana: Box<Botnana>, script: *const c_char) -> libc::int32_t {
     if script.is_null() {
         -1
     } else {

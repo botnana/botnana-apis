@@ -3,7 +3,7 @@ use std::os::raw::c_char;
 use std::ffi::CStr;
 use botnana::Botnana;
 use std::str;
-use botnana::{evaluate, send_message};
+use botnana::evaluate;
 use std::sync::{Arc, Mutex};
 
 /// Program
@@ -16,12 +16,11 @@ pub struct Program {
 impl Program {
     /// push program line
     pub fn push_line(&mut self, script: &str) {
-        // 此處 script 使用 &str，因為後續會轉成 string, 所以應該不會被垃圾收集器回收
-
-        // 處理 `"` 字元
-        let cmd = script.replace(r#"""#, r#"\""#);
         let lines = self.lines.clone();
-        lines.lock().unwrap().push_str(&(cmd.to_owned() + r#"\n"#));
+        lines
+            .lock()
+            .unwrap()
+            .push_str(&(script.to_owned() + r#"\n"#));
     }
 
     /// clear program
@@ -60,11 +59,11 @@ pub extern "C" fn program_deploy(botnana: Box<Botnana>, program: Box<Program>) {
     let program = Box::into_raw(program);
 
     unsafe {
-        (*program).push_line(&"end-of-program ;".to_owned());
+        (*program).push_line("end-of-program ;");
         let lines = (*program).lines.clone();
-        let msg = r#"{"jsonrpc":"2.0","method":"script.deploy","params":{"script":""#.to_owned()
-            + &lines.lock().unwrap() + r#""}}"#;
-        send_message(botnana, &msg.to_owned());
+        let msg = r#"deploy "#.to_owned() + &lines.lock().unwrap()
+            + r#"\n 10 emit .( deployed|ok) 10 emit \n ;deploy"#;
+        evaluate(botnana, &msg.to_owned());
     }
 }
 

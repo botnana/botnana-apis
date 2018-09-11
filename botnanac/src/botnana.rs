@@ -292,6 +292,10 @@ impl Handler for Client {
         let mut msg = String::new();
         write!(msg, "{}", err).expect("write error msg");
         let mut msgb = msg.into_bytes();
+        // 如果不是換行結束的,補上換行符號,如果沒有在 C 的輸出有問題
+        if msgb[msgb.len() - 1] != 10 {
+            msgb.push(10);
+        }
         msgb.push(0);
         (self.on_error_cb)(
             CStr::from_bytes_with_nul(msgb.as_slice())
@@ -303,6 +307,10 @@ impl Handler for Client {
     /// on close
     fn on_close(&mut self, _code: CloseCode, reason: &str) {
         let mut msgb = String::from(reason).into_bytes();
+        // 如果不是換行結束的,補上換行符號,如果沒有在 C 的輸出有問題
+        if msgb[msgb.len() - 1] != 10 {
+            msgb.push(10);
+        }
         msgb.push(0);
         (self.on_error_cb)(
             CStr::from_bytes_with_nul(msgb.as_slice())
@@ -322,7 +330,7 @@ pub fn send_message(botnana: Box<Botnana>, msg: &str) {
 pub fn evaluate(botnana: Box<Botnana>, script: &str) {
     // 處理 `"` 字元
     let cmd = script.replace(r#"""#, r#"\""#);
-    let msg = r#"{"jsonrpc":"2.0","method":"motion.evaluate","params":{"script":""#.to_owned()
+    let msg = r#"{"jsonrpc":"2.0","method":"script.evaluate","params":{"script":""#.to_owned()
         + cmd.as_str() + r#""}}"#;
     send_message(botnana, &msg);
 }

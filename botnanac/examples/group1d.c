@@ -23,7 +23,7 @@ void on_send_cb (const char * src)
 
 void end_of_program (const char * src)
 {
-    printf("end_of_program!!\n");
+    printf("end_of_program|%s\n",src);
 }
 
 int deployed_ok = 0;
@@ -84,6 +84,10 @@ void pcs_cb (const char * src)
     pcs = atof(src);
 }
 
+void error_cb (const char * src)
+{
+    printf("error|%s\n",src);
+}
 
 int main()
 {
@@ -102,12 +106,13 @@ int main()
     botnana_set_tag_cb(botnana, "axis_drive_channel.1", 0, axis_drive_channel_cb);
     botnana_set_tag_cb(botnana, "ACS.1", 0, acs_cb);
     botnana_set_tag_cb(botnana, "PCS.1", 0, pcs_cb);
+    botnana_set_tag_cb(botnana, "error", 0, error_cb);
 
     // new program
     struct Program * pm = program_new("group1d");
 
-    motion_evaluate(botnana, "abort-program");
-    motion_evaluate(botnana, "1 .slave 1 .grpcfg 1 .axiscfg");
+    script_evaluate(botnana, "abort-program");
+    script_evaluate(botnana, "1 .slave 1 .grpcfg 1 .axiscfg");
 
     while ((has_params & 0xF) != 0xF)
     {
@@ -128,8 +133,8 @@ int main()
     program_line(pm, "1 1 reset-fault");
     program_line(pm,"1 1 until-no-fault");
     program_line(pm,"pp 1 1 op-mode!");
-    program_line(pm,"1 1 servo-on");
-    program_line(pm,"1 1 until-servo-on");
+    program_line(pm,"1 1 drive-on");
+    program_line(pm,"1 1 until-drive-on");
     program_line(pm,"1 1 go");
     program_line(pm,"1 1 until-target-reached");
     program_line(pm,"csp 1 1 op-mode!");
@@ -140,13 +145,13 @@ int main()
     program_line(pm,"0.5e line1d");
     program_line(pm,"-0.5e line1d");
     program_line(pm,"0.0e line1d");
-    program_line(pm,"0.05e vcmd! start");
+    program_line(pm,"0.05e vcmd! start-job");
     program_line(pm,"pause pause");
     program_line(pm,"begin 1 group! gstop? not while pause repeat");
     program_line(pm,"1 group! 0path -group -coordinator");
 
     // deploy program to motion server
-    motion_evaluate(botnana, "-work marker -work");
+    script_evaluate(botnana, "-work marker -work");
     program_deploy(botnana,pm);
 
     while (deployed_ok == 0)
@@ -158,7 +163,7 @@ int main()
     program_run(botnana, pm);
     while (1)
     {
-        motion_evaluate(botnana, "1 .slave-diff 1 .axis 1 .group");
+        script_evaluate(botnana, "1 .slave-diff 1 .axis 1 .group");
         printf("ACS: %8.4f   PCS: %8.4f\n", acs, pcs);
         sleep(1);
     }

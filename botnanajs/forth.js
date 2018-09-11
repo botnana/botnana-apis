@@ -7,8 +7,6 @@
  *      node forth.js 192.168.7.2:3012
  * 
  */
-
-const botnana = require('./index.js')
 const readline = require('readline')
 const websocket = require('ws')
 
@@ -81,14 +79,14 @@ function start(address) {
     function evaluate(script) {
         var json = {
             jsonrpc: "2.0",
-            method: "motion.evaluate",
+            method: "script.evaluate",
             params: {
                 script: script
             }
         };
         ws.send(JSON.stringify(json))
+        
     };
-
 
 }
 
