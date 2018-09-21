@@ -41,6 +41,9 @@ version: clean version.o
 
 drive_pp: clean drive_pp.o
 	gcc -o botnana $@.o $(LDFLAGS)
+	
+recorder: clean recorder.o
+	gcc -lpthread -o botnana $@.o $(LDFLAGS)	
 	 		
 run:
 	./botnana
