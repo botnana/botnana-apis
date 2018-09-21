@@ -76,7 +76,7 @@ void* user_input(void* data)
             else
             {
                 buffer[strlen(buffer)-1] = 0;
-                motion_evaluate(botnana, buffer);
+                script_evaluate(botnana, buffer);
             }
         }
     }
@@ -107,8 +107,8 @@ int main()
     program_line(pm, "100 ms");
 
     // deploy program to motion server
-    motion_evaluate(botnana, "-work marker -work");
-    motion_evaluate(botnana, "abort-program");
+    script_evaluate(botnana, "-work marker -work");
+    script_evaluate(botnana, "abort-program");
     sleep(1);
     program_deploy(botnana,pm);
 

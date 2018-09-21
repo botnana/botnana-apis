@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include "botnana.h"
 
 // 處理主站傳回的資料
@@ -23,7 +24,10 @@ void on_send_cb (const char * src)
 int is_finished = 0;
 void end_of_program (const char * src)
 {
-    is_finished = 1;
+    if (strstr(src, "ok") != 0)
+    {
+        is_finished = 1;
+    }
 }
 
 int deployed_ok = 0;
@@ -38,15 +42,28 @@ void real_position_cb (const char * src)
     real_position = atoi(src);
 }
 
+void log_cb (const char * src)
+{
+    printf("log|%s\n", src);
+}
+
+void error_cb (const char * src)
+{
+    printf("error|%s\n", src);
+}
+
+
 int main()
 {
     // connect to motion server
     struct Botnana * botnana = botnana_connect("192.168.7.2", on_ws_error_cb);
-    //botnana_set_on_message_cb(botnana, on_message_cb);
+    botnana_set_on_message_cb(botnana, on_message_cb);
     //botnana_set_on_send_cb(botnana, on_send_cb);
     botnana_set_tag_cb(botnana, "end-of-program", 0, end_of_program);
     botnana_set_tag_cb(botnana, "deployed", 0, deployed_cb);
     botnana_set_tag_cb(botnana, "real_position.1.1", 0, real_position_cb);
+    botnana_set_tag_cb(botnana, "log", 0, log_cb);
+    botnana_set_tag_cb(botnana, "error", 0, error_cb);
     // new program
     struct Program * pm = program_new("drive-pp");
 
@@ -57,10 +74,10 @@ int main()
     program_line(pm, "1 1 until-no-fault");
 
     // drive 1 servo on
-    program_line(pm, "1 1 servo-on");
+    program_line(pm, "1 1 drive-on");
 
     // wait drive 1 to servo on
-    program_line(pm, "1 1 until-servo-on");
+    program_line(pm, "1 1 until-drive-on");
 
     // wait 1000 ms
     program_line(pm, "1000 ms");
@@ -88,7 +105,7 @@ int main()
     program_line(pm, "until-no-requests");
 
     //set drive 1 target position to 250000 pulse count
-    program_line(pm, "250000 1  1 target-p!");
+    program_line(pm, "10000 1  1 target-p!");
 
     // start drive 1 moving
     program_line(pm, "1 1 go");
@@ -97,7 +114,8 @@ int main()
     program_line(pm, "1 1 until-target-reached");
 
     // deploy program to motion server
-    motion_evaluate(botnana, "-work marker -work");
+    botnana_abort_program(botnana);
+    script_evaluate(botnana, "-work marker -work");
     program_deploy(botnana,pm);
 
     while (deployed_ok == 0)
@@ -110,7 +128,7 @@ int main()
 
     while (1)
     {
-        motion_evaluate(botnana, "1 .slave");
+        script_evaluate(botnana, "1 .slave");
         printf("real position: %d, is_finished: %d\n", real_position, is_finished);
         sleep(1);
     }

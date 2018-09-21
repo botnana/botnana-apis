@@ -54,7 +54,7 @@ debug:
 
 .PHONY: clean all
 
-all: build words config_slave config_motion config_group config_axis group1d version drive_pp
+all: build words config_slave config_motion config_group config_axis group1d version drive_pp recorder
 	 
 clean: fmt
 	-rm *.o botnana */*.c.orig */*.h.orig
