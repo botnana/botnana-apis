@@ -20,60 +20,38 @@ build: fmt
 
 words: clean words.o  
 	gcc -o botnana $@.o $(LDFLAGS)
-	
-empty: clean empty.o
+
+config_slave: clean config_slave.o
 	gcc -o botnana $@.o $(LDFLAGS)
 
-slave_setting: clean slave_setting.o
-	gcc -o botnana $@.o $(LDFLAGS)
-
-motion_setting: clean motion_setting.o
+config_motion: clean config_motion.o
 	gcc -o botnana $@.o $(LDFLAGS)
 	
-group_setting: clean group_setting.o
+config_group: clean config_group.o
 	gcc -o botnana $@.o $(LDFLAGS)
 	
-axis_setting: clean axis_setting.o
+config_axis: clean config_axis.o
 	gcc -o botnana $@.o $(LDFLAGS)
 
 group1d: clean group1d.o
 	gcc -o botnana $@.o $(LDFLAGS)
 	
-group2d: clean group2d.o
-	gcc -o botnana $@.o $(LDFLAGS)
-	
-group3d: clean group3d.o
-	gcc -o botnana $@.o $(LDFLAGS)
-
-group1d2d: clean group1d2d.o
-	gcc -o botnana $@.o $(LDFLAGS)
-
 version: clean version.o
 	gcc -o botnana $@.o $(LDFLAGS)
-	
-version_debug: clean version_debug.o
-	gcc -o botnana $@.o $(LDFLAGS)
 
-program: clean program.o
-	gcc -o botnana $@.o $(LDFLAGS)
-	
-	
-program_raw: clean program_raw.o
-	gcc -o botnana $@.o $(LDFLAGS)
-
-io: clean io.o
+drive_pp: clean drive_pp.o
 	gcc -o botnana $@.o $(LDFLAGS)
 	 		
 run:
-	./botnana	
+	./botnana
 	
-verbose: clean verbose.o 
-	gcc -o verbose $@.o $(LDFLAGS)
+debug:
+	RUST_BACKTRACE=1 ./botnana		
+	
 
 .PHONY: clean all
 
-all: build words empty slave_setting motion_setting group_setting axis_setting \
-	group1d group2d group3d group1d2d version version_debug program program_raw io
+all: build words config_slave config_motion config_group config_axis group1d version drive_pp
 	 
 clean: fmt
 	-rm *.o botnana */*.c.orig */*.h.orig
