@@ -101,7 +101,7 @@ int main()
     pm = program_new("recorder");
     program_line(pm, "0 begin 1 + dup ");
     program_line(pm, "10000 <= while");
-    program_line(pm, ".\" test-recorder|\" time-msec . 44 emit 1 1 real-p@ . 44 emit 1 1 target-p@ . cr ");
+    program_line(pm, ".\" test-recorder|\" mtime . 44 emit 1 1 real-p@ . 44 emit 1 1 target-p@ . cr ");
     program_line(pm, "pause");
     program_line(pm, "repeat drop");
     program_line(pm, "100 ms");

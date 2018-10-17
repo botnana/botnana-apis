@@ -40,9 +40,11 @@ int main()
     config_axis_set_double(botnana, 1, "home_offset" ,0.5);
     // set encoder direction of axis 1
     config_axis_set_integer(botnana, 1, "encoder_direction",-1);
-    // Set slave position
-    config_axis_set_integer(botnana, 1, "slave_position",2);
-    // Set drive channel
+    // 使用 alias 設定對應的驅動器從站
+    config_axis_set_integer(botnana, 1, "drive_alias",2);
+    // 使用 slave position 設定對應的驅動器從站
+    config_axis_set_integer(botnana, 1, "drive_slave_position",2);
+    // 設定該驅動器從站上的哪一個 channel
     config_axis_set_integer(botnana, 1, "drive_channel",3);
     // config.axis.get
     config_axis_get(botnana, 1);
@@ -58,10 +60,12 @@ int main()
     config_axis_set_double(botnana, 1, "home_offset", 0.0);
     // set encoder direction of axis 1
     config_axis_set_integer(botnana, 1, "encoder_direction", 1);
-    // Set slave position
-    config_axis_set_integer(botnana, 1, "slave_position", 1);
-    // Set drive channel
-    config_axis_set_integer(botnana, 1, "drive_channel", 1);
+    // 使用 alias 設定對應的驅動器從站
+    config_axis_set_integer(botnana, 1, "drive_alias",0);
+    // 使用 slave position 設定對應的驅動器從站
+    config_axis_set_integer(botnana, 1, "drive_slave_position",1);
+    // 設定該驅動器從站上的哪一個 channel
+    config_axis_set_integer(botnana, 1, "drive_channel",1);
     sleep(1);
     // save configuration
     config_save(botnana);

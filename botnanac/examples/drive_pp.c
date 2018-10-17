@@ -42,6 +42,12 @@ void real_position_cb (const char * src)
     real_position = atoi(src);
 }
 
+int target_position = 0;
+void target_position_cb (const char * src)
+{
+    target_position = atoi(src);
+}
+
 void log_cb (const char * src)
 {
     printf("log|%s\n", src);
@@ -57,11 +63,12 @@ int main()
 {
     // connect to motion server
     struct Botnana * botnana = botnana_connect("192.168.7.2", on_ws_error_cb);
-    botnana_set_on_message_cb(botnana, on_message_cb);
+    //botnana_set_on_message_cb(botnana, on_message_cb);
     //botnana_set_on_send_cb(botnana, on_send_cb);
     botnana_set_tag_cb(botnana, "end-of-program", 0, end_of_program);
     botnana_set_tag_cb(botnana, "deployed", 0, deployed_cb);
     botnana_set_tag_cb(botnana, "real_position.1.1", 0, real_position_cb);
+    botnana_set_tag_cb(botnana, "target_position.1.1", 0, target_position_cb);
     botnana_set_tag_cb(botnana, "log", 0, log_cb);
     botnana_set_tag_cb(botnana, "error", 0, error_cb);
     // new program
@@ -96,10 +103,11 @@ int main()
 
     // wait drive 1 homing finished
     program_line(pm, "1 1 until-target-reached");
+    program_line(pm, ".\" log|homed\" cr ");
 
     // set drive to PP mode
     program_line(pm, "pp 1 1 op-mode!");
-    program_line(pm, "10000 1 1 profile-v!");
+    program_line(pm, "1000 1 1 profile-v!");
 
     //wait PP request finished
     program_line(pm, "until-no-requests");
@@ -129,7 +137,7 @@ int main()
     while (1)
     {
         script_evaluate(botnana, "1 .slave");
-        printf("real position: %d, is_finished: %d\n", real_position, is_finished);
+        printf("target position: %d, real position: %d, is_finished: %d\n",target_position, real_position, is_finished);
         sleep(1);
     }
     return 0;
