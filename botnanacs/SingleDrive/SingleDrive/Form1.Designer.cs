@@ -134,13 +134,13 @@
             this.groupBox5.Controls.Add(this.buttonRun);
             this.groupBox5.Controls.Add(this.buttonDeploy);
             this.groupBox5.Font = new System.Drawing.Font("新細明體", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(136)));
-            this.groupBox5.Location = new System.Drawing.Point(499, 284);
+            this.groupBox5.Location = new System.Drawing.Point(459, 218);
             this.groupBox5.Name = "groupBox5";
             this.groupBox5.Size = new System.Drawing.Size(426, 175);
             this.groupBox5.TabIndex = 81;
             this.groupBox5.TabStop = false;
             this.groupBox5.Text = "Real Time Progam P2P";
-            this.groupBox5.Enter += new System.EventHandler(this.groupBox5_Enter);
+           
             // 
             // textP1
             // 
@@ -229,7 +229,7 @@
             this.groupBox3.Controls.Add(this.textEvalute);
             this.groupBox3.Controls.Add(this.buttonEvaluate);
             this.groupBox3.Font = new System.Drawing.Font("新細明體", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(136)));
-            this.groupBox3.Location = new System.Drawing.Point(497, 475);
+            this.groupBox3.Location = new System.Drawing.Point(457, 413);
             this.groupBox3.Name = "groupBox3";
             this.groupBox3.Size = new System.Drawing.Size(428, 85);
             this.groupBox3.TabIndex = 79;
@@ -276,7 +276,7 @@
             this.groupBox6.Controls.Add(this.buttonServoOff);
             this.groupBox6.Controls.Add(this.buttonResetFault);
             this.groupBox6.Font = new System.Drawing.Font("新細明體", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(136)));
-            this.groupBox6.Location = new System.Drawing.Point(40, 425);
+            this.groupBox6.Location = new System.Drawing.Point(15, 399);
             this.groupBox6.Name = "groupBox6";
             this.groupBox6.Size = new System.Drawing.Size(426, 142);
             this.groupBox6.TabIndex = 82;
@@ -324,7 +324,7 @@
             this.groupBox2.Controls.Add(this.textSlaveCount);
             this.groupBox2.Controls.Add(this.label1);
             this.groupBox2.Font = new System.Drawing.Font("新細明體", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(136)));
-            this.groupBox2.Location = new System.Drawing.Point(40, 36);
+            this.groupBox2.Location = new System.Drawing.Point(15, 12);
             this.groupBox2.Name = "groupBox2";
             this.groupBox2.Size = new System.Drawing.Size(426, 77);
             this.groupBox2.TabIndex = 78;
@@ -344,7 +344,6 @@
             this.radioServoStop.TabStop = true;
             this.radioServoStop.Text = "Drive Stop";
             this.radioServoStop.UseVisualStyleBackColor = true;
-            this.radioServoStop.CheckedChanged += new System.EventHandler(this.radioServoStop_CheckedChanged);
             // 
             // textOPMode
             // 
@@ -386,7 +385,7 @@
             this.groupBox4.Controls.Add(this.textNextTargetPosition);
             this.groupBox4.Controls.Add(this.buttonSetTargetPosition);
             this.groupBox4.Controls.Add(this.buttonGo);
-            this.groupBox4.Location = new System.Drawing.Point(497, 36);
+            this.groupBox4.Location = new System.Drawing.Point(457, 12);
             this.groupBox4.Name = "groupBox4";
             this.groupBox4.Size = new System.Drawing.Size(428, 193);
             this.groupBox4.TabIndex = 80;
@@ -414,7 +413,6 @@
             this.label10.Size = new System.Drawing.Size(132, 16);
             this.label10.TabIndex = 51;
             this.label10.Text = "Profile Acceleration";
-            this.label10.Click += new System.EventHandler(this.label10_Click);
             // 
             // textProfileVelocity
             // 
@@ -549,7 +547,7 @@
             // 
             this.labCount.AutoSize = true;
             this.labCount.Font = new System.Drawing.Font("新細明體", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(136)));
-            this.labCount.Location = new System.Drawing.Point(947, 544);
+            this.labCount.Location = new System.Drawing.Point(869, 505);
             this.labCount.Margin = new System.Windows.Forms.Padding(5, 0, 5, 0);
             this.labCount.Name = "labCount";
             this.labCount.Size = new System.Drawing.Size(16, 16);
@@ -576,7 +574,7 @@
             this.groupBox1.Controls.Add(this.radioTargetReached);
             this.groupBox1.Controls.Add(this.radioServoOn);
             this.groupBox1.Font = new System.Drawing.Font("新細明體", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(136)));
-            this.groupBox1.Location = new System.Drawing.Point(40, 127);
+            this.groupBox1.Location = new System.Drawing.Point(15, 101);
             this.groupBox1.Name = "groupBox1";
             this.groupBox1.Size = new System.Drawing.Size(426, 292);
             this.groupBox1.TabIndex = 77;
@@ -624,13 +622,12 @@
             this.radioOrg.TabStop = true;
             this.radioOrg.Text = "ORG";
             this.radioOrg.UseVisualStyleBackColor = true;
-            this.radioOrg.CheckedChanged += new System.EventHandler(this.radioButton1_CheckedChanged);
             // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 12F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(1104, 694);
+            this.ClientSize = new System.Drawing.Size(909, 555);
             this.Controls.Add(this.groupBox5);
             this.Controls.Add(this.groupBox3);
             this.Controls.Add(this.groupBox6);

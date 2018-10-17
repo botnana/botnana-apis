@@ -19,34 +19,34 @@ namespace SingleDrive
         [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
         private delegate void HandleMessage(string str);
 
-        [DllImport(@"..\..\..\..\BotnanaApi\Debug\BotnanaApi.dll", CharSet = CharSet.Ansi, CallingConvention = CallingConvention.Cdecl)]
+        [DllImport(@"..\..\BotnanaApi.dll", CharSet = CharSet.Ansi, CallingConvention = CallingConvention.Cdecl)]
         private static extern IntPtr botnana_connect_dll(string address, HandleMessage on_error_cb);
 
-        [DllImport(@"..\..\..\..\BotnanaApi\Debug\BotnanaApi.dll", CharSet = CharSet.Ansi, CallingConvention = CallingConvention.Cdecl)]
+        [DllImport(@"..\..\BotnanaApi.dll", CharSet = CharSet.Ansi, CallingConvention = CallingConvention.Cdecl)]
         private static extern void script_evaluate_dll(IntPtr desc, string script);
 
-        [DllImport(@"..\..\..\..\BotnanaApi\Debug\BotnanaApi.dll", CharSet = CharSet.Ansi, CallingConvention = CallingConvention.Cdecl)]
+        [DllImport(@"..\..\BotnanaApi.dll", CharSet = CharSet.Ansi, CallingConvention = CallingConvention.Cdecl)]
         private static extern void botnana_set_tag_cb_dll(IntPtr desc, string tag, int count, HandleMessage hm);
 
-        [DllImport(@"..\..\..\..\BotnanaApi\Debug\BotnanaApi.dll", CharSet = CharSet.Ansi, CallingConvention = CallingConvention.Cdecl)]
+        [DllImport(@"..\..\BotnanaApi.dll", CharSet = CharSet.Ansi, CallingConvention = CallingConvention.Cdecl)]
         private static extern void botnana_set_on_message_cb_dll(IntPtr desc, HandleMessage hm);
 
-        [DllImport(@"..\..\..\..\BotnanaApi\Debug\BotnanaApi.dll", CharSet = CharSet.Ansi, CallingConvention = CallingConvention.Cdecl)]
+        [DllImport(@"..\..\BotnanaApi.dll", CharSet = CharSet.Ansi, CallingConvention = CallingConvention.Cdecl)]
         private static extern IntPtr program_new_dll(string name);
 
-        [DllImport(@"..\..\..\..\BotnanaApi\Debug\BotnanaApi.dll", CharSet = CharSet.Ansi, CallingConvention = CallingConvention.Cdecl)]
+        [DllImport(@"..\..\BotnanaApi.dll", CharSet = CharSet.Ansi, CallingConvention = CallingConvention.Cdecl)]
         private static extern void program_line_dll(IntPtr pm, string cmd);
 
-        [DllImport(@"..\..\..\..\BotnanaApi\Debug\BotnanaApi.dll", CharSet = CharSet.Ansi, CallingConvention = CallingConvention.Cdecl)]
+        [DllImport(@"..\..\BotnanaApi.dll", CharSet = CharSet.Ansi, CallingConvention = CallingConvention.Cdecl)]
         private static extern void program_clear_dll(IntPtr pm);
 
-        [DllImport(@"..\..\..\..\BotnanaApi\Debug\BotnanaApi.dll", CharSet = CharSet.Ansi, CallingConvention = CallingConvention.Cdecl)]
+        [DllImport(@"..\..\BotnanaApi.dll", CharSet = CharSet.Ansi, CallingConvention = CallingConvention.Cdecl)]
         private static extern void program_deploy_dll(IntPtr botnana, IntPtr pm);
 
-        [DllImport(@"..\..\..\..\BotnanaApi\Debug\BotnanaApi.dll", CharSet = CharSet.Ansi, CallingConvention = CallingConvention.Cdecl)]
+        [DllImport(@"..\..\BotnanaApi.dll", CharSet = CharSet.Ansi, CallingConvention = CallingConvention.Cdecl)]
         private static extern void program_run_dll(IntPtr botnana, IntPtr pm);
 
-        [DllImport(@"..\..\..\..\BotnanaApi\Debug\BotnanaApi.dll", CharSet = CharSet.Ansi, CallingConvention = CallingConvention.Cdecl)]
+        [DllImport(@"..\..\BotnanaApi.dll", CharSet = CharSet.Ansi, CallingConvention = CallingConvention.Cdecl)]
         private static extern void botnana_abort_program_dll(IntPtr botnana);
 
 
@@ -184,7 +184,7 @@ namespace SingleDrive
 
         private void Form1_Load(object sender, EventArgs e)
         {
-            botnana = botnana_connect_dll("192.168.0.112", on_ws_error_callback);
+            botnana = botnana_connect_dll("192.168.7.2", on_ws_error_callback);
             program = program_new_dll("SingleDrive");
             botnana_set_on_message_cb_dll(botnana, on_message_callback);
             botnana_set_tag_cb_dll(botnana, "slaves_responding", 0, slaves_responding_callback);
@@ -198,7 +198,7 @@ namespace SingleDrive
             botnana_set_tag_cb_dll(botnana, "deployed", 0, deployed_callback);
             botnana_set_tag_cb_dll(botnana, "end-of-program", 0, end_of_program_callback);
             botnana_set_tag_cb_dll(botnana, "error", 0, error_callback);
-            script_evaluate_dll(botnana, ".link-states");
+            script_evaluate_dll(botnana, ".ec-links");
             script_evaluate_dll(botnana, "1 .slave");
             timer1.Interval = 50;
             timer1.Enabled = true;
@@ -303,21 +303,6 @@ namespace SingleDrive
             textEvalute.ResetText();
         }
 
-        private void radioButton1_CheckedChanged(object sender, EventArgs e)
-        {
-
-        }
-
-        private void groupBox5_Enter(object sender, EventArgs e)
-        {
-
-        }
-
-        private void label10_Click(object sender, EventArgs e)
-        {
-
-        }
-
         private void textProfileVelocity_Enter(object sender, EventArgs e)
         {
             profile_velocity_changing = true;
@@ -339,11 +324,6 @@ namespace SingleDrive
             script_evaluate_dll(botnana, textProfileAcceleration.Text + " 1 1 profile-a1!");
             script_evaluate_dll(botnana, textProfileAcceleration.Text + " 1 1 profile-a2!");
             profile_acceleration_changing = false;
-        }
-
-        private void radioServoStop_CheckedChanged(object sender, EventArgs e)
-        {
-
         }
     }
 }
