@@ -21,7 +21,7 @@
     <ClInclude Include="targetver.h">
       <Filter>標頭檔</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\botnanac\src\botnana.h">
+    <ClInclude Include="botnana.h">
       <Filter>標頭檔</Filter>
     </ClInclude>
   </ItemGroup>
@@ -37,7 +37,7 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <Library Include="..\..\..\botnanac\lib\i686-pc-windows-msvc\botnana.lib">
+    <Library Include="botnana.lib">
       <Filter>資源檔</Filter>
     </Library>
   </ItemGroup>
