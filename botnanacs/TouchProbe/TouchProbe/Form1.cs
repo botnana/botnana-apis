@@ -18,16 +18,16 @@ namespace TouchProbe
         [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
         private delegate void HandleMessage(string str);
 
-        [DllImport(@"..\..\..\..\BotnanaApi\Debug\BotnanaApi.dll", CharSet = CharSet.Ansi, CallingConvention = CallingConvention.Cdecl)]
+        [DllImport(@"..\..\BotnanaApi.dll", CharSet = CharSet.Ansi, CallingConvention = CallingConvention.Cdecl)]
         private static extern IntPtr botnana_connect_dll(string address, HandleMessage on_error_cb);
 
-        [DllImport(@"..\..\..\..\BotnanaApi\Debug\BotnanaApi.dll", CharSet = CharSet.Ansi, CallingConvention = CallingConvention.Cdecl)]
+        [DllImport(@"..\..\BotnanaApi.dll", CharSet = CharSet.Ansi, CallingConvention = CallingConvention.Cdecl)]
         private static extern void script_evaluate_dll(IntPtr desc, string script);
 
-        [DllImport(@"..\..\..\..\BotnanaApi\Debug\BotnanaApi.dll", CharSet = CharSet.Ansi, CallingConvention = CallingConvention.Cdecl)]
+        [DllImport(@"..\..\BotnanaApi.dll", CharSet = CharSet.Ansi, CallingConvention = CallingConvention.Cdecl)]
         private static extern void botnana_set_tag_cb_dll(IntPtr desc, string tag, int count, HandleMessage hm);
 
-        [DllImport(@"..\..\..\..\BotnanaApi\Debug\BotnanaApi.dll", CharSet = CharSet.Ansi, CallingConvention = CallingConvention.Cdecl)]
+        [DllImport(@"..\..\BotnanaApi.dll", CharSet = CharSet.Ansi, CallingConvention = CallingConvention.Cdecl)]
         private static extern void botnana_set_on_message_cb_dll(IntPtr desc, HandleMessage hm);
 
 
@@ -175,15 +175,18 @@ namespace TouchProbe
                 textOPMode.Text = opModeStr;
                 textStatusWord.Text = statusWordStr;
 
+                // 如果SDO 已經設定完成
                 if (sdo_busy_str == "false")
                 {
                     if (has_new_setting)
                     {
+                        // 如果有新的設定值,就設定 0x60B8 暫存器
                         script_evaluate_dll(botnana, new_setting.ToString() + " 0 $60B8 1 sdo-download-i16");
                         has_new_setting = false;
                     }
                     else if (sdo_index == 0x60B8)
                     {
+                        // 依 60B8 的讀值設定畫面上的 radio 元件
                         if (!is_inited)
                         {
                             new_setting = sdo_data;
@@ -197,36 +200,48 @@ namespace TouchProbe
                             radioTp2Falling.Checked = (sdo_data & 0x2000) != 0;
                             is_inited = true;
                         }
+                        // 使用 SDO 取回 0x60B9 (Touch porbe status) 暫存器內容
                         script_evaluate_dll(botnana, "0 $60B9 1 sdo-upload-i16");
                     }
                     else if (sdo_index == 0x60B9)
                     {
+                        // 依 60B9 的讀值設定畫面上的 radio 元件
                         radioTp1Enabled.Checked = (sdo_data & 0x1) != 0;
                         radioTp1HasRising.Checked = (sdo_data & 0x2) != 0;
                         radioTp1HasFalling.Checked = (sdo_data & 0x4) != 0;
                         radioTp2Enabled.Checked = (sdo_data & 0x100) != 0;
                         radioTp2HasRising.Checked = (sdo_data & 0x200) != 0;
                         radioTp2HasFalling.Checked = (sdo_data & 0x400) != 0;
+
+                        // 使用 SDO 取回 0x60BA (Touch probe pos1 pos value) 暫存器內容
                         script_evaluate_dll(botnana, "0 $60BA 1 sdo-upload-i32");
                     }
                     else if (sdo_index == 0x60BA)
                     {
+                        // 更新 Touch probe pos1 pos value 的 text 元件
                         textTp1Pos1.Text = sdo_data.ToString();
+                        // 使用 SDO 取回 0x60BB (Touch probe pos1 neg value) 暫存器內容
                         script_evaluate_dll(botnana, "0 $60BB 1 sdo-upload-i32");
                     }
                     else if (sdo_index == 0x60BB)
                     {
+                        // 更新 Touch probe pos1 neg value 的 text 元件
                         textTp1Pos2.Text = sdo_data.ToString();
+                        // 使用 SDO 取回 0x60BC (Touch probe pos2 pos value) 暫存器內容
                         script_evaluate_dll(botnana, "0 $60BC 1 sdo-upload-i32");
                     }
                     else if (sdo_index == 0x60BC)
                     {
+                        // 更新 Touch probe pos2 pos value 的 text 元件
                         textTp2Pos1.Text = sdo_data.ToString();
+                        // 使用 SDO 取回 0x60BD (Touch probe pos2 neg value) 暫存器內容
                         script_evaluate_dll(botnana, "0 $60BD 1 sdo-upload-i32");
                     }
                     else if (sdo_index == 0x60BD)
                     {
+                        // 更新 Touch probe pos2 neg value 的 text 元件
                         textTp2Pos2.Text = sdo_data.ToString();
+                        // 使用 SDO 取回 0x60B9 (Touch porbe status) 暫存器內容
                         script_evaluate_dll(botnana, "0 $60B9 1 sdo-upload-i16");
                     }
 
@@ -306,7 +321,7 @@ namespace TouchProbe
             if (radioTp1Rising.Checked)
             {
                 radioTp1Falling.Checked = false;
-                new_setting = new_setting | 0xFFDF;
+                new_setting = new_setting & 0xFFDF;
                 new_setting = new_setting | 0x10;
             }
             else
@@ -374,9 +389,8 @@ namespace TouchProbe
 
         private void buttonStartHoming_Click(object sender, EventArgs e)
         {
-            
+            // 回歸原點後才可以使用 touch probe function
             script_evaluate_dll(botnana, "abort-program");
-           
             script_evaluate_dll(botnana, "deploy 1 1 reset-fault 1 1 until-no-fault" +
                " 33 1 1 homing-method! hm 1 1 op-mode! until-no-requests 100 ms 1 1  drive-on 1 1 until-drive-on" +
               " 1 1 go 1 1 until-target-reached pp 1 1 op-mode! 1 1 until-no-requests 100 ms drive-off .( homing|Homing is Ok and change to PP mode)" +
