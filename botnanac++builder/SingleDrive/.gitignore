@@ -1,0 +1,12 @@
+[Dd]ebug/
+[Rr]elease/
+[Rr]eleases/
+__history/
+SingleDrive.res
+SingleDrive.stat
+SingleDrive.cbproj.local
+BotnanaApi.dll
+BotnanaApi.h
+BotnanaApi.lib
+BotnanaApiBCB.lib
+
