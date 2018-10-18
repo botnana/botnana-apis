@@ -24,6 +24,9 @@
     <ClInclude Include="botnana.h">
       <Filter>標頭檔</Filter>
     </ClInclude>
+    <ClInclude Include="BotnanaApi.h">
+      <Filter>標頭檔</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">
