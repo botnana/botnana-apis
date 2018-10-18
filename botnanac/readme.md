@@ -716,6 +716,8 @@ Botnana-API 提供使用者一個包裝好的 WebSocket Client 的函式庫，�
 
 請參考 [The Rust Programming Language](https://www.rust-lang.org/)  https://www.rust-lang.org/
 
+安裝好 Rust 開發工具後，執行 `cargo build --release` 指令就可以編譯出 `botnana.lib` 
+
 
 ### 4. C++ 使用者
  
