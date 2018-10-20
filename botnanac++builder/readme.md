@@ -1,33 +1,31 @@
 # 前言
 
-botnanacs 為 C# 的範例程式，開發工具式採用 Microsoft Visual Studio Community 2017。
+botnanac++builder 為 C++ Builder 的範例程式，開發工具式採用 Embarcadero® C++Builder 10.2。
 
 # 目錄結構
 
-    botnanacs
-    |-----> BotnanaApi 
+    botnanabcb
     |-----> SingleDrive
-    |-----> TouchProbe
-
-* BotnanaApi: 將 C 語言函式庫 `botnana.lib` 轉換為 C# 使用的動態連結檔 `BotnanaApi.dll` 。
+    
 * SingleDrive: 一個單軸馬達驅動器的測試範例。
-* TouchProbe: 馬達驅動器 Touch Probe Function 的測試範例。
 
-# Botnana API
-  
-編譯 BotnanaAPI 專案需要 C 語言標頭擋 `botnana.h` 與靜態連結檔 `botnana.lib`。 `botnana.h` 在 `botnana-api/botnanac/src` 中取得。 `botnana.lib` 可以由以下連結位置取得，或是參考 `botnana-api/botnanac/readme.md` 文件自行產生。
+C++ builder 範例需要引用兩個檔案 `BotnanaApi.h` 與 `BotnanaApiBCB.lib`      
+
+**BotnanaApi.h**
+
+可以由在 `botnana-api/botnanacs/BotnanaApi/BotnanaApi` 目錄中取得。
+
+**BotnanaApiBCB.lib**:
+
+要先取得 `BotnanaApi.dll`，請參考 `botnana-api/botnanacs/readme.md` 或是在以下網址取得
 
 * 32 位元 Windows: [https://drive.google.com/drive/u/0/folders/1Vmy9aWYeTMhvJDM3W7UwKuqG4SfyA_n7](https://drive.google.com/drive/u/0/folders/1Vmy9aWYeTMhvJDM3W7UwKuqG4SfyA_n7)
 * 64 位元 Windows: [https://drive.google.com/drive/u/0/folders/1sGibKjsuhkt0SMJ1w7id1XlOnoYKyD_W](https://drive.google.com/drive/u/0/folders/1sGibKjsuhkt0SMJ1w7id1XlOnoYKyD_W)
 
-將 `botnana.h` 與 `botnana.lib` 放到 `botnanacs/BotnanaApi/BotnanaApi` 目錄下就可以成功編譯出 `BotnanaApi.dll`。`BotnanaApi.dll` 的目錄位置依編譯的組態設定，通常會在以下的目錄位置:
+取得 `BotnanaApi.dll` 後要利用 C++ Builder 工具 implib 來轉換函式庫格式，其命令如下:
 
-* `botnanacs/BotnanaApi/Release`
-* `botnanacs/BotnanaApi/Debug`
-* `botnanacs/BotnanaApi/x64/Release`
-* `botnanacs/BotnanaApi/x64/Debug`
+    implib -a vclib.lib botnana-api.dll
 
-BotnanaAPI 專案還需要 `Ws2_32.lib` 與 `Userenv.lib` 函式庫，在此專案的設定檔中已將這兩個函式庫的連結設置完成，如果有自行轉換函式庫的需求，要增加這兩個函式庫的連結設定，設定的方式可以參考 `botnanac/readme.md`。
 
 # Single Drive
 

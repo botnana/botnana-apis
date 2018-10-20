@@ -3,10 +3,10 @@
 # 目錄結構
 
     botnana-api
-    |-----> botnanac           C 語言函式庫與範例
-    |-----> botnanac++builder  C++ Builder 範例 
-    |-----> botnanacs          C# 範例 
-    |-----> botnanajs          JavaScript 函式庫與範例
+    |-----> botnanabcb  C++ Builder 範例 
+	|-----> botnanac    C 語言函式庫與範例
+    |-----> botnanacs   C# 範例 
+    |-----> botnanajs   JavaScript 函式庫與範例
 
 範例內會常常看到一組 IP 與通訊埠為 `192.168.7.2:3012`，是因為 Botnana-Control 的主控合的網路 IP 位置會設定成 `192.168.7.2`，指定 3012 為 WebSocket 通訊埠。如果主控盒的 IP 有其它設定，就必須調整範例中的 IP 位置。
 

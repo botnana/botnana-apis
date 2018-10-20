@@ -17,7 +17,7 @@
 
 ## forth.js:
 
-forth.js 是一個簡單的互動式指令介面，可以將 forth 命令送到 Botnana-Control，從  Botnana-Control 收到 MTConnect 格式的訊息，其操作畫面如下:
+forth.js 是一個簡單的互動式指令介面，可以將 Forth 命令送到 Botnana-Control，從  Botnana-Control 收到 MTConnect 格式的訊息，其操作畫面如下:
 
 ![](forth.js.png)
 
@@ -29,9 +29,12 @@ forth.js 是一個簡單的互動式指令介面，可以將 forth 命令送到 
 
     node forth.js 192.168.7.2:3012
 
-通常運行 Botnana-Control 的主控合的網路 IP 位置會設定成 192.168.7.2，指定 3012 為 WebSocket 通訊埠。
-
 第一次運行可能會遇到以下錯誤訊息:
+
+    Error: Cannot find module 'ws'
 
 ![](module_ws.png)
 
+其原因是 forth.js 需要使用 ws 函式庫，只要在 `botnana-api\botnanajs` 所在目錄，執行以下命令就可以安裝完成:
+
+    npm install

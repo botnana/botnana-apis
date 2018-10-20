@@ -8,7 +8,6 @@ C 語言函式庫下載：
 * 64 位元 Linux: [https://drive.google.com/drive/u/0/folders/10pD_OAfJw971P7gL64MwPdWdgk6dkYWd](https://drive.google.com/drive/u/0/folders/10pD_OAfJw971P7gL64MwPdWdgk6dkYWd)
 * 32 位元 Windows: [https://drive.google.com/drive/u/0/folders/1Vmy9aWYeTMhvJDM3W7UwKuqG4SfyA_n7](https://drive.google.com/drive/u/0/folders/1Vmy9aWYeTMhvJDM3W7UwKuqG4SfyA_n7)
 * 64 位元 Windows: [https://drive.google.com/drive/u/0/folders/1sGibKjsuhkt0SMJ1w7id1XlOnoYKyD_W](https://drive.google.com/drive/u/0/folders/1sGibKjsuhkt0SMJ1w7id1XlOnoYKyD_W)
-* ARM Linux: [https://drive.google.com/drive/u/0/folders/1Wi_s20ho5eYl8Ohr5JthpZ1nb6KGw79u](https://drive.google.com/drive/u/0/folders/1Wi_s20ho5eYl8Ohr5JthpZ1nb6KGw79u) 
 
 
 目錄說明：
@@ -16,6 +15,17 @@ C 語言函式庫下載：
     botnana-apis
     |-----> botnanac
             |--------> examples          C 語言範例
+            |         |----> config_axis.c     運動軸參數設定
+            |         |----> config_group.c    軸組參數設定
+            |         |----> config_motion.c   運動參數設定
+            |         |----> config_slave.c    EtherCAT Slave 參數設定
+            |         |----> drive_pp.c        驅動器 PP 模式測試
+            |         |----> group1d.c         1D 軸組測試
+            |         |----> recorder.c        資料擷取範例 
+            |         |----> target_reached.c  測試驅動器 target-reached bit 變化
+            |         |----> version.c         取得 Botnana-Control 的版本號碼
+            |         |----> words.c           取得所有的 Forth 命令列表  
+            |
             |--------> src               C 函式庫原始檔, 以 Rust 語言開發  
                       |----> botnanan.h  C/C++ header file 
                       |----> botnana.rs
