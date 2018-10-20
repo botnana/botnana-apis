@@ -20,7 +20,7 @@ botnanacs 為 C# 的範例程式，開發工具式採用 Microsoft Visual Studio
 * 32 位元 Windows: [https://drive.google.com/drive/u/0/folders/1Vmy9aWYeTMhvJDM3W7UwKuqG4SfyA_n7](https://drive.google.com/drive/u/0/folders/1Vmy9aWYeTMhvJDM3W7UwKuqG4SfyA_n7)
 * 64 位元 Windows: [https://drive.google.com/drive/u/0/folders/1sGibKjsuhkt0SMJ1w7id1XlOnoYKyD_W](https://drive.google.com/drive/u/0/folders/1sGibKjsuhkt0SMJ1w7id1XlOnoYKyD_W)
 
-將 `botnana.h` 與 `botnana.lib` 放到 `botnanacs\BotnanaApi\BotnanaApi` 目錄下就可以完成編譯出 `BotnanaApi.dll`。產出 `BotnanaApi.dll` 的目錄位置依編譯的組態設定，通常會在以下的目錄:
+將 `botnana.h` 與 `botnana.lib` 放到 `botnanacs\BotnanaApi\BotnanaApi` 目錄下就可以成功編譯出 `BotnanaApi.dll`。產出 `BotnanaApi.dll` 的目錄位置依編譯的組態設定，通常會在以下的目錄位置:
 
 * `botnanacs\BotnanaApi\Release`
 * `botnanacs\BotnanaApi\Debug`
@@ -33,7 +33,7 @@ botnanacs 為 C# 的範例程式，開發工具式採用 Microsoft Visual Studio
 
 ![](CS-SingleDrive.PNG) 
 
-使用此範例的前提是第一個 EtherCAT 從站必須是馬達驅動器。
+**使用此範例的前提是第一個 EtherCAT 從站必須是馬達驅動器。**
 
 此範例有以下功能:
 
@@ -42,6 +42,12 @@ botnanacs 為 C# 的範例程式，開發工具式採用 Microsoft Visual Studio
 3. Drive Control，包含 Drive ON/OFF, Reset Fault。
 4. Drive P2P，在驅動器的 PP 模式下進行單點運動。
 5. Real Time Program P2P，在驅動器的 PP 模式搭配程式背景執行的功能，進行 3 個目標點的連續運動。 
+
+此範例對於多數的驅動器都是適用。目前遇到比較的的是特別的是:
+
+1. MITSUBISHI MR-J4-10TM : 需要修改驅動器參數才可以使用 PP Mode。
+2. OMRON R88D-1SN04H-ECT : 其 PP Mode 只可以 `Change set immediately`，所以在切換到 PP Mode 要額外下 `+pp-imt ( drive-channel slave-position -- )` 指令。
+
 
 編譯與執行此專案需要以下兩個檔案:
 
@@ -93,20 +99,23 @@ botnanacs 為 C# 的範例程式，開發工具式採用 Microsoft Visual Studio
 
 | bit | Description |
 |-----|-------------|
-| 0 | 0 : Switch off touch probe 1 <br> 1 : Enable touch probe 1 |
-| 1 | 0 : Trigger first event <br> 1 : Continuous   |
-| 2 | 0 : Trigger with touch probe 1 input <br> 1 : Trigger with 0 impulse signal of position encoder |
-| 3 | -- | -- |
-| 4 | 0 : Switch off sampling at positive edge of touch probe 1 <br> 1 : Enable sampling at positive edge of touch probe 1 |
-| 5 | 0 : Switch off sampling at negative edge of touch probe 1 <br> 1 : Enable sampling at negative edge of touch probe 1 |
-| 6-7 | -- | -- |
-| 8 | 0 : Switch off touch probe 2 <br> 1 : Enable touch probe 2 |
-| 9 | 0 : Trigger first event <br> 1 : Continuous   |
-| 10 | 0 : Trigger with touch probe 2 input <br> 1 : Trigger with 0 impulse signal of position encoder |
-| 11 | -- | -- |
-| 12 | 0 : Switch off sampling at positive edge of touch probe 2 <br> 1 : Enable sampling at positive edge of touch probe 2 |
-| 13 | 0 : Switch off sampling at negative edge of touch probe 2 <br> 1 : Enable sampling at negative edge of touch probe 2 |
-| 14-15 | -- | -- | 
+| 0 | 0 : Touch probe 1 is switch off <br> 1 : Touch probe 1 is enabled |
+| 1 | 0 : Touch probe 1 no positive edge value stored <br> 1 : Touch probe 1 positive edge value stored   |
+| 2 | 0 : Touch probe 1 no negative edge value stored <br> 1 : Touch probe 1 negative edge value stored |
+| 3-7 | -- | -- |
+| 8 | 0 : Touch probe 2 is switch off <br> 1 : Touch probe 2 is enabled |
+| 9 | 0 : Touch probe 2 no positive edge value stored <br> 1 : Touch probe 2 positive edge value stored   |
+| 10 | 0 : Touch probe 2 no negative edge value stored <br> 1 : Touch probe 2 negative edge value stored |
+| 11-15 | -- | -- |
 
+以 Panasonic AB6 驅動器為例，還有一些注意事項:
+
+1. 必須規劃數位輸入 SI5 與 SI6， 
+2. 觸發訊號必需維持 2 ms 以上，
+3. HM Mode 時不能使用，
+4. 不可同時開啟 positive 與 negative edge 觸發，
+5. ....等等。
+
+各家的驅動器對於 Touch Probe Function 的使用規範會略有不同，測試前必須要確認相關規定。
 
 編譯與執行此專案仍需要 `BotnanaApi.h` 與 `BotnanaApi.dll`，請參考 Single Drive 章節。
