@@ -1,60 +1,59 @@
 #pragma once
 
-extern "C" {
+extern "C"
+{
 
-	// ©w¸q callback function ªº§ÎºA
-	typedef void(*HandleMessage)(const char* str);
+	// å®šç¾© callback function çš„å½¢æ…‹
+	typedef void (*HandleMessage)(const char *str);
 
-	// ³s½u¨ì Botnana
-	// address : Botnana ªº IP ¦ì¸m
-	// on_error_cb: ·í³s½u¿ù»~®É·|©I¥s¦¹call function, 
-	__declspec(dllexport) struct Botnana * botnana_connect_dll(const char * address, HandleMessage on_error_cb);
+	// é€£ç·šåˆ° Botnana
+	// address : Botnana çš„ IP ä½ç½®
+	// on_error_cb: ç•¶é€£ç·šéŒ¯èª¤æ™‚æœƒå‘¼å«æ­¤call function,
+	__declspec(dllexport) struct Botnana *botnana_connect_dll(const char *address, HandleMessage on_error_cb);
 
-	// °e¥X real time command
-	// script : ©R¥O¤º®e
-	__declspec(dllexport) void script_evaluate_dll(struct Botnana * botnana, const char * script);
+	// é€å‡º real time command
+	// script : å‘½ä»¤å…§å®¹
+	__declspec(dllexport) void script_evaluate_dll(struct Botnana *botnana, const char *script);
 
-	// ³]©w±µ¦¬¨ì¹w³]¸ê°T®Éªº callback function
-	// event: ¸ê°T¦WºÙ 
-	// count: ³Ì¦h¥i¥H©I¥s¦¹ callback function ªº¦¸¼Æ¡A³]©w 0 ªí¥Ü¥Ã»·³£·|©I¥s¦¹ callback function
-	// hm: ·í¦¬¨ì event ®É­n°õ¦æªº callback function
-	__declspec(dllexport) void botnana_set_tag_cb_dll(struct Botnana * botnana,
-		const char * tag,
-		int count,
-		HandleMessage hm);
+	// è¨­å®šæ¥æ”¶åˆ°é è¨­è³‡è¨Šæ™‚çš„ callback function
+	// event: è³‡è¨Šåç¨±
+	// count: æœ€å¤šå¯ä»¥å‘¼å«æ­¤ callback function çš„æ¬¡æ•¸ï¼Œè¨­å®š 0 è¡¨ç¤ºæ°¸é éƒ½æœƒå‘¼å«æ­¤ callback function
+	// hm: ç•¶æ”¶åˆ° event æ™‚è¦åŸ·è¡Œçš„ callback function
+	__declspec(dllexport) void botnana_set_tag_cb_dll(struct Botnana *botnana,
+													  const char *tag,
+													  int count,
+													  HandleMessage hm);
 
-	// ³]©wdebug ®É­n±µ¦¬°T®§ªº callback function
-	// hm: ·í°e¥X©R¥O®É©Î±N°e¥Xªº©R¥Oªº¦^¶Çµ¹¦¹callback function
-	__declspec(dllexport) void botnana_set_on_send_cb_dll(struct Botnana * botnana,
-		HandleMessage hm);
+	// è¨­å®šdebug æ™‚è¦æ¥æ”¶è¨Šæ¯çš„ callback function
+	// hm: ç•¶é€å‡ºå‘½ä»¤æ™‚æˆ–å°‡é€å‡ºçš„å‘½ä»¤çš„å›å‚³çµ¦æ­¤callback function
+	__declspec(dllexport) void botnana_set_on_send_cb_dll(struct Botnana *botnana,
+														  HandleMessage hm);
 
-	// ³]©wdebug ®É­n±µ¦¬°T®§ªº callback function
-	// hm: ·í°e¥X©R¥O®É©Î±N°e¥Xªº©R¥Oªº¦^¶Çµ¹¦¹callback function
-	__declspec(dllexport) void botnana_set_on_message_cb_dll(struct Botnana * botnana,
-		HandleMessage hm);
+	// è¨­å®šdebug æ™‚è¦æ¥æ”¶è¨Šæ¯çš„ callback function
+	// hm: ç•¶é€å‡ºå‘½ä»¤æ™‚æˆ–å°‡é€å‡ºçš„å‘½ä»¤çš„å›å‚³çµ¦æ­¤callback function
+	__declspec(dllexport) void botnana_set_on_message_cb_dll(struct Botnana *botnana,
+															 HandleMessage hm);
 
-	// «Ø¥ß¤@­Ó·sªº real time program
-	// name: program ¦WºÙ
-	__declspec(dllexport) struct Program * program_new_dll(const char * name);
+	// å»ºç«‹ä¸€å€‹æ–°çš„ real time program
+	// name: program åç¨±
+	__declspec(dllexport) struct Program *program_new_dll(const char *name);
 
-	// ±N  real time command (cmd) ©ñ¨ì program ¤¤
-	// cmd: real time script command  
-	__declspec(dllexport) void program_line_dll(struct Program * pm,
-		const char * cmd);
+	// å°‡  real time command (cmd) æ”¾åˆ° program ä¸­
+	// cmd: real time script command
+	__declspec(dllexport) void program_line_dll(struct Program *pm,
+												const char *cmd);
 
-	// ²M°£program ¤º®e
-	// cmd: real time script command  
-	__declspec(dllexport) void program_clear_dll(struct Program * pm);
+	// æ¸…é™¤program å…§å®¹
+	// cmd: real time script command
+	__declspec(dllexport) void program_clear_dll(struct Program *pm);
 
+	// å°‡å®šç¾©å¥½çš„program å‚³é€åˆ° Botnana
+	__declspec(dllexport) void program_deploy_dll(struct Botnana *botnana,
+												  struct Program *pm);
 
-	// ±N©w¸q¦nªºprogram ¶Ç°e¨ì Botnana
-	__declspec(dllexport) void  program_deploy_dll(struct Botnana * botnana,
-		struct Program * pm);
+	// åŸ·è¡Œå‚³é€åˆ° Botnana ä¸Šçš„ real time program
+	__declspec(dllexport) void program_run_dll(struct Botnana *botnana, struct Program *pm);
 
-	// °õ¦æ¶Ç°e¨ì Botnana ¤Wªº real time program
-	__declspec(dllexport) void program_run_dll(struct Botnana * botnana, struct Program * pm);
-
-	// ¤¤¤î¥Ø«e°õ¦æ¤¤ªº real time program
-	__declspec(dllexport) void  botnana_abort_program_dll(struct Botnana * botnana);
-
+	// ä¸­æ­¢ç›®å‰åŸ·è¡Œä¸­çš„ real time program
+	__declspec(dllexport) void botnana_abort_program_dll(struct Botnana *botnana);
 }
