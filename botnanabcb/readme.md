@@ -1,6 +1,6 @@
 # 前言
 
-botnanac++builder 為 C++ Builder 的範例程式，開發工具式採用 Embarcadero® C++Builder 10.2。
+botnanabcb 為 C++ Builder 的範例程式，開發工具式採用 Embarcadero® C++Builder 10.2。
 
 # 目錄結構
 
