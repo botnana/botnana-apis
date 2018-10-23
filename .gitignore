@@ -13,3 +13,6 @@ botnanac/*.c.orig
 **/libbotnana.dll
 **/libbotnana.lib
 botnanac/botnana
+botnanac/*.txt
+**/BotnanaApi.dll
+**/botnana.lib
