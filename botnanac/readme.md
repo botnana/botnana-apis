@@ -15,6 +15,17 @@ C 語言函式庫下載：
     botnana-apis
     |-----> botnanac
             |--------> examples          C 語言範例
+            |         |----> config_axis.c     運動軸參數設定
+            |         |----> config_group.c    軸組參數設定
+            |         |----> config_motion.c   運動參數設定
+            |         |----> config_slave.c    EtherCAT Slave 參數設定
+            |         |----> drive_pp.c        驅動器 PP 模式測試
+            |         |----> group1d.c         1D 軸組測試
+            |         |----> recorder.c        資料擷取範例 
+            |         |----> target_reached.c  測試驅動器 target-reached bit 變化
+            |         |----> version.c         取得 Botnana-Control 的版本號碼
+            |         |----> words.c           取得所有的 Forth 命令列表  
+            |
             |--------> src               C 函式庫原始檔, 以 Rust 語言開發  
                       |----> botnanan.h  C/C++ header file 
                       |----> botnana.rs
@@ -715,6 +726,8 @@ Botnana-API 提供使用者一個包裝好的 WebSocket Client 的函式庫，�
 此 C 語言函式庫是由 Rust 進行開發，如果有自行修改的需求請安裝 Rust 開發工具。
 
 請參考 [The Rust Programming Language](https://www.rust-lang.org/)  https://www.rust-lang.org/
+
+安裝好 Rust 開發工具後，執行 `cargo build --release` 指令就可以編譯出 `botnana.lib` 
 
 
 ### 4. C++ 使用者

@@ -69,7 +69,7 @@ void* user_input(void* data)
                 tm =gmtime(&clock);
                 strftime(timebuf, sizeof(timebuf), format, tm);
                 fp = fopen(strcat(timebuf,".txt"),"w+");
-                fprintf(fp,"time,real,target\n");
+                fprintf(fp,"target position, real position, target reached, status word(hex)\n");
                 trigger = 1;
                 program_run(botnana, pm);
             }
@@ -98,13 +98,20 @@ int main()
     botnana_set_tag_cb(botnana, "end-of-program", 0, end_cb);
 
     // new program
-    pm = program_new("recorder");
-    program_line(pm, "0 begin 1 + dup ");
-    program_line(pm, "10000 <= while");
-    program_line(pm, ".\" test-recorder|\" mtime . 44 emit 1 1 real-p@ . 44 emit 1 1 target-p@ . cr ");
-    program_line(pm, "pause");
-    program_line(pm, "repeat drop");
-    program_line(pm, "100 ms");
+    pm = program_new("target-reached");
+    program_line(pm, "1  1 reset-fault");
+    program_line(pm, "pp 1  1 op-mode!");
+    program_line(pm, "1000 1  1 profile-v!");
+    program_line(pm, "1  1 until-no-requests");
+    program_line(pm, "1  1 drive-on 1 1 until-drive-on");
+    program_line(pm, "200 ms");
+    program_line(pm, "1 1 target-p@ 20000 + 1 1 target-p!");
+    program_line(pm, "1 1 go");
+    program_line(pm, "0 begin 1 + dup 1200 <= while ");
+    program_line(pm, ".\" test-recorder|\" 1 1 target-p@ . 44 emit 1 1 real-p@ . 44 emit 1 1 target-reached? . 44 emit 1 1 drive-sw@ h. cr pause");
+    program_line(pm, "repeat");
+    program_line(pm, "200 ms");
+
 
     // deploy program to motion server
     script_evaluate(botnana, "-work marker -work");

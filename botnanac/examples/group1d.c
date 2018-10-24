@@ -52,7 +52,7 @@ void group_mapping_cb (const char * src)
 
 }
 
-void axis_slave_position_cb (const char * src)
+void drive_slave_position_cb (const char * src)
 {
     int pos = atoi(src);
     has_params |= 0x04;
@@ -62,7 +62,7 @@ void axis_slave_position_cb (const char * src)
     }
 }
 
-void axis_drive_channel_cb (const char * src)
+void drive_channel_cb (const char * src)
 {
     int ch = atoi(src);
     has_params |= 0x08;
@@ -102,8 +102,8 @@ int main()
 
     botnana_set_tag_cb(botnana, "group_type.1", 0, group_type_cb);
     botnana_set_tag_cb(botnana, "group_mapping.1", 0, group_mapping_cb);
-    botnana_set_tag_cb(botnana, "axis_slave_position.1", 0, axis_slave_position_cb);
-    botnana_set_tag_cb(botnana, "axis_drive_channel.1", 0, axis_drive_channel_cb);
+    botnana_set_tag_cb(botnana, "drive_slave_position.1", 0, drive_slave_position_cb);
+    botnana_set_tag_cb(botnana, "drive_channel.1", 0, drive_channel_cb);
     botnana_set_tag_cb(botnana, "ACS.1", 0, acs_cb);
     botnana_set_tag_cb(botnana, "PCS.1", 0, pcs_cb);
     botnana_set_tag_cb(botnana, "error", 0, error_cb);
@@ -125,7 +125,7 @@ int main()
         config_axis_set_integer(botnana, 1, "slave_position", 1);
         config_axis_set_integer(botnana, 1, "drive_channel", 1);
         config_save(botnana);
-        printf("Change parameters and reboot botnana-control !!\n");
+        printf("Change parameters and reboot Botnana-control !!\n");
         sleep(1);
         exit(1);
     }

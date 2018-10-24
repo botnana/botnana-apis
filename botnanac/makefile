@@ -14,6 +14,13 @@ build: fmt
 	mkdir -p lib/$(TARGET)
 	cp target/$(TARGET)/release/libbotnana.so ./lib/$(TARGET)
 	cp target/$(TARGET)/release/libbotnana.a ./lib/$(TARGET)	
+	
+arm: fmt
+	cargo build --release --target=armv7-unknown-linux-gnueabihf
+	rm -rf lib
+	mkdir -p lib/armv7-unknown-linux-gnueabihf
+	cp target/armv7-unknown-linux-gnueabihf/release/libbotnana.so ./lib/armv7-unknown-linux-gnueabihf
+	cp target/armv7-unknown-linux-gnueabihf/release/libbotnana.a ./lib/armv7-unknown-linux-gnueabihf		
 
 %.o: 
 	gcc $(CFLAGS) -O2 -c ./examples/$*.c -o $@ 	
@@ -43,7 +50,10 @@ drive_pp: clean drive_pp.o
 	gcc -o botnana $@.o $(LDFLAGS)
 	
 recorder: clean recorder.o
-	gcc -lpthread -o botnana $@.o $(LDFLAGS)	
+	gcc -lpthread -o botnana $@.o $(LDFLAGS)
+	
+target_reached: clean target_reached.o
+	gcc -lpthread -o botnana $@.o $(LDFLAGS)			
 	 		
 run:
 	./botnana
