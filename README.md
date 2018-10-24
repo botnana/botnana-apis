@@ -12,7 +12,7 @@
 
 Botnana-Control Server 同時間只允許 2 個 WebSocket Client 連線，如果測試有收到 `Cannot aquire real-time task` 訊息，表示連線數已經多於 2 個了。
 
-如果是要嘗試輸入 Forth 命令與觀察回傳的訊息格式，建議使用 `botnanajs/forth.js` 範例，使用方法考 [botnanajs/readme.md](./botnanajs/readme.md)
+如果是要嘗試輸入 Forth 命令與觀察回傳的訊息格式，建議使用 `botnanajs/forth.js` 範例，使用方法參考 [botnanajs/readme.md](./botnanajs/readme.md)
 
 C# 與 C++ Builder 範例皆使用 C 語言的函式庫。
 
