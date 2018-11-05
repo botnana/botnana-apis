@@ -16,3 +16,5 @@ botnanac/botnana
 botnanac/*.txt
 **/BotnanaApi.dll
 **/botnana.lib
+**/.readme.md.html
+
