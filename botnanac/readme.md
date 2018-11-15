@@ -8,7 +8,7 @@ C 語言函式庫下載：
 * 64 位元 Linux: [https://drive.google.com/drive/u/0/folders/10pD_OAfJw971P7gL64MwPdWdgk6dkYWd](https://drive.google.com/drive/u/0/folders/10pD_OAfJw971P7gL64MwPdWdgk6dkYWd)
 * 32 位元 Windows: [https://drive.google.com/drive/u/0/folders/1Vmy9aWYeTMhvJDM3W7UwKuqG4SfyA_n7](https://drive.google.com/drive/u/0/folders/1Vmy9aWYeTMhvJDM3W7UwKuqG4SfyA_n7)
 * 64 位元 Windows: [https://drive.google.com/drive/u/0/folders/1sGibKjsuhkt0SMJ1w7id1XlOnoYKyD_W](https://drive.google.com/drive/u/0/folders/1sGibKjsuhkt0SMJ1w7id1XlOnoYKyD_W)
-
+* armv7-unknown-linux-gnueabihf: [https://drive.google.com/drive/u/0/folders/1Wi_s20ho5eYl8Ohr5JthpZ1nb6KGw79u](https://drive.google.com/drive/u/0/folders/1Wi_s20ho5eYl8Ohr5JthpZ1nb6KGw79u)
 
 目錄說明：
 
