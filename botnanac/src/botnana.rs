@@ -12,6 +12,10 @@ use libc;
 use url;
 use std::time::Duration;
 use std::fmt::Write;
+use ws::util::Token;
+
+const WS_TIMEOUT_TOKEN: Token = Token(1);
+const WS_WATCHDOG_PERIOD_MS: u64 = 2_000;
 
 /// Botnana
 #[repr(C)]
@@ -65,6 +69,7 @@ impl Botnana {
                     sender: client_sender.clone(),
                     thread_tx: thread_tx.clone(),
                     on_error_cb: on_error_cb,
+                    is_watchdog_refreshed: false,
                 }) {
                     eprintln!("Can't connect to WebSocket Server ({})", e);
                 }
@@ -261,11 +266,14 @@ struct Client {
     sender: mpsc::Sender<String>,
     thread_tx: mpsc::Sender<ws::Sender>,
     on_error_cb: fn(*const c_char),
+    is_watchdog_refreshed: bool,
 }
 
 impl Handler for Client {
     /// on_open
     fn on_open(&mut self, _: Handshake) -> Result<()> {
+        self.ws_out
+            .timeout(WS_WATCHDOG_PERIOD_MS, WS_TIMEOUT_TOKEN)?;
         self.thread_tx.send(self.ws_out.clone()).map_err(|err| {
             Error::new(
                 ErrorKind::Internal,
@@ -276,6 +284,7 @@ impl Handler for Client {
 
     /// on_message
     fn on_message(&mut self, msg: Message) -> Result<()> {
+        self.is_watchdog_refreshed = true;
         if let Message::Text(m) = msg {
             // 資料長度 > 0 送進 mpsc::channel
             if m.len() > 0 {
@@ -317,6 +326,30 @@ impl Handler for Client {
                 .expect("toCstr")
                 .as_ptr(),
         );
+    }
+
+    /// Called when a timeout is triggered.
+    fn on_timeout(&mut self, _event: Token) -> Result<()> {
+        if self.is_watchdog_refreshed {
+            self.is_watchdog_refreshed = false;
+            self.ws_out.timeout(WS_WATCHDOG_PERIOD_MS, WS_TIMEOUT_TOKEN)
+        } else {
+            println!("on_timeout!!");
+            let mut msg = String::new();
+            write!(msg, "timeout!!").expect("write error msg");
+            let mut msgb = msg.into_bytes();
+            // 如果不是換行結束的,補上換行符號,如果沒有在 C 的輸出有問題
+            if msgb[msgb.len() - 1] != 10 {
+                msgb.push(10);
+            }
+            msgb.push(0);
+            (self.on_error_cb)(
+                CStr::from_bytes_with_nul(msgb.as_slice())
+                    .expect("toCstr")
+                    .as_ptr(),
+            );
+            Ok(())
+        }
     }
 }
 
