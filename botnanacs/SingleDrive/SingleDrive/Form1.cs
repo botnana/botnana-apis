@@ -273,14 +273,14 @@ namespace SingleDrive
             program_clear_dll(program);
             program_line_dll(program, "pp 1 1 op-mode!");
             program_line_dll(program, "until-no-requests");
-            //pm_push_script(program, " begin -1 while");    // 如果要p1->p2->p3->p1...運動,就移除此行註解
+            //program_line_dll(program, " begin -1 while");    // 如果要p1->p2->p3->p1...運動,就移除此行註解
             program_line_dll(program, p1.ToString() + " 1 1 target-p!");
             program_line_dll(program, " 1 1 go 1 1 until-target-reached");
             program_line_dll(program, p2.ToString() + " 1 1 target-p!");
             program_line_dll(program, " 1 1 go 1 1 until-target-reached");
             program_line_dll(program, p3.ToString() + " 1 1 target-p!");
             program_line_dll(program, " 1 1 go 1 1 until-target-reached");
-            //pm_push_script(program, " repeat");           // 如果要p1->p2->p3->p1...運動,就移除此行註解
+            //program_line_dll(program, " repeat");           // 如果要p1->p2->p3->p1...運動,就移除此行註解
             script_evaluate_dll(botnana, "-work marker -work");          // 清除先前定義的program
             program_deploy_dll(botnana, program);
             buttonPMAbort.Enabled = true;
