@@ -361,11 +361,19 @@ pub fn send_message(botnana: Box<Botnana>, msg: &str) {
 
 /// evaluate
 pub fn evaluate(botnana: Box<Botnana>, script: &str) {
-    // 處理 `"` 字元
-    let cmd = script.replace(r#"""#, r#"\""#);
     let msg = r#"{"jsonrpc":"2.0","method":"script.evaluate","params":{"script":""#.to_owned()
-        + cmd.as_str() + r#""}}"#;
+        + script + r#""}}"#;
     send_message(botnana, &msg);
+}
+
+pub fn to_json_string(script: &str) -> String {
+    // 處理 `"` 字元
+    script
+        .replace(r#"\ "#, r#"\\ "#)
+        .replace(r#"""#, r#"\""#)
+        .replace("\n", r#"\n"#)
+        .replace("\r\n", r#"\n"#)
+        .replace("\t", r#" "#)
 }
 
 /// connect to botnana

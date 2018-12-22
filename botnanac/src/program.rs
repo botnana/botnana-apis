@@ -3,7 +3,7 @@ use std::os::raw::c_char;
 use std::ffi::CStr;
 use botnana::Botnana;
 use std::str;
-use botnana::evaluate;
+use botnana::{evaluate, to_json_string};
 use std::sync::{Arc, Mutex};
 
 /// Program
@@ -20,7 +20,7 @@ impl Program {
         lines
             .lock()
             .unwrap()
-            .push_str(&(script.to_owned() + r#"\n"#));
+            .push_str(&(to_json_string(script) + r#"\n"#));
     }
 
     /// clear program
