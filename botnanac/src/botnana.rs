@@ -366,8 +366,9 @@ pub fn evaluate(botnana: Box<Botnana>, script: &str) {
     send_message(botnana, &msg);
 }
 
+/// Convert str to Json string
 pub fn to_json_string(script: &str) -> String {
-    // 處理 `"` 字元
+    // 處理特殊字元
     script
         .replace(r#"\ "#, r#"\\ "#)
         .replace(r#"""#, r#"\""#)
