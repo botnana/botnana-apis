@@ -73,11 +73,11 @@ pub extern "C" fn program_line(program: Box<Program>, cmd: *const c_char) {
     let program = Box::into_raw(program);
     let cmd = unsafe {
         assert!(!cmd.is_null());
-        str::from_utf8(CStr::from_ptr(cmd).to_bytes()).unwrap()
+        String::from_utf8_lossy(CStr::from_ptr(cmd).to_bytes())
     };
 
     unsafe {
-        (*program).push_line(cmd);
+        (*program).push_line(&cmd.into_owned());
     }
 }
 
