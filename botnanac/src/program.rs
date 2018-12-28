@@ -3,7 +3,7 @@ use std::os::raw::c_char;
 use std::ffi::CStr;
 use botnana::Botnana;
 use std::str;
-use botnana::evaluate;
+use botnana::{evaluate, to_json_string};
 use std::sync::{Arc, Mutex};
 
 /// Program
@@ -20,7 +20,7 @@ impl Program {
         lines
             .lock()
             .unwrap()
-            .push_str(&(script.to_owned() + r#"\n"#));
+            .push_str(&(to_json_string(script) + r#"\n"#));
     }
 
     /// clear program
@@ -73,11 +73,11 @@ pub extern "C" fn program_line(program: Box<Program>, cmd: *const c_char) {
     let program = Box::into_raw(program);
     let cmd = unsafe {
         assert!(!cmd.is_null());
-        str::from_utf8(CStr::from_ptr(cmd).to_bytes()).unwrap()
+        String::from_utf8_lossy(CStr::from_ptr(cmd).to_bytes())
     };
 
     unsafe {
-        (*program).push_line(cmd);
+        (*program).push_line(&cmd.into_owned());
     }
 }
 
