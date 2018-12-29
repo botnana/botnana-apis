@@ -1,0 +1,166 @@
+-nc
+
+\ 用來儲存 Jogging target position 參數
+create jogging-positions falign 0e f, 0e f, 0e f, 0e f,
+: jogging-position! ( index -- )( F: pos -- )
+    floats jogging-positions faligned + f!
+    ;
+: jogging-position@ ( index -- )( F: -- pos )
+    floats jogging-positions faligned + f@
+    ;
+
+\ 開始進行回歸機械原點
+\ 可以規劃不同的判斷邏輯，發出回歸原點的指令或是啟動回歸機械原點的 SFC。
+\ 要搭配 +homing-axis ( index priority -- ) 命令使用
+: start-homing ( -- )
+    true homing-accepted !
+    motion-idle? not if false homing-accepted ! ." log|Not Motion Idle" cr then
+    servo-on? not if false homing-accepted ! ." log|Not Servo On" cr then
+    homing-accepted @ if
+        1 motion-state !
+        start-axes-homing
+    then
+    ;
+
+\ 開始進行軸移動
+\ 可以規劃不同的判斷邏輯，發出軸運動指令或是啟動軸運動的 SFC。
+: start-jogging ( -- )( F: x y z -- )
+    true jogging-accepted !
+    motion-idle? not if false jogging-accepted ! ." log|Not Motion Idle" cr then
+    servo-on? not if false jogging-accepted ! ." log|Not Servo On" cr then
+    3 jogging-position! 2 jogging-position! 1 jogging-position!
+    jogging-accepted @ if
+        2 motion-state !
+        1
+        begin
+            dup axes-len <=
+        while
+            dup axis@
+            dup +interpolator
+            rapid-travels-rate@ dup interpolator-v!
+            over jogging-position@ axis-cmd-p!
+            1+
+        repeat
+        drop
+    then
+    ;
+
+\ 定義 machining 停止狀態
+variable machining-stopping
+\ 定義 machining 加工完成
+variable machining-finished
+
+\ 開始進行加工
+\ 可以規劃不同的判斷邏輯，發出加工指令或是啟動軸運動的 SFC。
+: start-machining  ( -- )
+    true machining-accepted !
+    motion-idle? not if false machining-accepted ! ." log|Not Motion Idle" cr then
+    servo-on? not if false machining-accepted ! ." log|Not Servo On" cr then
+    machining-accepted @ if
+        3 motion-state !
+        resume-nc 1 group! +group start-job
+        false machining-stopping !
+        false machining-finished !
+    then
+    ;
+
+\ Reset machinig
+ : reset-machining  ( -- )
+    motion-idle? if
+        reset-job kill-nc
+        false machining-stopping !
+        false machining-finished !
+    then
+    ;
+
+\ 要求運動停止
+\ 可以依運動模式發出不同的停止命令
+: stop-motion  ( -- )
+    motion-idle? not if
+        motion-state @ case
+            1 of    ." log|Stop Homing" cr
+                    stop-axes-homing
+            endof
+            2 of    ." log|Stop Jogging" cr
+                    1
+                    begin
+                        dup axes-len <=
+                    while
+                        dup axis@ -interpolator
+                        1+
+                    repeat
+                    drop
+            endof
+            3 of    ." log|Stop machining" cr
+                    stop-job suspend-nc
+                    true machining-stopping !
+            endof
+        endcase
+    else
+        ." log|motion idle" cr
+    then
+    ;
+
+\ 緊急停止
+: ems-stop
+    ems-motion
+    ems-servo-off
+    ems-job
+    kill-nc
+    false machining-stopping !
+    false machining-finished !
+    ;
+
+\ Homing state 停止的條件
+: homing-stopping? ( -- flag )
+    homing-priority @ 0=
+    ;
+
+\ Jogging state 停止的條件
+variable is-jogging-stopping
+: jogging-stopping? ( -- flag )
+    true is-jogging-stopping !
+    1
+    begin
+        dup axes-len <=
+        is-jogging-stopping @ and
+    while
+        dup axis@ interpolator-reached? not if
+            false is-jogging-stopping !
+        then
+        1+
+    repeat
+    drop
+    is-jogging-stopping @
+;
+
+\ Machining state 停止的條件
+: machining-stopping? ( -- flag )
+    machining-stopping @  machining-finished @ or job-stop? and
+    ;
+
+\ Machining state 每個周期都要執行的工作
+: machining-loop ( -- )
+    1 group!
+    next-path-mode@ case
+        0 of
+            rapid-travels-rate@ vcmd!
+        endof
+        1 of
+            machining-rate@ vcmd!
+        endof
+        10e mm/min vcmd!
+    endcase
+    ;
+
+\ 重新定義 'homing-stopping, 'jogging-stopping, 'machining-stopping, 'machining-loop
+' homing-stopping? 'homing-stopping !
+' jogging-stopping? 'jogging-stopping !
+' machining-stopping? 'machining-stopping !
+' machining-loop 'machining-loop !
+
+\ Activate motion-idle step
+' motion-idle +step
+' devices-check +step
+
+marker -nc

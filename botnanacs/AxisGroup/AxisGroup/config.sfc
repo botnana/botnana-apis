@@ -1,0 +1,250 @@
+-work marker -work
+
+
+\ Axes Description
+\ 分別為第 1, 2 , 3 運動軸
+\ 不使用 index 0 的運動軸
+3 constant axes-len
+create axes 0 , 1 , 2 , 3 ,
+
+\ 使用 axes-enabled 可以暫時將指定軸排除在此 SFC 的運作邏輯之外
+create axes-enabled false , true , false , false ,
+
+\ 各軸 Servo lag 的檢查範圍， 當運動軸靜止時採用 min-ferr-limit
+create min-ferr-limit falign 0e f, 0.05e mm f, 0.05e mm f, 0.05e mm f,
+create max-ferr-limit falign 0e f, 1.00e mm f, 1.00e mm f, 1.00e mm f,
+
+\ 定義回歸機械原點的運動軸 （enabled/disbaled)
+\ 分為兩個優先順序，first-homing-axes 執行完後，才執行 second-homing-axes
+create first-homing-axes false , false , false , false ,
+create second-homing-axes false , false , false , false ,
+
+\ 回歸機械原點的速度與方法
+\ 速度單位參考驅動器 0x6099 定義的單位，通常是 pulses/sec
+create axes-homing-v1     0 , 1000 , 1000 , 1000 ,
+create axes-homing-v2     0 , 50 , 50 , 50 ,
+
+\ 要參照驅動器有支援的方法，通常同一個代號會是相同的方法，但不是每一種驅動器都有支援。
+create axes-homing-method 0 , 33 , 33 , 33 ,
+
+\ G00 或是軸移動速度參數
+fvariable rapid-travels-rate 500.0e mm/min  rapid-travels-rate f!
+
+\ G01 移動速度參數
+fvariable machining-rate 200.0e mm/min  machining-rate f!
+
+\ 紀錄目前的運動模式
+variable motion-state
+
+\ 是否處於 Motion Idle 狀態
+: motion-idle?  ( -- flag )
+    motion-state @ 0=
+    ;
+
+: .motion-state
+	." motion_state|" motion-state @ 0 .r cr
+	;
+
+\ Is servo on
+\ 使用此參數來紀錄目前是否處在 servo-on 的狀態
+variable is-servo-on
+: servo-on?  ( -- flag )
+    is-servo-on @
+    ;
+: .servo-on
+	." servo_on|" is-servo-on @ 0 .r cr
+	;
+
+\ 目前處理的 homing-priority
+\ 1 表示處理 first-homing-axes 中啟動的運動軸
+\ 2 表示處理 second-homing-axes 中啟動的運動軸
+variable homing-priority
+: axes-homing? ( -- flag )
+    homing-priority @ 0<>
+    ;
+
+\ 在對應的優先佇列內，取得該運動軸是否要回歸機械原點?
+: homing-axis? ( index priority -- flag )
+    case
+        1 of cells first-homing-axes + @ endof
+        2 of cells second-homing-axes + @ endof
+        ." log|Invalid homing priority" cr
+        swap drop false swap
+    endcase
+    ;
+
+\ 指定的運動軸是否正在回歸機械原點 ？
+: axis-homing? ( index -- flag )
+    homing-priority @ 0= if
+        drop false
+    else
+        homing-priority @ homing-axis?
+    then
+    ;
+
+\ 取得受控運動軸清單中的軸編號
+: axis@ ( index -- axis-no )
+    cells axes + @
+    ;
+
+\ 取得受控運動軸清單中的致能狀態 (enabled/disabled)
+: axis-enabled? ( index -- flag )
+    cells axes-enabled + @
+    ;
+
+\ 將運動軸清單中的運動軸致能
+: +axis  ( index -- )
+    cells axes-enabled + true swap !
+    ;
+
+\ 將運動軸清單中的運動軸禁能
+: -axis  ( index -- )
+    cells axes-enabled + false swap !
+    ;
+
+\ 設定 min-ferr-limit
+: min-ferr-limit! ( index -- )( F: limit -- )
+    floats min-ferr-limit faligned + f!
+    ;
+
+\ 設定 max-ferr-limit
+: max-ferr-limit! ( index -- )( F: limit -- )
+    floats max-ferr-limit faligned + f!
+    ;
+
+\ 取得目前適用的 following error limit
+\ Servo Off 或是運動軸靜止的時候採用 min-ferr-limit
+: ferr-limit@ ( index -- )( F: -- limit )
+    axis@ dup axis-rest? servo-on? not or if
+        min-ferr-limit
+    else
+        max-ferr-limit
+    then
+    faligned swap floats + f@
+    ;
+
+\ 取得 homing-v1 參數
+: axis-homing-v1@ ( index -- v1 )
+    cells axes-homing-v1 + @
+    ;
+
+\ 取得 homing-v2 參數
+: axis-homing-v2@ ( index -- v2 )
+    cells axes-homing-v2 + @
+    ;
+
+\ 取得 homing-method 參數
+: axis-homing-method@ ( index -- method )
+    cells axes-homing-method + @
+    ;
+
+\ 設定 homing-v1 參數
+: axis-homing-v1! ( v1 index -- )
+    cells axes-homing-v1 + !
+    ;
+
+\ 設定 homing-v2 參數
+: axis-homing-v2! ( v2 index -- )
+    cells axes-homing-v2 + !
+    ;
+
+\ 設定 homing-method 參數
+: axis-homing-method! ( method index -- )
+    cells axes-homing-method + !
+    ;
+
+\ G00 或是軸移動速度
+: rapid-travels-rate@ ( F: -- rate )
+    rapid-travels-rate f@
+    ;
+
+\ 設定 G00 或是軸移動速度
+: rapid-travels-rate! ( F: rate -- )
+    rapid-travels-rate f!
+    ;
+
+\ G01 移動速度
+: machining-rate@ ( F: -- rate )
+    machining-rate  f@
+    ;
+
+\ 設定 G01 移動速度
+: machining-rate! ( F: rate -- )
+    machining-rate f!
+    ;
+
+
+\ Stack check
+variable stack-depth
+: enter-stack-check ( -- )
+    depth stack-depth !
+    ;
+
+: leave-stack-check ( -- )
+    depth stack-depth @ <> if
+        ." error|statck check error" cr
+    then
+    ;
+
+
+\ Devices Check
+\ 檢查對應的硬體裝置是否存在，只在一開始的時候做一次，如果檢查沒有通過，SFC 會停留在這個 step。
+variable devices-check-once
+variable devices-ok
+: devices-check ( -- )
+    enter-stack-check
+    devices-check-once @ not if
+        true devices-ok !
+        1
+        begin
+          dup axes-len <=
+        while
+            dup axis-enabled? over axis@ virtual-axis? and if
+                ." error|Axis (" dup axis@ 0 .r  ." ) is virtual axis" cr
+                false devices-ok !
+            then
+
+			dup axis-enabled? not if
+				dup axis@ +homed
+			then
+
+            1+
+        repeat
+        drop
+
+        true devices-check-once !
+    then
+    leave-stack-check
+    ;
+
+
+\ 對應的裝置檢查是否通過 ？
+: devices-ok? ( -- flag )
+    devices-ok @
+    ;
+
+: .config
+	." devices_ok|" devices-ok @ 1 and 0 .r
+	." |rapid_travels_rate|" rapid-travels-rate f@ f.
+	." |machining_rate|" machining-rate f@ f.
+	." |axis_homing_v1.1|" 1 axis-homing-v1@ 0 .r
+	." |axis_homing_v1.2|" 2 axis-homing-v1@ 0 .r
+	." |axis_homing_v1.3|" 3 axis-homing-v1@ 0 .r
+	." |axis_homing_v2.1|" 1 axis-homing-v2@ 0 .r
+	." |axis_homing_v2.2|" 2 axis-homing-v2@ 0 .r
+	." |axis_homing_v2.3|" 3 axis-homing-v2@ 0 .r
+	." |axis_homing_method.1|" 1 axis-homing-method@ 0 .r
+	." |axis_homing_method.2|" 2 axis-homing-method@ 0 .r
+	." |axis_homing_method.3|" 3 axis-homing-method@ 0 .r
+	cr
+	;
+.config
+
+step  devices-check
+transition devices-ok?
+
+' devices-check ' devices-ok?  -->
+
+
+marker -nc
+
