@@ -129,6 +129,10 @@
             this.textHomingV1X = new System.Windows.Forms.TextBox();
             this.label11 = new System.Windows.Forms.Label();
             this.label10 = new System.Windows.Forms.Label();
+            this.label35 = new System.Windows.Forms.Label();
+            this.textMonitorFailed = new System.Windows.Forms.TextBox();
+            this.label36 = new System.Windows.Forms.Label();
+            this.button2 = new System.Windows.Forms.Button();
             this.groupBox1.SuspendLayout();
             this.groupBox2.SuspendLayout();
             this.groupBox3.SuspendLayout();
@@ -470,6 +474,10 @@
             // 
             // groupBox5
             // 
+            this.groupBox5.Controls.Add(this.button2);
+            this.groupBox5.Controls.Add(this.label36);
+            this.groupBox5.Controls.Add(this.textMonitorFailed);
+            this.groupBox5.Controls.Add(this.label35);
             this.groupBox5.Controls.Add(this.textDevicesOk);
             this.groupBox5.Controls.Add(this.label34);
             this.groupBox5.Controls.Add(this.textMotionState);
@@ -1156,6 +1164,47 @@
             this.label10.TabIndex = 0;
             this.label10.Text = "rapid-travels-rate";
             // 
+            // label35
+            // 
+            this.label35.AutoSize = true;
+            this.label35.Font = new System.Drawing.Font("Microsoft JhengHei UI", 11.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(136)));
+            this.label35.Location = new System.Drawing.Point(13, 381);
+            this.label35.Name = "label35";
+            this.label35.Size = new System.Drawing.Size(108, 19);
+            this.label35.TabIndex = 16;
+            this.label35.Text = "monitor failed";
+            // 
+            // textMonitorFailed
+            // 
+            this.textMonitorFailed.Font = new System.Drawing.Font("Microsoft JhengHei UI", 11.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(136)));
+            this.textMonitorFailed.Location = new System.Drawing.Point(136, 381);
+            this.textMonitorFailed.Name = "textMonitorFailed";
+            this.textMonitorFailed.Size = new System.Drawing.Size(41, 27);
+            this.textMonitorFailed.TabIndex = 17;
+            this.textMonitorFailed.Text = "0.0";
+            this.textMonitorFailed.TextAlign = System.Windows.Forms.HorizontalAlignment.Right;
+            // 
+            // label36
+            // 
+            this.label36.AutoSize = true;
+            this.label36.Font = new System.Drawing.Font("Microsoft JhengHei UI", 11.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(136)));
+            this.label36.Location = new System.Drawing.Point(11, 408);
+            this.label36.Name = "label36";
+            this.label36.Size = new System.Drawing.Size(92, 19);
+            this.label36.TabIndex = 18;
+            this.label36.Text = "monitor ack";
+            // 
+            // button2
+            // 
+            this.button2.Font = new System.Drawing.Font("Microsoft JhengHei UI", 11.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(136)));
+            this.button2.Location = new System.Drawing.Point(118, 406);
+            this.button2.Name = "button2";
+            this.button2.Size = new System.Drawing.Size(59, 23);
+            this.button2.TabIndex = 19;
+            this.button2.Text = "ACK";
+            this.button2.UseVisualStyleBackColor = true;
+            this.button2.Click += new System.EventHandler(this.button2_Click_1);
+            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 12F);
@@ -1295,6 +1344,10 @@
         private System.Windows.Forms.TextBox textRapidTravelsRate;
         private System.Windows.Forms.TextBox textDevicesOk;
         private System.Windows.Forms.Label label34;
+        private System.Windows.Forms.Button button2;
+        private System.Windows.Forms.Label label36;
+        private System.Windows.Forms.TextBox textMonitorFailed;
+        private System.Windows.Forms.Label label35;
     }
 }
 

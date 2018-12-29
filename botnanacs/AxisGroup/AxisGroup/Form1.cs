@@ -193,6 +193,13 @@ namespace AxisGroup
             devices_ok = Int32.Parse(str);
         }
 
+        private static HandleMessage monitor_failed_callback = new HandleMessage(monitor_failed_cb);
+        private static int monitor_failed;
+        private static void monitor_failed_cb(string str)
+        {
+            monitor_failed = Int32.Parse(str);
+        }
+        
         private static Boolean config_request;
 
         private static HandleMessage rapid_travels_rate_callback = new HandleMessage(rapid_travels_rate_cb);
@@ -310,6 +317,7 @@ namespace AxisGroup
         }
 
         private static HandleMessage user_parameter_callback = new HandleMessage(user_parameter_cb);
+        private static Boolean has_sfc = false;
         private static void user_parameter_cb(string str)
         {
             int para = Int32.Parse(str);
@@ -327,6 +335,7 @@ namespace AxisGroup
                 default:
                     break;
             }
+            has_sfc = true;
             script_evaluate_dll(botnana, ".config");
 
         }
@@ -358,6 +367,7 @@ namespace AxisGroup
             botnana_set_tag_cb_dll(botnana, "nc_owner", 0, nc_owner_callback);
             botnana_set_tag_cb_dll(botnana, "nc_suspended", 0, nc_suspended_callback);
             botnana_set_tag_cb_dll(botnana, "devices_ok", 0, devices_ok_callback);
+            botnana_set_tag_cb_dll(botnana, "monitor_failed", 0, monitor_failed_callback);
 
             botnana_set_tag_cb_dll(botnana, "rapid_travels_rate", 0, rapid_travels_rate_callback);
             botnana_set_tag_cb_dll(botnana, "machining_rate", 0, machining_rate_callback);
@@ -583,7 +593,11 @@ namespace AxisGroup
             if (path_id > 0) {
                 dataGridView1.CurrentCell = dataGridView1.Rows[path_id].Cells[0];
             }
-            script_evaluate_dll(botnana, ".servo-on .motion-state .nc-task");
+            if (has_sfc)
+            {
+                script_evaluate_dll(botnana, ".servo-on .motion-state .nc-task .monitor");
+            }
+
             if (servo_on == 0) {
                 btnServoOn.BackColor = SystemColors.Control;
                 btnServoOff.BackColor = Color.Red;
@@ -599,6 +613,7 @@ namespace AxisGroup
             textAxis1Homed.Text = axis_homed_1.ToString();
             textAxis2Homed.Text = axis_homed_2.ToString();
             textAxis3Homed.Text = axis_homed_3.ToString();
+            textMonitorFailed.Text = monitor_failed.ToString();
             if (config_request)
             {
                 textDevicesOk.Text = devices_ok.ToString();
@@ -1153,6 +1168,11 @@ namespace AxisGroup
         private void textMachiningRate_Leave(object sender, EventArgs e)
         {
             textMachiningRate_setting();
+        }
+
+        private void button2_Click_1(object sender, EventArgs e)
+        {
+            script_evaluate_dll(botnana, @"ack-monitor");
         }
     }
 }

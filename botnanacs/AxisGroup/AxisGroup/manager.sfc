@@ -159,8 +159,84 @@ variable is-jogging-stopping
 ' machining-stopping? 'machining-stopping !
 ' machining-loop 'machining-loop !
 
+
+variable monitor-failed
+variable monitor-acked
+variable ec-ready-once
+: ack-monitor
+	monitor-failed @ if
+		true monitor-acked !
+	then
+	;
+
+: .monitor
+	." monitor_failed|" monitor-failed @ 1 and 0 .r cr
+	;
+
+: monitor-init
+	ec-ready-once @ not ec-ready? and  if
+		true ec-ready-once !
+	then
+
+ec-ready-once @ if
+		false monitor-failed !
+		false monitor-acked !
+		reset-overrun
+	else
+		true monitor-failed !
+	then
+	;
+
+: monitor-loop
+	ec-ready? not if
+		true monitor-failed !
+		." error|EtherCAT communication error !" cr
+	then
+
+	overrun? if
+		true monitor-failed !
+		." error|System Overrun !" cr
+	then
+
+	monitor-failed @ if
+		ems-stop
+	then
+	;
+
+: monitor-post
+	;
+
+: monitor2loop?
+	monitor-failed @ not
+	;
+
+: monitor2post?
+	monitor-failed @
+;
+
+: monitor2init?
+	monitor-acked @
+;
+
+
+step monitor-init
+step monitor-loop
+step monitor-post
+
+transition  monitor2loop?
+transition  monitor2post?
+transition  monitor2init?
+
+' monitor-init 		' monitor2loop?	-->
+' monitor2loop? 	' monitor-loop 	-->
+' monitor-loop		' monitor2post? -->
+' monitor2post?		' monitor-post	-->
+' monitor-post		' monitor2init?	-->
+' monitor2init?		' monitor-init	-->
+
 \ Activate motion-idle step
 ' motion-idle +step
 ' devices-check +step
+' monitor-init +step
 
 marker -nc
