@@ -469,12 +469,18 @@ namespace AxisGroup
             script_evaluate_dll(botnana, "stop-motion");
         }
 
+        private Boolean has_program = false;
         private void btnSend_Click(object sender, EventArgs e)
         {
 
             if (motion_state == 3)
             {
                 new Thread(() => System.Windows.Forms.MessageBox.Show("Motion in Machining !!")).Start();
+            } else if(nc_suspended == 1) {
+                new Thread(() => System.Windows.Forms.MessageBox.Show("Machining Feed Hold!!")).Start();
+            } else if (has_program)
+            {
+                new Thread(() => System.Windows.Forms.MessageBox.Show("Has program !!")).Start();
             }
             else
             {
@@ -548,6 +554,7 @@ namespace AxisGroup
                     program_line_dll(program, "begin 1 group! gend? not while pause repeat");
                     program_line_dll(program, "1 group! -group  true machining-finished !");
                     program_deploy_dll(botnana, program);
+                    has_program = true;
                 }
             }
         }
@@ -560,6 +567,10 @@ namespace AxisGroup
             }else if (motion_state != 0)
             {
                 new Thread(() => System.Windows.Forms.MessageBox.Show("Not Motion IDLE !!")).Start();
+            }
+            else if (!has_program)
+            {
+                new Thread(() => System.Windows.Forms.MessageBox.Show("No program !!")).Start();
             }
             else
             {
@@ -580,6 +591,7 @@ namespace AxisGroup
             else
             {
                 script_evaluate_dll(botnana, "reset-machining -nc marker -nc");
+                has_program = false;
             }
         }
 

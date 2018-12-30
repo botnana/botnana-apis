@@ -1,6 +1,5 @@
 -work marker -work
 
-
 \ Axes Description
 \ 分別為第 1, 2 , 3 運動軸
 \ 不使用 index 0 的運動軸
@@ -42,8 +41,8 @@ variable motion-state
     ;
 
 : .motion-state
-	." motion_state|" motion-state @ 0 .r cr
-	;
+    ." motion_state|" motion-state @ 0 .r cr
+    ;
 
 \ Is servo on
 \ 使用此參數來紀錄目前是否處在 servo-on 的狀態
@@ -52,8 +51,8 @@ variable is-servo-on
     is-servo-on @
     ;
 : .servo-on
-	." servo_on|" is-servo-on @ 0 .r cr
-	;
+    ." servo_on|" is-servo-on @ 0 .r cr
+    ;
 
 \ 目前處理的 homing-priority
 \ 1 表示處理 first-homing-axes 中啟動的運動軸
@@ -173,6 +172,35 @@ variable homing-priority
     machining-rate f!
     ;
 
+\ 異警等級
+variable event-level
+1 constant alarm-class
+2 constant warning-class
+4 constant error-class
+
+: report-alarm
+    event-level @ alarm-class or event-level !
+    ;
+
+: report-warning
+    event-level @ warning-class or event-level !
+    ;
+
+: report-error
+    event-level @ error-class or event-level !
+    ;
+
+: 0event-level
+    0 event-level !
+    ;
+
+: event-level@
+    event-level @
+    ;
+
+: event-acked?
+    event-level @ warning-class <
+    ;
 
 \ Stack check
 variable stack-depth
@@ -185,7 +213,6 @@ variable stack-depth
         ." error|statck check error" cr
     then
     ;
-
 
 \ Devices Check
 \ 檢查對應的硬體裝置是否存在，只在一開始的時候做一次，如果檢查沒有通過，SFC 會停留在這個 step。
@@ -204,9 +231,9 @@ variable devices-ok
                 false devices-ok !
             then
 
-			dup axis-enabled? not if
-				dup axis@ +homed
-			then
+            dup axis-enabled? not if
+                dup axis@ +homed
+            then
 
             1+
         repeat
@@ -224,20 +251,20 @@ variable devices-ok
     ;
 
 : .config
-	." devices_ok|" devices-ok @ 1 and 0 .r
-	." |rapid_travels_rate|" rapid-travels-rate f@ f.
-	." |machining_rate|" machining-rate f@ f.
-	." |axis_homing_v1.1|" 1 axis-homing-v1@ 0 .r
-	." |axis_homing_v1.2|" 2 axis-homing-v1@ 0 .r
-	." |axis_homing_v1.3|" 3 axis-homing-v1@ 0 .r
-	." |axis_homing_v2.1|" 1 axis-homing-v2@ 0 .r
-	." |axis_homing_v2.2|" 2 axis-homing-v2@ 0 .r
-	." |axis_homing_v2.3|" 3 axis-homing-v2@ 0 .r
-	." |axis_homing_method.1|" 1 axis-homing-method@ 0 .r
-	." |axis_homing_method.2|" 2 axis-homing-method@ 0 .r
-	." |axis_homing_method.3|" 3 axis-homing-method@ 0 .r
-	cr
-	;
+    ." devices_ok|" devices-ok @ 1 and 0 .r
+    ." |rapid_travels_rate|" rapid-travels-rate f@ f.
+    ." |machining_rate|" machining-rate f@ f.
+    ." |axis_homing_v1.1|" 1 axis-homing-v1@ 0 .r
+    ." |axis_homing_v1.2|" 2 axis-homing-v1@ 0 .r
+    ." |axis_homing_v1.3|" 3 axis-homing-v1@ 0 .r
+    ." |axis_homing_v2.1|" 1 axis-homing-v2@ 0 .r
+    ." |axis_homing_v2.2|" 2 axis-homing-v2@ 0 .r
+    ." |axis_homing_v2.3|" 3 axis-homing-v2@ 0 .r
+    ." |axis_homing_method.1|" 1 axis-homing-method@ 0 .r
+    ." |axis_homing_method.2|" 2 axis-homing-method@ 0 .r
+    ." |axis_homing_method.3|" 3 axis-homing-method@ 0 .r
+    cr
+    ;
 .config
 
 step  devices-check

@@ -16,6 +16,7 @@ create jogging-positions falign 0e f, 0e f, 0e f, 0e f,
     true homing-accepted !
     motion-idle? not if false homing-accepted ! ." log|Not Motion Idle" cr then
     servo-on? not if false homing-accepted ! ." log|Not Servo On" cr then
+    event-acked? not if false servo-on-accepted ! ." log|No Error Event Acknowledge " cr then
     homing-accepted @ if
         1 motion-state !
         start-axes-homing
@@ -28,6 +29,7 @@ create jogging-positions falign 0e f, 0e f, 0e f, 0e f,
     true jogging-accepted !
     motion-idle? not if false jogging-accepted ! ." log|Not Motion Idle" cr then
     servo-on? not if false jogging-accepted ! ." log|Not Servo On" cr then
+    event-acked? not if false servo-on-accepted ! ." log|No Error Event Acknowledge " cr then
     3 jogging-position! 2 jogging-position! 1 jogging-position!
     jogging-accepted @ if
         2 motion-state !
@@ -56,6 +58,7 @@ variable machining-finished
     true machining-accepted !
     motion-idle? not if false machining-accepted ! ." log|Not Motion Idle" cr then
     servo-on? not if false machining-accepted ! ." log|Not Servo On" cr then
+    event-acked? not if false servo-on-accepted ! ." log|No Error Event Acknowledge " cr then
     machining-accepted @ if
         3 motion-state !
         resume-nc 1 group! +group start-job
@@ -159,63 +162,68 @@ variable is-jogging-stopping
 ' machining-stopping? 'machining-stopping !
 ' machining-loop 'machining-loop !
 
-
-variable monitor-failed
 variable monitor-acked
 variable ec-ready-once
 : ack-monitor
-	monitor-failed @ if
-		true monitor-acked !
-	then
-	;
+    event-acked? if
+        true monitor-acked !
+    else
+        0event-level
+    then
+    ;
 
 : .monitor
-	." monitor_failed|" monitor-failed @ 1 and 0 .r cr
-	;
+    ." monitor_failed|" event-level@ 0 .r cr
+    ;
 
 : monitor-init
-	ec-ready-once @ not ec-ready? and  if
-		true ec-ready-once !
-	then
+    ec-ready-once @ not ec-ready? and  if
+        true ec-ready-once !
+    then
 
-ec-ready-once @ if
-		false monitor-failed !
-		false monitor-acked !
-		reset-overrun
-	else
-		true monitor-failed !
-	then
-	;
+    ec-ready-once @ if
+        0event-level
+        false monitor-acked !
+        reset-overrun
+    else
+        report-warning
+    then
+    ;
 
 : monitor-loop
-	ec-ready? not if
-		true monitor-failed !
-		." error|EtherCAT communication error !" cr
-	then
+    ec-ready? not if
+        ." error|EtherCAT communication error !" cr
+        report-error
+    then
 
-	overrun? if
-		true monitor-failed !
-		." error|System Overrun !" cr
-	then
+    overrun? if
+        ." error|System Overrun !" cr
+        report-error
+    then
 
-	monitor-failed @ if
-		ems-stop
-	then
-	;
+    event-level@ error-class >= if
+        ems-stop
+    else
+        event-level@ warning-class >= if
+            stop-motion
+        then
+    then
+
+    ;
 
 : monitor-post
-	;
+    ;
 
 : monitor2loop?
-	monitor-failed @ not
-	;
+    event-level@ warning-class <
+    ;
 
 : monitor2post?
-	monitor-failed @
+    event-level@ warning-class >=
 ;
 
 : monitor2init?
-	monitor-acked @
+    monitor-acked @
 ;
 
 
@@ -227,12 +235,12 @@ transition  monitor2loop?
 transition  monitor2post?
 transition  monitor2init?
 
-' monitor-init 		' monitor2loop?	-->
-' monitor2loop? 	' monitor-loop 	-->
-' monitor-loop		' monitor2post? -->
-' monitor2post?		' monitor-post	-->
-' monitor-post		' monitor2init?	-->
-' monitor2init?		' monitor-init	-->
+' monitor-init      ' monitor2loop? -->
+' monitor2loop?     ' monitor-loop  -->
+' monitor-loop      ' monitor2post? -->
+' monitor2post?     ' monitor-post  -->
+' monitor-post      ' monitor2init? -->
+' monitor2init?     ' monitor-init  -->
 
 \ Activate motion-idle step
 ' motion-idle +step

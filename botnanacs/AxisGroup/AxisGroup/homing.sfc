@@ -76,7 +76,7 @@ variable axes-homing-stopping
             dup axis-enabled? over homing-priority @ homing-axis? and if
                 dup axis@
                 dup -homed
-				over axis-homing-v1@ over axis-drive@ homing-v1!
+                over axis-homing-v1@ over axis-drive@ homing-v1!
                 over axis-homing-v2@ over axis-drive@ homing-v2!
                 over axis-homing-method@ over axis-drive@ homing-method!
                 hm swap axis-drive@ op-mode!
@@ -125,11 +125,11 @@ variable axes-homing-stopping
         dup axis-enabled? over homing-priority @ homing-axis? and if
             dup axis@ dup axis-drive@ target-reached? if
                 dup axis-drive@ drive-sw@ $1000 and 0<> if
-                    dup ." log|Axis ("  0 .r  ." ) homing attained" cr
                     dup +homed
                 else
-                    dup ." log|Axis ("  0 .r  ." ) homing error" cr
+                    dup ." error|Axis ("  0 .r  ." ) homing error" cr
                     \ 如果回歸機械原點失敗，停止所有運動軸回歸機械原點
+                    report-error
                     stop-axes-homing
                     dup -homed
                 then

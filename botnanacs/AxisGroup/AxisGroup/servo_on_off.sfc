@@ -27,8 +27,8 @@ variable servo-lag-err
         dup axis-enabled? over axis-homing? not and if
             dup ferr-limit@ dup axis@ axis-ferr@ fabs f< if
                 ." error|Axis (" dup axis@ 0 .r  ." ) Following error too large" cr
-                1 .axis
-				servo-on? not if
+                report-error
+                servo-on? not if
                     dup axis@ 0axis-ferr
                 then
                 true servo-lag-err !
@@ -45,7 +45,11 @@ variable servo-lag-err
     ." log|Servo On Request!" cr
     true servo-on-accepted !
     is-servo-idle @ not if false servo-on-accepted ! ." log|Not Servo Idle" cr then
+    event-acked? not if false servo-on-accepted ! ." log|No Error Event Acknowledge" cr then
     servo-lag-check servo-lag-err @ if false servo-on-accepted ! then
+    servo-on-accepted @ if
+        false servo-off-accepted !
+    then
     ;
 
 \ 發出 Servo Off Request
@@ -54,22 +58,7 @@ variable servo-lag-err
     ." log|Servo Off Request!" cr
     true servo-off-accepted !
     servo-on? not if false servo-off-accepted ! ." log|Not Servo On" cr then
-
-    \ 檢查運動軸是否靜止
-    1
-    begin
-        dup axes-len <=
-    while
-        dup axis-enabled? if
-            dup axis@ axis-rest? not if
-                ." error|Axis (" dup axis@ 0 .r  ." ) is not stopped" cr
-                false servo-off-accepted !
-            then
-        then
-        1+
-    repeat
-    drop
-
+    motion-idle? not if false servo-off-accepted ! ." log|Not Motion Idle" cr then
     ;
 
 \ 發出 Servo Emergency Off Request
@@ -168,11 +157,13 @@ variable servo-on-time
         dup axis-enabled? if
             dup axis@ axis-drive@ drive-on? not if
                 ." error|Not expected drive off" cr
+                report-error
                 ems-servo-off
             then
 
             dup axis@ axis-drive@ drive-fault? if
                 ." error|drive fault" cr
+                report-error
                 ems-servo-off
             then
         then
@@ -191,7 +182,6 @@ variable servo-on-time
 : servo-disable-operation ( -- )
     enter-stack-check
     false is-servo-on !
-    false servo-off-accepted !
     servo-disable-operation-once @ not if
         true servo-disable-operation-once !
         -coordinator
