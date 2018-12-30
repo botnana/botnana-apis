@@ -1,4 +1,5 @@
 extern crate libc;
+extern crate serde_json;
 extern crate url;
 extern crate ws;
 
