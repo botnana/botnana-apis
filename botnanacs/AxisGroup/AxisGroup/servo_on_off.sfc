@@ -1,4 +1,4 @@
-
+\ 清除 `-nc` 之後所定義的 Forth 命令
 -nc
 
 \ Servo On Accepted
@@ -8,7 +8,6 @@ variable servo-on-accepted
 \ Servo Off Accepted
 \ 用來紀錄 servo off request 是否被接受
 variable servo-off-accepted
-
 
 \ Is servo idle
 \ 用來紀錄是否處於 Servo Idle Step，在此 step 才會接受 servo on request
@@ -42,7 +41,6 @@ variable servo-lag-err
 \ 發出 Servo On Request
 \ 如果目前狀態可以允許 Servo On，會將 servo-on-accepted 變數設定為真。
 : +servo-on ( -- )
-    ." log|Servo On Request!" cr
     true servo-on-accepted !
     is-servo-idle @ not if false servo-on-accepted ! ." log|Not Servo Idle" cr then
     event-acked? not if false servo-on-accepted ! ." log|No Error Event Acknowledge" cr then
@@ -55,7 +53,6 @@ variable servo-lag-err
 \ 發出 Servo Off Request
 \ 如果目前狀態可以允許 Servo Off，會將 servo-off-accepted 變數設定為真。
 : -servo-on ( -- )
-    ." log|Servo Off Request!" cr
     true servo-off-accepted !
     servo-on? not if false servo-off-accepted ! ." log|Not Servo On" cr then
     motion-idle? not if false servo-off-accepted ! ." log|Not Motion Idle" cr then
@@ -67,7 +64,6 @@ variable servo-lag-err
     ." log|Emergency Servo Off Request!" cr
     true servo-off-accepted !
     ;
-
 
 \ Servo Idle Step
 \ 在此狀態等待 servo-on-accetped 為真
@@ -111,7 +107,6 @@ variable servo-old-axis
         true servo-pre-operation-once !
         1 servo-current-axis !
         0 servo-old-axis !
-
 
     then
     leave-stack-check
@@ -265,13 +260,11 @@ variable all-drive-on
     servo-off-accepted @
     ;
 
-
 \ Is servo operation disabled ?
 \ 計數等待 servo disable operation 的時間是否到達？
 : servo-operation-disabled? ( -- flag )
     ['] servo-disable-operation elapsed 1000 >
     ;
-
 
 \ servo-default-true
 \ 預設要自動切換到 Servo Idle
@@ -279,6 +272,7 @@ variable all-drive-on
     true
     ;
 
+\ 宣告 SFC Step
 step servo-idle
 step servo-waiting-power-stable
 step servo-pre-operation
@@ -287,6 +281,7 @@ step servo-loop
 step servo-disable-operation
 step servo-post-operation
 
+\ 宣告 SFC transition
 transition servo-on-accepted?
 transition servo-power-stable?
 transition servo-wait-no-fault?
@@ -295,6 +290,7 @@ transition servo-off-accepted?
 transition servo-operation-disabled?
 transition servo-default-true?
 
+\ 連結 SFC
 ' devices-ok?                ' servo-idle        -->
 ' servo-idle                 ' servo-on-accepted? -->
 ' servo-on-accepted?         ' servo-waiting-power-stable -->
@@ -311,5 +307,5 @@ transition servo-default-true?
 ' servo-post-operation       ' servo-default-true? -->
 ' servo-default-true?        ' servo-idle          -->
 
-
+\ 標記 -nc
 marker -nc

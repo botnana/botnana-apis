@@ -62,32 +62,35 @@ namespace AxisGroup
             //new Thread(() => System.Windows.Forms.MessageBox.Show(str)).Start();
         }
 
+        // 更新 MCS 座標系
         private static HandleMessage mcs_callback = new HandleMessage(mcs_cb);
-        private static double[] mcs_positions;
+        private static double[] mcsPositions;
         private static void mcs_cb(string str)
         {
             int i = 0;
             String[] elements = Regex.Split(str, @",");
             foreach (var element in elements)
             {
-                mcs_positions[i] = Convert.ToDouble(element)*1000.0;
+                mcsPositions[i] = Convert.ToDouble(element)*1000.0;
                 i++;
             }
         }
 
+        // 更新 PCS 座標系
         private static HandleMessage pcs_callback = new HandleMessage(pcs_cb);
-        private static double[] pcs_positions;
+        private static double[] pcsPositions;
         private static void pcs_cb(string str)
         {
             int i = 0;
             String[] elements = Regex.Split(str, @",");
             foreach (var element in elements)
             {
-                pcs_positions[i] = Convert.ToDouble(element)*1000.0;
+                pcsPositions[i] = Convert.ToDouble(element)*1000.0;
                 i++;
             }
         }
 
+        // 更新軸組 PVA 資訊 
         private static HandleMessage pva_callback = new HandleMessage(pva_cb);
         private static double[] pva;
         private static void pva_cb(string str)
@@ -101,197 +104,193 @@ namespace AxisGroup
             }
         }
 
-        private static HandleMessage move_length_callback = new HandleMessage(move_length_cb);
-        private static double move_length;
-        private static void move_length_cb(string str)
+        // 更新目前在加工總路徑上的位置
+        private static HandleMessage moveLength_callback = new HandleMessage(moveLength_cb);
+        private static double moveLength;
+        private static void moveLength_cb(string str)
         {
-            move_length  = Convert.ToDouble(str);
+            moveLength  = Convert.ToDouble(str);
         }
 
-        private static HandleMessage path_id_callback = new HandleMessage(path_id_cb);
-        private static int path_id;
-        private static void path_id_cb(string str)
+        // 取得 NC 路徑編號
+        private static HandleMessage pathId_callback = new HandleMessage(pathId_cb);
+        private static int pathId;
+        private static void pathId_cb(string str)
         {
-            path_id = Int32.Parse(str);
+            pathId = Int32.Parse(str);
         }
 
-        private static HandleMessage servo_on_callback = new HandleMessage(servo_on_cb);
-        private static int servo_on;
-        private static void servo_on_cb(string str)
+        // 取得 Servo On 狀態
+        private static HandleMessage servoOn_callback = new HandleMessage(servoOn_cb);
+        private static int servoOn;
+        private static void servoOn_cb(string str)
         {
-            servo_on = Int32.Parse(str);
+            servoOn = Int32.Parse(str);
         }
 
-        private static HandleMessage motion_state_callback = new HandleMessage(motion_state_cb);
-        private static int motion_state;
-        private static void motion_state_cb(string str)
+        // 運動狀態
+        private static HandleMessage motionState_callback = new HandleMessage(motionState_cb);
+        private static int motionState;
+        private static void motionState_cb(string str)
         {
-            motion_state = Int32.Parse(str);
+            motionState = Int32.Parse(str);
         }
 
-        private static HandleMessage axis_real_position_1_callback = new HandleMessage(axis_real_position_1_cb);
-        private static double axis_real_position_1;
-        private static void axis_real_position_1_cb(string str)
+        // 運動軸實際位置
+        private static double[] axisRealPositions;
+        private static HandleMessage axisRealPositionX_callback = new HandleMessage(axisRealPositionX_cb);
+        private static HandleMessage axisRealPositionY_callback = new HandleMessage(axisRealPositionY_cb);
+        private static HandleMessage axisRealPositionZ_callback = new HandleMessage(axisRealPositionZ_cb);
+        private static void axisRealPositionX_cb(string str)
         {
-            
-            axis_real_position_1 = Double.Parse(str);
+
+            axisRealPositions[0] = Double.Parse(str);
+        }
+        private static void axisRealPositionY_cb(string str)
+        {
+            axisRealPositions[1] = Double.Parse(str);
+        }
+        private static void axisRealPositionZ_cb(string str)
+        {
+            axisRealPositions[2] = Double.Parse(str);
         }
 
-        private static HandleMessage axis_real_position_2_callback = new HandleMessage(axis_real_position_2_cb);
-        private static double axis_real_position_2;
-        private static void axis_real_position_2_cb(string str)
+        // 運動軸回歸機械原點的結果
+        private static int[] axisHomed;
+        private static HandleMessage axisHomedX_callback = new HandleMessage(axisHomedX_cb);
+        private static HandleMessage axisHomedY_callback = new HandleMessage(axisHomedY_cb);
+        private static HandleMessage axisHomedZ_callback = new HandleMessage(axisHomedZ_cb);
+        private static void axisHomedX_cb(string str)
         {
-            axis_real_position_2 = Double.Parse(str);
+            axisHomed[0] = Int32.Parse(str);
+        }
+        private static void axisHomedY_cb(string str)
+        {
+            axisHomed[1] = Int32.Parse(str);
+        }
+        private static void axisHomedZ_cb(string str)
+        {
+            axisHomed[1] = Int32.Parse(str);
         }
 
-        private static HandleMessage axis_real_position_3_callback = new HandleMessage(axis_real_position_3_cb);
-        private static double axis_real_position_3;
-        private static void axis_real_position_3_cb(string str)
+        // 呼叫 NC Task 的前景 Task ID 
+        private static int ncOwner;
+        private static HandleMessage ncOwner_callback = new HandleMessage(ncOwner_cb);
+        private static void ncOwner_cb(string str)
         {
-           axis_real_position_3 = Double.Parse(str);
+            ncOwner = Int32.Parse(str);
         }
 
-        private static HandleMessage axis_homed_1_callback = new HandleMessage(axis_homed_1_cb);
-        private static int axis_homed_1;
-        private static void axis_homed_1_cb(string str)
+        // NC Task 是否暫停的旗標
+        private static HandleMessage ncSuspended_callback = new HandleMessage(ncSuspended_cb);
+        private static int ncSuspended;
+        private static void ncSuspended_cb(string str)
         {
-            axis_homed_1 = Int32.Parse(str);
+            ncSuspended = Int32.Parse(str);
         }
 
-        private static HandleMessage axis_homed_2_callback = new HandleMessage(axis_homed_2_cb);
-        private static int axis_homed_2;
-        private static void axis_homed_2_cb(string str)
+        // SFC 邏輯中，硬體裝置檢查後的結果
+        private static HandleMessage devicesOk_callback = new HandleMessage(devicesOk_cb);
+        private static int devicesOk;
+        private static void devicesOk_cb(string str)
         {
-            axis_homed_2 = Int32.Parse(str);
+            devicesOk = Int32.Parse(str);
         }
 
-        private static HandleMessage axis_homed_3_callback = new HandleMessage(axis_homed_3_cb);
-        private static int axis_homed_3;
-        private static void axis_homed_3_cb(string str)
+        // SFC 監控機制所收集到的異警等級訊息
+        private static HandleMessage monitorFailed_callback = new HandleMessage(monitorFailed_cb);
+        private static int monitorFailed;
+        private static void monitorFailed_cb(string str)
         {
-            axis_homed_3 = Int32.Parse(str);
+            monitorFailed = Int32.Parse(str);
         }
 
-        private static HandleMessage nc_owner_callback = new HandleMessage(nc_owner_cb);
-        private static int nc_owner;
-        private static void nc_owner_cb(string str)
+        // SFC 參數部分
+        private static Boolean configUpdated;
+        private static double rapidTravelsRate;
+        private static double machiningRate;
+        private static UInt32[] axisHomingV1;
+        private static UInt32[] axisHomingV2;
+        private static UInt32[] axisHomingMethod;
+
+        private static HandleMessage rapidTravelsRate_callback = new HandleMessage(rapidTravelsRate_cb);
+        private static void rapidTravelsRate_cb(string str)
         {
-            nc_owner = Int32.Parse(str);
+            rapidTravelsRate = Double.Parse(str);
+            configUpdated = true;
+        }
+        private static HandleMessage machiningRate_callback = new HandleMessage(machiningRate_cb);
+        private static void machiningRate_cb(string str)
+        {
+            machiningRate = Double.Parse(str);
+            configUpdated = true;
         }
 
-        private static HandleMessage nc_suspended_callback = new HandleMessage(nc_suspended_cb);
-        private static int nc_suspended;
-        private static void nc_suspended_cb(string str)
+        private static HandleMessage axisHomingV1X_callback = new HandleMessage(axisHomingV1X_cb);
+        private static HandleMessage axisHomingV1Y_callback = new HandleMessage(axisHomingV1Y_cb);
+        private static HandleMessage axisHomingV1Z_callback = new HandleMessage(axisHomingV1Z_cb);
+        private static void axisHomingV1X_cb(string str)
         {
-            nc_suspended = Int32.Parse(str);
+            axisHomingV1[0] = UInt32.Parse(str);
+            configUpdated = true;
+        }
+        private static void axisHomingV1Y_cb(string str)
+        {
+            axisHomingV1[1] = UInt32.Parse(str);
+            configUpdated = true;
+        }
+        private static void axisHomingV1Z_cb(string str)
+        {
+            axisHomingV1[2] = UInt32.Parse(str);
+            configUpdated = true;
         }
 
-        private static HandleMessage devices_ok_callback = new HandleMessage(devices_ok_cb);
-        private static int devices_ok;
-        private static void devices_ok_cb(string str)
+        private static HandleMessage axisHomingV2X_callback = new HandleMessage(axisHomingV2X_cb);
+        private static HandleMessage axisHomingV2Y_callback = new HandleMessage(axisHomingV2Y_cb);
+        private static HandleMessage axisHomingV2Z_callback = new HandleMessage(axisHomingV2Z_cb);
+        private static void axisHomingV2X_cb(string str)
         {
-            devices_ok = Int32.Parse(str);
+            axisHomingV2[0] = UInt32.Parse(str);
+            configUpdated = true;
+        }
+        private static void axisHomingV2Y_cb(string str)
+        {
+            axisHomingV2[1] = UInt32.Parse(str);
+            configUpdated = true;
+        }
+        private static void axisHomingV2Z_cb(string str)
+        {
+            axisHomingV2[2] = UInt32.Parse(str);
+            configUpdated = true;
         }
 
-        private static HandleMessage monitor_failed_callback = new HandleMessage(monitor_failed_cb);
-        private static int monitor_failed;
-        private static void monitor_failed_cb(string str)
+        private static HandleMessage axisHomingMethodX_callback = new HandleMessage(axisHomingMethodX_cb);
+        private static HandleMessage axisHomingMethodY_callback = new HandleMessage(axisHomingMethodY_cb);
+        private static HandleMessage axisHomingMethodZ_callback = new HandleMessage(axisHomingMethodZ_cb);
+        private static void axisHomingMethodX_cb(string str)
         {
-            monitor_failed = Int32.Parse(str);
+            axisHomingMethod[0] = UInt32.Parse(str);
+            configUpdated = true;
+        }
+        private static void axisHomingMethodY_cb(string str)
+        {
+            axisHomingMethod[1] = UInt32.Parse(str);
+            configUpdated = true;
+        }
+        private static void axisHomingMethodZ_cb(string str)
+        {
+            axisHomingMethod[2] = UInt32.Parse(str);
+            configUpdated = true;
         }
         
-        private static Boolean config_request;
-
-        private static HandleMessage rapid_travels_rate_callback = new HandleMessage(rapid_travels_rate_cb);
-        private static double rapid_travels_rate;
-        private static void rapid_travels_rate_cb(string str)
-        {
-            rapid_travels_rate = Double.Parse(str);
-            config_request = true;
-        }
-
-        private static HandleMessage machining_rate_callback = new HandleMessage(machining_rate_cb);
-        private static double machining_rate;
-        private static void machining_rate_cb(string str)
-        {
-            machining_rate = Double.Parse(str);
-            config_request = true;
-        }
-
-        private static HandleMessage axis_homing_v1x_callback = new HandleMessage(axis_homing_v1x_cb);
-        private static UInt32 axis_homing_v1x;
-        private static void axis_homing_v1x_cb(string str)
-        {
-            axis_homing_v1x = UInt32.Parse(str);
-            config_request = true;
-        }
-        private static HandleMessage axis_homing_v1y_callback = new HandleMessage(axis_homing_v1y_cb);
-        private static UInt32 axis_homing_v1y;
-        private static void axis_homing_v1y_cb(string str)
-        {
-            axis_homing_v1y = UInt32.Parse(str);
-            config_request = true;
-        }
-
-        private static HandleMessage axis_homing_v1z_callback = new HandleMessage(axis_homing_v1z_cb);
-        private static UInt32 axis_homing_v1z;
-        private static void axis_homing_v1z_cb(string str)
-        {
-            axis_homing_v1z = UInt32.Parse(str);
-            config_request = true;
-        }
-
-        private static HandleMessage axis_homing_v2x_callback = new HandleMessage(axis_homing_v2x_cb);
-        private static UInt32 axis_homing_v2x;
-        private static void axis_homing_v2x_cb(string str)
-        {
-            axis_homing_v2x = UInt32.Parse(str);
-            config_request = true;
-        }
-        private static HandleMessage axis_homing_v2y_callback = new HandleMessage(axis_homing_v2y_cb);
-        private static UInt32 axis_homing_v2y;
-        private static void axis_homing_v2y_cb(string str)
-        {
-            axis_homing_v2y = UInt32.Parse(str);
-            config_request = true;
-        }
-
-        private static HandleMessage axis_homing_v2z_callback = new HandleMessage(axis_homing_v2z_cb);
-        private static UInt32 axis_homing_v2z;
-        private static void axis_homing_v2z_cb(string str)
-        {
-            axis_homing_v2z = UInt32.Parse(str);
-            config_request = true;
-        }
-
-        private static HandleMessage axis_homing_methodx_callback = new HandleMessage(axis_homing_methodx_cb);
-        private static UInt32 axis_homing_methodx;
-        private static void axis_homing_methodx_cb(string str)
-        {
-            axis_homing_methodx = UInt32.Parse(str);
-            config_request = true;
-        }
-        private static HandleMessage axis_homing_methody_callback = new HandleMessage(axis_homing_methody_cb);
-        private static UInt32 axis_homing_methody;
-        private static void axis_homing_methody_cb(string str)
-        {
-            axis_homing_methody = UInt32.Parse(str);
-            config_request = true;
-        }
-        private static HandleMessage axis_homing_methodz_callback = new HandleMessage(axis_homing_methodz_cb);
-        private static UInt32 axis_homing_methodz;
-        private static void axis_homing_methodz_cb(string str)
-        {
-            axis_homing_methodz = UInt32.Parse(str);
-            config_request = true;
-        }
-               
+        // 收到 error 的處置
         private static HandleMessage error_callback = new HandleMessage(error_cb);
         private static void error_cb(string str)
         {
             new Thread(() => System.Windows.Forms.MessageBox.Show("error|" + str)).Start();
         }
 
+        // 收到 log 的處置
         private static HandleMessage log_callback = new HandleMessage(log_cb);
         private static void log_cb(string str)
         {
@@ -299,45 +298,54 @@ namespace AxisGroup
 
         }
 
+        // 目前 Botnana Control 有無 NC 程式 
+        private static Boolean hasProgram = false;
+
+        // 收到 deployed 的處置
         private static HandleMessage deployed_callback = new HandleMessage(deployed_cb);
         private static void deployed_cb(string str)
         {
-            new Thread(() => System.Windows.Forms.MessageBox.Show("deployed|" + str)).Start();
-
+            if (str == "ok")
+            {
+                hasProgram = true;
+            }
         }
 
+        // 載入單一 SFC 檔案 
         private static void load_sfc(string path)
         {
-            string[] lines = System.IO.File.ReadAllLines(path, Encoding.UTF8);
-            foreach (string line in lines)
-            {
-                script_evaluate_dll(botnana, line);
-            }
-            Thread.Sleep(100);
+            string sfc = System.IO.File.ReadAllText(path, Encoding.UTF8);
+            script_evaluate_dll(botnana, sfc);
         }
 
-        private static HandleMessage user_parameter_callback = new HandleMessage(user_parameter_cb);
-        private static Boolean has_sfc = false;
-        private static void user_parameter_cb(string str)
+        // 取得 userParameter
+        private static HandleMessage userParameter_callback = new HandleMessage(userParameter_cb);
+        private static Boolean hasSFC;
+        private static void userParameter_cb(string str)
         {
             int para = Int32.Parse(str);
             switch (para)
             {
                 case 0:
+                    // 設定 user parameter 為 0x10
+                    // 如果此範例重新執行不會在載入以下 SFC
                     script_evaluate_dll(botnana, "$10 user-para!");
-                    script_evaluate_dll(botnana, "0sfc");
+                    // 清除SFC 邏輯，載入 SFC 時會造成 real time cycle overrun，所以要暫時 ignore-overrun
+                    // 載入後再執行 `reset-overrun`
+                    script_evaluate_dll(botnana, "0sfc ignore-overrun");
                     load_sfc(@"..\..\config.sfc");
                     load_sfc(@"..\..\servo_on_off.sfc");
                     load_sfc(@"..\..\homing.sfc");
                     load_sfc(@"..\..\motion_state.sfc");
                     load_sfc(@"..\..\manager.sfc");
+                    // 等待 SFC 設置完成
+                    Thread.Sleep(10);
+                    script_evaluate_dll(botnana, "reset-overrun");
                     break;
                 default:
                     break;
             }
-            has_sfc = true;
-            script_evaluate_dll(botnana, ".config");
-
+            hasSFC = true;
         }
 
         public Form1()
@@ -347,55 +355,60 @@ namespace AxisGroup
 
         private void Form1_Load(object sender, EventArgs e)
         {
+            mcsPositions = new double[3];
+            pcsPositions = new double[3];
+            pva = new double[3];
+            axisHomed = new int[3];
+            axisRealPositions = new double[3];
+            axisHomingV1 = new UInt32[3];
+            axisHomingV2 = new UInt32[3];
+            axisHomingMethod = new UInt32[3];
+
+            // 首先要連線到 Botnana Control, 當收到 WS 連線錯誤, 就呼叫 on_error_callback
             botnana = botnana_connect_dll("192.168.7.2", on_ws_error_callback);
+            // 創建 NC program             
             program = program_new_dll("3dtest");
+            // 當收到 Botnana Control 的訊息, 就呼叫 on_message_callback
             botnana_set_on_message_cb_dll(botnana, on_message_callback);
-            script_evaluate_dll(botnana, ".user-para");
+            // 定義收到信息中指定的 Tag 時，所要呼叫的 callback 信息
             botnana_set_tag_cb_dll(botnana, "MCS.1", 0, mcs_callback);
             botnana_set_tag_cb_dll(botnana, "PCS.1", 0, pcs_callback);
             botnana_set_tag_cb_dll(botnana, "pva.1", 0, pva_callback);
-            botnana_set_tag_cb_dll(botnana, "move_length.1", 0, move_length_callback);
-            botnana_set_tag_cb_dll(botnana, "path_id.1", 0, path_id_callback);
-            botnana_set_tag_cb_dll(botnana, "servo_on", 0, servo_on_callback);
-            botnana_set_tag_cb_dll(botnana, "motion_state", 0, motion_state_callback);
-            botnana_set_tag_cb_dll(botnana, "axis_corrected_position.1", 0, axis_real_position_1_callback);
-            botnana_set_tag_cb_dll(botnana, "axis_corrected_position.2", 0, axis_real_position_2_callback);
-            botnana_set_tag_cb_dll(botnana, "axis_corrected_position.3", 0, axis_real_position_3_callback);
-            botnana_set_tag_cb_dll(botnana, "axis_homed.1", 0, axis_homed_1_callback);
-            botnana_set_tag_cb_dll(botnana, "axis_homed.2", 0, axis_homed_2_callback);
-            botnana_set_tag_cb_dll(botnana, "axis_homed.3", 0, axis_homed_3_callback);
-            botnana_set_tag_cb_dll(botnana, "nc_owner", 0, nc_owner_callback);
-            botnana_set_tag_cb_dll(botnana, "nc_suspended", 0, nc_suspended_callback);
-            botnana_set_tag_cb_dll(botnana, "devices_ok", 0, devices_ok_callback);
-            botnana_set_tag_cb_dll(botnana, "monitor_failed", 0, monitor_failed_callback);
-
-            botnana_set_tag_cb_dll(botnana, "rapid_travels_rate", 0, rapid_travels_rate_callback);
-            botnana_set_tag_cb_dll(botnana, "machining_rate", 0, machining_rate_callback);
-            botnana_set_tag_cb_dll(botnana, "axis_homing_v1.1", 0, axis_homing_v1x_callback);
-            botnana_set_tag_cb_dll(botnana, "axis_homing_v1.2", 0, axis_homing_v1y_callback);
-            botnana_set_tag_cb_dll(botnana, "axis_homing_v1.3", 0, axis_homing_v1z_callback);
-            botnana_set_tag_cb_dll(botnana, "axis_homing_v2.1", 0, axis_homing_v2x_callback);
-            botnana_set_tag_cb_dll(botnana, "axis_homing_v2.2", 0, axis_homing_v2y_callback);
-            botnana_set_tag_cb_dll(botnana, "axis_homing_v2.3", 0, axis_homing_v2z_callback);
-            botnana_set_tag_cb_dll(botnana, "axis_homing_method.1", 0, axis_homing_methodx_callback);
-            botnana_set_tag_cb_dll(botnana, "axis_homing_method.2", 0, axis_homing_methody_callback);
-            botnana_set_tag_cb_dll(botnana, "axis_homing_method.3", 0, axis_homing_methodz_callback);
-            
+            botnana_set_tag_cb_dll(botnana, "move_length.1", 0, moveLength_callback);
+            botnana_set_tag_cb_dll(botnana, "path_id.1", 0, pathId_callback);
+            botnana_set_tag_cb_dll(botnana, "servo_on", 0, servoOn_callback);
+            botnana_set_tag_cb_dll(botnana, "motion_state", 0, motionState_callback);
+            botnana_set_tag_cb_dll(botnana, "axis_corrected_position.1", 0, axisRealPositionX_callback);
+            botnana_set_tag_cb_dll(botnana, "axis_corrected_position.2", 0, axisRealPositionY_callback);
+            botnana_set_tag_cb_dll(botnana, "axis_corrected_position.3", 0, axisRealPositionZ_callback);
+            botnana_set_tag_cb_dll(botnana, "axis_homed.1", 0, axisHomedX_callback);
+            botnana_set_tag_cb_dll(botnana, "axis_homed.2", 0, axisHomedY_callback);
+            botnana_set_tag_cb_dll(botnana, "axis_homed.3", 0, axisHomedZ_callback);
+            botnana_set_tag_cb_dll(botnana, "nc_owner", 0, ncOwner_callback);
+            botnana_set_tag_cb_dll(botnana, "nc_suspended", 0, ncSuspended_callback);
+            botnana_set_tag_cb_dll(botnana, "devices_ok", 0, devicesOk_callback);
+            botnana_set_tag_cb_dll(botnana, "monitor_failed", 0, monitorFailed_callback);
+            botnana_set_tag_cb_dll(botnana, "rapid_travels_rate", 0, rapidTravelsRate_callback);
+            botnana_set_tag_cb_dll(botnana, "machining_rate", 0, machiningRate_callback);
+            botnana_set_tag_cb_dll(botnana, "axis_homing_v1.1", 0, axisHomingV1X_callback);
+            botnana_set_tag_cb_dll(botnana, "axis_homing_v1.2", 0, axisHomingV1Y_callback);
+            botnana_set_tag_cb_dll(botnana, "axis_homing_v1.3", 0, axisHomingV1Z_callback);
+            botnana_set_tag_cb_dll(botnana, "axis_homing_v2.1", 0, axisHomingV2X_callback);
+            botnana_set_tag_cb_dll(botnana, "axis_homing_v2.2", 0, axisHomingV2Y_callback);
+            botnana_set_tag_cb_dll(botnana, "axis_homing_v2.3", 0, axisHomingV2Z_callback);
+            botnana_set_tag_cb_dll(botnana, "axis_homing_method.1", 0, axisHomingMethodX_callback);
+            botnana_set_tag_cb_dll(botnana, "axis_homing_method.2", 0, axisHomingMethodY_callback);
+            botnana_set_tag_cb_dll(botnana, "axis_homing_method.3", 0, axisHomingMethodZ_callback);
             botnana_set_tag_cb_dll(botnana, "error", 0, error_callback);
             botnana_set_tag_cb_dll(botnana, "log", 0, log_callback);
-
-            botnana_set_tag_cb_dll(botnana, "user_parameter", 0, user_parameter_callback);
-
+            botnana_set_tag_cb_dll(botnana, "user_parameter", 0, userParameter_callback);
             botnana_set_tag_cb_dll(botnana, "deployed", 0, deployed_callback);
-           
 
-
-            mcs_positions = new double[3];
-            pcs_positions = new double[3];
-            pva = new double[3];
-
-
-            DataGridViewRowCollection rows = dataGridView1.Rows;
+            // 要求  Botnana Control 送出 user parameter 訊息
+            script_evaluate_dll(botnana, ".user-para");
+            
+            // 初始化 NC program 內容
+            DataGridViewRowCollection rows = ncProgram.Rows;
             rows.Add(new Object[] { "1","92", "0.0","0.0","0.0", "900.0"});
             rows.Add(new Object[] { "2","01", "10", null, null , "500"});
             rows.Add(new Object[] { "3","01", "20", null, null, "500" });
@@ -407,7 +420,7 @@ namespace AxisGroup
             rows.Add(new Object[] { "9","01", "80", null, null, "900" });
             rows.Add(new Object[] { "10","01", "90", null, null, "1000" });
             
-
+            // 設置 timer
             timer1.Interval = 50;
             timer1.Enabled = true;
             timer2.Interval = 500;
@@ -416,69 +429,67 @@ namespace AxisGroup
 
         private void timer1_Tick(object sender, EventArgs e)
         {
+            // 取得 group 1, axis 1, axis 2, axis 3 狀態
             script_evaluate_dll(botnana, "1 .group 1 .axis 2 .axis 3 .axis");
-            labelMCS1.Text = mcs_positions[0].ToString("F4");
-            labelMCS2.Text = mcs_positions[1].ToString("F4");
-            labelMCS3.Text = mcs_positions[2].ToString("F4");
-            labelPCS1.Text = pcs_positions[0].ToString("F4");
-            labelPCS2.Text = pcs_positions[1].ToString("F4");
-            labelPCS3.Text = pcs_positions[2].ToString("F4");
+
+            // 更新視窗原件內容
+            labelMCS1.Text = mcsPositions[0].ToString("F4");
+            labelMCS2.Text = mcsPositions[1].ToString("F4");
+            labelMCS3.Text = mcsPositions[2].ToString("F4");
+            labelPCS1.Text = pcsPositions[0].ToString("F4");
+            labelPCS2.Text = pcsPositions[1].ToString("F4");
+            labelPCS3.Text = pcsPositions[2].ToString("F4");
             textNextP.Text = (pva[0] * 1000.0).ToString("F1");
             textNextV.Text = (pva[1]*1000.0*60.0).ToString("F1");
-            textPathP.Text = (move_length * 1000.0 ).ToString("F1");
-            textAxisP1.Text = (axis_real_position_1 * 1000.0).ToString("F4");
-            textAxisP2.Text = (axis_real_position_2 * 1000.0).ToString("F4");
-            textAxisP3.Text = (axis_real_position_3 * 1000.0).ToString("F4");
+            textPathP.Text = (moveLength * 1000.0 ).ToString("F1");
+            textAxisP1.Text = (axisRealPositions[0] * 1000.0).ToString("F4");
+            textAxisP2.Text = (axisRealPositions[1] * 1000.0).ToString("F4");
+            textAxisP3.Text = (axisRealPositions[2] * 1000.0).ToString("F4");
         }
 
+        // Start Jogging 指令　
         private void btnJoggingGo_Click(object sender, EventArgs e)
         {
-            if (servo_on == 0)
+            // 如果沒有設定的運動軸，就將目標設定為目前位置
+            string mcs_x = mcsPositions[0].ToString("F4");
+            string mcs_y = mcsPositions[1].ToString("F4");
+            string mcs_z = mcsPositions[2].ToString("F4");
+
+            if (txtJogX.Text.Length > 0)
             {
-                new Thread(() => System.Windows.Forms.MessageBox.Show("Not Servo ON !!")).Start();
+                mcs_x = txtJogX.Text;
+                txtJogX.Text = "";
             }
-            else
+
+            if (txtJogY.Text.Length > 0)
             {
-                string mcs_x = mcs_positions[0].ToString("F4");
-                string mcs_y = mcs_positions[1].ToString("F4");
-                string mcs_z = mcs_positions[2].ToString("F4");
-
-                if (txtJogX.Text.Length > 0)
-                {
-                    mcs_x = txtJogX.Text;
-                    txtJogX.Text = "";
-                }
-
-                if (txtJogY.Text.Length > 0)
-                {
-                    mcs_y = txtJogY.Text;
-                    txtJogY.Text = "";
-                }
-
-                if (txtJogZ.Text.Length > 0)
-                {
-                    mcs_z = txtJogZ.Text;
-                    txtJogZ.Text = "";
-                }
-                script_evaluate_dll(botnana, mcs_x + "e mm "+ mcs_y + "e mm "+ mcs_z + "e mm start-jogging");
+                mcs_y = txtJogY.Text;
+                txtJogY.Text = "";
             }
+
+            if (txtJogZ.Text.Length > 0)
+            {
+                mcs_z = txtJogZ.Text;
+                txtJogZ.Text = "";
+            }
+            script_evaluate_dll(botnana, mcs_x + "e mm "+ mcs_y + "e mm "+ mcs_z + "e mm start-jogging");
         }
 
+        // 停止運動
         private void btnJogStop_Click(object sender, EventArgs e)
         {
             script_evaluate_dll(botnana, "stop-motion");
         }
 
-        private Boolean has_program = false;
+        
+        // 送出 NC 程式到 Botnana Control
         private void btnSend_Click(object sender, EventArgs e)
         {
-
-            if (motion_state == 3)
-            {
+            if (motionState == 3) {
                 new Thread(() => System.Windows.Forms.MessageBox.Show("Motion in Machining !!")).Start();
-            } else if(nc_suspended == 1) {
+            } else if(ncSuspended == 1) {
                 new Thread(() => System.Windows.Forms.MessageBox.Show("Machining Feed Hold!!")).Start();
-            } else if (has_program)
+            } else if (hasProgram)
             {
                 new Thread(() => System.Windows.Forms.MessageBox.Show("Has program !!")).Start();
             }
@@ -486,11 +497,9 @@ namespace AxisGroup
             {
                 //deploy 後要等待 deployed|ok 訊息回傳後才能執行 pm_run(botnana, program);
                 program_clear_dll(program);
-                //program_line_dll(program, ".user-para");
 
-
-
-                if (dataGridView1[2, 0].Value == null || dataGridView1[3, 0].Value == null || dataGridView1[4, 0].Value == null)
+                // 判斷 G92
+                if (ncProgram[2, 0].Value == null || ncProgram[3, 0].Value == null || ncProgram[4, 0].Value == null)
                 {
                     new Thread(() => System.Windows.Forms.MessageBox.Show("Invalid G92")).Start();
                 }
@@ -498,162 +507,161 @@ namespace AxisGroup
                 {
                     double[] positions = new double[3];
                     double[] next_positions = new double[3];
-                    double feedrate = 100.0;
-                    positions[0] = double.Parse(dataGridView1[2, 0].Value.ToString());
-                    positions[1] = double.Parse(dataGridView1[3, 0].Value.ToString());
-                    positions[2] = double.Parse(dataGridView1[4, 0].Value.ToString());
+                    double feedrate = 0.015;
+                    positions[0] = double.Parse(ncProgram[2, 0].Value.ToString());
+                    positions[1] = double.Parse(ncProgram[3, 0].Value.ToString());
+                    positions[2] = double.Parse(ncProgram[4, 0].Value.ToString());
 
-                    script_evaluate_dll(botnana, "-nc marker -nc");          // 清除先前定義的program
+                    // 清除先前定義的program
+                    script_evaluate_dll(botnana, "-nc marker -nc");          
+                    
+                    // 切換到 Group 1，清除先前路徑
+                    program_line_dll(program, "1 group! 0path ");
 
-
-                    program_line_dll(program, "1 group! 0path +group");
-                    program_line_dll(program, "start-job");
-                    program_line_dll(program, "900.0e mm/min vcmd!");
-                    program_line_dll(program, feedrate.ToString("F2") + "e mm/min feedrate!");
+                    // 設定 path id 與 mode
                     program_line_dll(program, "1 path-id! 92 path-mode!");
+
+                    // G92 對應的指令
                     program_line_dll(program, positions[0].ToString("F5") + "e mm " + positions[1].ToString("F5") + "e mm " + positions[2].ToString("F5") + "e mm move3d");
 
                     for (int i = 1; i < 10; i++)
                     {
+                        // 從表格取得目標位置
                         for (int j = 0; j < 3; j++)
                         {
                             next_positions[j] = positions[j];
 
-                            if (dataGridView1[2 + j, i].Value != null)
+                            if (ncProgram[2 + j, i].Value != null)
                             {
-                                next_positions[j] = double.Parse(dataGridView1[2 + j, i].Value.ToString());
+                                next_positions[j] = double.Parse(ncProgram[2 + j, i].Value.ToString());
 
                             }
                         }
 
-                        if (dataGridView1[5, i].Value != null)
+                        // 從表格取得 feedrate
+                        if (ncProgram[5, i].Value != null)
                         {
-                            feedrate = double.Parse(dataGridView1[5, i].Value.ToString());
+                            feedrate = double.Parse(ncProgram[5, i].Value.ToString());
                             program_line_dll(program, "1 group! " + feedrate.ToString("F2") + "e mm/min feedrate!");
                         }
 
+                        // 如果是新的目標位置，就插入直線路徑
+                        // 如果需要圓弧就要使用 `helix3d` 指令
                         if (next_positions[0] != positions[0]
                         || next_positions[1] != positions[1]
                         || next_positions[2] != positions[2])
                         {
 
-                            int mode = Int32.Parse(dataGridView1[1, i].Value.ToString());
+                            // 取得路徑上的運動模式 (例如:加工或是非加工)
+                            int mode = Int32.Parse(ncProgram[1, i].Value.ToString());
                             positions[0] = next_positions[0];
                             positions[1] = next_positions[1];
                             positions[2] = next_positions[2];
 
-                            //MessageBox.Show(positions[0].ToString() + "e mm " + positions[1].ToString() + "e mm " + positions[2].ToString() + "e mm");
                             program_line_dll(program, "1 group! ");
+                            // 設定 path id and mode
                             program_line_dll(program, i.ToString() + @" path-id! " + mode.ToString() + @" path-mode!");
+                            // 插入直線路徑
                             program_line_dll(program, positions[0].ToString("F5") + "e mm " + positions[1].ToString("F5") + "e mm " + positions[2].ToString("F5") + "e mm line3d");
 
                         }
 
                     }
 
+                    // 等待 Group 1 走到路徑終點
                     program_line_dll(program, "begin 1 group! gend? not while pause repeat");
-                    program_line_dll(program, "1 group! -group  true machining-finished !");
+                    // 通知 machining state NC 程式執行完畢
+                    program_line_dll(program, "true machining-finished !");
+                    
+                    // 送到 NC Task 編譯 
                     program_deploy_dll(botnana, program);
-                    has_program = true;
                 }
             }
         }
 
+        // 通知 NC Task 開始/繼續 解譯與執行程式
         private void btnProgramRun_Click(object sender, EventArgs e)
         {
-            if (servo_on == 0)
-            {
-                new Thread(() => System.Windows.Forms.MessageBox.Show("Not Servo ON !!")).Start();
-            }else if (motion_state != 0)
-            {
-                new Thread(() => System.Windows.Forms.MessageBox.Show("Not Motion IDLE !!")).Start();
-            }
-            else if (!has_program)
+            if (! hasProgram)
             {
                 new Thread(() => System.Windows.Forms.MessageBox.Show("No program !!")).Start();
             }
             else
             {
                 script_evaluate_dll(botnana, "start-machining");
-                if (nc_suspended == 0)
+                if (ncSuspended == 0)
                 {
                     program_run_dll(botnana, program);
                 }
             }
         }
 
-        private void btnProgramAbort_Click(object sender, EventArgs e)
-        {
-            if (motion_state != 0)
-            {
-                new Thread(() => System.Windows.Forms.MessageBox.Show("Not Motion IDLE !!")).Start();
-            }
-            else
-            {
-                script_evaluate_dll(botnana, "reset-machining -nc marker -nc");
-                has_program = false;
-            }
-        }
-
-        private void btnProgramResume_Click(object sender, EventArgs e)
-        {
-            script_evaluate_dll(botnana, "start-machining");
-        }
-
         private void timer2_Tick(object sender, EventArgs e)
         {
-            if (path_id > 0) {
-                dataGridView1.CurrentCell = dataGridView1.Rows[path_id].Cells[0];
-            }
-            if (has_sfc)
-            {
-                script_evaluate_dll(botnana, ".servo-on .motion-state .nc-task .monitor");
+            // 更新 NC program 上的行號指令
+            if (pathId > 0) {
+                ncProgram.CurrentCell = ncProgram.Rows[pathId].Cells[0];
             }
 
-            if (servo_on == 0) {
+            //  載入 SFC 後才發送取得狀態的指令
+            if (hasSFC)
+            {
+                string cmd;
+                cmd = ".servo-on .motion-state .nc-task .monitor";
+                if (paraSetting || devicesOk == 0)
+                {
+                    cmd += " .config";
+                    paraSetting = false;
+                }
+                script_evaluate_dll(botnana, cmd);
+            }
+
+            if (servoOn == 0) {
                 btnServoOn.BackColor = SystemColors.Control;
                 btnServoOff.BackColor = Color.Red;
-            } else
-            {
+            } else {
                 btnServoOn.BackColor = Color.LightGreen;
                 btnServoOff.BackColor = SystemColors.Control;
             }
 
-            textNCOwner.Text = nc_owner.ToString();
-            textNCSuspended.Text = nc_suspended.ToString();
-            textMotionState.Text = motion_state.ToString();
-            textAxis1Homed.Text = axis_homed_1.ToString();
-            textAxis2Homed.Text = axis_homed_2.ToString();
-            textAxis3Homed.Text = axis_homed_3.ToString();
-            textMonitorFailed.Text = monitor_failed.ToString();
-            if (config_request)
+            textNCOwner.Text = ncOwner.ToString();
+            textNCSuspended.Text = ncSuspended.ToString();
+            textMotionState.Text = motionState.ToString();
+            textAxis1Homed.Text = axisHomed[0].ToString();
+            textAxis2Homed.Text = axisHomed[1].ToString();
+            textAxis3Homed.Text = axisHomed[2].ToString();
+            textMonitorFailed.Text = monitorFailed.ToString();
+            if (configUpdated)
             {
-                textDevicesOk.Text = devices_ok.ToString();
-                textRapidTravelsRate.Text = (rapid_travels_rate * 1000 * 60).ToString("F1");
-                textMachiningRate.Text = (machining_rate * 1000 * 60).ToString("F1");
-                textHomingV1X.Text = axis_homing_v1x.ToString();
-                textHomingV1Y.Text = axis_homing_v1y.ToString();
-                textHomingV1Z.Text = axis_homing_v1z.ToString();
-                textHomingV2X.Text = axis_homing_v2x.ToString();
-                textHomingV2Y.Text = axis_homing_v2y.ToString();
-                textHomingV2Z.Text = axis_homing_v2z.ToString();
-                textHomingMethodX.Text = axis_homing_methodx.ToString();
-                textHomingMethodY.Text = axis_homing_methody.ToString();
-                textHomingMethodZ.Text = axis_homing_methodz.ToString();
-                config_request = false;
+                textDevicesOk.Text = devicesOk.ToString();
+                textRapidTravelsRate.Text = (rapidTravelsRate * 1000 * 60).ToString("F1");
+                textMachiningRate.Text = (machiningRate * 1000 * 60).ToString("F1");
+                textHomingV1X.Text = axisHomingV1[0].ToString();
+                textHomingV1Y.Text = axisHomingV1[1].ToString();
+                textHomingV1Z.Text = axisHomingV1[2].ToString();
+                textHomingV2X.Text = axisHomingV2[0].ToString();
+                textHomingV2Y.Text = axisHomingV2[1].ToString();
+                textHomingV2Z.Text = axisHomingV2[2].ToString();
+                textHomingMethodX.Text = axisHomingMethod[0].ToString();
+                textHomingMethodY.Text = axisHomingMethod[1].ToString();
+                textHomingMethodZ.Text = axisHomingMethod[2].ToString();
+                configUpdated = false;
             }
         }
 
+        // 發出 SFC Servo On 的要求 
         private void button1_Click(object sender, EventArgs e)
         {
             script_evaluate_dll(botnana, "+servo-on");
         }
 
+        // 發出 SFC Servo Off 的要求 
         private void button2_Click(object sender, EventArgs e)
         {
             script_evaluate_dll(botnana, "-servo-on");
         }
-            
+
+        // 發出 SFC Start Homing 的要求 
         private void btnHomingStart_Click(object sender, EventArgs e)
         {
             string script = "";
@@ -695,178 +703,95 @@ namespace AxisGroup
             script_evaluate_dll(botnana, script + @" start-homing");
         }
 
+        // 發出 SFC 緊急停止的要求
         private void button1_Click_1(object sender, EventArgs e)
         {
+            // 一併清除Botnana Control 內的 NC program
             script_evaluate_dll(botnana, @" ems-stop -nc marker -nc");
+            hasProgram = false;
         }
 
-
-        private string oldTextHomingV1X;
-        private string oldTextHomingV1Y;
-        private string oldTextHomingV1Z;
-        private string oldTextHomingV2X;
-        private string oldTextHomingV2Y;
-        private string oldTextHomingV2Z;
-        private string oldTextHomingMethodX;
-        private string oldTextHomingMethodY;
-        private string oldTextHomingMethodZ;
-        private string oldRapidTravelsRate;
-        private string oldMachiningRate;
-
-
-
+        // 處理 SFC 中的參數
+        private Boolean paraSetting;
         private void textHomingV1X_Setting()
         {
-            if (oldTextHomingV1X != textHomingV1X.Text)
+            Int32 v;
+            if (Int32.TryParse(textHomingV1X.Text, out v))
             {
-                Int32 v;
-                if (Int32.TryParse(textHomingV1X.Text, out v))
+                if (v > 0)
                 {
-                    if (v > 0)
-                    {
-                        oldTextHomingV1X = textHomingV1X.Text;
-                        script_evaluate_dll(botnana, oldTextHomingV1X + @" 1  axis-homing-v1! .config");
-                    }
-                    else
-                    {
-                        textHomingV1X.Text = oldTextHomingV1X;
-                    }
-                }
-                else
-                {
-                    textHomingV1X.Text = oldTextHomingV1X;
+                    script_evaluate_dll(botnana, textHomingV1X.Text + @" 1  axis-homing-v1!");
                 }
             }
+            paraSetting = true;
         }
 
         private void textHomingV1Y_Setting()
         {
-            if (oldTextHomingV1Y != textHomingV1Y.Text)
+            Int32 v;
+            if (Int32.TryParse(textHomingV1Y.Text, out v))
             {
-                Int32 v;
-                if (Int32.TryParse(textHomingV1Y.Text, out v))
+                if (v > 0)
                 {
-                    if (v > 0)
-                    {
-                        oldTextHomingV1Y = textHomingV1Y.Text;
-                        script_evaluate_dll(botnana, oldTextHomingV1Y + @" 2  axis-homing-v1! .config");
-                    }
-                    else
-                    {
-                        textHomingV1Y.Text = oldTextHomingV1Y;
-                    }
-                }
-                else
-                {
-                    textHomingV1Y.Text = oldTextHomingV1Y;
+                    script_evaluate_dll(botnana, textHomingV1Y.Text + @" 2  axis-homing-v1!");
                 }
             }
+            paraSetting = true;
         }
 
         private void textHomingV1Z_Setting()
         {
-            if (oldTextHomingV1Z != textHomingV1Z.Text)
+            Int32 v;
+            if (Int32.TryParse(textHomingV1Z.Text, out v))
             {
-                Int32 v;
-                if (Int32.TryParse(textHomingV1Z.Text, out v))
+                if (v > 0)
                 {
-                    if (v > 0)
-                    {
-                        oldTextHomingV1Z = textHomingV1Z.Text;
-                        script_evaluate_dll(botnana, oldTextHomingV1Z + @" 3  axis-homing-v1! .config");
-                    }
-                    else
-                    {
-                        textHomingV1Z.Text = oldTextHomingV1Z;
-                    }
+                    script_evaluate_dll(botnana, textHomingV1Z.Text + @" 3  axis-homing-v1!");
                 }
-                else
-                {
-                    textHomingV1Z.Text = oldTextHomingV1Z;
-                }
+                    
             }
+            paraSetting = true;
         }
-
-
+        
         private void textHomingV2X_Setting()
         {
-            if (oldTextHomingV2X != textHomingV2X.Text)
+            Int32 v;
+            if (Int32.TryParse(textHomingV2X.Text, out v))
             {
-                Int32 v;
-                if (Int32.TryParse(textHomingV2X.Text, out v))
+                if (v > 0)
                 {
-                    if (v > 0)
-                    {
-                        oldTextHomingV2X = textHomingV2X.Text;
-                        script_evaluate_dll(botnana, oldTextHomingV2X + @" 1  axis-homing-v2! .config");
-                    }
-                    else
-                    {
-                        textHomingV2X.Text = oldTextHomingV2X;
-                    }
-                }
-                else
-                {
-                    textHomingV2X.Text = oldTextHomingV2X;
+                    script_evaluate_dll(botnana, textHomingV2X.Text + @" 1  axis-homing-v2!");
                 }
             }
+            paraSetting = true;
         }
 
         private void textHomingV2Y_Setting()
         {
-            if (oldTextHomingV2Y != textHomingV2Y.Text)
+            Int32 v;
+            if (Int32.TryParse(textHomingV2Y.Text, out v))
             {
-                Int32 v;
-                if (Int32.TryParse(textHomingV2Y.Text, out v))
+                if (v > 0)
                 {
-                    if (v > 0)
-                    {
-                        oldTextHomingV2Y = textHomingV2Y.Text;
-                        script_evaluate_dll(botnana, oldTextHomingV2Y + @" 2  axis-homing-v2! .config");
-                    }
-                    else
-                    {
-                        textHomingV2Y.Text = oldTextHomingV2Y;
-                    }
-                }
-                else
-                {
-                    textHomingV2Y.Text = oldTextHomingV2Y;
+                    script_evaluate_dll(botnana, textHomingV2Y.Text + @" 2  axis-homing-v2!");
                 }
             }
+            paraSetting = true;
         }
 
         private void textHomingV2Z_Setting()
         {
-            if (oldTextHomingV2Z != textHomingV2Z.Text)
+            Int32 v;
+            if (Int32.TryParse(textHomingV2Z.Text, out v))
             {
-                Int32 v;
-                if (Int32.TryParse(textHomingV2Z.Text, out v))
+                if (v > 0)
                 {
-                    if (v > 0)
-                    {
-                        oldTextHomingV2Z = textHomingV2Z.Text;
-                        script_evaluate_dll(botnana, oldTextHomingV2Z + @" 3  axis-homing-v2! .config");
-                    }
-                    else
-                    {
-                        textHomingV2Z.Text = oldTextHomingV2Z;
-                    }
-                }
-                else
-                {
-                    textHomingV2Z.Text = oldTextHomingV2Z;
+                    script_evaluate_dll(botnana, textHomingV2Z.Text + @" 3  axis-homing-v2!");
                 }
             }
+            paraSetting = true;
         }
 
-
-        private void textHomingV1X_Enter(object sender, EventArgs e)
-        {
-            oldTextHomingV1X = textHomingV1X.Text;
-        }
-
-        
         private void textHomingV1X_KeyPress(object sender, KeyPressEventArgs e)
         {
             if (e.KeyChar== (char) Keys.Enter)
@@ -888,11 +813,6 @@ namespace AxisGroup
             }
         }
 
-        private void textHomingV1Y_Enter(object sender, EventArgs e)
-        {
-            oldTextHomingV1Y = textHomingV1Y.Text;
-        }
-
         private void textHomingV1Y_Leave(object sender, EventArgs e)
         {
             textHomingV1Y_Setting();
@@ -906,29 +826,9 @@ namespace AxisGroup
             }
         }
 
-        private void textHomingV1Z_Enter(object sender, EventArgs e)
-        {
-            oldTextHomingV1Z = textHomingV1Z.Text;
-        }
-
         private void textHomingV1Z_Leave(object sender, EventArgs e)
         {
             textHomingV1Z_Setting();
-        }
-
-        private void textHomingV2X_Enter(object sender, EventArgs e)
-        {
-            oldTextHomingV2Z = textHomingV2Z.Text;
-        }
-
-        private void textHomingV2Y_Enter(object sender, EventArgs e)
-        {
-            oldTextHomingV2Z = textHomingV2Z.Text;
-        }
-
-        private void textHomingV2Z_Enter(object sender, EventArgs e)
-        {
-            oldTextHomingV2Z = textHomingV2Z.Text;
         }
 
         private void textHomingV2X_Leave(object sender, EventArgs e)
@@ -969,94 +869,44 @@ namespace AxisGroup
                 textHomingV2Z_Setting();
             }
         }
-
-
+        
         private void textHomingMethodX_Setting()
         {
-            if (oldTextHomingMethodX != textHomingMethodX.Text)
+            Int32 v;
+            if (Int32.TryParse(textHomingMethodX.Text, out v))
             {
-                Int32 v;
-                if (Int32.TryParse(textHomingMethodX.Text, out v))
+                if (v > 0)
                 {
-                    if (v > 0)
-                    {
-                        oldTextHomingMethodX = textHomingMethodX.Text;
-                        script_evaluate_dll(botnana, oldTextHomingMethodX + @" 1  axis-homing-method! .config");
-                    }
-                    else
-                    {
-                        textHomingMethodX.Text = oldTextHomingMethodX;
-                    }
-                }
-                else
-                {
-                    textHomingMethodX.Text = oldTextHomingMethodX;
+                    script_evaluate_dll(botnana, textHomingMethodX.Text + @" 1  axis-homing-method!");
                 }
             }
+            paraSetting = true;
         }
 
         private void textHomingMethodY_Setting()
         {
-            if (oldTextHomingMethodY != textHomingMethodY.Text)
+            Int32 v;
+            if (Int32.TryParse(textHomingMethodY.Text, out v))
             {
-                Int32 v;
-                if (Int32.TryParse(textHomingMethodY.Text, out v))
+                if (v > 0)
                 {
-                    if (v > 0)
-                    {
-                        oldTextHomingMethodY = textHomingMethodY.Text;
-                        script_evaluate_dll(botnana, oldTextHomingMethodY + @" 2  axis-homing-method! .config");
-                    }
-                    else
-                    {
-                        textHomingMethodY.Text = oldTextHomingMethodY;
-                    }
-                }
-                else
-                {
-                    textHomingMethodY.Text = oldTextHomingMethodY;
+                    script_evaluate_dll(botnana, textHomingMethodY.Text + @" 2  axis-homing-method!");
                 }
             }
+            paraSetting = true;
         }
 
         private void textHomingMethodZ_Setting()
         {
-            if (oldTextHomingMethodZ != textHomingMethodZ.Text)
+            Int32 v;
+            if (Int32.TryParse(textHomingMethodZ.Text, out v))
             {
-                Int32 v;
-                if (Int32.TryParse(textHomingMethodZ.Text, out v))
+                if (v > 0)
                 {
-                    if (v > 0)
-                    {
-                        oldTextHomingMethodZ = textHomingMethodZ.Text;
-                        script_evaluate_dll(botnana, oldTextHomingMethodZ + @" 3  axis-homing-method! .config");
-                    }
-                    else
-                    {
-                        textHomingMethodZ.Text = oldTextHomingMethodZ;
-                    }
-                }
-                else
-                {
-                    textHomingMethodZ.Text = oldTextHomingMethodZ;
+                    script_evaluate_dll(botnana, textHomingMethodZ.Text + @" 3  axis-homing-method!");
                 }
             }
-        }
-
-
-        private void textHomingMethodX_Enter(object sender, EventArgs e)
-        {
-            oldTextHomingMethodX = textHomingMethodX.Text;
-        }
-
-        private void textHomingMethodY_Enter(object sender, EventArgs e)
-        {
-            oldTextHomingMethodY = textHomingMethodY.Text;
-        }
-
-        private void textHomingMethodZ_Enter(object sender, EventArgs e)
-        {
-            oldTextHomingMethodZ = textHomingMethodZ.Text;
+            paraSetting = true;
         }
 
         private void textHomingMethodX_Leave(object sender, EventArgs e)
@@ -1100,60 +950,28 @@ namespace AxisGroup
 
         private void textRapidTravelsRate_setting()
         {
-            if (oldRapidTravelsRate != textRapidTravelsRate.Text)
+            Double v;
+            if (Double.TryParse(textRapidTravelsRate.Text, out v))
             {
-                Double v;
-                if (Double.TryParse(textRapidTravelsRate.Text, out v))
+                if (v > 0)
                 {
-                    if (v > 0)
-                    {
-                        oldRapidTravelsRate = textRapidTravelsRate.Text;
-                        script_evaluate_dll(botnana, oldRapidTravelsRate + @"e mm/min rapid-travels-rate! .config");
-                    }
-                    else
-                    {
-                        textRapidTravelsRate.Text = oldRapidTravelsRate;
-                    }
-                }
-                else
-                {
-                    textRapidTravelsRate.Text = oldRapidTravelsRate;
+                    script_evaluate_dll(botnana, textRapidTravelsRate.Text.Trim() + @"e mm/min rapid-travels-rate!");
                 }
             }
+            paraSetting = true;
         }
 
         private void textMachiningRate_setting()
         {
-            if (oldMachiningRate != textMachiningRate.Text)
+            Double v;
+            if (Double.TryParse(textMachiningRate.Text, out v))
             {
-                Double v;
-                if (Double.TryParse(textMachiningRate.Text, out v))
+                if (v > 0)
                 {
-                    if (v > 0)
-                    {
-                        oldMachiningRate = textMachiningRate.Text;
-                        script_evaluate_dll(botnana, oldMachiningRate + @"e mm/min machining-rate! .config");
-                    }
-                    else
-                    {
-                        textMachiningRate.Text = oldMachiningRate;
-                    }
-                }
-                else
-                {
-                    textMachiningRate.Text = oldMachiningRate;
+                    script_evaluate_dll(botnana, textMachiningRate.Text.Trim() + @"e mm/min machining-rate! .config");
                 }
             }
-        }
-
-        private void textRapidTravelsRate_Enter(object sender, EventArgs e)
-        {
-            oldRapidTravelsRate = textRapidTravelsRate.Text;
-        }
-
-        private void textMachiningRate_Enter(object sender, EventArgs e)
-        {
-            oldMachiningRate = textMachiningRate.Text;
+            paraSetting = true;
         }
 
         private void textRapidTravelsRate_KeyPress(object sender, KeyPressEventArgs e)
@@ -1182,9 +1000,24 @@ namespace AxisGroup
             textMachiningRate_setting();
         }
 
+        // failure Ack.
         private void button2_Click_1(object sender, EventArgs e)
         {
             script_evaluate_dll(botnana, @"ack-monitor");
+        }
+
+        // reset program 
+        private void btnProgramReset_Click(object sender, EventArgs e)
+        {
+            if (motionState != 0)
+            {
+                new Thread(() => System.Windows.Forms.MessageBox.Show("Not Motion IDLE !!")).Start();
+            }
+            else
+            {
+                script_evaluate_dll(botnana, "reset-machining -nc marker -nc");
+                hasProgram = false;
+            }
         }
     }
 }

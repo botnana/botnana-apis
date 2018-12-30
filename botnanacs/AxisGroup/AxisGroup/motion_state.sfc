@@ -1,3 +1,4 @@
+\ 清除 `-nc` 之後所定義的 Forth 命令
 -nc
 
 \ 定義是否接受運動模式要求的變數
@@ -22,7 +23,6 @@ variable machining-stopped
 \ Motion Idle Step
 : motion-idle ( -- )
     ;
-
 
 variable 'homing-stopping
 \ Motion Homing Step
@@ -58,19 +58,27 @@ variable 'machining-loop
     'machining-loop @ execute
     'machining-stopping @ execute if
         true machining-stopped !
+        1 group! -group
     then
     ;
 
 \ Motion Post Action
 \ 運動停止後的處置
 : motion-post-action ( -- )
-    false homing-accepted !
-    false jogging-accepted !
-    false machining-accepted !
-    false homing-stopped !
-    false jogging-stopped !
-    false machining-stopped !
-    1 group! -group
+    motion-state @ case
+        1 of    
+            false homing-accepted !
+            false homing-stopped !
+        endof
+        2 of    
+            false jogging-accepted !
+            false jogging-stopped !
+        endof
+        3 of
+            false machining-accepted !
+            false machining-stopped !
+        endof
+    endcase
     0 motion-state !
     ;
 
@@ -85,7 +93,6 @@ variable 'machining-loop
 : homing-stopped? ( -- flag )
     homing-stopped @
     ;
-
 
 \ Is jogging accepted ?
 \ 是否接受 Start jogging 命令 ？
@@ -115,7 +122,6 @@ variable 'machining-loop
 : motion-auto-passed? ( -- flag )
     true
     ;
-
 
 \ 宣告 SFC Step
 step motion-idle
@@ -152,5 +158,5 @@ transition  motion-auto-passed?
 ' motion-machining      ' machining-stopped?  -->
 ' machining-stopped?    ' motion-post-action  -->
 
-
+\ 標記 -nc
 marker -nc

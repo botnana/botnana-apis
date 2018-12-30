@@ -1,3 +1,4 @@
+\ 清除 `-nc` 之後所定義的 Forth 命令
 -nc
 
 \ 在對應的優先佇列內啟動要回歸機械原點的運動軸
@@ -19,8 +20,6 @@
         swap drop
     endcase
     ;
-
-
 
 \ 定義 Axes Homing 流程中所需要的變數
 variable axes-homing-accetped
@@ -57,8 +56,10 @@ variable axes-homing-stopping
         repeat
         drop
         true axes-homing-stopping !
+    else
+        ." log|Not Homing State" cr
     then
-;
+    ;
 
 \ Homing Idle Step
 \ 在此狀態等待 axes-homing-accetped 為真
@@ -88,7 +89,7 @@ variable axes-homing-stopping
         false homing-post-action-once !
         true homing-config-once !
     then
-;
+    ;
 
 \ Homing Trigger Step
 \ 依據優先佇列設定，命令驅動器開始回歸機械原點
@@ -136,16 +137,9 @@ variable axes-homing-stopping
             else
                 false homing-loop-stopped !
             then
-
-            \ 如果驅動器不是在 Operation Enabled 狀態，停止所有運動軸回歸機械原點
-            dup axis-drive@ drive-on? not if
-                stop-axes-homing
-                true homing-loop-stopped !
-            then
-
+    
             \ 清除運動軸落後誤差，依實際位置修正命令
             0axis-ferr
-
         then
         1+
     repeat
@@ -238,6 +232,7 @@ transition homing-post-action-ok?
 ' homing-post-action        ' homing-post-action-ok?    -->
 ' homing-post-action-ok?    ' homing-idle               -->
 
+\ 標記 -nc
 marker -nc
 
 

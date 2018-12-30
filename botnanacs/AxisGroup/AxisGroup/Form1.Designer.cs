@@ -53,7 +53,7 @@
             this.txtJogY = new System.Windows.Forms.TextBox();
             this.txtJogX = new System.Windows.Forms.TextBox();
             this.btnJogStop = new System.Windows.Forms.Button();
-            this.dataGridView1 = new System.Windows.Forms.DataGridView();
+            this.ncProgram = new System.Windows.Forms.DataGridView();
             this.Column1 = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.gCode = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.Column2 = new System.Windows.Forms.DataGridViewTextBoxColumn();
@@ -61,10 +61,14 @@
             this.Column4 = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.Column5 = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.groupBox4 = new System.Windows.Forms.GroupBox();
-            this.btnProgramAbort = new System.Windows.Forms.Button();
+            this.btnProgramReset = new System.Windows.Forms.Button();
             this.btnProgramRun = new System.Windows.Forms.Button();
             this.btnSend = new System.Windows.Forms.Button();
             this.groupBox5 = new System.Windows.Forms.GroupBox();
+            this.button2 = new System.Windows.Forms.Button();
+            this.label36 = new System.Windows.Forms.Label();
+            this.textMonitorFailed = new System.Windows.Forms.TextBox();
+            this.label35 = new System.Windows.Forms.Label();
             this.textDevicesOk = new System.Windows.Forms.TextBox();
             this.label34 = new System.Windows.Forms.Label();
             this.textMotionState = new System.Windows.Forms.TextBox();
@@ -129,14 +133,10 @@
             this.textHomingV1X = new System.Windows.Forms.TextBox();
             this.label11 = new System.Windows.Forms.Label();
             this.label10 = new System.Windows.Forms.Label();
-            this.label35 = new System.Windows.Forms.Label();
-            this.textMonitorFailed = new System.Windows.Forms.TextBox();
-            this.label36 = new System.Windows.Forms.Label();
-            this.button2 = new System.Windows.Forms.Button();
             this.groupBox1.SuspendLayout();
             this.groupBox2.SuspendLayout();
             this.groupBox3.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.dataGridView1)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.ncProgram)).BeginInit();
             this.groupBox4.SuspendLayout();
             this.groupBox5.SuspendLayout();
             this.groupBox6.SuspendLayout();
@@ -379,21 +379,21 @@
             this.btnJogStop.UseVisualStyleBackColor = true;
             this.btnJogStop.Click += new System.EventHandler(this.btnJogStop_Click);
             // 
-            // dataGridView1
+            // ncProgram
             // 
-            this.dataGridView1.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
-            this.dataGridView1.Columns.AddRange(new System.Windows.Forms.DataGridViewColumn[] {
+            this.ncProgram.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
+            this.ncProgram.Columns.AddRange(new System.Windows.Forms.DataGridViewColumn[] {
             this.Column1,
             this.gCode,
             this.Column2,
             this.Column3,
             this.Column4,
             this.Column5});
-            this.dataGridView1.Location = new System.Drawing.Point(10, 28);
-            this.dataGridView1.Name = "dataGridView1";
-            this.dataGridView1.RowTemplate.Height = 24;
-            this.dataGridView1.Size = new System.Drawing.Size(549, 331);
-            this.dataGridView1.TabIndex = 3;
+            this.ncProgram.Location = new System.Drawing.Point(10, 28);
+            this.ncProgram.Name = "ncProgram";
+            this.ncProgram.RowTemplate.Height = 24;
+            this.ncProgram.Size = new System.Drawing.Size(549, 331);
+            this.ncProgram.TabIndex = 3;
             // 
             // Column1
             // 
@@ -430,10 +430,10 @@
             // 
             // groupBox4
             // 
-            this.groupBox4.Controls.Add(this.btnProgramAbort);
+            this.groupBox4.Controls.Add(this.btnProgramReset);
             this.groupBox4.Controls.Add(this.btnProgramRun);
             this.groupBox4.Controls.Add(this.btnSend);
-            this.groupBox4.Controls.Add(this.dataGridView1);
+            this.groupBox4.Controls.Add(this.ncProgram);
             this.groupBox4.Font = new System.Drawing.Font("Microsoft JhengHei UI", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(136)));
             this.groupBox4.Location = new System.Drawing.Point(575, 12);
             this.groupBox4.Name = "groupBox4";
@@ -442,15 +442,15 @@
             this.groupBox4.TabStop = false;
             this.groupBox4.Text = "NC";
             // 
-            // btnProgramAbort
+            // btnProgramReset
             // 
-            this.btnProgramAbort.Location = new System.Drawing.Point(233, 390);
-            this.btnProgramAbort.Name = "btnProgramAbort";
-            this.btnProgramAbort.Size = new System.Drawing.Size(91, 35);
-            this.btnProgramAbort.TabIndex = 6;
-            this.btnProgramAbort.Text = "Reset";
-            this.btnProgramAbort.UseVisualStyleBackColor = true;
-            this.btnProgramAbort.Click += new System.EventHandler(this.btnProgramAbort_Click);
+            this.btnProgramReset.Location = new System.Drawing.Point(233, 390);
+            this.btnProgramReset.Name = "btnProgramReset";
+            this.btnProgramReset.Size = new System.Drawing.Size(91, 35);
+            this.btnProgramReset.TabIndex = 6;
+            this.btnProgramReset.Text = "Reset";
+            this.btnProgramReset.UseVisualStyleBackColor = true;
+            this.btnProgramReset.Click += new System.EventHandler(this.btnProgramReset_Click);
             // 
             // btnProgramRun
             // 
@@ -511,6 +511,47 @@
             this.groupBox5.TabIndex = 5;
             this.groupBox5.TabStop = false;
             this.groupBox5.Text = "Status";
+            // 
+            // button2
+            // 
+            this.button2.Font = new System.Drawing.Font("Microsoft JhengHei UI", 11.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(136)));
+            this.button2.Location = new System.Drawing.Point(118, 406);
+            this.button2.Name = "button2";
+            this.button2.Size = new System.Drawing.Size(59, 23);
+            this.button2.TabIndex = 19;
+            this.button2.Text = "ACK";
+            this.button2.UseVisualStyleBackColor = true;
+            this.button2.Click += new System.EventHandler(this.button2_Click_1);
+            // 
+            // label36
+            // 
+            this.label36.AutoSize = true;
+            this.label36.Font = new System.Drawing.Font("Microsoft JhengHei UI", 11.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(136)));
+            this.label36.Location = new System.Drawing.Point(11, 408);
+            this.label36.Name = "label36";
+            this.label36.Size = new System.Drawing.Size(92, 19);
+            this.label36.TabIndex = 18;
+            this.label36.Text = "monitor ack";
+            // 
+            // textMonitorFailed
+            // 
+            this.textMonitorFailed.Font = new System.Drawing.Font("Microsoft JhengHei UI", 11.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(136)));
+            this.textMonitorFailed.Location = new System.Drawing.Point(136, 381);
+            this.textMonitorFailed.Name = "textMonitorFailed";
+            this.textMonitorFailed.Size = new System.Drawing.Size(41, 27);
+            this.textMonitorFailed.TabIndex = 17;
+            this.textMonitorFailed.Text = "0.0";
+            this.textMonitorFailed.TextAlign = System.Windows.Forms.HorizontalAlignment.Right;
+            // 
+            // label35
+            // 
+            this.label35.AutoSize = true;
+            this.label35.Font = new System.Drawing.Font("Microsoft JhengHei UI", 11.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(136)));
+            this.label35.Location = new System.Drawing.Point(13, 381);
+            this.label35.Name = "label35";
+            this.label35.Size = new System.Drawing.Size(108, 19);
+            this.label35.TabIndex = 16;
+            this.label35.Text = "monitor failed";
             // 
             // textDevicesOk
             // 
@@ -1015,7 +1056,6 @@
             this.textRapidTravelsRate.Name = "textRapidTravelsRate";
             this.textRapidTravelsRate.Size = new System.Drawing.Size(100, 28);
             this.textRapidTravelsRate.TabIndex = 14;
-            this.textRapidTravelsRate.Enter += new System.EventHandler(this.textRapidTravelsRate_Enter);
             this.textRapidTravelsRate.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.textRapidTravelsRate_KeyPress);
             this.textRapidTravelsRate.Leave += new System.EventHandler(this.textRapidTravelsRate_Leave);
             // 
@@ -1025,7 +1065,7 @@
             this.textHomingMethodZ.Name = "textHomingMethodZ";
             this.textHomingMethodZ.Size = new System.Drawing.Size(100, 28);
             this.textHomingMethodZ.TabIndex = 13;
-            this.textHomingMethodZ.Enter += new System.EventHandler(this.textHomingMethodZ_Enter);
+            
             this.textHomingMethodZ.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.textHomingMethodZ_KeyPress);
             this.textHomingMethodZ.Leave += new System.EventHandler(this.textHomingMethodZ_Leave);
             // 
@@ -1035,7 +1075,7 @@
             this.textHomingMethodY.Name = "textHomingMethodY";
             this.textHomingMethodY.Size = new System.Drawing.Size(100, 28);
             this.textHomingMethodY.TabIndex = 12;
-            this.textHomingMethodY.Enter += new System.EventHandler(this.textHomingMethodY_Enter);
+            
             this.textHomingMethodY.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.textHomingMethodY_KeyPress);
             this.textHomingMethodY.Leave += new System.EventHandler(this.textHomingMethodY_Leave);
             // 
@@ -1045,7 +1085,7 @@
             this.textHomingMethodX.Name = "textHomingMethodX";
             this.textHomingMethodX.Size = new System.Drawing.Size(100, 28);
             this.textHomingMethodX.TabIndex = 11;
-            this.textHomingMethodX.Enter += new System.EventHandler(this.textHomingMethodX_Enter);
+            
             this.textHomingMethodX.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.textHomingMethodX_KeyPress);
             this.textHomingMethodX.Leave += new System.EventHandler(this.textHomingMethodX_Leave);
             // 
@@ -1055,7 +1095,7 @@
             this.textHomingV2Z.Name = "textHomingV2Z";
             this.textHomingV2Z.Size = new System.Drawing.Size(100, 28);
             this.textHomingV2Z.TabIndex = 10;
-            this.textHomingV2Z.Enter += new System.EventHandler(this.textHomingV2Z_Enter);
+            
             this.textHomingV2Z.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.textHomingV2Z_KeyPress);
             this.textHomingV2Z.Leave += new System.EventHandler(this.textHomingV2Z_Leave);
             // 
@@ -1065,7 +1105,7 @@
             this.textHomingV2Y.Name = "textHomingV2Y";
             this.textHomingV2Y.Size = new System.Drawing.Size(100, 28);
             this.textHomingV2Y.TabIndex = 9;
-            this.textHomingV2Y.Enter += new System.EventHandler(this.textHomingV2Y_Enter);
+            
             this.textHomingV2Y.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.textHomingV2Y_KeyPress);
             this.textHomingV2Y.Leave += new System.EventHandler(this.textHomingV2Y_Leave);
             // 
@@ -1075,7 +1115,7 @@
             this.textHomingV2X.Name = "textHomingV2X";
             this.textHomingV2X.Size = new System.Drawing.Size(100, 28);
             this.textHomingV2X.TabIndex = 8;
-            this.textHomingV2X.Enter += new System.EventHandler(this.textHomingV2X_Enter);
+            
             this.textHomingV2X.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.textHomingV2X_KeyPress);
             this.textHomingV2X.Leave += new System.EventHandler(this.textHomingV2X_Leave);
             // 
@@ -1085,7 +1125,7 @@
             this.textHomingV1Z.Name = "textHomingV1Z";
             this.textHomingV1Z.Size = new System.Drawing.Size(100, 28);
             this.textHomingV1Z.TabIndex = 7;
-            this.textHomingV1Z.Enter += new System.EventHandler(this.textHomingV1Z_Enter);
+            
             this.textHomingV1Z.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.textHomingV1Z_KeyPress);
             this.textHomingV1Z.Leave += new System.EventHandler(this.textHomingV1Z_Leave);
             // 
@@ -1095,7 +1135,7 @@
             this.textHomingV1Y.Name = "textHomingV1Y";
             this.textHomingV1Y.Size = new System.Drawing.Size(100, 28);
             this.textHomingV1Y.TabIndex = 6;
-            this.textHomingV1Y.Enter += new System.EventHandler(this.textHomingV1Y_Enter);
+            
             this.textHomingV1Y.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.textHomingV1Y_KeyPress);
             this.textHomingV1Y.Leave += new System.EventHandler(this.textHomingV1Y_Leave);
             // 
@@ -1132,7 +1172,7 @@
             this.textMachiningRate.Name = "textMachiningRate";
             this.textMachiningRate.Size = new System.Drawing.Size(100, 28);
             this.textMachiningRate.TabIndex = 2;
-            this.textMachiningRate.Enter += new System.EventHandler(this.textMachiningRate_Enter);
+            
             this.textMachiningRate.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.textMachiningRate_KeyPress);
             this.textMachiningRate.Leave += new System.EventHandler(this.textMachiningRate_Leave);
             // 
@@ -1142,7 +1182,7 @@
             this.textHomingV1X.Name = "textHomingV1X";
             this.textHomingV1X.Size = new System.Drawing.Size(100, 28);
             this.textHomingV1X.TabIndex = 2;
-            this.textHomingV1X.Enter += new System.EventHandler(this.textHomingV1X_Enter);
+            
             this.textHomingV1X.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.textHomingV1X_KeyPress);
             this.textHomingV1X.Leave += new System.EventHandler(this.textHomingV1X_Leave);
             // 
@@ -1163,47 +1203,6 @@
             this.label10.Size = new System.Drawing.Size(141, 20);
             this.label10.TabIndex = 0;
             this.label10.Text = "rapid-travels-rate";
-            // 
-            // label35
-            // 
-            this.label35.AutoSize = true;
-            this.label35.Font = new System.Drawing.Font("Microsoft JhengHei UI", 11.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(136)));
-            this.label35.Location = new System.Drawing.Point(13, 381);
-            this.label35.Name = "label35";
-            this.label35.Size = new System.Drawing.Size(108, 19);
-            this.label35.TabIndex = 16;
-            this.label35.Text = "monitor failed";
-            // 
-            // textMonitorFailed
-            // 
-            this.textMonitorFailed.Font = new System.Drawing.Font("Microsoft JhengHei UI", 11.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(136)));
-            this.textMonitorFailed.Location = new System.Drawing.Point(136, 381);
-            this.textMonitorFailed.Name = "textMonitorFailed";
-            this.textMonitorFailed.Size = new System.Drawing.Size(41, 27);
-            this.textMonitorFailed.TabIndex = 17;
-            this.textMonitorFailed.Text = "0.0";
-            this.textMonitorFailed.TextAlign = System.Windows.Forms.HorizontalAlignment.Right;
-            // 
-            // label36
-            // 
-            this.label36.AutoSize = true;
-            this.label36.Font = new System.Drawing.Font("Microsoft JhengHei UI", 11.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(136)));
-            this.label36.Location = new System.Drawing.Point(11, 408);
-            this.label36.Name = "label36";
-            this.label36.Size = new System.Drawing.Size(92, 19);
-            this.label36.TabIndex = 18;
-            this.label36.Text = "monitor ack";
-            // 
-            // button2
-            // 
-            this.button2.Font = new System.Drawing.Font("Microsoft JhengHei UI", 11.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(136)));
-            this.button2.Location = new System.Drawing.Point(118, 406);
-            this.button2.Name = "button2";
-            this.button2.Size = new System.Drawing.Size(59, 23);
-            this.button2.TabIndex = 19;
-            this.button2.Text = "ACK";
-            this.button2.UseVisualStyleBackColor = true;
-            this.button2.Click += new System.EventHandler(this.button2_Click_1);
             // 
             // Form1
             // 
@@ -1228,7 +1227,7 @@
             this.groupBox2.PerformLayout();
             this.groupBox3.ResumeLayout(false);
             this.groupBox3.PerformLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.dataGridView1)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.ncProgram)).EndInit();
             this.groupBox4.ResumeLayout(false);
             this.groupBox5.ResumeLayout(false);
             this.groupBox5.PerformLayout();
@@ -1259,11 +1258,11 @@
         private System.Windows.Forms.TextBox txtJogY;
         private System.Windows.Forms.TextBox txtJogX;
         private System.Windows.Forms.Button btnJogStop;
-        private System.Windows.Forms.DataGridView dataGridView1;
+        private System.Windows.Forms.DataGridView ncProgram;
         private System.Windows.Forms.GroupBox groupBox4;
         private System.Windows.Forms.Button btnSend;
         private System.Windows.Forms.Button btnProgramRun;
-        private System.Windows.Forms.Button btnProgramAbort;
+        private System.Windows.Forms.Button btnProgramReset;
         private System.Windows.Forms.GroupBox groupBox5;
         private System.Windows.Forms.TextBox textNextV;
         private System.Windows.Forms.Timer timer2;

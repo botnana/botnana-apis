@@ -1,3 +1,5 @@
+\ 清除 `-work` 之後所定義的 Forth 命令
+\ 重新標記 -work
 -work marker -work
 
 \ Axes Description
@@ -40,6 +42,7 @@ variable motion-state
     motion-state @ 0=
     ;
 
+\ 回傳 motion-state 狀態
 : .motion-state
     ." motion_state|" motion-state @ 0 .r cr
     ;
@@ -50,6 +53,8 @@ variable is-servo-on
 : servo-on?  ( -- flag )
     is-servo-on @
     ;
+
+\ 回傳 servo-on 狀態
 : .servo-on
     ." servo_on|" is-servo-on @ 0 .r cr
     ;
@@ -172,32 +177,38 @@ variable homing-priority
     machining-rate f!
     ;
 
-\ 異警等級
+\ 宣告異警與等級變數
 variable event-level
 1 constant alarm-class
 2 constant warning-class
 4 constant error-class
 
+\ Report alarm event
 : report-alarm
     event-level @ alarm-class or event-level !
     ;
 
+\ Report warning event
 : report-warning
     event-level @ warning-class or event-level !
     ;
 
+\ Report warning event
 : report-error
     event-level @ error-class or event-level !
     ;
 
+\ 清除異警
 : 0event-level
     0 event-level !
     ;
 
+\ 取得異警等級
 : event-level@
     event-level @
     ;
 
+\ 目前回報的異警等級是否需要回應
 : event-acked?
     event-level @ warning-class <
     ;
@@ -207,7 +218,6 @@ variable stack-depth
 : enter-stack-check ( -- )
     depth stack-depth !
     ;
-
 : leave-stack-check ( -- )
     depth stack-depth @ <> if
         ." error|statck check error" cr
@@ -250,6 +260,7 @@ variable devices-ok
     devices-ok @
     ;
 
+\ 回傳設定參數內容
 : .config
     ." devices_ok|" devices-ok @ 1 and 0 .r
     ." |rapid_travels_rate|" rapid-travels-rate f@ f.
@@ -265,13 +276,16 @@ variable devices-ok
     ." |axis_homing_method.3|" 3 axis-homing-method@ 0 .r
     cr
     ;
-.config
 
+\ 宣告 SFC Step
 step  devices-check
+
+\ 宣告 SFC transition
 transition devices-ok?
 
+\ LINK SFC
 ' devices-check ' devices-ok?  -->
 
-
+\ 標記 -nc
 marker -nc
 

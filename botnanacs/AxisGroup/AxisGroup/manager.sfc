@@ -1,3 +1,4 @@
+\ 清除 `-nc` 之後所定義的 Forth 命令
 -nc
 
 \ 用來儲存 Jogging target position 參數
@@ -26,11 +27,12 @@ create jogging-positions falign 0e f, 0e f, 0e f, 0e f,
 \ 開始進行軸移動
 \ 可以規劃不同的判斷邏輯，發出軸運動指令或是啟動軸運動的 SFC。
 : start-jogging ( -- )( F: x y z -- )
+    3 jogging-position! 2 jogging-position! 1 jogging-position!
+    enter-stack-check
     true jogging-accepted !
     motion-idle? not if false jogging-accepted ! ." log|Not Motion Idle" cr then
     servo-on? not if false jogging-accepted ! ." log|Not Servo On" cr then
     event-acked? not if false servo-on-accepted ! ." log|No Error Event Acknowledge " cr then
-    3 jogging-position! 2 jogging-position! 1 jogging-position!
     jogging-accepted @ if
         2 motion-state !
         1
@@ -45,6 +47,7 @@ create jogging-positions falign 0e f, 0e f, 0e f, 0e f,
         repeat
         drop
     then
+    leave-stack-check
     ;
 
 \ 定義 machining 停止狀態
@@ -73,6 +76,8 @@ variable machining-finished
         reset-job kill-nc
         false machining-stopping !
         false machining-finished !
+    else
+        ." log|Not Motion Idle" cr
     then
     ;
 
@@ -81,26 +86,26 @@ variable machining-finished
 : stop-motion  ( -- )
     motion-idle? not if
         motion-state @ case
-            1 of    ." log|Stop Homing" cr
-                    stop-axes-homing
+            1 of    
+                stop-axes-homing
             endof
-            2 of    ." log|Stop Jogging" cr
-                    1
-                    begin
-                        dup axes-len <=
-                    while
-                        dup axis@ -interpolator
-                        1+
-                    repeat
-                    drop
+            2 of 
+                1
+                begin
+                    dup axes-len <=
+                while
+                    dup axis@ -interpolator
+                    1+
+                repeat
+                drop
             endof
-            3 of    ." log|Stop machining" cr
-                    stop-job suspend-nc
-                    true machining-stopping !
+            3 of
+                stop-job suspend-nc
+                true machining-stopping !
             endof
         endcase
     else
-        ." log|motion idle" cr
+        ." log|Motion Idle" cr
     then
     ;
 
@@ -162,8 +167,11 @@ variable is-jogging-stopping
 ' machining-stopping? 'machining-stopping !
 ' machining-loop 'machining-loop !
 
+\ 定義監控機制所需要的參數
 variable monitor-acked
 variable ec-ready-once
+
+\ 確認異警
 : ack-monitor
     event-acked? if
         true monitor-acked !
@@ -172,10 +180,13 @@ variable ec-ready-once
     then
     ;
 
+\ 輸出監控機制目前所收到的異警等級
 : .monitor
     ." monitor_failed|" event-level@ 0 .r cr
     ;
 
+\ 監控機制初始化
+\ 等待第一次 EtherCAT 通訊成功    
 : monitor-init
     ec-ready-once @ not ec-ready? and  if
         true ec-ready-once !
@@ -190,17 +201,21 @@ variable ec-ready-once
     then
     ;
 
+\ 每個週期間監控的項目    
 : monitor-loop
+    \ EtherCAT 通訊
     ec-ready? not if
         ." error|EtherCAT communication error !" cr
         report-error
     then
 
+    \ real time cycle overrun
     overrun? if
         ." error|System Overrun !" cr
         report-error
     then
 
+    \ 依據 event-level@ 進行不同的處置
     event-level@ error-class >= if
         ems-stop
     else
@@ -208,33 +223,38 @@ variable ec-ready-once
             stop-motion
         then
     then
-
     ;
 
+\ Monitor Post action    
 : monitor-post
     ;
 
+\ 從 Monitor Init 切換到 Motion Loop 的條件
 : monitor2loop?
     event-level@ warning-class <
     ;
 
+\ 從 Monitor Loop 切換到 Motion Post Action 的條件
 : monitor2post?
     event-level@ warning-class >=
 ;
 
+\ 從 Monitor Post Action 切換到 Motion Init 的條件
 : monitor2init?
     monitor-acked @
 ;
 
-
+\ 宣告 Monitor SFC Step
 step monitor-init
 step monitor-loop
 step monitor-post
 
+\ 宣告 Monitor SFC transition
 transition  monitor2loop?
 transition  monitor2post?
 transition  monitor2init?
 
+\ 連結 Monitor SFC
 ' monitor-init      ' monitor2loop? -->
 ' monitor2loop?     ' monitor-loop  -->
 ' monitor-loop      ' monitor2post? -->
@@ -242,9 +262,10 @@ transition  monitor2init?
 ' monitor-post      ' monitor2init? -->
 ' monitor2init?     ' monitor-init  -->
 
-\ Activate motion-idle step
+\ 啟動 SFC step
 ' motion-idle +step
 ' devices-check +step
 ' monitor-init +step
 
+\ 標記 -nc
 marker -nc
