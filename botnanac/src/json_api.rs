@@ -3,7 +3,7 @@ use std::os::raw::c_char;
 use std::ffi::CStr;
 use botnana::Botnana;
 use std::str;
-use botnana::{evaluate, send_message, to_json_string};
+use botnana::{evaluate, send_message};
 
 /// motion_evaluate
 #[no_mangle]
@@ -12,7 +12,7 @@ pub extern "C" fn script_evaluate(botnana: Box<Botnana>, script: *const c_char) 
         -1
     } else {
         let script = unsafe { String::from_utf8_lossy(&CStr::from_ptr(script).to_bytes()) };
-        evaluate(botnana, &to_json_string(&script.into_owned()));
+        evaluate(botnana, &script);
         0
     }
 }

@@ -362,17 +362,15 @@ pub fn send_message(botnana: Box<Botnana>, msg: &str) {
 
 /// evaluate
 pub fn evaluate(botnana: Box<Botnana>, script: &str) {
-    let msg = r#"{"jsonrpc":"2.0","method":"script.evaluate","params":{"script":"#.to_owned()
-        + script + r#"}}"#;
-    send_message(botnana, &msg);
-}
-
-/// Convert str to Json string
-pub fn to_json_string(script: &str) -> String {
-    // 處理特殊字元
     match serde_json::to_value(script) {
-        Ok(x) => x.to_string(),
-        _ => unreachable!(),
+        Ok(x) => {
+            let msg = r#"{"jsonrpc":"2.0","method":"script.evaluate","params":{"script":"#.to_owned()
+                + &x.to_string() + r#"}}"#;
+            send_message(botnana, &msg);
+        }
+        _ => {
+            unreachable!();
+        }
     }
 }
 

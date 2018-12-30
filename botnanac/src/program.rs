@@ -3,7 +3,7 @@ use std::os::raw::c_char;
 use std::ffi::CStr;
 use botnana::Botnana;
 use std::str;
-use botnana::{evaluate, to_json_string};
+use botnana::evaluate;
 use std::sync::{Arc, Mutex};
 
 /// Program
@@ -17,10 +17,7 @@ impl Program {
     /// push program line
     pub fn push_line(&mut self, script: &str) {
         let lines = self.lines.clone();
-        lines
-            .lock()
-            .unwrap()
-            .push_str(&(to_json_string(script) + r#"\n"#));
+        lines.lock().unwrap().push_str(&(script.to_owned() + "\n"));
     }
 
     /// clear program
@@ -29,7 +26,7 @@ impl Program {
         let lines = self.lines.clone();
         let mut line = lines.lock().unwrap();
         line.clear();
-        line.push_str(&(r#": user$"#.to_owned() + &self.name + r#"\n"#));
+        line.push_str(&(": user$".to_owned() + &self.name + "\n"));
     }
 }
 
@@ -41,7 +38,7 @@ pub extern "C" fn program_new(name: *const c_char) -> Box<Program> {
     };
 
     let mut line = String::new();
-    line.push_str(&(r#": user$"#.to_owned() + name + r#"\n"#));
+    line.push_str(&(": user$".to_owned() + name + "\n"));
 
     let lines = Arc::new(Mutex::new(line.clone()));
 
@@ -61,8 +58,8 @@ pub extern "C" fn program_deploy(botnana: Box<Botnana>, program: Box<Program>) {
     unsafe {
         (*program).push_line("end-of-program ;");
         let lines = (*program).lines.clone();
-        let msg = r#"deploy "#.to_owned() + &lines.lock().unwrap()
-            + r#"\n 10 emit .( deployed|ok) 10 emit \n ;deploy"#;
+        let msg = "deploy ".to_owned() + &lines.lock().unwrap()
+            + "\n 10 emit .( deployed|ok) 10 emit cr ;deploy";
         evaluate(botnana, &msg.to_owned());
     }
 }
@@ -96,6 +93,6 @@ pub extern "C" fn program_clear(program: Box<Program>) {
 pub extern "C" fn program_run(botnana: Box<Botnana>, program: Box<Program>) {
     let program = Box::into_raw(program);
     let name = unsafe { (*program).name.clone() };
-    let msg = r#"deploy user$"#.to_owned() + &name + r#" ;deploy"#;
+    let msg = "deploy user$".to_owned() + &name + " ;deploy";
     evaluate(botnana, &msg)
 }
