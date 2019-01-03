@@ -5,13 +5,53 @@ botnanacs 為 C# 的範例程式，開發工具式採用 Microsoft Visual Studio
 # 目錄結構
 
     botnanacs
+    |-----> AxisGroup
     |-----> BotnanaApi 
     |-----> SingleDrive
     |-----> TouchProbe
 
+* AxisGroup: 此範例結合 SFC 與 3D 運動軸組，可以作為 3 軸運動平台的基礎，包含回歸機械原點，軸移動，NC 程式運作。
 * BotnanaApi: 將 C 語言函式庫 `botnana.lib` 轉換為 C# 使用的動態連結檔 `BotnanaApi.dll` 。
 * SingleDrive: 一個單軸馬達驅動器的測試範例。
 * TouchProbe: 馬達驅動器 Touch Probe Function 的測試範例。
+
+---
+
+# Axis Group (3D)
+
+![](CS-AxisGroup.PNG)
+
+**使用此範例的前提是第一個 Axis Group 必須 3D 軸組。如果沒有馬達驅動器也可以執行此範例，
+只要是對應的運動軸為虛擬軸就可以。**
+
+此範例有以下功能:
+
+1. MCS，PCS: 機械座標與工件座標資訊
+2. Servo ON/OFF: 結合 Servo On/OFF SFC，控制馬達驅動器 ON/OFF，具備落後誤差檢查的功能。
+3. Axis Homing: 結合運動軸回歸機械原點 SFC，可以分為兩個優先順序進行回歸機械原點。
+4. Axis Move: 以機械座標為準的運動軸移動功能。
+5. Stop: 執行緊急停止或是一般運動停止的功能。
+6. NC: 使用表格填寫 NC 程式，執行 NC 程式。
+5. Setting: 調整 SFC 參數的介面。
+
+此範例使用的 SFC 共計為:
+1. config.sfc : 變數宣告。
+3. homing.sfc : 運動軸回歸機械原點 SFC。
+4. motion_state.sfc : 將運動模式分為 Homing, Jogging, Machining。
+2. servo_on_off.sfc : Servo On/OFF SFC。
+5. manager.sfc : 整合 SFC 。
+
+config.sfc 必須要第一個載入，manager.sfc 必須是最後載入，其它則是沒有先後順序關係。
+
+以上 SFC 放在 `botnanacs/AxisGroup/AxisGroup` 目錄。 SFC 的說明可以參考 [https://botnana.github.io/botnana-book/sfc.html](https://botnana.github.io/botnana-book/sfc.html)
+
+編譯與執行此專案需要 `BotnanaApi.dll`， 可以由以下連結位置取得，或是參考 Botnana APi 章節自行產生。
+
+* 32 位元 Windows: [https://drive.google.com/drive/u/0/folders/1MAZg9XcLLQ8UlemvOaPnnRXnui_YJEMV](https://drive.google.com/drive/u/0/folders/1MAZg9XcLLQ8UlemvOaPnnRXnui_YJEMV)
+* 64 位元 Windows: [https://drive.google.com/drive/u/0/folders/1IZZ1QGJf2xVUvhGGWILW0t5WpiyTczz6](https://drive.google.com/drive/u/0/folders/1IZZ1QGJf2xVUvhGGWILW0t5WpiyTczz6)
+
+將 `BotnanaApi.dll` 放到 `botnanacs/AxisGroup/AxisGroup` 目錄下就可以編譯與執行該範例。
+
 
 # Botnana API
   
@@ -28,6 +68,8 @@ botnanacs 為 C# 的範例程式，開發工具式採用 Microsoft Visual Studio
 * `botnanacs/BotnanaApi/x64/Debug`
 
 BotnanaAPI 專案還需要 `Ws2_32.lib` 與 `Userenv.lib` 函式庫，在此專案的設定檔中已將這兩個函式庫的連結設置完成，如果有自行轉換函式庫的需求，要增加這兩個函式庫的連結設定，設定的方式可以參考 `botnanac/readme.md`。
+
+---
 
 # Single Drive
 
@@ -54,6 +96,8 @@ BotnanaAPI 專案還需要 `Ws2_32.lib` 與 `Userenv.lib` 函式庫，在此專�
 * 64 位元 Windows: [https://drive.google.com/drive/u/0/folders/1IZZ1QGJf2xVUvhGGWILW0t5WpiyTczz6](https://drive.google.com/drive/u/0/folders/1IZZ1QGJf2xVUvhGGWILW0t5WpiyTczz6)
 
 將 `BotnanaApi.dll` 放到 `botnanacs/SingleDrive/SingleDrive` 目錄下就可以編譯與執行該範例。
+
+---
 
 # Touch Probe
 
