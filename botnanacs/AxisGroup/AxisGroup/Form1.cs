@@ -5,6 +5,7 @@ using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading;
 using System.Windows.Forms;
+using System.Diagnostics;
 
 namespace AxisGroup
 {
@@ -170,7 +171,7 @@ namespace AxisGroup
         }
         private static void axisHomedZ_cb(string str)
         {
-            axisHomed[1] = Int32.Parse(str);
+            axisHomed[2] = Int32.Parse(str);
         }
 
         // 呼叫 NC Task 的前景 Task ID 
@@ -355,6 +356,8 @@ namespace AxisGroup
 
         private void Form1_Load(object sender, EventArgs e)
         {
+            Process thisProc = Process.GetCurrentProcess();
+            thisProc.PriorityClass = ProcessPriorityClass.RealTime;
             mcsPositions = new double[3];
             pcsPositions = new double[3];
             pva = new double[3];
