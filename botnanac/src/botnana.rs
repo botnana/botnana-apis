@@ -331,11 +331,7 @@ impl Handler for Client {
 
     /// Called when a timeout is triggered.
     fn on_timeout(&mut self, _event: Token) -> Result<()> {
-        if self.is_watchdog_refreshed {
-            self.is_watchdog_refreshed = false;
-            self.ws_out.timeout(WS_WATCHDOG_PERIOD_MS, WS_TIMEOUT_TOKEN)
-        } else {
-            println!("on_timeout!!");
+        if !self.is_watchdog_refreshed {
             let mut msg = String::new();
             write!(msg, "timeout!!").expect("write error msg");
             let mut msgb = msg.into_bytes();
@@ -349,8 +345,9 @@ impl Handler for Client {
                     .expect("toCstr")
                     .as_ptr(),
             );
-            Ok(())
         }
+        self.is_watchdog_refreshed = false;
+        self.ws_out.timeout(WS_WATCHDOG_PERIOD_MS, WS_TIMEOUT_TOKEN)
     }
 }
 
