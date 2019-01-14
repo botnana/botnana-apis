@@ -10,6 +10,7 @@ use ws;
 use ws::{connect, CloseCode, Error, ErrorKind, Handler, Handshake, Message, Result};
 use libc;
 use url;
+use serde_json;
 use std::time::Duration;
 use std::fmt::Write;
 use ws::util::Token;
@@ -361,20 +362,16 @@ pub fn send_message(botnana: Box<Botnana>, msg: &str) {
 
 /// evaluate
 pub fn evaluate(botnana: Box<Botnana>, script: &str) {
-    let msg = r#"{"jsonrpc":"2.0","method":"script.evaluate","params":{"script":""#.to_owned()
-        + script + r#""}}"#;
-    send_message(botnana, &msg);
-}
-
-/// Convert str to Json string
-pub fn to_json_string(script: &str) -> String {
-    // 處理特殊字元
-    script
-        .replace(r#"\ "#, r#"\\ "#)
-        .replace(r#"""#, r#"\""#)
-        .replace("\n", r#"\n"#)
-        .replace("\r\n", r#"\n"#)
-        .replace("\t", r#" "#)
+    match serde_json::to_value(script) {
+        Ok(x) => {
+            let msg = r#"{"jsonrpc":"2.0","method":"script.evaluate","params":{"script":"#.to_owned()
+                + &x.to_string() + r#"}}"#;
+            send_message(botnana, &msg);
+        }
+        _ => {
+            unreachable!();
+        }
+    }
 }
 
 /// connect to botnana
