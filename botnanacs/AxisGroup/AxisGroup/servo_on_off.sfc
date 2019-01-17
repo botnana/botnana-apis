@@ -1,0 +1,311 @@
+\ 清除 `-nc` 之後所定義的 Forth 命令
+-nc
+
+\ Servo On Accepted
+\ 用來紀錄 servo on request 是否被接受
+variable servo-on-accepted
+
+\ Servo Off Accepted
+\ 用來紀錄 servo off request 是否被接受
+variable servo-off-accepted
+
+\ Is servo idle
+\ 用來紀錄是否處於 Servo Idle Step，在此 step 才會接受 servo on request
+variable is-servo-idle
+
+\ 落後誤差檢查
+\ servo-lag-err 是用來紀錄 servo-lag-check 檢查之後是否有異常的旗標
+\ 所以要使用 servo-lag-err 前要先執行 servo-lag-check
+variable servo-lag-err
+: servo-lag-check ( -- )
+    false servo-lag-err !
+    1
+    begin
+        dup axes-len <=
+    while
+        dup axis-enabled? over axis-homing? not and if
+            dup ferr-limit@ dup axis@ axis-ferr@ fabs f< if
+                ." error|Axis (" dup axis@ 0 .r  ." ) Following error too large" cr
+                report-error
+                servo-on? not if
+                    dup axis@ 0axis-ferr
+                then
+                true servo-lag-err !
+            then
+        then
+        1+
+    repeat
+    drop
+    ;
+
+\ 發出 Servo On Request
+\ 如果目前狀態可以允許 Servo On，會將 servo-on-accepted 變數設定為真。
+: +servo-on ( -- )
+    true servo-on-accepted !
+    is-servo-idle @ not if false servo-on-accepted ! ." log|Not Servo Idle" cr then
+    event-acked? not if false servo-on-accepted ! ." log|No Error Event Acknowledge" cr then
+    servo-lag-check servo-lag-err @ if false servo-on-accepted ! then
+    servo-on-accepted @ if
+        false servo-off-accepted !
+    then
+    ;
+
+\ 發出 Servo Off Request
+\ 如果目前狀態可以允許 Servo Off，會將 servo-off-accepted 變數設定為真。
+: -servo-on ( -- )
+    true servo-off-accepted !
+    servo-on? not if false servo-off-accepted ! ." log|Not Servo On" cr then
+    motion-idle? not if false servo-off-accepted ! ." log|Not Motion Idle" cr then
+    ;
+
+\ 發出 Servo Emergency Off Request
+\ 不管目前狀態會將 servo-off-accepted 變數設定為真。
+: ems-servo-off ( -- )
+    ." log|Emergency Servo Off Request!" cr
+    true servo-off-accepted !
+    ;
+
+\ Servo Idle Step
+\ 在此狀態等待 servo-on-accetped 為真
+: servo-idle ( -- )
+    true is-servo-idle !
+    ;
+
+\ Servo Waiting Power Stable Step
+\ 可以在此送出動力電源的控制訊號
+\ 在此狀態等待 1000 ms 動力電源穩定
+variable servo-pre-operation-once
+variable servo-disable-operation-once
+: servo-waiting-power-stable ( -- )
+    false is-servo-idle !
+    false servo-on-accepted !
+    false servo-pre-operation-once !
+    false servo-disable-operation-once !
+    ;
+
+\ Servo pre operation
+\ 清除驅動器異警與切換到 CSP 模式.
+\ 啟動軸組(axis group)運動控制
+variable servo-current-axis
+variable servo-old-axis
+: servo-pre-operation ( -- )
+    enter-stack-check
+    servo-pre-operation-once @ not if
+        +coordinator
+        1
+        begin
+          dup axes-len <=
+        while
+            dup axis-enabled? if
+                dup csp swap axis@ axis-drive@ op-mode!
+                dup axis@ axis-drive@ reset-fault
+            then
+            1+
+        repeat
+        drop
+
+        true servo-pre-operation-once !
+        1 servo-current-axis !
+        0 servo-old-axis !
+
+    then
+    leave-stack-check
+    ;
+
+\ Servo Enable Operation
+\ 分時將所有驅動器切換到 drive on 狀態
+variable servo-on-time
+: servo-enable-operation ( -- )
+    enter-stack-check
+    servo-current-axis @ servo-old-axis @ <> if
+        servo-current-axis @ dup servo-old-axis !
+        dup axis-enabled? if
+            dup axis@ axis-drive@ drive-on
+        then
+        drop
+        mtime servo-on-time !
+    then
+
+    mtime servo-on-time @ - 100 > if
+        servo-current-axis @ dup axes-len < if
+            1+ servo-current-axis !
+        else
+            drop
+        then
+    then
+    leave-stack-check
+    ;
+
+\ Servo Loop
+\ 檢查以下條件：
+\ 1. drive-on?
+\ 2. drive-fault?
+\ 3. following error
+\ 如果有問題就發出 ems-servo-off
+: servo-loop ( -- )
+    enter-stack-check
+    true is-servo-on !
+    1
+    begin
+        dup axes-len <=
+    while
+        dup axis-enabled? if
+            dup axis@ axis-drive@ drive-on? not if
+                ." error|Not expected drive off" cr
+                report-error
+                ems-servo-off
+            then
+
+            dup axis@ axis-drive@ drive-fault? if
+                ." error|drive fault" cr
+                report-error
+                ems-servo-off
+            then
+        then
+
+        1+
+    repeat
+    drop
+
+    servo-lag-check servo-lag-err @ if ems-servo-off then
+    leave-stack-check
+    ;
+
+\ Servo Disable Operation
+\ 接收到 servo-off-accepted 為真時，就執行 drive-off
+\ 關閉軸組運動控制
+: servo-disable-operation ( -- )
+    enter-stack-check
+    false is-servo-on !
+    servo-disable-operation-once @ not if
+        true servo-disable-operation-once !
+        -coordinator
+        1
+        begin
+            dup axes-len <=
+        while
+            dup axis-enabled? if
+                dup axis@ axis-drive@ drive-off
+            then
+            1+
+        repeat
+        drop
+    then
+    leave-stack-check
+    ;
+
+
+\ Servo Post Operation
+\ Drive Off 後可以在此將動力電源關閉
+: servo-post-operation ( -- )
+    ;
+
+\ Servo On Request 是否被接受？
+: servo-on-accepted? ( -- flag )
+    servo-on-accepted @
+    ;
+
+\ Servo power stable
+\ 計數等待 power stable 的時間是否到達？
+: servo-power-stable? ( -- flag )
+    ['] servo-waiting-power-stable elapsed 1000 >
+    ;
+
+\ 所有的驅動器異警是否都已經清除
+\ 或是經過 2000 ms 也無法清除異警 ?
+variable all-drive-no-fault
+: servo-wait-no-fault? ( -- flag )
+    true all-drive-no-fault !
+    1
+    begin
+        dup axes-len <=
+        all-drive-no-fault @ and
+    while
+        dup axis-enabled? if
+            dup axis-drive@ drive-fault? not all-drive-no-fault !
+        then
+        1+
+    repeat
+    drop
+
+    all-drive-no-fault @
+    ['] servo-pre-operation elapsed 2000 >
+    or
+    ;
+
+\ 所有的驅動器是否都已經 drive on
+\ 或是經過 2000 ms 也無法 drive on ?
+variable all-drive-on
+: servo-operation-enabled?  ( -- flag )
+    true all-drive-on !
+    1
+    begin
+        dup axes-len <=
+        all-drive-on @ and
+    while
+        dup axis-enabled? if
+            dup axis@ axis-drive@ drive-on? all-drive-on !
+        then
+        1+
+    repeat
+    drop
+
+    all-drive-on @
+    ['] servo-enable-operation elapsed 2000 >
+    or
+    ;
+
+\ Servo Off Request 是否被接受？
+: servo-off-accepted?  ( -- flag )
+    servo-off-accepted @
+    ;
+
+\ Is servo operation disabled ?
+\ 計數等待 servo disable operation 的時間是否到達？
+: servo-operation-disabled? ( -- flag )
+    ['] servo-disable-operation elapsed 1000 >
+    ;
+
+\ servo-default-true
+\ 預設要自動切換到 Servo Idle
+: servo-default-true? ( -- flag )
+    true
+    ;
+
+\ 宣告 SFC Step
+step servo-idle
+step servo-waiting-power-stable
+step servo-pre-operation
+step servo-enable-operation
+step servo-loop
+step servo-disable-operation
+step servo-post-operation
+
+\ 宣告 SFC transition
+transition servo-on-accepted?
+transition servo-power-stable?
+transition servo-wait-no-fault?
+transition servo-operation-enabled?
+transition servo-off-accepted?
+transition servo-operation-disabled?
+transition servo-default-true?
+
+\ 連結 SFC
+' devices-ok?                ' servo-idle        -->
+' servo-idle                 ' servo-on-accepted? -->
+' servo-on-accepted?         ' servo-waiting-power-stable -->
+' servo-waiting-power-stable ' servo-power-stable?  -->
+' servo-power-stable?        ' servo-pre-operation -->
+' servo-pre-operation        ' servo-wait-no-fault? -->
+' servo-wait-no-fault?       ' servo-enable-operation -->
+' servo-enable-operation     ' servo-operation-enabled? -->
+' servo-operation-enabled?   ' servo-loop -->
+' servo-loop                 ' servo-off-accepted? -->
+' servo-off-accepted?        ' servo-disable-operation -->
+' servo-disable-operation    ' servo-operation-disabled? -->
+' servo-operation-disabled?  ' servo-post-operation -->
+' servo-post-operation       ' servo-default-true? -->
+' servo-default-true?        ' servo-idle          -->
+
+\ 標記 -nc
+marker -nc
