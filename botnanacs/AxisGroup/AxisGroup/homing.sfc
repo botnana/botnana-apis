@@ -1,0 +1,238 @@
+\ 清除 `-nc` 之後所定義的 Forth 命令
+-nc
+
+\ 在對應的優先佇列內啟動要回歸機械原點的運動軸
+: +homing-axis ( index priority -- )
+    case
+        1 of cells first-homing-axes + true swap ! endof
+        2 of cells second-homing-axes + true swap ! endof
+        ." log|Invalid homing priority" cr
+        swap drop
+    endcase
+    ;
+
+\ 在對應的優先佇列內取消要回歸機械原點的運動軸
+: -homing-axis ( index priority -- )
+    case
+        1 of cells first-homing-axes + false swap ! endof
+        2 of cells second-homing-axes + false swap ! endof
+        ." log|Invalid homing priority" cr
+        swap drop
+    endcase
+    ;
+
+\ 定義 Axes Homing 流程中所需要的變數
+variable axes-homing-accetped
+variable homing-config-once
+variable homing-trigger-once
+variable homing-loop-stopped
+variable homing-post-action-once
+variable axes-homing-stopping
+
+\ 啟動 axes homing
+\ 使用此指令，決定是否要開始進行回歸機械原點的活動
+\ 依據不同的應用調整啟動的條件
+: start-axes-homing ( -- )
+    homing-priority @ 0= if
+        true axes-homing-accetped !
+        1 homing-priority !
+    else
+        ." log|Axes homing not accetped" cr
+    then
+;
+
+\ 停止 axes homing
+\ Homing 執行中要停止的命令，會將對應的驅動器切換到 Quick Stop Activate 的狀態
+: stop-axes-homing ( -- )
+    homing-priority @ 0<> if
+        1
+        begin
+            dup axes-len <=
+        while
+            dup axis-enabled? over homing-priority @ homing-axis? and if
+                dup axis@ axis-drive@ drive-stop
+            then
+            1+
+        repeat
+        drop
+        true axes-homing-stopping !
+    else
+        ." log|Not Homing State" cr
+    then
+    ;
+
+\ Homing Idle Step
+\ 在此狀態等待 axes-homing-accetped 為真
+: homing-idle ( -- )
+    ;
+
+\ Homing Config Step
+\ 依據優先佇列設定回歸機械原點的參數給驅動器
+: homing-config
+    homing-config-once @ not if
+        1
+        begin
+          dup axes-len <=
+        while
+            dup axis-enabled? over homing-priority @ homing-axis? and if
+                dup axis@
+                dup -homed
+                over axis-homing-v1@ over axis-drive@ homing-v1!
+                over axis-homing-v2@ over axis-drive@ homing-v2!
+                over axis-homing-method@ over axis-drive@ homing-method!
+                hm swap axis-drive@ op-mode!
+            then
+            1+
+        repeat
+        drop
+        false homing-trigger-once !
+        false homing-post-action-once !
+        true homing-config-once !
+    then
+    ;
+
+\ Homing Trigger Step
+\ 依據優先佇列設定，命令驅動器開始回歸機械原點
+: homing-trigger
+    homing-trigger-once @ not if
+        1
+        begin
+            dup axes-len <=
+        while
+            dup axis-enabled? over homing-priority @ homing-axis? and if
+                dup axis@ dup axis-drive@ drive-on? if
+                    axis-drive@ go
+                else
+                    drop
+                then
+            then
+            1+
+        repeat
+        drop
+        false homing-config-once !
+        true homing-trigger-once !
+    then
+    ;
+
+\ Homing Loop Step
+\ 依據驅動器狀態判定回歸機械原點結果
+\ 依據結果設定運動軸狀態
+: homing-loop
+    true homing-loop-stopped !
+    1
+    begin
+        dup axes-len <=
+    while
+        dup axis-enabled? over homing-priority @ homing-axis? and if
+            dup axis@ dup axis-drive@ target-reached? if
+                dup axis-drive@ drive-sw@ $1000 and 0<> if
+                    dup +homed
+                else
+                    dup ." error|Axis ("  0 .r  ." ) homing error" cr
+                    \ 如果回歸機械原點失敗，停止所有運動軸回歸機械原點
+                    report-error
+                    stop-axes-homing
+                    dup -homed
+                then
+            else
+                false homing-loop-stopped !
+            then
+    
+            \ 清除運動軸落後誤差，依實際位置修正命令
+            0axis-ferr
+        then
+        1+
+    repeat
+    drop
+
+    ;
+
+\ Homing Post Action
+\ 將目前佇列中的驅動器換到 CSP 模式
+\ 清除目前佇列中的運動軸
+\ 判斷是否要切換到下一個佇列或是停止回歸機械原點
+: homing-post-action
+    homing-post-action-once @ not if
+        1
+        begin
+          dup axes-len <=
+        while
+            dup axis-enabled? over homing-priority @ homing-axis? and if
+                dup axis@ csp swap axis-drive@ op-mode!
+            then
+            dup homing-priority @ -homing-axis
+            1+
+        repeat
+        drop
+        homing-priority @ 2 >= axes-homing-stopping @ or if
+            0 homing-priority !
+            false axes-homing-accetped !
+            false axes-homing-stopping !
+            ." log|homing stopped or finished" cr
+        else
+            homing-priority @ 1 + homing-priority !
+        then
+
+        true homing-post-action-once !
+    then
+    ;
+
+\ 是否接受 homing 的指令 ？
+: axes-homing-accetped?
+    axes-homing-accetped @
+    ;
+
+\ Homing 指令是否設定完成 ？
+\ 檢查 EtherCAT SDO 只否都已經執行完畢。
+: homing-config-ok?
+    waiting-requests? not
+    ;
+
+\ 在 Homing trigger 後等待 50 ms
+: homing-trigger-ok?
+    ['] homing-trigger elapsed 50 >
+    ;
+
+\ 是否要脫離 Homing Loop ？
+: homing-loop-stopped?
+    homing-loop-stopped @
+    ;
+
+\ Homing Post Action 是否完成？
+\ 檢查 EtherCAT SDO 只否都已經執行完畢。
+: homing-post-action-ok?
+    waiting-requests? not
+    ;
+
+\ 宣告 SFC Step
+step homing-idle
+step homing-config
+step homing-trigger
+step homing-loop
+step homing-post-action
+
+\ 宣告 SFC Transition
+transition axes-homing-accetped?
+transition homing-config-ok?
+transition homing-trigger-ok?
+transition homing-loop-stopped?
+transition homing-post-action-ok?
+
+
+\ Link SFC
+' devices-ok?               ' homing-idle               -->
+' homing-idle               ' axes-homing-accetped?     -->
+' axes-homing-accetped?     ' homing-config             -->
+' homing-config             ' homing-config-ok?         -->
+' homing-config-ok?         ' homing-trigger            -->
+' homing-trigger            ' homing-trigger-ok?        -->
+' homing-trigger-ok?        ' homing-loop               -->
+' homing-loop               ' homing-loop-stopped?      -->
+' homing-loop-stopped?      ' homing-post-action        -->
+' homing-post-action        ' homing-post-action-ok?    -->
+' homing-post-action-ok?    ' homing-idle               -->
+
+\ 標記 -nc
+marker -nc
+
+
