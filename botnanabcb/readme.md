@@ -15,12 +15,12 @@ C++ builder 範例需要引用三個檔案 `BotnanaApi.h`、`BotnanaApi.dll` 與
 
 可以由在 `botnana-api/botnanacs/BotnanaApi/BotnanaApi` 目錄中取得，放到範例的目錄中。
 
-**BotnanaApi.lib**:
+**BotnanaApi.dll**:
 
 參考 `botnana-api/botnanacs/readme.md` 或是在以下網址取得
 
-* 32 位元 Windows: [https://drive.google.com/drive/u/0/folders/1Vmy9aWYeTMhvJDM3W7UwKuqG4SfyA_n7](https://drive.google.com/drive/u/0/folders/1Vmy9aWYeTMhvJDM3W7UwKuqG4SfyA_n7)
-* 64 位元 Windows: [https://drive.google.com/drive/u/0/folders/1sGibKjsuhkt0SMJ1w7id1XlOnoYKyD_W](https://drive.google.com/drive/u/0/folders/1sGibKjsuhkt0SMJ1w7id1XlOnoYKyD_W)
+* 32 位元 Windows: [https://drive.google.com/drive/u/0/folders/1MAZg9XcLLQ8UlemvOaPnnRXnui_YJEMV](https://drive.google.com/drive/u/0/folders/1MAZg9XcLLQ8UlemvOaPnnRXnui_YJEMV)
+* 64 位元 Windows: [https://drive.google.com/drive/u/0/folders/1IZZ1QGJf2xVUvhGGWILW0t5WpiyTczz6](https://drive.google.com/drive/u/0/folders/1IZZ1QGJf2xVUvhGGWILW0t5WpiyTczz6)
 
 此檔案要放到與範例執行檔的同一目錄下，另外則是要用來產生 `BotnanaApiBCB.lib`。
 
