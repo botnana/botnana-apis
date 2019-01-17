@@ -10,6 +10,7 @@ use ws;
 use ws::{connect, CloseCode, Error, ErrorKind, Handler, Handshake, Message, Result};
 use libc;
 use url;
+use serde_json;
 use std::time::Duration;
 use std::fmt::Write;
 use ws::util::Token;
@@ -330,11 +331,7 @@ impl Handler for Client {
 
     /// Called when a timeout is triggered.
     fn on_timeout(&mut self, _event: Token) -> Result<()> {
-        if self.is_watchdog_refreshed {
-            self.is_watchdog_refreshed = false;
-            self.ws_out.timeout(WS_WATCHDOG_PERIOD_MS, WS_TIMEOUT_TOKEN)
-        } else {
-            println!("on_timeout!!");
+        if !self.is_watchdog_refreshed {
             let mut msg = String::new();
             write!(msg, "timeout!!").expect("write error msg");
             let mut msgb = msg.into_bytes();
@@ -348,8 +345,9 @@ impl Handler for Client {
                     .expect("toCstr")
                     .as_ptr(),
             );
-            Ok(())
         }
+        self.is_watchdog_refreshed = false;
+        self.ws_out.timeout(WS_WATCHDOG_PERIOD_MS, WS_TIMEOUT_TOKEN)
     }
 }
 
@@ -361,11 +359,16 @@ pub fn send_message(botnana: Box<Botnana>, msg: &str) {
 
 /// evaluate
 pub fn evaluate(botnana: Box<Botnana>, script: &str) {
-    // 處理 `"` 字元
-    let cmd = script.replace(r#"""#, r#"\""#);
-    let msg = r#"{"jsonrpc":"2.0","method":"script.evaluate","params":{"script":""#.to_owned()
-        + cmd.as_str() + r#""}}"#;
-    send_message(botnana, &msg);
+    match serde_json::to_value(script) {
+        Ok(x) => {
+            let msg = r#"{"jsonrpc":"2.0","method":"script.evaluate","params":{"script":"#.to_owned()
+                + &x.to_string() + r#"}}"#;
+            send_message(botnana, &msg);
+        }
+        _ => {
+            unreachable!();
+        }
+    }
 }
 
 /// connect to botnana

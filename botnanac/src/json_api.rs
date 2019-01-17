@@ -11,8 +11,8 @@ pub extern "C" fn script_evaluate(botnana: Box<Botnana>, script: *const c_char) 
     if script.is_null() {
         -1
     } else {
-        let script = unsafe { str::from_utf8(CStr::from_ptr(script).to_bytes()).unwrap() };
-        evaluate(botnana, &script.to_owned());
+        let script = unsafe { String::from_utf8_lossy(&CStr::from_ptr(script).to_bytes()) };
+        evaluate(botnana, &script);
         0
     }
 }
