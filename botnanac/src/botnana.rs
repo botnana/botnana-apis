@@ -100,7 +100,7 @@ impl Botnana {
                 .name("MESSAGE_PROCESSOR".to_string())
                 .spawn(move || loop {
                     if let Ok(msg) = user_receiver.recv() {
-                        let msg = msg.trim_left().trim_left_matches('|');
+                        let msg = msg.trim_start().trim_start_matches('|');
                         bna.handle_message(msg);
                     }
                 })
@@ -178,7 +178,7 @@ impl Botnana {
             let mut event = "";
             for e in r {
                 if index % 2 == 0 {
-                    event = e.trim_left();
+                    event = e.trim_start();
                 } else {
                     let mut remove_list = Vec::new();
                     let mut counter_exist = false;
