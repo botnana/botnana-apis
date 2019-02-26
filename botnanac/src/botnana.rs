@@ -1,19 +1,19 @@
-use std::thread;
-use std::sync::{mpsc, Arc, Mutex};
-use std::ffi::CStr;
-use std::os::raw::c_char;
-use std::str;
-use std::collections::HashMap;
+use libc;
+use serde_json;
 use std;
 use std::boxed::Box;
-use ws;
-use ws::{connect, CloseCode, Error, ErrorKind, Handler, Handshake, Message, Result};
-use libc;
-use url;
-use serde_json;
-use std::time::Duration;
+use std::collections::HashMap;
+use std::ffi::CStr;
 use std::fmt::Write;
+use std::os::raw::c_char;
+use std::str;
+use std::sync::{mpsc, Arc, Mutex};
+use std::thread;
+use std::time::Duration;
+use url;
+use ws;
 use ws::util::Token;
+use ws::{connect, CloseCode, Error, ErrorKind, Handler, Handshake, Message, Result};
 
 const WS_TIMEOUT_TOKEN: Token = Token(1);
 const WS_WATCHDOG_PERIOD_MS: u64 = 2_000;
@@ -74,7 +74,8 @@ impl Botnana {
                 }) {
                     eprintln!("Can't connect to WebSocket Server ({})", e);
                 }
-            }) {
+            })
+        {
             eprintln!("Can't create WS_CLIENT thread ({})", e);
             return None;
         }
@@ -99,10 +100,11 @@ impl Botnana {
                 .name("MESSAGE_PROCESSOR".to_string())
                 .spawn(move || loop {
                     if let Ok(msg) = user_receiver.recv() {
-                        let msg = msg.trim_left().trim_left_matches('|');
+                        let msg = msg.trim_start().trim_start_matches('|');
                         bna.handle_message(msg);
                     }
-                }) {
+                })
+            {
                 eprintln!("Can't create MESSAGE_PROCESSOR thread ({})", e);
                 return None;
             }
@@ -119,7 +121,8 @@ impl Botnana {
                         thread::sleep(std::time::Duration::from_millis(100));
                         let _ = ws_sender.send(poll_msg.clone());
                     }
-                }) {
+                })
+            {
                 eprintln!("Can't create POLL thread ({})", e);
                 return None;
             }
@@ -164,7 +167,8 @@ impl Botnana {
 
         let lines: Vec<&str> = message.split("\n").collect();
         let mut handlers = self.handlers.lock().expect("self.handlers.lock()");
-        let mut handler_counters = self.handler_counters
+        let mut handler_counters = self
+            .handler_counters
             .lock()
             .expect("self.handler_counters.lock()");
 
@@ -174,7 +178,7 @@ impl Botnana {
             let mut event = "";
             for e in r {
                 if index % 2 == 0 {
-                    event = e.trim_left();
+                    event = e.trim_start();
                 } else {
                     let mut remove_list = Vec::new();
                     let mut counter_exist = false;
@@ -361,8 +365,10 @@ pub fn send_message(botnana: Box<Botnana>, msg: &str) {
 pub fn evaluate(botnana: Box<Botnana>, script: &str) {
     match serde_json::to_value(script) {
         Ok(x) => {
-            let msg = r#"{"jsonrpc":"2.0","method":"script.evaluate","params":{"script":"#.to_owned()
-                + &x.to_string() + r#"}}"#;
+            let msg = r#"{"jsonrpc":"2.0","method":"script.evaluate","params":{"script":"#
+                .to_owned()
+                + &x.to_string()
+                + r#"}}"#;
             send_message(botnana, &msg);
         }
         _ => {

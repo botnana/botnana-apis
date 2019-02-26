@@ -1,9 +1,9 @@
 extern crate libc;
-use std::os::raw::c_char;
-use std::ffi::CStr;
-use botnana::Botnana;
-use std::str;
 use botnana::evaluate;
+use botnana::Botnana;
+use std::ffi::CStr;
+use std::os::raw::c_char;
+use std::str;
 use std::sync::{Arc, Mutex};
 
 /// Program
@@ -58,7 +58,8 @@ pub extern "C" fn program_deploy(botnana: Box<Botnana>, program: Box<Program>) {
     unsafe {
         (*program).push_line("end-of-program ;");
         let lines = (*program).lines.clone();
-        let msg = "deploy ".to_owned() + &lines.lock().unwrap()
+        let msg = "deploy ".to_owned()
+            + &lines.lock().unwrap()
             + "\n 10 emit .( deployed|ok) 10 emit cr ;deploy";
         evaluate(botnana, &msg.to_owned());
     }
