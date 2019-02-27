@@ -1,10 +1,9 @@
 extern crate libc;
-use botnana::evaluate;
-use botnana::Botnana;
-use std::ffi::CStr;
-use std::os::raw::c_char;
-use std::str;
-use std::sync::{Arc, Mutex};
+use botnana::{evaluate, Botnana};
+use std::{ffi::CStr,
+          os::raw::c_char,
+          str,
+          sync::{Arc, Mutex}};
 
 /// Program
 #[repr(C)]
