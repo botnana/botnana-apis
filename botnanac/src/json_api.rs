@@ -1,9 +1,6 @@
 extern crate libc;
-use botnana::Botnana;
-use botnana::{evaluate, send_message};
-use std::ffi::CStr;
-use std::os::raw::c_char;
-use std::str;
+use botnana::{evaluate, send_message, Botnana};
+use std::{ffi::CStr, os::raw::c_char, str};
 
 /// motion_evaluate
 #[no_mangle]
