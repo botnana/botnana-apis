@@ -44,6 +44,26 @@ void botnana_set_on_send_cb(struct Botnana * desc,
                             void (* cb)(const char * str));
 
 
+// Send script to command buffer
+//
+// desc:   server descriptor
+// script: real time script
+int32_t send_script_to_buffer(struct Botnana * desc,
+                              const char * script);
+
+// Flush scripts buffer
+//
+// desc:   server descriptor
+int32_t flush_scripts_buffer(struct Botnana * desc);
+
+// motion evaluate
+//
+// desc:  server descriptor
+// count: command count
+int32_t set_auto_flush_count(struct Botnana * desc,
+                             int32_t count);
+
+
 //****** Json API ********/
 
 // motion evaluate
