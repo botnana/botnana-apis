@@ -295,3 +295,17 @@ pub extern "C" fn config_save(botnana: Box<Botnana>) {
     let msg = r#"{"jsonrpc":"2.0","method":"config.save"}"#;
     send_message(botnana, &msg.to_owned());
 }
+
+/// System poweroff
+#[no_mangle]
+pub extern "C" fn poweroff(botnana: Box<Botnana>) {
+    let msg = r#"{"jsonrpc":"2.0","method":"system.poweroff"}"#;
+    send_message(botnana, &msg.to_owned());
+}
+
+/// System reboot
+#[no_mangle]
+pub extern "C" fn reboot(botnana: Box<Botnana>) {
+    let msg = r#"{"jsonrpc":"2.0","method":"system.reboot"}"#;
+    send_message(botnana, &msg.to_owned());
+}
