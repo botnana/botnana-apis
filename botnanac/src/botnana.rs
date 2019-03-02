@@ -15,7 +15,7 @@ use ws::{self, connect, util::Token, CloseCode, Error, ErrorKind, Handler, Hands
          Result};
 
 const WS_TIMEOUT_TOKEN: Token = Token(1);
-const WS_WATCHDOG_PERIOD_MS: u64 = 2_000;
+const WS_WATCHDOG_PERIOD_MS: u64 = 10_000;
 const AUTO_FLUSH_COUNT: u32 = 8;
 
 /// Botnana
