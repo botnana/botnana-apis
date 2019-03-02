@@ -1,20 +1,18 @@
 use libc;
 use serde_json;
-use std;
-use std::boxed::Box;
-use std::collections::HashMap;
-use std::collections::VecDeque;
-use std::ffi::CStr;
-use std::fmt::Write;
-use std::os::raw::c_char;
-use std::str;
-use std::sync::{mpsc, Arc, Mutex};
-use std::thread;
-use std::time::Duration;
+use std::{self,
+          boxed::Box,
+          collections::{HashMap, VecDeque},
+          ffi::CStr,
+          fmt::Write,
+          os::raw::c_char,
+          str,
+          sync::{mpsc, Arc, Mutex},
+          thread,
+          time::Duration};
 use url;
-use ws;
-use ws::util::Token;
-use ws::{connect, CloseCode, Error, ErrorKind, Handler, Handshake, Message, Result};
+use ws::{self, connect, util::Token, CloseCode, Error, ErrorKind, Handler, Handshake, Message,
+         Result};
 
 const WS_TIMEOUT_TOKEN: Token = Token(1);
 const WS_WATCHDOG_PERIOD_MS: u64 = 2_000;
