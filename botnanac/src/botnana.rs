@@ -125,7 +125,7 @@ impl Botnana {
                         "{\"jsonrpc\":\"2.0\",\"method\":\"motion.poll\"}".to_owned(),
                     );
                     loop {
-                        thread::sleep(std::time::Duration::from_millis(100));
+                        thread::sleep(std::time::Duration::from_millis(50));
                         let _ = ws_sender.send(poll_msg.clone());
                         bna.flush_scripts_buffer();
                     }
