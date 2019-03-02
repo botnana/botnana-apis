@@ -216,6 +216,16 @@ void config_axis_get(struct Botnana * desc,
 // desc:     server descriptor
 void configure_save(struct Botnana * desc);
 
+// Poweroff
+//
+// desc:     server descriptor
+void poweroff(struct Botnana * desc);
+
+// Reboot
+//
+// desc:     server descriptor
+void reboot(struct Botnana * desc);
+
 // program descriptor
 struct Program;
 
