@@ -208,7 +208,7 @@ variable event-level
     event-level @
     ;
 
-\ 目前回報的異警等級是否需要回應
+\ 目前回報的異警是否已經被 ACK 過，表示目前只有 alarm 
 : event-acked?
     event-level @ warning-class <
     ;
