@@ -4,10 +4,10 @@ use std::{self,
           boxed::Box,
           collections::HashMap,
           ffi::CStr,
-          fmt::Write,
           os::raw::c_char,
           str,
-          sync::{mpsc, Arc, Mutex},
+          sync::{mpsc::{self, TryRecvError},
+                 Arc, Mutex},
           thread,
           time::Duration};
 use url;
@@ -22,8 +22,10 @@ const WS_WATCHDOG_PERIOD_MS: u64 = 2_000;
 #[derive(Clone)]
 pub struct Botnana {
     user_sender: mpsc::Sender<Message>,
+    ws_out: Option<ws::Sender>,
     handlers: Arc<Mutex<HashMap<String, Vec<Box<Fn(*const c_char) + Send>>>>>,
     handler_counters: Arc<Mutex<HashMap<String, Vec<u32>>>>,
+    on_error_cb: Arc<Mutex<Vec<Box<Fn(*const c_char) + Send>>>>,
     on_send_cb: Arc<Mutex<Vec<Box<Fn(*const c_char) + Send>>>>,
     on_message_cb: Arc<Mutex<Vec<Box<Fn(*const c_char) + Send>>>>,
 }
@@ -33,50 +35,62 @@ impl Botnana {
     /// `address` is IP of botnana
     ///  `processor` is Client message processor
     pub fn connect(address: &str, on_error_cb: fn(*const c_char)) -> Option<Botnana> {
-        let url = match url::Url::parse(&("ws://".to_owned() + address + ":3012")) {
-            Err(e) => {
-                eprintln!("URL Error: {}", e);
-                return None;
-            }
-            Ok(url) => url,
-        };
-
-        // 從 user thread 送到 ws client thread
+        // 從 user thread 送到 ws client thread，將指令透過 ws client thread 送到 motion server
         let (user_sender, client_receiver) = mpsc::channel();
-        // 從 ws client thread 送到 user thread
+
+        // 從 ws client thread 送到 user thread，將收到的資料送到 user thread
         let (client_sender, user_receiver) = mpsc::channel();
 
-        let botnana = Botnana {
+        // 從 pool thread 送到指令到 ws client thread，用來維持 WS 連線
+        let (pool_sender, pool_receiver) = mpsc::channel();
+
+        let mut botnana = Botnana {
             user_sender: user_sender,
+            ws_out: None,
             handlers: Arc::new(Mutex::new(HashMap::new())),
             handler_counters: Arc::new(Mutex::new(HashMap::new())),
+            on_error_cb: Arc::new(Mutex::new(Vec::with_capacity(1))),
             on_send_cb: Arc::new(Mutex::new(Vec::with_capacity(1))),
             on_message_cb: Arc::new(Mutex::new(Vec::with_capacity(1))),
+        };
+
+        botnana
+            .on_error_cb
+            .lock()
+            .unwrap()
+            .push(Box::new(on_error_cb));
+
+        let url = match url::Url::parse(&("ws://".to_owned() + address + ":3012")) {
+            Err(e) => {
+                botnana.execute_on_error_cb(&format!("URL Error: {}\n", e));
+                return Some(botnana);
+            }
+            Ok(url) => url,
         };
 
         // 用來傳送 ws::sender
         let (thread_tx, thread_rx) = mpsc::channel();
 
+        let bna = botnana.clone();
         // Run client thread with channel to give it's WebSocket message sender back to us
         if let Err(e) = thread::Builder::new()
             .name("WS_CLIENT".to_string())
             .spawn(move || {
-                println!("Connecting to {:?}", url.clone());
+                println!("Connecting to {:?}", &url);
 
                 // connect ws server
                 if let Err(e) = connect(url.to_string(), |sender| Client {
                     ws_out: sender,
                     sender: client_sender.clone(),
                     thread_tx: thread_tx.clone(),
-                    on_error_cb: on_error_cb,
+                    on_error_cb: bna.on_error_cb.clone(),
                     is_watchdog_refreshed: false,
                 }) {
-                    eprintln!("Can't connect to WebSocket Server ({})", e);
+                    bna.execute_on_error_cb(&e.details.to_string());
                 }
             })
         {
-            eprintln!("Can't create WS_CLIENT thread ({})", e);
-            return None;
+            botnana.execute_on_error_cb(&format!("Can't create WS CLIENT thread ({})\n", e));
         }
 
         // 等待 WS 連線後，將 ws_sender 回傳
@@ -88,11 +102,16 @@ impl Botnana {
                     // 如果從 mpsc channel 接收到 user 傳過來的指令，就透過 WebSocket 送到 Server
                     if let Ok(msg) = client_receiver.recv() {
                         // 由 Client handler 處理錯誤
-                        let _ = ws_out.send(msg);
+                        if ws_out.send(msg).is_err() {
+                            break;
+                        }
+                    } else {
+                        break;
                     }
                 }
             });
 
+            botnana.ws_out = Some(ws_sender.clone());
             let mut bna = botnana.clone();
             // 使用 thread 處理 WebSocket Client 透過 mpsc 傳過來的 message
             if let Err(e) = thread::Builder::new()
@@ -101,13 +120,21 @@ impl Botnana {
                     if let Ok(msg) = user_receiver.recv() {
                         let msg = msg.trim_start().trim_start_matches('|');
                         bna.handle_message(msg);
+                    } else {
+                        // 讓 user receiver 與 pool receiver 知道出現問題了
+                        let _ = bna.user_sender.send(Message::Text(" ".to_string()));
+                        let _ = pool_sender.send(Message::Text(" ".to_string()));
+                        break;
                     }
                 })
             {
-                eprintln!("Can't create MESSAGE_PROCESSOR thread ({})", e);
-                return None;
+                botnana.execute_on_error_cb(&format!(
+                    "Can't create MESSAGE_PROCESSOR thread ({})\n",
+                    e
+                ));
             }
 
+            let mut bna = botnana.clone();
             // poll thread
             // 不使用 ws::Handler on_timeout 的原因是在測試時產生 timeout 事件最少需要 200 ms
             if let Err(e) = thread::Builder::new()
@@ -117,18 +144,34 @@ impl Botnana {
                         "{\"jsonrpc\":\"2.0\",\"method\":\"motion.poll\"}".to_owned(),
                     );
                     loop {
-                        thread::sleep(std::time::Duration::from_millis(100));
-                        let _ = ws_sender.send(poll_msg.clone());
+                        thread::sleep(std::time::Duration::from_millis(50));
+                        // 當 WS 連線有問題時，用來接收通知，正常時應該不會收到東西
+                        match pool_receiver.try_recv() {
+                            Ok(_) | Err(TryRecvError::Disconnected) => {
+                                break;
+                            }
+                            _ => {}
+                        }
+
+                        if ws_sender.send(poll_msg.clone()).is_err() {
+                            break;
+                        }
                     }
                 })
             {
-                eprintln!("Can't create POLL thread ({})", e);
-                return None;
+                bna.execute_on_error_cb(&format!("Can't create POLL thread ({})\n", e));
             }
         } else {
-            eprintln!("Can't connect to WebSocket Server");
+            botnana.execute_on_error_cb("Can't connect to WebSocket Server");
         }
         Some(botnana)
+    }
+
+    /// Disconnect
+    pub fn disconnect(&mut self) {
+        if let Some(ref mut ws_out) = self.ws_out {
+            let _ = ws_out.close(CloseCode::Normal);
+        }
     }
 
     /// send message to mpsc channel
@@ -143,9 +186,9 @@ impl Botnana {
 
             cb[0](msg);
         }
-        self.user_sender
-            .send(Message::Text(msg.to_string()))
-            .expect("send_message");
+        if let Err(e) = self.user_sender.send(Message::Text(msg.to_string())) {
+            self.execute_on_error_cb(&format!("Send Message Error: {}\n", e));
+        }
     }
 
     /// handle message
@@ -241,6 +284,18 @@ impl Botnana {
         hc.push(count);
     }
 
+    /// Execute on_error callback
+    fn execute_on_error_cb(&self, msg: &str) {
+        let cb = self.on_error_cb.lock().unwrap();
+        let mut temp_msg = String::from(msg).into_bytes();
+        temp_msg.push(0);
+        let msg = CStr::from_bytes_with_nul(temp_msg.as_slice())
+            .expect("toCstr")
+            .as_ptr();
+
+        cb[0](msg);
+    }
+
     pub fn set_on_send_cb<F>(&mut self, handler: F)
     where
         F: Fn(*const c_char) + Send + 'static,
@@ -269,8 +324,22 @@ struct Client {
     ws_out: ws::Sender,
     sender: mpsc::Sender<String>,
     thread_tx: mpsc::Sender<ws::Sender>,
-    on_error_cb: fn(*const c_char),
+    on_error_cb: Arc<Mutex<Vec<Box<Fn(*const c_char) + Send>>>>,
     is_watchdog_refreshed: bool,
+}
+
+impl Client {
+    /// Execute on_error callback
+    fn execute_on_error_cb(&self, msg: &str) {
+        let cb = self.on_error_cb.lock().unwrap();
+        let mut temp_msg = String::from(msg).into_bytes();
+        temp_msg.push(0);
+        let msg = CStr::from_bytes_with_nul(temp_msg.as_slice())
+            .expect("toCstr")
+            .as_ptr();
+
+        cb[0](msg);
+    }
 }
 
 impl Handler for Client {
@@ -302,55 +371,27 @@ impl Handler for Client {
 
     /// on error
     fn on_error(&mut self, err: Error) {
-        let mut msg = String::new();
-        write!(msg, "{}", err).expect("write error msg");
-        let mut msgb = msg.into_bytes();
-        // 如果不是換行結束的,補上換行符號,如果沒有在 C 的輸出有問題
-        if msgb[msgb.len() - 1] != 10 {
-            msgb.push(10);
-        }
-        msgb.push(0);
-        (self.on_error_cb)(
-            CStr::from_bytes_with_nul(msgb.as_slice())
-                .expect("toCstr")
-                .as_ptr(),
-        );
+        self.execute_on_error_cb(&format!("{:?}\n", err));
     }
 
     /// on close
-    fn on_close(&mut self, _code: CloseCode, reason: &str) {
-        let mut msgb = String::from(reason).into_bytes();
-        // 如果不是換行結束的,補上換行符號,如果沒有在 C 的輸出有問題
-        if msgb[msgb.len() - 1] != 10 {
-            msgb.push(10);
-        }
-        msgb.push(0);
-        (self.on_error_cb)(
-            CStr::from_bytes_with_nul(msgb.as_slice())
-                .expect("toCstr")
-                .as_ptr(),
-        );
+    fn on_close(&mut self, code: CloseCode, reason: &str) {
+        self.execute_on_error_cb(&format!(
+            "WS Client close code = {:?}, reason = {}\n",
+            code, reason
+        ));
     }
 
     /// Called when a timeout is triggered.
     fn on_timeout(&mut self, _event: Token) -> Result<()> {
         if !self.is_watchdog_refreshed {
-            let mut msg = String::new();
-            write!(msg, "timeout!!").expect("write error msg");
-            let mut msgb = msg.into_bytes();
-            // 如果不是換行結束的,補上換行符號,如果沒有在 C 的輸出有問題
-            if msgb[msgb.len() - 1] != 10 {
-                msgb.push(10);
-            }
-            msgb.push(0);
-            (self.on_error_cb)(
-                CStr::from_bytes_with_nul(msgb.as_slice())
-                    .expect("toCstr")
-                    .as_ptr(),
-            );
+            self.execute_on_error_cb(&format!("WS Client timeout!\n"));
+            // 連線斷掉時，要用 shutdown，才能關掉。
+            self.ws_out.shutdown()
+        } else {
+            self.is_watchdog_refreshed = false;
+            self.ws_out.timeout(WS_WATCHDOG_PERIOD_MS, WS_TIMEOUT_TOKEN)
         }
-        self.is_watchdog_refreshed = false;
-        self.ws_out.timeout(WS_WATCHDOG_PERIOD_MS, WS_TIMEOUT_TOKEN)
     }
 }
 
@@ -392,14 +433,17 @@ pub extern "C" fn botnana_connect(
     if let Some(botnana) = Botnana::connect(address, on_ws_error_cb) {
         Box::new(botnana)
     } else {
-        let botnana = Botnana {
-            user_sender: mpsc::channel().0,
-            handlers: Arc::new(Mutex::new(HashMap::new())),
-            handler_counters: Arc::new(Mutex::new(HashMap::new())),
-            on_send_cb: Arc::new(Mutex::new(Vec::with_capacity(1))),
-            on_message_cb: Arc::new(Mutex::new(Vec::with_capacity(1))),
-        };
-        Box::new(botnana)
+        unreachable!()
+    }
+}
+
+/// disconnection
+/// `address` of botnana
+#[no_mangle]
+pub extern "C" fn botnana_disconnect(botnana: Box<Botnana>) {
+    let s = Box::into_raw(botnana);
+    unsafe {
+        (*s).disconnect();
     }
 }
 
