@@ -16,6 +16,10 @@ struct Botnana;
 struct Botnana * botnana_connect(const char * address,
                                  void (* on_ws_error_cb)(const char * str));
 
+// Disconnect
+// desc : server descriptor
+struct Botnana * botnana_disconnect(struct Botnana * desc);
+
 // Send raw message
 void botnana_send_message(struct Botnana * desc,
                           const char * msg);
