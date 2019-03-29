@@ -41,8 +41,8 @@ impl Botnana {
         // 從 ws client thread 送到 user thread，將收到的資料送到 user thread
         let (client_sender, user_receiver) = mpsc::channel();
 
-        // 從 pool thread 送到指令到 ws client thread，用來維持 WS 連線
-        let (pool_sender, pool_receiver) = mpsc::channel();
+        // 從 poll thread 送到指令到 ws client thread，用來維持 WS 連線
+        let (poll_sender, poll_receiver) = mpsc::channel();
 
         let mut botnana = Botnana {
             user_sender: user_sender,
@@ -71,8 +71,8 @@ impl Botnana {
         // 用來傳送 ws::sender
         let (thread_tx, thread_rx) = mpsc::channel();
 
-        let bna = botnana.clone();
         // Run client thread with channel to give it's WebSocket message sender back to us
+        let bna = botnana.clone();
         if let Err(e) = thread::Builder::new()
             .name("WS_CLIENT".to_string())
             .spawn(move || {
@@ -121,9 +121,11 @@ impl Botnana {
                         let msg = msg.trim_start().trim_start_matches('|');
                         bna.handle_message(msg);
                     } else {
-                        // 讓 user receiver 與 pool receiver 知道出現問題了
+                        // 讓 client receiver 與 poll receiver 知道出現問題了
+                        // 故意送任一個訊息，讓 user receiver 與 poll receiver 收到訊息
+                        // 依 client receiver 與 poll receiver 的機制最後續處理
                         let _ = bna.user_sender.send(Message::Text(" ".to_string()));
-                        let _ = pool_sender.send(Message::Text(" ".to_string()));
+                        let _ = poll_sender.send(Message::Text(" ".to_string()));
                         break;
                     }
                 })
@@ -146,7 +148,7 @@ impl Botnana {
                     loop {
                         thread::sleep(std::time::Duration::from_millis(50));
                         // 當 WS 連線有問題時，用來接收通知，正常時應該不會收到東西
-                        match pool_receiver.try_recv() {
+                        match poll_receiver.try_recv() {
                             Ok(_) | Err(TryRecvError::Disconnected) => {
                                 break;
                             }
