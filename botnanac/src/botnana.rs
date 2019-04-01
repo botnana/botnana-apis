@@ -2,7 +2,7 @@ use libc;
 use serde_json;
 use std::{self,
           boxed::Box,
-          collections::HashMap,
+          collections::{HashMap, VecDeque},
           ffi::CStr,
           fmt::Write,
           os::raw::c_char,
@@ -15,7 +15,8 @@ use ws::{self, connect, util::Token, CloseCode, Error, ErrorKind, Handler, Hands
          Result};
 
 const WS_TIMEOUT_TOKEN: Token = Token(1);
-const WS_WATCHDOG_PERIOD_MS: u64 = 2_000;
+const WS_WATCHDOG_PERIOD_MS: u64 = 10_000;
+const AUTO_FLUSH_COUNT: u32 = 8;
 
 /// Botnana
 #[repr(C)]
@@ -24,6 +25,10 @@ pub struct Botnana {
     user_sender: mpsc::Sender<Message>,
     handlers: Arc<Mutex<HashMap<String, Vec<Box<Fn(*const c_char) + Send>>>>>,
     handler_counters: Arc<Mutex<HashMap<String, Vec<u32>>>>,
+    /// 用來存放 forth 命令的 buffer
+    scripts_buffer: Arc<Mutex<VecDeque<String>>>,
+    /// 收到 `auto_flush_count` 個暫存命令後，要送出給 Botnana motion server
+    auto_flush_count: Arc<Mutex<u32>>,
     on_send_cb: Arc<Mutex<Vec<Box<Fn(*const c_char) + Send>>>>,
     on_message_cb: Arc<Mutex<Vec<Box<Fn(*const c_char) + Send>>>>,
 }
@@ -50,6 +55,8 @@ impl Botnana {
             user_sender: user_sender,
             handlers: Arc::new(Mutex::new(HashMap::new())),
             handler_counters: Arc::new(Mutex::new(HashMap::new())),
+            scripts_buffer: Arc::new(Mutex::new(VecDeque::new())),
+            auto_flush_count: Arc::new(Mutex::new(AUTO_FLUSH_COUNT)),
             on_send_cb: Arc::new(Mutex::new(Vec::with_capacity(1))),
             on_message_cb: Arc::new(Mutex::new(Vec::with_capacity(1))),
         };
@@ -110,6 +117,7 @@ impl Botnana {
 
             // poll thread
             // 不使用 ws::Handler on_timeout 的原因是在測試時產生 timeout 事件最少需要 200 ms
+            let mut bna = botnana.clone();
             if let Err(e) = thread::Builder::new()
                 .name("POLL".to_string())
                 .spawn(move || {
@@ -117,8 +125,9 @@ impl Botnana {
                         "{\"jsonrpc\":\"2.0\",\"method\":\"motion.poll\"}".to_owned(),
                     );
                     loop {
-                        thread::sleep(std::time::Duration::from_millis(100));
+                        thread::sleep(std::time::Duration::from_millis(50));
                         let _ = ws_sender.send(poll_msg.clone());
+                        bna.flush_scripts_buffer();
                     }
                 })
             {
@@ -127,11 +136,12 @@ impl Botnana {
             }
         } else {
             eprintln!("Can't connect to WebSocket Server");
+            return None;
         }
         Some(botnana)
     }
 
-    /// send message to mpsc channel
+    /// Send message to mpsc channel
     pub fn send_message(&mut self, msg: &str) {
         let cb = self.on_send_cb.lock().unwrap();
         if cb.len() > 0 && msg.len() > 0 {
@@ -148,7 +158,64 @@ impl Botnana {
             .expect("send_message");
     }
 
-    /// handle message
+    /// Evaluate (立即送出)
+    pub fn evaluate(&mut self, script: &str) {
+        match serde_json::to_value(script) {
+            Ok(x) => {
+                let msg = r#"{"jsonrpc":"2.0","method":"script.evaluate","params":{"script":"#
+                    .to_owned()
+                    + &x.to_string()
+                    + r#"}}"#;
+                self.user_sender
+                    .send(Message::Text(msg.to_string()))
+                    .expect("send_message");
+            }
+            _ => {
+                unreachable!();
+            }
+        }
+    }
+
+    /// Send script to command buffer （將命令送到緩衝區）
+    pub fn send_script_to_buffer(&mut self, script: &str) {
+        let queues_len: u32;
+        let queues_threshold: u32;
+        {
+            let mut queues = self.scripts_buffer.lock().expect("");
+            queues.push_back(script.to_owned() + r#" "#);
+            queues_len = queues.len() as u32;
+            queues_threshold = *self.auto_flush_count.lock().expect("");
+        }
+        if queues_len >= queues_threshold {
+            self.flush_scripts_buffer();
+        }
+    }
+
+    /// Set auto flush count
+    pub fn set_auto_flush_count(&mut self, count: u32) {
+        *self.auto_flush_count.lock().unwrap() = count;
+    }
+
+    /// Flush scripts buffer (將緩衝區內的命令送出)
+    pub fn flush_scripts_buffer(&mut self) {
+        let mut msg = String::new();
+        {
+            let mut queues = self.scripts_buffer.lock().expect("");
+            loop {
+                match queues.pop_front() {
+                    Some(x) => {
+                        msg.push_str(&x);
+                    }
+                    None => break,
+                }
+            }
+        }
+        if msg.len() > 0 {
+            self.evaluate(&msg);
+        }
+    }
+
+    /// Handle message
     fn handle_message(&mut self, message: &str) {
         let cb = self.on_message_cb.lock().unwrap();
         if cb.len() > 0 && message.len() > 0 {
@@ -360,20 +427,41 @@ pub fn send_message(botnana: Box<Botnana>, msg: &str) {
     unsafe { (*s).send_message(msg) };
 }
 
-/// evaluate
+/// Evaluate
 pub fn evaluate(botnana: Box<Botnana>, script: &str) {
-    match serde_json::to_value(script) {
-        Ok(x) => {
-            let msg = r#"{"jsonrpc":"2.0","method":"script.evaluate","params":{"script":"#
-                .to_owned()
-                + &x.to_string()
-                + r#"}}"#;
-            send_message(botnana, &msg);
-        }
-        _ => {
-            unreachable!();
-        }
+    let s = Box::into_raw(botnana);
+    unsafe { (*s).evaluate(script) };
+}
+
+#[no_mangle]
+/// Send script to buffer
+pub extern "C" fn send_script_to_buffer(
+    botnana: Box<Botnana>,
+    script: *const c_char,
+) -> libc::int32_t {
+    if script.is_null() {
+        -1
+    } else {
+        let script = unsafe { String::from_utf8_lossy(&CStr::from_ptr(script).to_bytes()) };
+        let s = Box::into_raw(botnana);
+        unsafe { (*s).send_script_to_buffer(&(script.to_owned())) };
+        0
     }
+}
+
+#[no_mangle]
+/// Flush scripts buffer
+pub extern "C" fn flush_scripts_buffer(botnana: Box<Botnana>) -> libc::int32_t {
+    let s = Box::into_raw(botnana);
+    unsafe { (*s).flush_scripts_buffer() };
+    0
+}
+
+#[no_mangle]
+/// Set auto flush count
+pub fn set_auto_flush_count(botnana: Box<Botnana>, count: libc::uint32_t) {
+    let s = Box::into_raw(botnana);
+    unsafe { (*s).set_auto_flush_count(count) };
 }
 
 /// connect to botnana
@@ -396,6 +484,8 @@ pub extern "C" fn botnana_connect(
             user_sender: mpsc::channel().0,
             handlers: Arc::new(Mutex::new(HashMap::new())),
             handler_counters: Arc::new(Mutex::new(HashMap::new())),
+            scripts_buffer: Arc::new(Mutex::new(VecDeque::new())),
+            auto_flush_count: Arc::new(Mutex::new(AUTO_FLUSH_COUNT)),
             on_send_cb: Arc::new(Mutex::new(Vec::with_capacity(1))),
             on_message_cb: Arc::new(Mutex::new(Vec::with_capacity(1))),
         };
