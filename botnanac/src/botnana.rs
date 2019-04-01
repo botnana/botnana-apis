@@ -136,6 +136,7 @@ impl Botnana {
             }
         } else {
             eprintln!("Can't connect to WebSocket Server");
+            return None;
         }
         Some(botnana)
     }
