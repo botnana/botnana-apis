@@ -14,7 +14,6 @@ use ws::{self, connect, util::Token, CloseCode, Error, ErrorKind, Handler, Hands
          Result};
 const WS_TIMEOUT_TOKEN: Token = Token(1);
 const WS_WATCHDOG_PERIOD_MS: u64 = 10_000;
-const AUTO_FLUSH_COUNT: u32 = 8;
 
 /// Botnana
 #[repr(C)]
@@ -27,8 +26,10 @@ pub struct Botnana {
     handler_counters: Arc<Mutex<HashMap<String, Vec<u32>>>>,
     /// 用來存放 forth 命令的 buffer
     scripts_buffer: Arc<Mutex<VecDeque<String>>>,
-    /// 收到 `auto_flush_count` 個暫存命令後，要送出給 Botnana motion server
-    auto_flush_count: Arc<Mutex<u32>>,
+    /// 在 polling thread裡，每次從 scripts buffer 裡拿出 scripts_pop_count 個暫存命令送出給 Botnana motion server
+    scripts_pop_count: Arc<Mutex<u32>>,
+    /// poll thread 啟動的時間
+    poll_interval_ms: Arc<Mutex<u64>>,
     is_connecting: Arc<Mutex<bool>>,
     on_open_cb: Arc<Mutex<Vec<Box<Fn(*const c_char) + Send>>>>,
     on_error_cb: Arc<Mutex<Vec<Box<Fn(*const c_char) + Send>>>>,
@@ -45,8 +46,9 @@ impl Botnana {
             ws_out: None,
             handlers: Arc::new(Mutex::new(HashMap::new())),
             handler_counters: Arc::new(Mutex::new(HashMap::new())),
-            scripts_buffer: Arc::new(Mutex::new(VecDeque::new())),
-            auto_flush_count: Arc::new(Mutex::new(AUTO_FLUSH_COUNT)),
+            scripts_buffer: Arc::new(Mutex::new(VecDeque::with_capacity(1024))),
+            scripts_pop_count: Arc::new(Mutex::new(8)),
+            poll_interval_ms: Arc::new(Mutex::new(10)),
             is_connecting: Arc::new(Mutex::new(false)),
             on_open_cb: Arc::new(Mutex::new(Vec::with_capacity(1))),
             on_error_cb: Arc::new(Mutex::new(Vec::with_capacity(1))),
@@ -202,7 +204,8 @@ impl Botnana {
                                     "{\"jsonrpc\":\"2.0\",\"method\":\"motion.poll\"}".to_owned(),
                                 );
                                 loop {
-                                    thread::sleep(std::time::Duration::from_millis(50));
+                                    let interval = *bna.poll_interval_ms.lock().expect("poll thread");
+                                    thread::sleep(std::time::Duration::from_millis(interval));
                                     // 當 WS 連線有問題時，用來接收通知，正常時應該不會收到東西
                                     match poll_receiver.try_recv() {
                                         Ok(_) | Err(TryRecvError::Disconnected) => {
@@ -211,9 +214,9 @@ impl Botnana {
                                         _ => {}
                                     }
 
-                                    if ws_sender.send(poll_msg.clone()).is_ok() {
-                                        bna.flush_scripts_buffer();
-                                    } else {
+                                    if bna.scripts_buffer_len() > 0 {
+                                        bna.pop_scripts_buffer();
+                                    } else if ws_sender.send(poll_msg.clone()).is_err() {
                                         break;
                                     }
                                 }
@@ -274,22 +277,44 @@ impl Botnana {
 
     /// Send script to command buffer （將命令送到緩衝區）
     pub fn send_script_to_buffer(&mut self, script: &str) {
-        let queues_len: u32;
-        let queues_threshold: u32;
-        {
-            let mut queues = self.scripts_buffer.lock().expect("");
-            queues.push_back(script.to_owned() + r#" "#);
-            queues_len = queues.len() as u32;
-            queues_threshold = *self.auto_flush_count.lock().expect("");
-        }
-        if queues_len >= queues_threshold {
-            self.flush_scripts_buffer();
-        }
+        self.scripts_buffer
+            .lock()
+            .expect("")
+            .push_back(script.to_owned() + "\n");
     }
 
-    /// Set auto flush count
-    pub fn set_auto_flush_count(&mut self, count: u32) {
-        *self.auto_flush_count.lock().unwrap() = count;
+    /// Set poll interval_ms
+    pub fn set_poll_interval_ms(&mut self, interval: u64) {
+        *self.poll_interval_ms.lock().expect("set_scripts_pop_count") = interval;
+    }
+
+    /// Set scripts pop count
+    pub fn set_scripts_pop_count(&mut self, count: u32) {
+        *self
+            .scripts_pop_count
+            .lock()
+            .expect("set_scripts_pop_count") = count;
+    }
+
+    /// Scripts buffer length
+    pub fn scripts_buffer_len(&self) -> usize {
+        self.scripts_buffer.lock().expect("").len()
+    }
+
+    /// Pop scripts buffer
+    fn pop_scripts_buffer(&mut self) {
+        let mut msg = String::new();
+        {
+            let pop_count = self.scripts_pop_count.lock().expect("pop_scripts_buffer");
+            let mut queues = self.scripts_buffer.lock().expect("pop_scripts_buffer");
+            let len = pop_count.min(queues.len() as u32);
+            for _ in 0..len {
+                if let Some(x) = queues.pop_front() {
+                    msg.push_str(&x);
+                }
+            }
+        }
+        self.evaluate(&msg);
     }
 
     /// Flush scripts buffer (將緩衝區內的命令送出)
@@ -573,10 +598,17 @@ pub extern "C" fn flush_scripts_buffer(botnana: Box<Botnana>) -> libc::int32_t {
 }
 
 #[no_mangle]
-/// Set auto flush count
-pub fn set_auto_flush_count(botnana: Box<Botnana>, count: libc::uint32_t) {
+/// Set scripts pop count
+pub fn set_scripts_pop_count(botnana: Box<Botnana>, count: libc::uint32_t) {
     let s = Box::into_raw(botnana);
-    unsafe { (*s).set_auto_flush_count(count) };
+    unsafe { (*s).set_scripts_pop_count(count) };
+}
+
+#[no_mangle]
+/// Set poll interval
+pub fn set_poll_interval_ms(botnana: Box<Botnana>, interval: libc::uint64_t) {
+    let s = Box::into_raw(botnana);
+    unsafe { (*s).set_poll_interval_ms(interval) };
 }
 
 /// New Botnana
