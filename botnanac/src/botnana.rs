@@ -137,7 +137,7 @@ impl Botnana {
                                 on_error_cb: bna.on_error_cb.clone(),
                                 is_watchdog_refreshed: false,
                             });
-                            // 直到連線到 WS Server 且結束 WS Client Event loop， 才會執行以下程式。
+                            // 直到 WS Client Event loop 結束， 才會執行以下程式。
                             *bna.is_connecting.lock().expect("Try connecting") = false;
                             bna.ws_out = None;
                         })
