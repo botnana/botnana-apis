@@ -9,6 +9,13 @@ void on_message_cb (const char * src)
     printf("on_message:  %s\n", src);
 }
 
+int ws_open = 0;
+// 處理 WebSocket on_open
+void on_ws_open_cb (const char * src)
+{
+    ws_open = 1;
+}
+
 // 處理 WebSocket 連線異常
 void on_ws_error_cb (const char * src)
 {
@@ -92,7 +99,9 @@ void error_cb (const char * src)
 int main()
 {
     // connect to motion server
-    struct Botnana * botnana = botnana_connect("192.168.7.2", on_ws_error_cb);
+    struct Botnana * botnana = botnana_new("192.168.7.2");
+    botnana_set_on_open_cb(botnana, on_ws_open_cb);
+    botnana_set_on_error_cb(botnana, on_ws_error_cb);
     //botnana_set_on_message_cb(botnana, on_message_cb);
     //botnana_set_on_send_cb(botnana, on_send_cb);
 
@@ -111,6 +120,11 @@ int main()
     // new program
     struct Program * pm = program_new("group1d");
 
+    botnana_connect(botnana);
+    while (ws_open == 0)
+    {
+        sleep(1);
+    }
     script_evaluate(botnana, "abort-program");
     script_evaluate(botnana, "1 .slave 1 .grpcfg 1 .axiscfg");
 
@@ -133,11 +147,13 @@ int main()
     program_line(pm, "1 1 reset-fault");
     program_line(pm,"1 1 until-no-fault");
     program_line(pm,"pp 1 1 op-mode!");
+    program_line(pm,"until-no-requests");
     program_line(pm,"1 1 drive-on");
     program_line(pm,"1 1 until-drive-on");
     program_line(pm,"1 1 go");
     program_line(pm,"1 1 until-target-reached");
     program_line(pm,"csp 1 1 op-mode!");
+    program_line(pm,"until-no-requests");
 
     program_line(pm,"+coordinator");
     program_line(pm,"1 group! 0path +group");
