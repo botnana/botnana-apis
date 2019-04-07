@@ -122,6 +122,7 @@ void version_get(struct Botnana * desc);
 // position: slave position, start by 1
 // channel:  device channel, start by 1
 void config_slave_get(struct Botnana * desc,
+                      uint32_t alias,
                       uint32_t position,
                       uint32_t channel);
 
@@ -142,6 +143,7 @@ void config_slave_get(struct Botnana * desc,
 // value: setting value
 // return: 0 表示有將 JSON-API 送出
 int32_t config_slave_set(struct Botnana * desc,
+                         uint32_t alias,
                          uint32_t position,
                          uint32_t channel,
                          const char * param,

@@ -44,6 +44,7 @@ pub extern "C" fn version_get(botnana: Box<Botnana>) {
 #[no_mangle]
 pub extern "C" fn config_slave_set(
     botnana: Box<Botnana>,
+    alias: libc::uint32_t,
     position: libc::uint32_t,
     channel: libc::uint32_t,
     param: *const c_char,
@@ -54,8 +55,9 @@ pub extern "C" fn config_slave_set(
     } else {
         let param = unsafe { str::from_utf8(CStr::from_ptr(param).to_bytes()).unwrap() };
 
-        let msg = r#"{"jsonrpc":"2.0","method":"config.slave.set","params":{"position":"#
-            .to_owned()
+        let msg = r#"{"jsonrpc":"2.0","method":"config.slave.set","params":{"alias":"#.to_owned()
+            + alias.to_string().as_str()
+            + r#","position":"#
             + position.to_string().as_str()
             + r#","channel":"#
             + channel.to_string().as_str()
@@ -73,10 +75,13 @@ pub extern "C" fn config_slave_set(
 #[no_mangle]
 pub extern "C" fn config_slave_get(
     botnana: Box<Botnana>,
+    alias: libc::uint32_t,
     position: libc::uint32_t,
     channel: libc::uint32_t,
 ) {
-    let msg = r#"{"jsonrpc":"2.0","method":"config.slave.get","params":{"position":"#.to_owned()
+    let msg = r#"{"jsonrpc":"2.0","method":"config.slave.get","params":{"alias":"#.to_owned()
+        + alias.to_string().as_str()
+        + r#","position":"#
         + position.to_string().as_str()
         + r#","channel":"#
         + channel.to_string().as_str()
