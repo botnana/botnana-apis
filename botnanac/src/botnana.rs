@@ -20,7 +20,7 @@ const WS_WATCHDOG_PERIOD_MS: u64 = 10_000;
 #[derive(Clone)]
 pub struct Botnana {
     url: String,
-    user_sender: Option<mpsc::Sender<Message>>,
+    user_sender: Arc<Mutex<Option<mpsc::Sender<Message>>>>,
     ws_out: Arc<Mutex<Option<ws::Sender>>>,
     handlers: Arc<Mutex<HashMap<String, Vec<Box<Fn(*const c_char) + Send>>>>>,
     handler_counters: Arc<Mutex<HashMap<String, Vec<u32>>>>,
@@ -42,7 +42,7 @@ impl Botnana {
     pub fn new() -> Botnana {
         Botnana {
             url: "ws://192.168.7.2:3012".to_string(),
-            user_sender: None,
+            user_sender: Arc::new(Mutex::new(None)),
             ws_out: Arc::new(Mutex::new(None)),
             handlers: Arc::new(Mutex::new(HashMap::new())),
             handler_counters: Arc::new(Mutex::new(HashMap::new())),
@@ -117,7 +117,7 @@ impl Botnana {
         // 用來傳送 ws::sender
         let (thread_tx, thread_rx) = mpsc::channel();
 
-        self.user_sender = Some(user_sender);
+        *self.user_sender.lock().expect("Set user sender") = Some(user_sender);
         let mut botnana = self.clone();
 
         thread::Builder::new()
@@ -178,7 +178,7 @@ impl Botnana {
                                 // 讓 client receiver 與 poll receiver 知道出現問題了
                                 // 故意送任一個訊息，讓 user receiver 與 poll receiver 收到訊息
                                 // 依 client receiver 與 poll receiver 的機制進行後續處理。
-                                if let Some(sender) = bna.user_sender {
+                                if let Some(ref sender) = *bna.user_sender.lock().expect("") {
                                     let _ = sender.send(Message::Text(" ".to_string()));
                                 }
                                 let _ = poll_sender.send(Message::Text(" ".to_string()));
@@ -252,7 +252,7 @@ impl Botnana {
                 }
             }
             let mut error_info = Ok(());
-            if let Some(ref sender) = self.user_sender {
+            if let Some(ref sender) = *self.user_sender.lock().expect("send message") {
                 error_info = sender.send(Message::Text(msg.to_string()));
             }
 
@@ -270,7 +270,7 @@ impl Botnana {
                     .to_owned()
                     + &x.to_string()
                     + r#"}}"#;
-                if let Some(ref sender) = self.user_sender {
+                if let Some(ref sender) = *self.user_sender.lock().expect("evaluate") {
                     sender
                         .send(Message::Text(msg.to_string()))
                         .expect("send_message");
@@ -441,7 +441,7 @@ impl Botnana {
 
     /// Execute on_error callback
     fn execute_on_error_cb(&mut self, msg: &str) {
-        self.user_sender = None;
+        *self.user_sender.lock().expect("execute_on_error_cb") = None;
         *self.ws_out.lock().expect("execute_on_error_cb") = None;
         self.scripts_buffer
             .lock()
