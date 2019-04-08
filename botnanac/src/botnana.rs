@@ -21,7 +21,7 @@ const WS_WATCHDOG_PERIOD_MS: u64 = 10_000;
 pub struct Botnana {
     url: String,
     user_sender: Option<mpsc::Sender<Message>>,
-    ws_out: Option<ws::Sender>,
+    ws_out: Arc<Mutex<Option<ws::Sender>>>,
     handlers: Arc<Mutex<HashMap<String, Vec<Box<Fn(*const c_char) + Send>>>>>,
     handler_counters: Arc<Mutex<HashMap<String, Vec<u32>>>>,
     /// 用來存放 forth 命令的 buffer
@@ -43,7 +43,7 @@ impl Botnana {
         Botnana {
             url: "ws://192.168.7.2:3012".to_string(),
             user_sender: None,
-            ws_out: None,
+            ws_out: Arc::new(Mutex::new(None)),
             handlers: Arc::new(Mutex::new(HashMap::new())),
             handler_counters: Arc::new(Mutex::new(HashMap::new())),
             scripts_buffer: Arc::new(Mutex::new(VecDeque::with_capacity(1024))),
@@ -124,7 +124,7 @@ impl Botnana {
             .name("Try Connection".to_string())
             .spawn(move || {
                 // 連線到 WS Server，因為 ws::connect 會被 block，所以要使用 thread 來連線才能執行後續的程序。
-                let mut bna = botnana.clone();
+                let bna = botnana.clone();
                 if let Err(e) =
                     thread::Builder::new()
                         .name("WS_CLIENT".to_string())
@@ -141,7 +141,6 @@ impl Botnana {
                             });
                             // 直到 WS Client Event loop 結束， 才會執行以下程式。
                             *bna.is_connecting.lock().expect("Try connecting") = false;
-                            bna.ws_out = None;
                         })
                 {
                     botnana
@@ -166,7 +165,7 @@ impl Botnana {
                         }
                     });
 
-                    botnana.ws_out = Some(ws_sender.clone());
+                    *botnana.ws_out.lock().expect("Set WS sender") = Some(ws_sender.clone());
                     let mut bna = botnana.clone();
                     // 使用 thread 處理 WebSocket Client 透過 mpsc 傳過來的 message
                     if let Err(e) = thread::Builder::new()
@@ -204,7 +203,8 @@ impl Botnana {
                                     "{\"jsonrpc\":\"2.0\",\"method\":\"motion.poll\"}".to_owned(),
                                 );
                                 loop {
-                                    let interval = *bna.poll_interval_ms.lock().expect("poll thread");
+                                    let interval =
+                                        *bna.poll_interval_ms.lock().expect("poll thread");
                                     thread::sleep(std::time::Duration::from_millis(interval));
                                     // 當 WS 連線有問題時，用來接收通知，正常時應該不會收到東西
                                     match poll_receiver.try_recv() {
@@ -231,56 +231,62 @@ impl Botnana {
 
     /// Disconnect
     pub fn disconnect(&mut self) {
-        if let Some(ref mut ws_out) = self.ws_out {
+        if let Some(ref mut ws_out) = *self.ws_out.lock().expect("disconnect") {
             let _ = ws_out.close(CloseCode::Normal);
         }
     }
 
     /// Send message to mpsc channel
     pub fn send_message(&mut self, msg: &str) {
-        {
-            let cb = self.on_send_cb.lock().unwrap();
-            if cb.len() > 0 && msg.len() > 0 {
-                let mut temp_msg = String::from(msg).into_bytes();
-                temp_msg.push(0);
-                let msg = CStr::from_bytes_with_nul(temp_msg.as_slice())
-                    .expect("toCstr")
-                    .as_ptr();
+        if self.has_ws_sender() {
+            {
+                let cb = self.on_send_cb.lock().unwrap();
+                if cb.len() > 0 && msg.len() > 0 {
+                    let mut temp_msg = String::from(msg).into_bytes();
+                    temp_msg.push(0);
+                    let msg = CStr::from_bytes_with_nul(temp_msg.as_slice())
+                        .expect("toCstr")
+                        .as_ptr();
 
-                cb[0](msg);
+                    cb[0](msg);
+                }
             }
-        }
-        let mut error_info = Ok(());
-        if let Some(ref sender) = self.user_sender {
-            error_info = sender.send(Message::Text(msg.to_string()));
-        }
+            let mut error_info = Ok(());
+            if let Some(ref sender) = self.user_sender {
+                error_info = sender.send(Message::Text(msg.to_string()));
+            }
 
-        if let Err(e) = error_info {
-            self.execute_on_error_cb(&format!("Send Message Error: {}\n", e));
+            if let Err(e) = error_info {
+                self.execute_on_error_cb(&format!("Send Message Error: {}\n", e));
+            }
         }
     }
 
     /// Evaluate (立即送出)
     pub fn evaluate(&mut self, script: &str) {
-        if let Ok(x) = serde_json::to_value(script) {
-            let msg = r#"{"jsonrpc":"2.0","method":"script.evaluate","params":{"script":"#
-                .to_owned()
-                + &x.to_string()
-                + r#"}}"#;
-            if let Some(ref sender) = self.user_sender {
-                sender
-                    .send(Message::Text(msg.to_string()))
-                    .expect("send_message");
+        if self.has_ws_sender() {
+            if let Ok(x) = serde_json::to_value(script) {
+                let msg = r#"{"jsonrpc":"2.0","method":"script.evaluate","params":{"script":"#
+                    .to_owned()
+                    + &x.to_string()
+                    + r#"}}"#;
+                if let Some(ref sender) = self.user_sender {
+                    sender
+                        .send(Message::Text(msg.to_string()))
+                        .expect("send_message");
+                }
             }
         }
     }
 
     /// Send script to command buffer （將命令送到緩衝區）
     pub fn send_script_to_buffer(&mut self, script: &str) {
-        self.scripts_buffer
-            .lock()
-            .expect("")
-            .push_back(script.to_owned() + "\n");
+        if self.has_ws_sender() {
+            self.scripts_buffer
+                .lock()
+                .expect("")
+                .push_back(script.to_owned() + "\n");
+        }
     }
 
     /// Set poll interval_ms
@@ -428,10 +434,19 @@ impl Botnana {
         hc.push(count);
     }
 
+    /// Has WS sender ?
+    fn has_ws_sender(&self) -> bool {
+        self.ws_out.lock().expect("has_ws_sender").is_some()
+    }
+
     /// Execute on_error callback
     fn execute_on_error_cb(&mut self, msg: &str) {
         self.user_sender = None;
-        self.ws_out = None;
+        *self.ws_out.lock().expect("execute_on_error_cb") = None;
+        self.scripts_buffer
+            .lock()
+            .expect("execute_on_error_cb")
+            .clear();
         let cb = self.on_error_cb.lock().expect("execute_on_error_cb");
         if cb.len() > 0 {
             let mut temp_msg = String::from(msg).into_bytes();
