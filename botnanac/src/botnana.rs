@@ -14,21 +14,22 @@ use ws::{self, connect, util::Token, CloseCode, Error, ErrorKind, Handler, Hands
          Result};
 const WS_TIMEOUT_TOKEN: Token = Token(1);
 const WS_WATCHDOG_PERIOD_MS: u64 = 10_000;
-const AUTO_FLUSH_COUNT: u32 = 8;
 
 /// Botnana
 #[repr(C)]
 #[derive(Clone)]
 pub struct Botnana {
     url: String,
-    user_sender: Option<mpsc::Sender<Message>>,
-    ws_out: Option<ws::Sender>,
+    user_sender: Arc<Mutex<Option<mpsc::Sender<Message>>>>,
+    ws_out: Arc<Mutex<Option<ws::Sender>>>,
     handlers: Arc<Mutex<HashMap<String, Vec<Box<Fn(*const c_char) + Send>>>>>,
     handler_counters: Arc<Mutex<HashMap<String, Vec<u32>>>>,
     /// 用來存放 forth 命令的 buffer
     scripts_buffer: Arc<Mutex<VecDeque<String>>>,
-    /// 收到 `auto_flush_count` 個暫存命令後，要送出給 Botnana motion server
-    auto_flush_count: Arc<Mutex<u32>>,
+    /// 在 polling thread裡，每次從 scripts buffer 裡拿出 scripts_pop_count 個暫存命令送出給 Botnana motion server
+    scripts_pop_count: Arc<Mutex<u32>>,
+    /// poll thread 啟動的時間
+    poll_interval_ms: Arc<Mutex<u64>>,
     is_connecting: Arc<Mutex<bool>>,
     on_open_cb: Arc<Mutex<Vec<Box<Fn(*const c_char) + Send>>>>,
     on_error_cb: Arc<Mutex<Vec<Box<Fn(*const c_char) + Send>>>>,
@@ -41,12 +42,13 @@ impl Botnana {
     pub fn new() -> Botnana {
         Botnana {
             url: "ws://192.168.7.2:3012".to_string(),
-            user_sender: None,
-            ws_out: None,
+            user_sender: Arc::new(Mutex::new(None)),
+            ws_out: Arc::new(Mutex::new(None)),
             handlers: Arc::new(Mutex::new(HashMap::new())),
             handler_counters: Arc::new(Mutex::new(HashMap::new())),
-            scripts_buffer: Arc::new(Mutex::new(VecDeque::new())),
-            auto_flush_count: Arc::new(Mutex::new(AUTO_FLUSH_COUNT)),
+            scripts_buffer: Arc::new(Mutex::new(VecDeque::with_capacity(1024))),
+            scripts_pop_count: Arc::new(Mutex::new(8)),
+            poll_interval_ms: Arc::new(Mutex::new(10)),
             is_connecting: Arc::new(Mutex::new(false)),
             on_open_cb: Arc::new(Mutex::new(Vec::with_capacity(1))),
             on_error_cb: Arc::new(Mutex::new(Vec::with_capacity(1))),
@@ -115,14 +117,14 @@ impl Botnana {
         // 用來傳送 ws::sender
         let (thread_tx, thread_rx) = mpsc::channel();
 
-        self.user_sender = Some(user_sender);
+        *self.user_sender.lock().expect("Set user sender") = Some(user_sender);
         let mut botnana = self.clone();
 
         thread::Builder::new()
             .name("Try Connection".to_string())
             .spawn(move || {
                 // 連線到 WS Server，因為 ws::connect 會被 block，所以要使用 thread 來連線才能執行後續的程序。
-                let mut bna = botnana.clone();
+                let bna = botnana.clone();
                 if let Err(e) =
                     thread::Builder::new()
                         .name("WS_CLIENT".to_string())
@@ -139,7 +141,6 @@ impl Botnana {
                             });
                             // 直到 WS Client Event loop 結束， 才會執行以下程式。
                             *bna.is_connecting.lock().expect("Try connecting") = false;
-                            bna.ws_out = None;
                         })
                 {
                     botnana
@@ -164,7 +165,7 @@ impl Botnana {
                         }
                     });
 
-                    botnana.ws_out = Some(ws_sender.clone());
+                    *botnana.ws_out.lock().expect("Set WS sender") = Some(ws_sender.clone());
                     let mut bna = botnana.clone();
                     // 使用 thread 處理 WebSocket Client 透過 mpsc 傳過來的 message
                     if let Err(e) = thread::Builder::new()
@@ -177,7 +178,7 @@ impl Botnana {
                                 // 讓 client receiver 與 poll receiver 知道出現問題了
                                 // 故意送任一個訊息，讓 user receiver 與 poll receiver 收到訊息
                                 // 依 client receiver 與 poll receiver 的機制進行後續處理。
-                                if let Some(sender) = bna.user_sender {
+                                if let Some(ref sender) = *bna.user_sender.lock().expect("") {
                                     let _ = sender.send(Message::Text(" ".to_string()));
                                 }
                                 let _ = poll_sender.send(Message::Text(" ".to_string()));
@@ -202,7 +203,9 @@ impl Botnana {
                                     "{\"jsonrpc\":\"2.0\",\"method\":\"motion.poll\"}".to_owned(),
                                 );
                                 loop {
-                                    thread::sleep(std::time::Duration::from_millis(50));
+                                    let interval =
+                                        *bna.poll_interval_ms.lock().expect("poll thread");
+                                    thread::sleep(std::time::Duration::from_millis(interval));
                                     // 當 WS 連線有問題時，用來接收通知，正常時應該不會收到東西
                                     match poll_receiver.try_recv() {
                                         Ok(_) | Err(TryRecvError::Disconnected) => {
@@ -211,9 +214,9 @@ impl Botnana {
                                         _ => {}
                                     }
 
-                                    if ws_sender.send(poll_msg.clone()).is_ok() {
-                                        bna.flush_scripts_buffer();
-                                    } else {
+                                    if bna.scripts_buffer_len() > 0 {
+                                        bna.pop_scripts_buffer();
+                                    } else if ws_sender.send(poll_msg.clone()).is_err() {
                                         break;
                                     }
                                 }
@@ -228,68 +231,96 @@ impl Botnana {
 
     /// Disconnect
     pub fn disconnect(&mut self) {
-        if let Some(ref mut ws_out) = self.ws_out {
+        if let Some(ref mut ws_out) = *self.ws_out.lock().expect("disconnect") {
             let _ = ws_out.close(CloseCode::Normal);
         }
     }
 
     /// Send message to mpsc channel
     pub fn send_message(&mut self, msg: &str) {
-        {
-            let cb = self.on_send_cb.lock().unwrap();
-            if cb.len() > 0 && msg.len() > 0 {
-                let mut temp_msg = String::from(msg).into_bytes();
-                temp_msg.push(0);
-                let msg = CStr::from_bytes_with_nul(temp_msg.as_slice())
-                    .expect("toCstr")
-                    .as_ptr();
+        if self.has_ws_sender() {
+            {
+                let cb = self.on_send_cb.lock().unwrap();
+                if cb.len() > 0 && msg.len() > 0 {
+                    let mut temp_msg = String::from(msg).into_bytes();
+                    temp_msg.push(0);
+                    let msg = CStr::from_bytes_with_nul(temp_msg.as_slice())
+                        .expect("toCstr")
+                        .as_ptr();
 
-                cb[0](msg);
+                    cb[0](msg);
+                }
             }
-        }
-        let mut error_info = Ok(());
-        if let Some(ref sender) = self.user_sender {
-            error_info = sender.send(Message::Text(msg.to_string()));
-        }
+            let mut error_info = Ok(());
+            if let Some(ref sender) = *self.user_sender.lock().expect("send message") {
+                error_info = sender.send(Message::Text(msg.to_string()));
+            }
 
-        if let Err(e) = error_info {
-            self.execute_on_error_cb(&format!("Send Message Error: {}\n", e));
+            if let Err(e) = error_info {
+                self.execute_on_error_cb(&format!("Send Message Error: {}\n", e));
+            }
         }
     }
 
     /// Evaluate (立即送出)
     pub fn evaluate(&mut self, script: &str) {
-        if let Ok(x) = serde_json::to_value(script) {
-            let msg = r#"{"jsonrpc":"2.0","method":"script.evaluate","params":{"script":"#
-                .to_owned()
-                + &x.to_string()
-                + r#"}}"#;
-            if let Some(ref sender) = self.user_sender {
-                sender
-                    .send(Message::Text(msg.to_string()))
-                    .expect("send_message");
+        if self.has_ws_sender() {
+            if let Ok(x) = serde_json::to_value(script) {
+                let msg = r#"{"jsonrpc":"2.0","method":"script.evaluate","params":{"script":"#
+                    .to_owned()
+                    + &x.to_string()
+                    + r#"}}"#;
+                if let Some(ref sender) = *self.user_sender.lock().expect("evaluate") {
+                    sender
+                        .send(Message::Text(msg.to_string()))
+                        .expect("send_message");
+                }
             }
         }
     }
 
     /// Send script to command buffer （將命令送到緩衝區）
     pub fn send_script_to_buffer(&mut self, script: &str) {
-        let queues_len: u32;
-        let queues_threshold: u32;
-        {
-            let mut queues = self.scripts_buffer.lock().expect("");
-            queues.push_back(script.to_owned() + r#" "#);
-            queues_len = queues.len() as u32;
-            queues_threshold = *self.auto_flush_count.lock().expect("");
-        }
-        if queues_len >= queues_threshold {
-            self.flush_scripts_buffer();
+        if self.has_ws_sender() {
+            self.scripts_buffer
+                .lock()
+                .expect("")
+                .push_back(script.to_owned() + "\n");
         }
     }
 
-    /// Set auto flush count
-    pub fn set_auto_flush_count(&mut self, count: u32) {
-        *self.auto_flush_count.lock().unwrap() = count;
+    /// Set poll interval_ms
+    pub fn set_poll_interval_ms(&mut self, interval: u64) {
+        *self.poll_interval_ms.lock().expect("set_scripts_pop_count") = interval;
+    }
+
+    /// Set scripts pop count
+    pub fn set_scripts_pop_count(&mut self, count: u32) {
+        *self
+            .scripts_pop_count
+            .lock()
+            .expect("set_scripts_pop_count") = count;
+    }
+
+    /// Scripts buffer length
+    pub fn scripts_buffer_len(&self) -> usize {
+        self.scripts_buffer.lock().expect("").len()
+    }
+
+    /// Pop scripts buffer
+    fn pop_scripts_buffer(&mut self) {
+        let mut msg = String::new();
+        {
+            let pop_count = self.scripts_pop_count.lock().expect("pop_scripts_buffer");
+            let mut queues = self.scripts_buffer.lock().expect("pop_scripts_buffer");
+            let len = pop_count.min(queues.len() as u32);
+            for _ in 0..len {
+                if let Some(x) = queues.pop_front() {
+                    msg.push_str(&x);
+                }
+            }
+        }
+        self.evaluate(&msg);
     }
 
     /// Flush scripts buffer (將緩衝區內的命令送出)
@@ -403,10 +434,19 @@ impl Botnana {
         hc.push(count);
     }
 
+    /// Has WS sender ?
+    fn has_ws_sender(&self) -> bool {
+        self.ws_out.lock().expect("has_ws_sender").is_some()
+    }
+
     /// Execute on_error callback
     fn execute_on_error_cb(&mut self, msg: &str) {
-        self.user_sender = None;
-        self.ws_out = None;
+        *self.user_sender.lock().expect("execute_on_error_cb") = None;
+        *self.ws_out.lock().expect("execute_on_error_cb") = None;
+        self.scripts_buffer
+            .lock()
+            .expect("execute_on_error_cb")
+            .clear();
         let cb = self.on_error_cb.lock().expect("execute_on_error_cb");
         if cb.len() > 0 {
             let mut temp_msg = String::from(msg).into_bytes();
@@ -573,10 +613,17 @@ pub extern "C" fn flush_scripts_buffer(botnana: Box<Botnana>) -> libc::int32_t {
 }
 
 #[no_mangle]
-/// Set auto flush count
-pub fn set_auto_flush_count(botnana: Box<Botnana>, count: libc::uint32_t) {
+/// Set scripts pop count
+pub fn set_scripts_pop_count(botnana: Box<Botnana>, count: libc::uint32_t) {
     let s = Box::into_raw(botnana);
-    unsafe { (*s).set_auto_flush_count(count) };
+    unsafe { (*s).set_scripts_pop_count(count) };
+}
+
+#[no_mangle]
+/// Set poll interval
+pub fn set_poll_interval_ms(botnana: Box<Botnana>, interval: libc::uint64_t) {
+    let s = Box::into_raw(botnana);
+    unsafe { (*s).set_poll_interval_ms(interval) };
 }
 
 /// New Botnana
