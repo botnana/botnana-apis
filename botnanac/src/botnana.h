@@ -176,56 +176,83 @@ void config_motion_set_axis_capacity(struct Botnana * botnana,
                                      uint32_t value);
 
 // JSON-API: config.motion.get
-//
-// desc: server descriptor
-void config_motion_get(struct Botnana * desc);
+// botnana: server descriptor
+void config_motion_get(struct Botnana * botnana);
 
-// JSON-API: config.group.set for string data type
-//
-// desc:     server descriptor
+// JSON-API: name of config.group.set
+// botnana:  Botnana motion server descriptor
 // position: group index
-// param:    setting item. possible item:
-//	        name,
-//		gtype,
-// value: setting value
+// value:    name
 // return: 0 表示有將 JSON-API 送出
-int32_t config_group_set_string(struct Botnana * desc,
-                                uint32_t position,
-                                const char * param,
-                                const char *  value);
+int32_t config_group_set_name(struct Botnana * botnana,
+                              uint32_t position,
+                              const char *  value);
+
+// JSON-API: type as 1D of config.group.set
+// botnana:  Botnana motion server descriptor
+// position: group index
+void config_group_set_gtype_as_1d(struct Botnana * botnana,
+                                  uint32_t position);
+
+// JSON-API: type as 2D of config.group.set
+// botnana:  Botnana motion server descriptor
+// position: group index
+void config_group_set_gtype_as_2d(struct Botnana * botnana,
+                                  uint32_t position);
+
+
+// JSON-API: type as 3D of config.group.set
+// botnana:  Botnana motion server descriptor
+// position: group index
+void config_group_set_gtype_as_3d(struct Botnana * botnana,
+                                  uint32_t position);
+
+// JSON-API: type as SINE of config.group.set
+// botnana:  Botnana motion server descriptor
+// position: group index
+void config_group_set_gtype_as_sine(struct Botnana * botnana,
+                                    uint32_t position);
 
 // JSON-API: config.group.set for mapping
-//
-// desc:     server descriptor
+// botnana:  Botnana motion server descriptor
 // position: group index
 // value:    mapping
 // return: 0 表示有將 JSON-API 送出
-int32_t config_group_set_mapping(struct Botnana * desc,
+int32_t config_group_set_mapping(struct Botnana * botnana,
                                  uint32_t position,
                                  const char *  value);
 
-// JSON-API: config.group.set for double data type
-//
-// desc:     server descriptor
+// JSON-API: vmax of config.group.set
+// botnana:  Botnana motion server descriptor
 // position: group index
-// param:    setting item. possible item:
-//	        vmax,
-//		amax,
-//		jmax,
-// value: setting value
-// return: 0 表示有將 JSON-API 送出
-int32_t config_group_set_double(struct Botnana * desc,
-                                uint32_t position,
-                                const char * param,
-                                double value);
+// value: vmax
+void config_group_set_vmax(struct Botnana * botnana,
+                           uint32_t position,
+                           double  value);
+
+// JSON-API: amax of config.group.set
+// botnana:  Botnana motion server descriptor
+// position: group index
+// value: amax
+void config_group_set_amax(struct Botnana * botnana,
+                           uint32_t position,
+                           double  value);
+
+// JSON-API: jmax of config.group.set
+// botnana:  Botnana motion server descriptor
+// position: group index
+// value: jmax
+void config_group_set_jmax(struct Botnana * botnana,
+                           uint32_t position,
+                           double  value);
+
+
 
 // JSON-API: config.group.get
-//
-// desc: server descriptor
+// botnana: server descriptor
 // position: group index
-void config_group_get(struct Botnana * desc,
+void config_group_get(struct Botnana * botnana,
                       uint32_t position);
-
 
 
 // JSON-API: name of config.axis.set

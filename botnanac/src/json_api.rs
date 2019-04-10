@@ -397,25 +397,25 @@ pub extern "C" fn config_group_set_name(
 
 /// config.group.set (gtype as 1D)
 #[no_mangle]
-pub extern "C" fn config_group_set_gtype_as_1d(botnana: Box<Botnana>, position: libc::uint32_t) {
+pub extern "C" fn config_group_set_type_as_1d(botnana: Box<Botnana>, position: libc::uint32_t) {
     config_group_set_string(botnana, position, "gtype", "1D");
 }
 
 /// config.group.set (gtype as 2D)
 #[no_mangle]
-pub extern "C" fn config_group_set_gtype_as_2d(botnana: Box<Botnana>, position: libc::uint32_t) {
+pub extern "C" fn config_group_set_type_as_2d(botnana: Box<Botnana>, position: libc::uint32_t) {
     config_group_set_string(botnana, position, "gtype", "2D");
 }
 
 /// config.group.set (gtype as 3D)
 #[no_mangle]
-pub extern "C" fn config_group_set_gtype_as_3d(botnana: Box<Botnana>, position: libc::uint32_t) {
+pub extern "C" fn config_group_set_type_as_3d(botnana: Box<Botnana>, position: libc::uint32_t) {
     config_group_set_string(botnana, position, "gtype", "3D");
 }
 
 /// config.group.set (gtype as SINE)
 #[no_mangle]
-pub extern "C" fn config_group_set_gtype_as_sine(botnana: Box<Botnana>, position: libc::uint32_t) {
+pub extern "C" fn config_group_set_type_as_sine(botnana: Box<Botnana>, position: libc::uint32_t) {
     config_group_set_string(botnana, position, "gtype", "SINE");
 }
 
