@@ -221,58 +221,149 @@ int32_t config_group_set_double(struct Botnana * desc,
 void config_group_get(struct Botnana * desc,
                       uint32_t position);
 
-// JSON-API: config.axis.set for string data type
-//
-// desc:     server descriptor
-// position: axis index
-// param:    setting item. possible item:
-//	        name,
-//		encoder_length_unit,
-// value: setting value
-// return: 0 表示有將 JSON-API 送出
-int32_t config_axis_set_string(struct Botnana * desc,
-                               uint32_t position,
-                               const char * param,
-                               const char *  value);
-
-// JSON-API: config.axis.set for double data type
-//
-// desc:     server descriptor
-// position: axis index
-// param:    setting item. possible item:
-//		home_offset
-//		encoder_ppu,
-//		vmax,
-//		amax,
-// value: setting value
-// return: 0 表示有將 JSON-API 送出
-int32_t config_axis_set_double(struct Botnana * desc,
-                               uint32_t position,
-                               const char * param,
-                               double value);
 
 
-// JSON-API: config.axis.set for integer data type
-//
-// desc:     server descriptor
+// JSON-API: name of config.axis.set
+// botnana: Botnana motion server descriptor
 // position: axis index
-// param:    setting item. possible item:
-//		encoder_direction
-//		slave_position
-// 		drive_channel
-// value: setting value
-// return: 0 表示有將 JSON-API 送出
-int32_t config_axis_set_integer(struct Botnana * desc,
-                                uint32_t position,
-                                const char * param,
-                                int32_t value);
+// name: axis name
+int config_axis_set_name(struct Botnana * botnana,
+                         uint32_t position,
+                         const char * name);
+
+// JSON-API: home_offset of config.axis.set
+// botnana: Botnana motion server descriptor
+// position: axis index
+// value : home offset
+void config_axis_set_home_offset(struct Botnana * botnana,
+                                 uint32_t position,
+                                 double value);
+
+// JSON-API: encoder_length_unit as Meter of config.axis.set
+// botnana: Botnana motion server descriptor
+// position: axis index
+void config_axis_set_encoder_length_unit_as_meter(struct Botnana * botnana,
+        uint32_t position);
+
+// JSON-API: encoder_length_unit as Revolution of config.axis.set
+// botnana: Botnana motion server descriptor
+// position: axis index
+void config_axis_set_encoder_length_unit_as_revolution(struct Botnana * botnana,
+        uint32_t position);
+
+// JSON-API: encoder_length_unit as pulse of config.axis.set
+// botnana: Botnana motion server descriptor
+// position: axis index
+void config_axis_set_encoder_length_unit_as_pulse(struct Botnana * botnana,
+        uint32_t position);
+
+// JSON-API: encoder_ppu of config.axis.set
+// botnana: Botnana motion server descriptor
+// position: axis index
+// value : pulses/unit
+void config_axis_set_encoder_ppu(struct Botnana * botnana,
+                                 uint32_t position,
+                                 double value);
+
+// JSON-API: ext_encoder_ppu of config.axis.set
+// botnana: Botnana motion server descriptor
+// position: axis index
+// value : pulses/unit
+void config_axis_set_ext_encoder_ppu(struct Botnana * botnana,
+                                     uint32_t position,
+                                     double value);
+
+// JSON-API: encoder_direction of config.axis.set
+// botnana: Botnana motion server descriptor
+// position: axis index
+// value : 1 for positive, -1 for negative
+void config_axis_set_encoder_direction(struct Botnana * botnana,
+                                       uint32_t position,
+                                       int32_t value);
+
+// JSON-API: ext_encoder_direction of config.axis.set
+// botnana: Botnana motion server descriptor
+// position: axis index
+// value : 1 for positive, -1 for negative
+void config_axis_set_ext_encoder_direction(struct Botnana * botnana,
+        uint32_t position,
+        int32_t value);
+
+// JSON-API: vmax of config.axis.set
+// botnana: Botnana motion server descriptor
+// position: axis index
+// value : vmax
+void config_axis_set_vmax(struct Botnana * botnana,
+                          uint32_t position,
+                          double value);
+
+// JSON-API: amax of config.axis.set
+// botnana: Botnana motion server descriptor
+// position: axis index
+// value : amax
+void config_axis_set_amax(struct Botnana * botnana,
+                          uint32_t position,
+                          double value);
+
+
+// JSON-API: drive_alias of config.axis.set
+// botnana: Botnana motion server descriptor
+// position: axis index
+// value : drive alias
+void config_axis_set_drive_alias(struct Botnana * botnana,
+                                 uint32_t position,
+                                 int32_t value);
+
+// JSON-API: drive_slave_position of config.axis.set
+// botnana: Botnana motion server descriptor
+// position: axis index
+// value : drive_slave_position
+void config_axis_set_drive_slave_position(struct Botnana * botnana,
+        uint32_t position,
+        int32_t value);
+
+
+// JSON-API: drive_channel of config.axis.set
+// botnana: Botnana motion server descriptor
+// position: axis index
+// value : drive_channel
+void config_axis_set_drive_channel(struct Botnana * botnana,
+                                   uint32_t position,
+                                   int32_t value);
+
+// JSON-API: ext_encoder_alias of config.axis.set
+// botnana: Botnana motion server descriptor
+// position: axis index
+// value : ext_encoder_alias
+void config_axis_set_ext_encoder_alias(struct Botnana * botnana,
+                                       uint32_t position,
+                                       int32_t value);
+
+// JSON-API: ext_encoder_slave_position of config.axis.set
+// botnana: Botnana motion server descriptor
+// position: axis index
+// value : ext_encoder_slave_position
+void config_axis_set_ext_encoder_slave_position(struct Botnana * botnana,
+        uint32_t position,
+        int32_t value);
+
+
+// JSON-API: ext_encoder_channel of config.axis.set
+// botnana: Botnana motion server descriptor
+// position: axis index
+// value : ext_encoder_channel
+void config_axis_set_ext_encoder_channel(struct Botnana * botnana,
+        uint32_t position,
+        int32_t value);
+
 
 // JSON-API: config.axis.get
 //
-// desc: server descriptor
+// botnana: Botnana motion server descriptor
 // position: axis index
 void config_axis_get(struct Botnana * desc,
                      uint32_t position);
+
 // save configuration
 //
 // desc:     server descriptor
