@@ -12,7 +12,7 @@ struct Botnana;
 
 // New Botnana motion server descriptor
 // ip: motion server IP address
-struct Botnana * botnana_new(char * ip);
+struct Botnana * botnana_new(const char * ip);
 
 // connect to motion server
 // desc: IP of motion server
