@@ -2,14 +2,6 @@
 #include <stdlib.h>
 #include "botnana.h"
 
-unsigned int message_count = 0;
-
-// 處理主站傳回的資料
-void on_message_cb (const char * src)
-{
-    message_count = message_count + 1;
-    printf("on_meaasge (%u): %s \n", message_count, src);
-}
 
 int ws_open = 0;
 // 處理 WebSocket on_open
@@ -24,6 +16,13 @@ void on_ws_error_cb (const char * src)
     printf("WS client error: %s\n", src);
     exit(1);
 }
+
+// 處理主站傳回的資料
+void on_message_cb (const char * src)
+{
+    printf("on_meaasge: %s \n", src);
+}
+
 
 void on_send_cb (const char * src)
 {
@@ -45,24 +44,23 @@ int main()
         sleep(1);
     }
 
+    config_motion_get(botnana);
     // set period_us of motion config.
-    config_motion_set(botnana,"period_us" ,1000);
+    config_motion_set_period_us(botnana, 1000);
     // set group_capacity of motion config.
-    config_motion_set(botnana,"group_capacity",3);
+    config_motion_set_group_capacity(botnana, 3);
     // set axis_capacity of motion config
-    config_motion_set(botnana,"axis_capacity",5);
-
+    config_motion_set_axis_capacity(botnana, 5);
     // config.motio.get
     config_motion_get(botnana);
     sleep(1);
 
     // set period_us of motion config.
-    config_motion_set(botnana,"period_us" ,2000);
+    config_motion_set_period_us(botnana, 2000);
     // set group_capacity of motion config.
-    config_motion_set(botnana,"group_capacity",2);
+    config_motion_set_group_capacity(botnana, 2);
     // set axis_capacity of motion config
-    config_motion_set(botnana,"axis_capacity",6);
-
+    config_motion_set_axis_capacity(botnana, 6);
     // config.motio.get
     config_motion_get(botnana);
     sleep(1);

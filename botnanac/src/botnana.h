@@ -157,18 +157,23 @@ int32_t config_slave_set(struct Botnana * desc,
                          const char * param,
                          int32_t value);
 
-// JSON-API: config.motion.set
-//
-// desc:     server descriptor
-// param:    setting item. possible item:
-//	        perios_us,
-//		group_capacity,
-//		axis_capacity,
-// value: setting value
-// return: 0 表示有將 JSON-API 送出
-int32_t config_motion_set(struct Botnana * desc,
-                          const char * param,
-                          uint32_t value);
+// JSON-API: period_us of config.motion.set
+// botnana: Botnana motion server descriptor
+// value: real time cycle period [us]
+void config_motion_set_period_us(struct Botnana * botnana,
+                                 uint32_t value);
+
+// JSON-API: group_capacity of config.motion.set
+// botnana: Botnana motion server descriptor
+// value: group_capacity
+void config_motion_set_group_capacity(struct Botnana * botnana,
+                                      uint32_t value);
+
+// JSON-API: axis_capacity of config.motion.set
+// botnana: Botnana motion server descriptor
+// value: axis_capacity
+void config_motion_set_axis_capacity(struct Botnana * botnana,
+                                     uint32_t value);
 
 // JSON-API: config.motion.get
 //
