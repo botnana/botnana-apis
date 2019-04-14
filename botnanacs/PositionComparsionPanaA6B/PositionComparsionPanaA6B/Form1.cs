@@ -31,6 +31,9 @@ namespace PositionComparsionPanaA6B
         {
             //MessageBox.Show("On message : " + data);
             messageCount++;
+            if (messageCount > 256) {
+                messageCount = 0;
+            }
         }
 
 
@@ -471,7 +474,7 @@ namespace PositionComparsionPanaA6B
                     if (number <= 7)
                     {
                         old_pr3445 = textPr3445.Text;
-                        bot.EvaluateScript(textPr3445.Text + $" 0 $3445 1 sdo-download-u8");
+                        bot.EvaluateScript(textPr3445.Text + $" 0 $3445 1 sdo-download-u16");
                     }
                     else
                     {
@@ -511,7 +514,7 @@ namespace PositionComparsionPanaA6B
                     if (number <= 1)
                     {
                         old_pr3447 = textPr3447.Text;
-                        bot.EvaluateScript(textPr3447.Text + $" 0 $3447 1 sdo-download-u8");
+                        bot.EvaluateScript(textPr3447.Text + $" 0 $3447 1 sdo-download-u16");
                     }
                     else
                     {
