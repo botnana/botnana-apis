@@ -17,7 +17,7 @@ create jogging-positions falign 0e f, 0e f, 0e f, 0e f,
     true homing-accepted !
     motion-idle? not if false homing-accepted ! ." log|Not Motion Idle" cr then
     servo-on? not if false homing-accepted ! ." log|Not Servo On" cr then
-    event-acked? not if false servo-on-accepted ! ." log|No Error Event Acknowledge " cr then
+    event-acked? not if false homing-accepted ! ." log|No Error Event Acknowledge " cr then
     homing-accepted @ if
         1 motion-state !
         start-axes-homing
@@ -32,7 +32,7 @@ create jogging-positions falign 0e f, 0e f, 0e f, 0e f,
     true jogging-accepted !
     motion-idle? not if false jogging-accepted ! ." log|Not Motion Idle" cr then
     servo-on? not if false jogging-accepted ! ." log|Not Servo On" cr then
-    event-acked? not if false servo-on-accepted ! ." log|No Error Event Acknowledge " cr then
+    event-acked? not if false jogging-accepted ! ." log|No Error Event Acknowledge " cr then
     jogging-accepted @ if
         2 motion-state !
         1
@@ -61,7 +61,7 @@ variable machining-finished
     true machining-accepted !
     motion-idle? not if false machining-accepted ! ." log|Not Motion Idle" cr then
     servo-on? not if false machining-accepted ! ." log|Not Servo On" cr then
-    event-acked? not if false servo-on-accepted ! ." log|No Error Event Acknowledge " cr then
+    event-acked? not if false machining-accepted ! ." log|No Error Event Acknowledge " cr then
     machining-accepted @ if
         3 motion-state !
         resume-nc 1 group! +group start-job
