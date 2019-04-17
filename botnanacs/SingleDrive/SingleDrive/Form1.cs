@@ -9,51 +9,15 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.Runtime.InteropServices;
+using BotnanaLib;
 
 namespace SingleDrive
 {
     public partial class Form1 : Form
     {
 
-        // 因為要傳遞給C函式庫，所以要特別宣告是(CallingConvention.Cdecl)
-        [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
-        private delegate void HandleMessage(string str);
-
-        [DllImport(@"..\..\BotnanaApi.dll", CharSet = CharSet.Ansi, CallingConvention = CallingConvention.Cdecl)]
-        private static extern IntPtr botnana_connect_dll(string address, HandleMessage on_error_cb);
-
-        [DllImport(@"..\..\BotnanaApi.dll", CharSet = CharSet.Ansi, CallingConvention = CallingConvention.Cdecl)]
-        private static extern void script_evaluate_dll(IntPtr desc, string script);
-
-        [DllImport(@"..\..\BotnanaApi.dll", CharSet = CharSet.Ansi, CallingConvention = CallingConvention.Cdecl)]
-        private static extern void botnana_set_tag_cb_dll(IntPtr desc, string tag, int count, HandleMessage hm);
-
-        [DllImport(@"..\..\BotnanaApi.dll", CharSet = CharSet.Ansi, CallingConvention = CallingConvention.Cdecl)]
-        private static extern void botnana_set_on_message_cb_dll(IntPtr desc, HandleMessage hm);
-
-        [DllImport(@"..\..\BotnanaApi.dll", CharSet = CharSet.Ansi, CallingConvention = CallingConvention.Cdecl)]
-        private static extern IntPtr program_new_dll(string name);
-
-        [DllImport(@"..\..\BotnanaApi.dll", CharSet = CharSet.Ansi, CallingConvention = CallingConvention.Cdecl)]
-        private static extern void program_line_dll(IntPtr pm, string cmd);
-
-        [DllImport(@"..\..\BotnanaApi.dll", CharSet = CharSet.Ansi, CallingConvention = CallingConvention.Cdecl)]
-        private static extern void program_clear_dll(IntPtr pm);
-
-        [DllImport(@"..\..\BotnanaApi.dll", CharSet = CharSet.Ansi, CallingConvention = CallingConvention.Cdecl)]
-        private static extern void program_deploy_dll(IntPtr botnana, IntPtr pm);
-
-        [DllImport(@"..\..\BotnanaApi.dll", CharSet = CharSet.Ansi, CallingConvention = CallingConvention.Cdecl)]
-        private static extern void program_run_dll(IntPtr botnana, IntPtr pm);
-
-        [DllImport(@"..\..\BotnanaApi.dll", CharSet = CharSet.Ansi, CallingConvention = CallingConvention.Cdecl)]
-        private static extern void botnana_abort_program_dll(IntPtr botnana);
-
-
-
-        private static IntPtr botnana;
-        private static IntPtr program;
-
+        private Botnana bot;
+        
         // 因為會有垃圾收集的關係，所以callback 要這樣宣告
         private static HandleMessage on_ws_error_callback = new HandleMessage(on_ws_error_cb);
         private static void on_ws_error_cb(string str)
@@ -184,22 +148,25 @@ namespace SingleDrive
 
         private void Form1_Load(object sender, EventArgs e)
         {
-            botnana = botnana_connect_dll("192.168.7.2", on_ws_error_callback);
-            program = program_new_dll("SingleDrive");
-            botnana_set_on_message_cb_dll(botnana, on_message_callback);
-            botnana_set_tag_cb_dll(botnana, "slaves_responding", 0, slaves_responding_callback);
-            botnana_set_tag_cb_dll(botnana, "status_word.1.1", 0, status_word_callback);
-            botnana_set_tag_cb_dll(botnana, "real_position.1.1", 0, real_position_callback);
-            botnana_set_tag_cb_dll(botnana, "target_position.1.1", 0, target_position_callback);
-            botnana_set_tag_cb_dll(botnana, "operation_mode.1.1", 0, op_mode_callback);
-            botnana_set_tag_cb_dll(botnana, "digital_inputs.1.1", 0, digital_inputs_callback);
-            botnana_set_tag_cb_dll(botnana, "profile_velocity.1.1", 0, profile_velocity_callback);
-            botnana_set_tag_cb_dll(botnana, "profile_acceleration.1.1", 0, profile_acceleration_callback);
-            botnana_set_tag_cb_dll(botnana, "deployed", 0, deployed_callback);
-            botnana_set_tag_cb_dll(botnana, "end-of-program", 0, end_of_program_callback);
-            botnana_set_tag_cb_dll(botnana, "error", 0, error_callback);
-            script_evaluate_dll(botnana, ".ec-links");
-            script_evaluate_dll(botnana, "1 .slave");
+            bot = new Botnana("192.168.7.2");
+            bot.Connect();
+            bot.SetOnErrorCB(on_ws_error_callback);
+            bot.SetOnMessageCB(on_message_callback);
+            bot.SetTagCB("slaves_responding", 0, slaves_responding_callback);
+            bot.SetTagCB("status_word.1.1", 0, status_word_callback);
+            bot.SetTagCB("real_position.1.1", 0, real_position_callback);
+            bot.SetTagCB("target_position.1.1", 0, target_position_callback);
+            bot.SetTagCB("operation_mode.1.1", 0, op_mode_callback);
+            bot.SetTagCB("digital_inputs.1.1", 0, digital_inputs_callback);
+            bot.SetTagCB("profile_velocity.1.1", 0, profile_velocity_callback);
+            bot.SetTagCB("profile_acceleration.1.1", 0, profile_acceleration_callback);
+            bot.SetTagCB("deployed", 0, deployed_callback);
+            bot.SetTagCB("end-of-program", 0, end_of_program_callback);
+            bot.SetTagCB("error", 0, error_callback);
+            Thread.Sleep(1000);
+
+            bot.EvaluateScript(".ec-links");
+            bot.EvaluateScript("1 .slave");
             timer1.Interval = 50;
             timer1.Enabled = true;
         }
@@ -209,7 +176,7 @@ namespace SingleDrive
             textSlaveCount.Text = slave_count.ToString();
             if (slave_count > 0)
             {
-                script_evaluate_dll(botnana, "1 .slave-diff");
+                bot.EvaluateScript("1 .slave-diff");
                 textSlaveCount.Text = slave_count.ToString();
                 if (profile_velocity_changing == false)
                 {
@@ -235,32 +202,32 @@ namespace SingleDrive
 
         private void buttonResetFault_Click(object sender, EventArgs e)
         {
-            script_evaluate_dll(botnana, "1 1 reset-fault 1 1 drive-stop");
+            bot.EvaluateScript("1 1 reset-fault 1 1 drive-stop");
         }
 
         private void buttonServoOn_Click(object sender, EventArgs e)
         {
-            script_evaluate_dll(botnana, "pp 1 1 op-mode! 1 1 drive-on");
+            bot.EvaluateScript("pp 1 1 op-mode! 1 1 drive-on");
         }
 
         private void buttonServoOff_Click(object sender, EventArgs e)
         {
-            script_evaluate_dll(botnana, "1 1 drive-off");
+            bot.EvaluateScript("1 1 drive-off");
         }
 
         private void button1_Click(object sender, EventArgs e)
         {
-            script_evaluate_dll(botnana, "1 1 drive-stop");
+            bot.EvaluateScript("1 1 drive-stop");
         }
 
         private void buttonSetTargetPosition_Click(object sender, EventArgs e)
         {
-            script_evaluate_dll(botnana, textNextTargetPosition.Text + " 1 1 target-p!");
+            bot.EvaluateScript(textNextTargetPosition.Text + " 1 1 target-p!");
         }
 
         private void buttonGo_Click(object sender, EventArgs e)
         {
-            script_evaluate_dll(botnana, "1 1 go");
+            bot.EvaluateScript("1 1 go");
         }
 
         private void buttonDeploy_Click(object sender, EventArgs e)
@@ -270,36 +237,36 @@ namespace SingleDrive
             int p3 = Int32.Parse(textP3.Text);
 
             //deploy 後要等待 deployed|ok 訊息回傳後才能執行 pm_run(botnana, program);
-            program_clear_dll(program);
-            program_line_dll(program, "pp 1 1 op-mode!");
-            program_line_dll(program, "until-no-requests");
+            bot.ClearProgram();
+            bot.AddProgramLine("pp 1 1 op-mode!");
+            bot.AddProgramLine("until-no-requests");
             //program_line_dll(program, " begin -1 while");    // 如果要p1->p2->p3->p1...運動,就移除此行註解
-            program_line_dll(program, p1.ToString() + " 1 1 target-p!");
-            program_line_dll(program, " 1 1 go 1 1 until-target-reached");
-            program_line_dll(program, p2.ToString() + " 1 1 target-p!");
-            program_line_dll(program, " 1 1 go 1 1 until-target-reached");
-            program_line_dll(program, p3.ToString() + " 1 1 target-p!");
-            program_line_dll(program, " 1 1 go 1 1 until-target-reached");
+            bot.AddProgramLine(p1.ToString() + " 1 1 target-p!");
+            bot.AddProgramLine(" 1 1 go 1 1 until-target-reached");
+            bot.AddProgramLine(p2.ToString() + " 1 1 target-p!");
+            bot.AddProgramLine(" 1 1 go 1 1 until-target-reached");
+            bot.AddProgramLine(p3.ToString() + " 1 1 target-p!");
+            bot.AddProgramLine(" 1 1 go 1 1 until-target-reached");
             //program_line_dll(program, " repeat");           // 如果要p1->p2->p3->p1...運動,就移除此行註解
-            script_evaluate_dll(botnana, "-work marker -work");          // 清除先前定義的program
-            program_deploy_dll(botnana, program);
+            bot.EvaluateScript("-work marker -work");          // 清除先前定義的program
+            bot.DeployProgram();
             buttonPMAbort.Enabled = true;
             buttonRun.Enabled = true;
         }
 
         private void buttonPMAbort_Click(object sender, EventArgs e)
         {
-            botnana_abort_program_dll(botnana);
+            bot.AbortProgram();
         }
 
         private void buttonRun_Click(object sender, EventArgs e)
         {
-            program_run_dll(botnana, program);
+            bot.RunProgram();
         }
 
         private void buttonEvaluate_Click(object sender, EventArgs e)
         {
-            script_evaluate_dll(botnana, textEvalute.Text);
+            bot.EvaluateScript(textEvalute.Text);
             textEvalute.ResetText();
         }
 
@@ -310,7 +277,7 @@ namespace SingleDrive
 
         private void textProfileVelocity_Leave(object sender, EventArgs e)
         {
-            script_evaluate_dll(botnana, textProfileVelocity.Text + " 1 1 profile-v!");
+            bot.EvaluateScript(textProfileVelocity.Text + " 1 1 profile-v!");
             profile_velocity_changing = false;
         }
 
@@ -321,8 +288,8 @@ namespace SingleDrive
 
         private void textProfileAcceleration_Leave(object sender, EventArgs e)
         {
-            script_evaluate_dll(botnana, textProfileAcceleration.Text + " 1 1 profile-a1!");
-            script_evaluate_dll(botnana, textProfileAcceleration.Text + " 1 1 profile-a2!");
+            bot.EvaluateScript(textProfileAcceleration.Text + " 1 1 profile-a1!");
+            bot.EvaluateScript(textProfileAcceleration.Text + " 1 1 profile-a2!");
             profile_acceleration_changing = false;
         }
     }

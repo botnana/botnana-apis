@@ -11,14 +11,39 @@
 
 extern "C" {
 
-	// 連線到 Botnana
-	// address : Botnana 的 IP 位置
-	// on_error_cb: 當連線錯誤時會呼叫此call function, 
-	__declspec(dllexport) struct Botnana * botnana_connect_dll(const char * address,
-		HandleMessage on_error_cb) {
-		return botnana_connect(address, on_error_cb);
+	
+	// New Botnana
+	// @ip : Botnana 的 IP 位置
+	__declspec(dllexport) struct Botnana * botnana_new_dll(const char * ip) {
+		return botnana_new(ip);
+	}
+	
+	// Connect with Botnana Control
+	// @botnana: Botnana Control descriptor
+	__declspec(dllexport) void botnana_connect_dll(struct Botnana *botnana){
+		botnana_connect(botnana);
 	}
 
+	// Disconnect with Botnana Control
+	// @botnana: Botnana Control descriptor
+	__declspec(dllexport) void botnana_disconnect_dll(struct Botnana *botnana) {
+		botnana_connect(botnana);
+	}
+
+	// Set WS on_open callback function 
+	// @botnana: Botnana Control descriptor
+	// @cb: callback function
+	__declspec(dllexport) void botnana_set_on_open_cb_dll(struct Botnana *botnana, HandleMessage cb) {
+		botnana_set_on_open_cb(botnana, cb);
+	}
+
+	// Set WS on_error callback function 
+	// @botnana: Botnana Control descriptor
+	// @cb: callback function
+	__declspec(dllexport) void botnana_set_on_error_cb_dll(struct Botnana *botnana, HandleMessage cb) {
+		botnana_set_on_error_cb(botnana, cb);
+	}
+	
 	// 送出 real time command
 	// script : 命令內容
 	__declspec(dllexport) void script_evaluate_dll(struct Botnana * botnana,

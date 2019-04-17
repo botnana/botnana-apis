@@ -536,16 +536,16 @@
             // 
             // textSlavesCount
             // 
-            this.textSlavesCount.Location = new System.Drawing.Point(128, 16);
+            this.textSlavesCount.Location = new System.Drawing.Point(114, 16);
             this.textSlavesCount.Margin = new System.Windows.Forms.Padding(4);
             this.textSlavesCount.Name = "textSlavesCount";
-            this.textSlavesCount.Size = new System.Drawing.Size(106, 27);
+            this.textSlavesCount.Size = new System.Drawing.Size(72, 27);
             this.textSlavesCount.TabIndex = 5;
             // 
             // labelSlavesCount
             // 
             this.labelSlavesCount.AutoSize = true;
-            this.labelSlavesCount.Location = new System.Drawing.Point(26, 20);
+            this.labelSlavesCount.Location = new System.Drawing.Point(15, 20);
             this.labelSlavesCount.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.labelSlavesCount.Name = "labelSlavesCount";
             this.labelSlavesCount.Size = new System.Drawing.Size(94, 16);
@@ -554,7 +554,7 @@
             // 
             // textSlavesState
             // 
-            this.textSlavesState.Location = new System.Drawing.Point(367, 16);
+            this.textSlavesState.Location = new System.Drawing.Point(284, 13);
             this.textSlavesState.Margin = new System.Windows.Forms.Padding(4);
             this.textSlavesState.Name = "textSlavesState";
             this.textSlavesState.Size = new System.Drawing.Size(148, 27);
@@ -563,7 +563,7 @@
             // label2
             // 
             this.label2.AutoSize = true;
-            this.label2.Location = new System.Drawing.Point(277, 20);
+            this.label2.Location = new System.Drawing.Point(194, 20);
             this.label2.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.label2.Name = "label2";
             this.label2.Size = new System.Drawing.Size(82, 16);

@@ -38,6 +38,7 @@ namespace PositionComparsionPanaA6B
 
 
         // 取得 userParameter
+        private bool has_updated = false;
         private HandleMessage onUserParameter;
         private void OnUserParameterCallback(string str)
         {
@@ -55,6 +56,7 @@ namespace PositionComparsionPanaA6B
 
                     bot.LoadSFC(@"..\..\positionComparsion.sfc");
                     // 等待 SFC 設置完成
+                    has_updated = true;
                     Thread.Sleep(10);
                     bot.EvaluateScript("reset-overrun");
                     break;
@@ -244,9 +246,11 @@ namespace PositionComparsionPanaA6B
             Process thisProc = Process.GetCurrentProcess();
             thisProc.PriorityClass = ProcessPriorityClass.RealTime;
             
-            bot = new Botnana();
+            bot = new Botnana("192.168.7.2");
+            
             onWSError = new HandleMessage(OnWSErrorCallback);
-            bot.Connect("192.168.7.2", onWSError);
+            bot.SetOnErrorCB(onWSError);
+                       
             onMessage = new HandleMessage(OnMessageCallback);
             bot.SetOnMessageCB(onMessage);
 
@@ -314,10 +318,8 @@ namespace PositionComparsionPanaA6B
             onPDSState = new HandleMessage(OnPDSStateCallback);
             bot.SetTagCB($"pds_state.1.1", 0, onPDSState);
 
-
-
-            // 要求  Botnana Control 送出 user parameter 訊息
-            bot.EvaluateScript(".user-para");
+            bot.Connect();
+            
             timer1.Interval = 50;
             timer1.Enabled = true;
             timer2.Interval = 200;
@@ -337,6 +339,12 @@ namespace PositionComparsionPanaA6B
                 {
                     bot.EvaluateScript("1 .slave");
                 }
+            }
+
+            if (!has_updated)
+            {
+                // 要求  Botnana Control 送出 user parameter 訊息
+                bot.EvaluateScript(".user-para");
             }
         }
 

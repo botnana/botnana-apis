@@ -18,13 +18,13 @@ namespace DIO
     public partial class Form1 : Form
     {
         private Botnana bot;
-        
+
         private HandleMessage onWSError;
         public void OnWSErrorCallback(string data)
         {
             new Thread(() => System.Windows.Forms.MessageBox.Show("WS error : " + data)).Start();
         }
-
+                
         private int messageCount = 0;
         private HandleMessage onMessage;
         public void OnMessageCallback(string data)
@@ -76,10 +76,10 @@ namespace DIO
             Process thisProc = Process.GetCurrentProcess();
             thisProc.PriorityClass = ProcessPriorityClass.RealTime;
             
-            bot = new Botnana();
-
+            bot = new Botnana("192.168.7.2");
+            
             onWSError = new HandleMessage(OnWSErrorCallback);
-            bot.Connect("192.168.7.2", onWSError);
+            bot.SetOnErrorCB(onWSError);
 
             onMessage = new HandleMessage(OnMessageCallback);
             bot.SetOnMessageCB(onMessage);
@@ -95,8 +95,9 @@ namespace DIO
 
             onSlavesState = new HandleMessage(OnSlavesStateCallback);
             bot.SetTagCB($"al_states", 0, onSlavesState);
-            bot.EvaluateScript(".ec-links");
 
+            bot.Connect();
+           
             timer1.Interval = 50;
             timer1.Enabled = true;
 
@@ -117,13 +118,12 @@ namespace DIO
                 else
                 {
                     bot.EvaluateScript("2 .slave 3 .slave");
-                    has_slave_info = true;
+                   has_slave_info = true;
                 }
             }
-            
+                      
 
             labMessageCount.Text = messageCount.ToString("X2");
-         
             textSlavesCount.Text = slavesCount.ToString();
             textSlavesState.Text = slavesState.ToString();
             checkDo1.Checked = (doWord & 0x1) != 0;

@@ -12,9 +12,27 @@ namespace BotnanaLib
 
     public class Botnana
     {
-        public void Connect(string address, HandleMessage on_error_cb)
+
+        public Botnana()
         {
-            innerBotnana = botnana_connect_dll(address, on_error_cb);
+            innerBotnana = botnana_new_dll("192.168.7.2");
+            innerProgrm = program_new_dll("program");
+        }
+
+        public Botnana(string ip)
+        {
+            innerBotnana = botnana_new_dll(ip);
+            innerProgrm = program_new_dll("program");
+        }
+
+        public void Connect()
+        {
+            botnana_connect_dll(innerBotnana);
+        }
+
+        public void Disconnect()
+        {
+            botnana_disconnect_dll(innerBotnana);
         }
 
         public void EvaluateScript(string script)
@@ -22,6 +40,16 @@ namespace BotnanaLib
             script_evaluate_dll(innerBotnana, script);
         }
 
+        public void SetOnOpenCB(HandleMessage hm)
+        {
+            botnana_set_on_open_cb_dll(innerBotnana, hm);
+        }
+
+        public void SetOnErrorCB(HandleMessage hm)
+        {
+            botnana_set_on_error_cb_dll(innerBotnana, hm);
+        }
+        
         public void SetOnMessageCB(HandleMessage hm)
         {
             botnana_set_on_message_cb_dll(innerBotnana, hm);
@@ -36,15 +64,15 @@ namespace BotnanaLib
         {
             botnana_set_tag_cb_dll(innerBotnana, tag, count, hm);
         }
-        
-        public void NewProgram(string name)
-        {
-            innerProgrm = program_new_dll(name);
-        }
-
+             
         public void DeployProgram()
         {
             program_deploy_dll(innerBotnana, innerProgrm);
+        }
+
+        public void AddProgramLine(string script)
+        {
+            program_line_dll(innerProgrm, script);
         }
 
         public void RunProgram()
@@ -76,9 +104,15 @@ namespace BotnanaLib
         
         private IntPtr innerBotnana;
         private IntPtr innerProgrm;
-        
+
         [DllImport(@"..\..\BotnanaApi.dll", CharSet = CharSet.Ansi, CallingConvention = CallingConvention.Cdecl)]
-        private static extern IntPtr botnana_connect_dll(string address, HandleMessage on_error_cb);
+        private static extern IntPtr botnana_new_dll(string ip);
+
+        [DllImport(@"..\..\BotnanaApi.dll", CharSet = CharSet.Ansi, CallingConvention = CallingConvention.Cdecl)]
+        private static extern void botnana_connect_dll(IntPtr desc);
+
+        [DllImport(@"..\..\BotnanaApi.dll", CharSet = CharSet.Ansi, CallingConvention = CallingConvention.Cdecl)]
+        private static extern void botnana_disconnect_dll(IntPtr desc);
 
         [DllImport(@"..\..\BotnanaApi.dll", CharSet = CharSet.Ansi, CallingConvention = CallingConvention.Cdecl)]
         private static extern void script_evaluate_dll(IntPtr desc, string script);
@@ -88,6 +122,12 @@ namespace BotnanaLib
 
         [DllImport(@"..\..\BotnanaApi.dll", CharSet = CharSet.Ansi, CallingConvention = CallingConvention.Cdecl)]
         private static extern void botnana_set_tag_cb_dll(IntPtr desc, string tag, int count, HandleMessage hm);
+
+        [DllImport(@"..\..\BotnanaApi.dll", CharSet = CharSet.Ansi, CallingConvention = CallingConvention.Cdecl)]
+        private static extern void botnana_set_on_open_cb_dll(IntPtr desc, HandleMessage hm);
+
+        [DllImport(@"..\..\BotnanaApi.dll", CharSet = CharSet.Ansi, CallingConvention = CallingConvention.Cdecl)]
+        private static extern void botnana_set_on_error_cb_dll(IntPtr desc, HandleMessage hm);
 
         [DllImport(@"..\..\BotnanaApi.dll", CharSet = CharSet.Ansi, CallingConvention = CallingConvention.Cdecl)]
         private static extern void botnana_set_on_message_cb_dll(IntPtr desc, HandleMessage hm);

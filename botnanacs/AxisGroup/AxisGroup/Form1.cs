@@ -6,50 +6,14 @@ using System.Text.RegularExpressions;
 using System.Threading;
 using System.Windows.Forms;
 using System.Diagnostics;
+using BotnanaLib;
 
 namespace AxisGroup
 {
     public partial class Form1 : Form
     {
-
-        // 因為要傳遞給C函式庫，所以要特別宣告是(CallingConvention.Cdecl)
-        [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
-        private delegate void HandleMessage(string str);
-
-        [DllImport(@"..\..\BotnanaApi.dll", CharSet = CharSet.Ansi, CallingConvention = CallingConvention.Cdecl)]
-        private static extern IntPtr botnana_connect_dll(string address, HandleMessage on_error_cb);
-
-        [DllImport(@"..\..\BotnanaApi.dll", CharSet = CharSet.Ansi, CallingConvention = CallingConvention.Cdecl)]
-        private static extern void script_evaluate_dll(IntPtr desc, string script);
-
-        [DllImport(@"..\..\BotnanaApi.dll", CharSet = CharSet.Ansi, CallingConvention = CallingConvention.Cdecl)]
-        private static extern void botnana_set_tag_cb_dll(IntPtr desc, string tag, int count, HandleMessage hm);
-
-        [DllImport(@"..\..\BotnanaApi.dll", CharSet = CharSet.Ansi, CallingConvention = CallingConvention.Cdecl)]
-        private static extern void botnana_set_on_message_cb_dll(IntPtr desc, HandleMessage hm);
-
-        [DllImport(@"..\..\BotnanaApi.dll", CharSet = CharSet.Ansi, CallingConvention = CallingConvention.Cdecl)]
-        private static extern IntPtr program_new_dll(string name);
-
-        [DllImport(@"..\..\BotnanaApi.dll", CharSet = CharSet.Ansi, CallingConvention = CallingConvention.Cdecl)]
-        private static extern void program_line_dll(IntPtr pm, string cmd);
-
-        [DllImport(@"..\..\BotnanaApi.dll", CharSet = CharSet.Ansi, CallingConvention = CallingConvention.Cdecl)]
-        private static extern void program_clear_dll(IntPtr pm);
-
-        [DllImport(@"..\..\BotnanaApi.dll", CharSet = CharSet.Ansi, CallingConvention = CallingConvention.Cdecl)]
-        private static extern void program_deploy_dll(IntPtr botnana, IntPtr pm);
-
-        [DllImport(@"..\..\BotnanaApi.dll", CharSet = CharSet.Ansi, CallingConvention = CallingConvention.Cdecl)]
-        private static extern void program_run_dll(IntPtr botnana, IntPtr pm);
-
-        [DllImport(@"..\..\BotnanaApi.dll", CharSet = CharSet.Ansi, CallingConvention = CallingConvention.Cdecl)]
-        private static extern void botnana_abort_program_dll(IntPtr botnana);
-
+        private static Botnana bot;
         
-        private static IntPtr botnana;
-        private static IntPtr program;
-
         // 因為會有垃圾收集的關係，所以callback 要這樣宣告
         private static HandleMessage on_ws_error_callback = new HandleMessage(on_ws_error_cb);
         private static void on_ws_error_cb(string str)
@@ -312,13 +276,6 @@ namespace AxisGroup
             }
         }
 
-        // 載入單一 SFC 檔案 
-        private static void load_sfc(string path)
-        {
-            string sfc = System.IO.File.ReadAllText(path, Encoding.UTF8);
-            script_evaluate_dll(botnana, sfc);
-        }
-
         // 取得 userParameter
         private static HandleMessage userParameter_callback = new HandleMessage(userParameter_cb);
         private static Boolean hasSFC;
@@ -330,18 +287,18 @@ namespace AxisGroup
                 case 0:
                     // 設定 user parameter 為 0x10
                     // 如果此範例重新執行不會在載入以下 SFC
-                    script_evaluate_dll(botnana, "$10 user-para!");
+                    bot.EvaluateScript("$10 user-para!");
                     // 清除SFC 邏輯，載入 SFC 時會造成 real time cycle overrun，所以要暫時 ignore-overrun
                     // 載入後再執行 `reset-overrun`
-                    script_evaluate_dll(botnana, "0sfc ignore-overrun");
-                    load_sfc(@"..\..\config.sfc");
-                    load_sfc(@"..\..\servo_on_off.sfc");
-                    load_sfc(@"..\..\homing.sfc");
-                    load_sfc(@"..\..\motion_state.sfc");
-                    load_sfc(@"..\..\manager.sfc");
+                    bot.EvaluateScript("0sfc ignore-overrun");
+                    bot.LoadSFC(@"..\..\config.sfc");
+                    bot.LoadSFC(@"..\..\servo_on_off.sfc");
+                    bot.LoadSFC(@"..\..\homing.sfc");
+                    bot.LoadSFC(@"..\..\motion_state.sfc");
+                    bot.LoadSFC(@"..\..\manager.sfc");
                     // 等待 SFC 設置完成
-                    Thread.Sleep(10);
-                    script_evaluate_dll(botnana, "reset-overrun");
+                    Thread.Sleep(100);
+                    bot.EvaluateScript("reset-overrun");
                     break;
                 default:
                     break;
@@ -368,47 +325,47 @@ namespace AxisGroup
             axisHomingMethod = new UInt32[3];
 
             // 首先要連線到 Botnana Control, 當收到 WS 連線錯誤, 就呼叫 on_error_callback
-            botnana = botnana_connect_dll("192.168.7.2", on_ws_error_callback);
-            // 創建 NC program             
-            program = program_new_dll("3dtest");
+            bot = new Botnana("192.168.7.2");
+            bot.SetOnErrorCB(on_ws_error_callback);
+            
             // 當收到 Botnana Control 的訊息, 就呼叫 on_message_callback
-            botnana_set_on_message_cb_dll(botnana, on_message_callback);
+            bot.SetOnMessageCB(on_message_callback);
             // 定義收到信息中指定的 Tag 時，所要呼叫的 callback 信息
-            botnana_set_tag_cb_dll(botnana, "MCS.1", 0, mcs_callback);
-            botnana_set_tag_cb_dll(botnana, "PCS.1", 0, pcs_callback);
-            botnana_set_tag_cb_dll(botnana, "pva.1", 0, pva_callback);
-            botnana_set_tag_cb_dll(botnana, "move_length.1", 0, moveLength_callback);
-            botnana_set_tag_cb_dll(botnana, "path_id.1", 0, pathId_callback);
-            botnana_set_tag_cb_dll(botnana, "servo_on", 0, servoOn_callback);
-            botnana_set_tag_cb_dll(botnana, "motion_state", 0, motionState_callback);
-            botnana_set_tag_cb_dll(botnana, "axis_corrected_position.1", 0, axisRealPositionX_callback);
-            botnana_set_tag_cb_dll(botnana, "axis_corrected_position.2", 0, axisRealPositionY_callback);
-            botnana_set_tag_cb_dll(botnana, "axis_corrected_position.3", 0, axisRealPositionZ_callback);
-            botnana_set_tag_cb_dll(botnana, "axis_homed.1", 0, axisHomedX_callback);
-            botnana_set_tag_cb_dll(botnana, "axis_homed.2", 0, axisHomedY_callback);
-            botnana_set_tag_cb_dll(botnana, "axis_homed.3", 0, axisHomedZ_callback);
-            botnana_set_tag_cb_dll(botnana, "nc_owner", 0, ncOwner_callback);
-            botnana_set_tag_cb_dll(botnana, "nc_suspended", 0, ncSuspended_callback);
-            botnana_set_tag_cb_dll(botnana, "devices_ok", 0, devicesOk_callback);
-            botnana_set_tag_cb_dll(botnana, "monitor_failed", 0, monitorFailed_callback);
-            botnana_set_tag_cb_dll(botnana, "rapid_travels_rate", 0, rapidTravelsRate_callback);
-            botnana_set_tag_cb_dll(botnana, "machining_rate", 0, machiningRate_callback);
-            botnana_set_tag_cb_dll(botnana, "axis_homing_v1.1", 0, axisHomingV1X_callback);
-            botnana_set_tag_cb_dll(botnana, "axis_homing_v1.2", 0, axisHomingV1Y_callback);
-            botnana_set_tag_cb_dll(botnana, "axis_homing_v1.3", 0, axisHomingV1Z_callback);
-            botnana_set_tag_cb_dll(botnana, "axis_homing_v2.1", 0, axisHomingV2X_callback);
-            botnana_set_tag_cb_dll(botnana, "axis_homing_v2.2", 0, axisHomingV2Y_callback);
-            botnana_set_tag_cb_dll(botnana, "axis_homing_v2.3", 0, axisHomingV2Z_callback);
-            botnana_set_tag_cb_dll(botnana, "axis_homing_method.1", 0, axisHomingMethodX_callback);
-            botnana_set_tag_cb_dll(botnana, "axis_homing_method.2", 0, axisHomingMethodY_callback);
-            botnana_set_tag_cb_dll(botnana, "axis_homing_method.3", 0, axisHomingMethodZ_callback);
-            botnana_set_tag_cb_dll(botnana, "error", 0, error_callback);
-            botnana_set_tag_cb_dll(botnana, "log", 0, log_callback);
-            botnana_set_tag_cb_dll(botnana, "user_parameter", 0, userParameter_callback);
-            botnana_set_tag_cb_dll(botnana, "deployed", 0, deployed_callback);
-
+            bot.SetTagCB("MCS.1", 0, mcs_callback);
+            bot.SetTagCB("PCS.1", 0, pcs_callback);
+            bot.SetTagCB("pva.1", 0, pva_callback);
+            bot.SetTagCB("move_length.1", 0, moveLength_callback);
+            bot.SetTagCB("path_id.1", 0, pathId_callback);
+            bot.SetTagCB("servo_on", 0, servoOn_callback);
+            bot.SetTagCB("motion_state", 0, motionState_callback);
+            bot.SetTagCB("axis_corrected_position.1", 0, axisRealPositionX_callback);
+            bot.SetTagCB("axis_corrected_position.2", 0, axisRealPositionY_callback);
+            bot.SetTagCB("axis_corrected_position.3", 0, axisRealPositionZ_callback);
+            bot.SetTagCB("axis_homed.1", 0, axisHomedX_callback);
+            bot.SetTagCB("axis_homed.2", 0, axisHomedY_callback);
+            bot.SetTagCB("axis_homed.3", 0, axisHomedZ_callback);
+            bot.SetTagCB("nc_owner", 0, ncOwner_callback);
+            bot.SetTagCB("nc_suspended", 0, ncSuspended_callback);
+            bot.SetTagCB("devices_ok", 0, devicesOk_callback);
+            bot.SetTagCB("monitor_failed", 0, monitorFailed_callback);
+            bot.SetTagCB("rapid_travels_rate", 0, rapidTravelsRate_callback);
+            bot.SetTagCB("machining_rate", 0, machiningRate_callback);
+            bot.SetTagCB("axis_homing_v1.1", 0, axisHomingV1X_callback);
+            bot.SetTagCB("axis_homing_v1.2", 0, axisHomingV1Y_callback);
+            bot.SetTagCB("axis_homing_v1.3", 0, axisHomingV1Z_callback);
+            bot.SetTagCB("axis_homing_v2.1", 0, axisHomingV2X_callback);
+            bot.SetTagCB("axis_homing_v2.2", 0, axisHomingV2Y_callback);
+            bot.SetTagCB("axis_homing_v2.3", 0, axisHomingV2Z_callback);
+            bot.SetTagCB("axis_homing_method.1", 0, axisHomingMethodX_callback);
+            bot.SetTagCB("axis_homing_method.2", 0, axisHomingMethodY_callback);
+            bot.SetTagCB("axis_homing_method.3", 0, axisHomingMethodZ_callback);
+            bot.SetTagCB("error", 0, error_callback);
+            bot.SetTagCB("log", 0, log_callback);
+            bot.SetTagCB("user_parameter", 0, userParameter_callback);
+            bot.SetTagCB("deployed", 0, deployed_callback);
+            Thread.Sleep(1000);
             // 要求  Botnana Control 送出 user parameter 訊息
-            script_evaluate_dll(botnana, ".user-para");
+            bot.EvaluateScript(".user-para");
             
             // 初始化 NC program 內容
             DataGridViewRowCollection rows = ncProgram.Rows;
@@ -433,7 +390,7 @@ namespace AxisGroup
         private void timer1_Tick(object sender, EventArgs e)
         {
             // 取得 group 1, axis 1, axis 2, axis 3 狀態
-            script_evaluate_dll(botnana, "1 .group 1 .axis 2 .axis 3 .axis");
+            bot.EvaluateScript("1 .group 1 .axis 2 .axis 3 .axis");
 
             // 更新視窗原件內容
             labelMCS1.Text = mcsPositions[0].ToString("F4");
@@ -475,13 +432,13 @@ namespace AxisGroup
                 mcs_z = txtJogZ.Text;
                 txtJogZ.Text = "";
             }
-            script_evaluate_dll(botnana, mcs_x + "e mm "+ mcs_y + "e mm "+ mcs_z + "e mm start-jogging");
+            bot.EvaluateScript(mcs_x + "e mm "+ mcs_y + "e mm "+ mcs_z + "e mm start-jogging");
         }
 
         // 停止運動
         private void btnJogStop_Click(object sender, EventArgs e)
         {
-            script_evaluate_dll(botnana, "stop-motion");
+            bot.EvaluateScript("stop-motion");
         }
 
         
@@ -499,7 +456,7 @@ namespace AxisGroup
             else
             {
                 //deploy 後要等待 deployed|ok 訊息回傳後才能執行 pm_run(botnana, program);
-                program_clear_dll(program);
+                bot.ClearProgram();
 
                 // 判斷 G92
                 if (ncProgram[2, 0].Value == null || ncProgram[3, 0].Value == null || ncProgram[4, 0].Value == null)
@@ -516,16 +473,16 @@ namespace AxisGroup
                     positions[2] = double.Parse(ncProgram[4, 0].Value.ToString());
 
                     // 清除先前定義的program
-                    script_evaluate_dll(botnana, "-nc marker -nc");          
+                    bot.EvaluateScript("-nc marker -nc");          
                     
                     // 切換到 Group 1，清除先前路徑
-                    program_line_dll(program, "1 group! 0path ");
+                    bot.AddProgramLine("1 group! 0path ");
 
                     // 設定 path id 與 mode
-                    program_line_dll(program, "1 path-id! 92 path-mode!");
+                    bot.AddProgramLine("1 path-id! 92 path-mode!");
 
                     // G92 對應的指令
-                    program_line_dll(program, positions[0].ToString("F5") + "e mm " + positions[1].ToString("F5") + "e mm " + positions[2].ToString("F5") + "e mm move3d");
+                    bot.AddProgramLine(positions[0].ToString("F5") + "e mm " + positions[1].ToString("F5") + "e mm " + positions[2].ToString("F5") + "e mm move3d");
 
                     for (int i = 1; i < 10; i++)
                     {
@@ -545,7 +502,7 @@ namespace AxisGroup
                         if (ncProgram[5, i].Value != null)
                         {
                             feedrate = double.Parse(ncProgram[5, i].Value.ToString());
-                            program_line_dll(program, "1 group! " + feedrate.ToString("F2") + "e mm/min feedrate!");
+                            bot.AddProgramLine("1 group! " + feedrate.ToString("F2") + "e mm/min feedrate!");
                         }
 
                         // 如果是新的目標位置，就插入直線路徑
@@ -561,23 +518,23 @@ namespace AxisGroup
                             positions[1] = next_positions[1];
                             positions[2] = next_positions[2];
 
-                            program_line_dll(program, "1 group! ");
+                            bot.AddProgramLine("1 group! ");
                             // 設定 path id and mode
-                            program_line_dll(program, i.ToString() + @" path-id! " + mode.ToString() + @" path-mode!");
+                            bot.AddProgramLine(i.ToString() + @" path-id! " + mode.ToString() + @" path-mode!");
                             // 插入直線路徑
-                            program_line_dll(program, positions[0].ToString("F5") + "e mm " + positions[1].ToString("F5") + "e mm " + positions[2].ToString("F5") + "e mm line3d");
+                            bot.AddProgramLine(positions[0].ToString("F5") + "e mm " + positions[1].ToString("F5") + "e mm " + positions[2].ToString("F5") + "e mm line3d");
 
                         }
 
                     }
 
                     // 等待 Group 1 走到路徑終點
-                    program_line_dll(program, "begin 1 group! gend? not while pause repeat");
+                    bot.AddProgramLine("begin 1 group! gend? not while pause repeat");
                     // 通知 machining state NC 程式執行完畢
-                    program_line_dll(program, "true machining-finished !");
+                    bot.AddProgramLine("true machining-finished !");
                     
                     // 送到 NC Task 編譯 
-                    program_deploy_dll(botnana, program);
+                    bot.DeployProgram();
                 }
             }
         }
@@ -591,10 +548,10 @@ namespace AxisGroup
             }
             else
             {
-                script_evaluate_dll(botnana, "start-machining");
+                bot.EvaluateScript("start-machining");
                 if (ncSuspended == 0)
                 {
-                    program_run_dll(botnana, program);
+                    bot.RunProgram();
                 }
             }
         }
@@ -616,7 +573,7 @@ namespace AxisGroup
                     cmd += " .config";
                     paraSetting = false;
                 }
-                script_evaluate_dll(botnana, cmd);
+                bot.EvaluateScript(cmd);
             }
 
             if (servoOn == 0) {
@@ -655,13 +612,13 @@ namespace AxisGroup
         // 發出 SFC Servo On 的要求 
         private void button1_Click(object sender, EventArgs e)
         {
-            script_evaluate_dll(botnana, "+servo-on");
+            bot.EvaluateScript("+servo-on");
         }
 
         // 發出 SFC Servo Off 的要求 
         private void button2_Click(object sender, EventArgs e)
         {
-            script_evaluate_dll(botnana, "-servo-on");
+            bot.EvaluateScript("-servo-on");
         }
 
         // 發出 SFC Start Homing 的要求 
@@ -703,14 +660,14 @@ namespace AxisGroup
                 cbHoming2ndZ.Checked = false;
             }
 
-            script_evaluate_dll(botnana, script + @" start-homing");
+            bot.EvaluateScript(script + @" start-homing");
         }
 
         // 發出 SFC 緊急停止的要求
         private void button1_Click_1(object sender, EventArgs e)
         {
             // 一併清除Botnana Control 內的 NC program
-            script_evaluate_dll(botnana, @" ems-stop -nc marker -nc");
+            bot.EvaluateScript(@" ems-stop -nc marker -nc");
             hasProgram = false;
         }
 
@@ -723,7 +680,7 @@ namespace AxisGroup
             {
                 if (v > 0)
                 {
-                    script_evaluate_dll(botnana, textHomingV1X.Text + @" 1  axis-homing-v1!");
+                    bot.EvaluateScript(textHomingV1X.Text + @" 1  axis-homing-v1!");
                 }
             }
             paraSetting = true;
@@ -736,7 +693,7 @@ namespace AxisGroup
             {
                 if (v > 0)
                 {
-                    script_evaluate_dll(botnana, textHomingV1Y.Text + @" 2  axis-homing-v1!");
+                    bot.EvaluateScript(textHomingV1Y.Text + @" 2  axis-homing-v1!");
                 }
             }
             paraSetting = true;
@@ -749,7 +706,7 @@ namespace AxisGroup
             {
                 if (v > 0)
                 {
-                    script_evaluate_dll(botnana, textHomingV1Z.Text + @" 3  axis-homing-v1!");
+                    bot.EvaluateScript(textHomingV1Z.Text + @" 3  axis-homing-v1!");
                 }
                     
             }
@@ -763,7 +720,7 @@ namespace AxisGroup
             {
                 if (v > 0)
                 {
-                    script_evaluate_dll(botnana, textHomingV2X.Text + @" 1  axis-homing-v2!");
+                    bot.EvaluateScript(textHomingV2X.Text + @" 1  axis-homing-v2!");
                 }
             }
             paraSetting = true;
@@ -776,7 +733,7 @@ namespace AxisGroup
             {
                 if (v > 0)
                 {
-                    script_evaluate_dll(botnana, textHomingV2Y.Text + @" 2  axis-homing-v2!");
+                    bot.EvaluateScript(textHomingV2Y.Text + @" 2  axis-homing-v2!");
                 }
             }
             paraSetting = true;
@@ -789,7 +746,7 @@ namespace AxisGroup
             {
                 if (v > 0)
                 {
-                    script_evaluate_dll(botnana, textHomingV2Z.Text + @" 3  axis-homing-v2!");
+                    bot.EvaluateScript(textHomingV2Z.Text + @" 3  axis-homing-v2!");
                 }
             }
             paraSetting = true;
@@ -880,7 +837,7 @@ namespace AxisGroup
             {
                 if (v > 0)
                 {
-                    script_evaluate_dll(botnana, textHomingMethodX.Text + @" 1  axis-homing-method!");
+                    bot.EvaluateScript(textHomingMethodX.Text + @" 1  axis-homing-method!");
                 }
             }
             paraSetting = true;
@@ -893,7 +850,7 @@ namespace AxisGroup
             {
                 if (v > 0)
                 {
-                    script_evaluate_dll(botnana, textHomingMethodY.Text + @" 2  axis-homing-method!");
+                    bot.EvaluateScript(textHomingMethodY.Text + @" 2  axis-homing-method!");
                 }
             }
             paraSetting = true;
@@ -906,7 +863,7 @@ namespace AxisGroup
             {
                 if (v > 0)
                 {
-                    script_evaluate_dll(botnana, textHomingMethodZ.Text + @" 3  axis-homing-method!");
+                    bot.EvaluateScript(textHomingMethodZ.Text + @" 3  axis-homing-method!");
                 }
             }
             paraSetting = true;
@@ -958,7 +915,7 @@ namespace AxisGroup
             {
                 if (v > 0)
                 {
-                    script_evaluate_dll(botnana, textRapidTravelsRate.Text.Trim() + @"e mm/min rapid-travels-rate!");
+                    bot.EvaluateScript(textRapidTravelsRate.Text.Trim() + @"e mm/min rapid-travels-rate!");
                 }
             }
             paraSetting = true;
@@ -971,7 +928,7 @@ namespace AxisGroup
             {
                 if (v > 0)
                 {
-                    script_evaluate_dll(botnana, textMachiningRate.Text.Trim() + @"e mm/min machining-rate! .config");
+                    bot.EvaluateScript(textMachiningRate.Text.Trim() + @"e mm/min machining-rate! .config");
                 }
             }
             paraSetting = true;
@@ -1006,7 +963,7 @@ namespace AxisGroup
         // failure Ack.
         private void button2_Click_1(object sender, EventArgs e)
         {
-            script_evaluate_dll(botnana, @"ack-monitor");
+            bot.EvaluateScript(@"ack-monitor");
         }
 
         // reset program 
@@ -1018,7 +975,7 @@ namespace AxisGroup
             }
             else
             {
-                script_evaluate_dll(botnana, "reset-machining -nc marker -nc");
+                bot.EvaluateScript("reset-machining -nc marker -nc");
                 hasProgram = false;
             }
         }
