@@ -8,6 +8,13 @@ void on_message_cb (const char * src)
     printf("on_message:  %s\n", src);
 }
 
+int ws_open = 0;
+// 處理 WebSocket on_open
+void on_ws_open_cb (const char * src)
+{
+    ws_open = 1;
+}
+
 // 處理 WebSocket 連線異常
 void on_ws_error_cb (const char * src)
 {
@@ -23,10 +30,17 @@ void on_send_cb (const char * src)
 int main()
 {
     // connect to motion server
-    struct Botnana * botnana = botnana_connect("192.168.7.2", on_ws_error_cb);
+    struct Botnana * botnana = botnana_new("192.168.7.2");
+    botnana_set_on_open_cb(botnana, on_ws_open_cb);
+    botnana_set_on_error_cb(botnana, on_ws_error_cb);
     botnana_set_on_message_cb(botnana, on_message_cb);
     botnana_set_on_send_cb(botnana, on_send_cb);
+    botnana_connect(botnana);
 
+    while (ws_open == 0)
+    {
+        sleep(1);
+    }
     // send `words` of real time script
     script_evaluate(botnana, "words");
 
