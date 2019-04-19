@@ -19,7 +19,7 @@ const WS_WATCHDOG_PERIOD_MS: u64 = 10_000;
 #[repr(C)]
 #[derive(Clone)]
 pub struct Botnana {
-    url: String,
+    url: Arc<Mutex<String>>,
     user_sender: Arc<Mutex<Option<mpsc::Sender<Message>>>>,
     ws_out: Arc<Mutex<Option<ws::Sender>>>,
     handlers: Arc<Mutex<HashMap<String, Vec<Box<Fn(*const c_char) + Send>>>>>,
@@ -41,7 +41,7 @@ impl Botnana {
     /// New
     pub fn new() -> Botnana {
         Botnana {
-            url: "ws://192.168.7.2:3012".to_string(),
+            url: Arc::new(Mutex::new("ws://192.168.7.2:3012".to_string())),
             user_sender: Arc::new(Mutex::new(None)),
             ws_out: Arc::new(Mutex::new(None)),
             handlers: Arc::new(Mutex::new(HashMap::new())),
@@ -58,9 +58,9 @@ impl Botnana {
     }
 
     /// Set IP
-    pub fn set_ip(&mut self, ip: &str) -> Option<&str> {
+    pub fn set_ip(&mut self, ip: &str) -> Option<String> {
         if let Ok(url) = url::Url::parse(&("ws://".to_owned() + ip + ":3012")) {
-            self.url = url.to_string();
+            *self.url.lock().expect("") = url.to_string();
             Some(self.url())
         } else {
             None
@@ -68,8 +68,8 @@ impl Botnana {
     }
 
     /// URL
-    pub fn url(&self) -> &str {
-        &self.url
+    pub fn url(&self) -> String {
+        self.url.lock().expect("").to_string()
     }
 
     /// Set on_open callback
@@ -130,7 +130,8 @@ impl Botnana {
                         .name("WS_CLIENT".to_string())
                         .spawn(move || {
                             // connect ws server
-                            let _ = connect(bna.url.clone(), |sender| Client {
+                            let url = bna.url.lock().expect("Connect").to_string();
+                            let _ = connect(url, |sender| Client {
                                 ws_out: sender,
                                 sender: client_sender.clone(),
                                 thread_tx: thread_tx.clone(),
@@ -463,7 +464,8 @@ impl Botnana {
     fn execute_on_open_cb(&self) {
         let cb = self.on_open_cb.lock().expect("execute_on_open_cb");
         if cb.len() > 0 {
-            let mut temp_msg = String::from("Connect to ".to_owned() + &self.url).into_bytes();
+            let mut temp_msg =
+                String::from("Connect to ".to_owned() + &self.url.lock().expect("")).into_bytes();
             temp_msg.push(0);
             let msg = CStr::from_bytes_with_nul(temp_msg.as_slice())
                 .expect("toCstr")
