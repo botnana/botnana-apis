@@ -20,6 +20,13 @@ void on_message_cb (const char * src)
     }
 }
 
+int ws_open = 0;
+// 處理 WebSocket on_open
+void on_ws_open_cb (const char * src)
+{
+    ws_open = 1;
+}
+
 // 處理 WebSocket 連線異常
 void on_ws_error_cb (const char * src)
 {
@@ -91,7 +98,9 @@ int main()
     pthread_t user_t;
 
     // connect to motion server
-    botnana = botnana_connect("192.168.7.2", on_ws_error_cb);
+    botnana = botnana_new("192.168.7.2");
+    botnana_set_on_open_cb(botnana, on_ws_open_cb);
+    botnana_set_on_error_cb(botnana, on_ws_error_cb);
     botnana_set_on_message_cb(botnana, on_message_cb);
     //botnana_set_on_send_cb(botnana, on_send_cb);
     botnana_set_tag_cb(botnana, "test-recorder", 0, recorder_cb);
@@ -112,6 +121,11 @@ int main()
     program_line(pm, "repeat");
     program_line(pm, "200 ms");
 
+    botnana_connect(botnana);
+    while (ws_open == 0)
+    {
+        sleep(1);
+    }
 
     // deploy program to motion server
     script_evaluate(botnana, "-work marker -work");

@@ -10,18 +10,51 @@ extern "C" {
 // server descriptor
 struct Botnana;
 
+// New Botnana motion server descriptor
+// ip: motion server IP address
+struct Botnana * botnana_new(const char * ip);
+
 // connect to motion server
-// address        : IP of motion server
-// on_ws_error_cb : on Websocket error callback
-struct Botnana * botnana_connect(const char * address,
-                                 void (* on_ws_error_cb)(const char * str));
+// desc: IP of motion server
+void botnana_connect(struct Botnana * desc);
+
+// Disconnect
+// desc : motion server descriptor
+void botnana_disconnect(struct Botnana * desc);
+
+// Set IP
+// desc : motion server descriptor
+// ip   : IP of motion server
+//
+// return : URl of motion server
+const char * botnana_set_ip(struct Botnana * desc, const char * ip);
+
+// URL of motion server
+// desc : motion server descriptor
+//
+// return : URl of motion server
+const char * botnana_url(struct Botnana * desc);
+
+// Set on_open callback function
+// desc: motion server descriptor
+// cb  : on_open callback function
+void botnana_set_on_open_cb(struct Botnana * desc,
+                            void (* cb)(const char * str));
+
+
+// Set on_error callback function
+// desc: motion server descriptor
+// cb  : on_error callback function
+void botnana_set_on_error_cb(struct Botnana * desc,
+                             void (* cb)(const char * str));
+
 
 // Send raw message
 void botnana_send_message(struct Botnana * desc,
                           const char * msg);
 
 // Set tag callback function
-// desc  : server descriptor
+// desc  : motion server descriptor
 // tag   : tag
 // count : called times, 0 as always
 // cb    : handle corresponding valve function
@@ -31,7 +64,7 @@ int32_t botnana_set_tag_cb (struct Botnana * desc,
                             void (* cb)(const char * str));
 
 // Set on_message callback function
-// desc: server descriptor
+// desc: motion server descriptor
 // cb  : on_message callback function
 void botnana_set_on_message_cb(struct Botnana * desc,
                                void (* cb)(const char * str));
@@ -63,7 +96,6 @@ int32_t flush_scripts_buffer(struct Botnana * desc);
 int32_t set_auto_flush_count(struct Botnana * desc,
                              int32_t count);
 
-
 //****** Json API ********/
 
 // motion evaluate
@@ -90,6 +122,7 @@ void version_get(struct Botnana * desc);
 // position: slave position, start by 1
 // channel:  device channel, start by 1
 void config_slave_get(struct Botnana * desc,
+                      uint32_t alias,
                       uint32_t position,
                       uint32_t channel);
 
@@ -110,6 +143,7 @@ void config_slave_get(struct Botnana * desc,
 // value: setting value
 // return: 0 表示有將 JSON-API 送出
 int32_t config_slave_set(struct Botnana * desc,
+                         uint32_t alias,
                          uint32_t position,
                          uint32_t channel,
                          const char * param,
