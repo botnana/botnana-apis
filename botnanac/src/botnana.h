@@ -81,20 +81,28 @@ void botnana_set_on_send_cb(struct Botnana * desc,
 //
 // desc:   server descriptor
 // script: real time script
-int32_t send_script_to_buffer(struct Botnana * desc,
-                              const char * script);
+void send_script_to_buffer(struct Botnana * desc,
+                           const char * script);
 
 // Flush scripts buffer
 //
 // desc:   server descriptor
-int32_t flush_scripts_buffer(struct Botnana * desc);
+void flush_scripts_buffer(struct Botnana * desc);
 
-// motion evaluate
+// Set scripts pop count
 //
 // desc:  server descriptor
 // count: command count
-int32_t set_auto_flush_count(struct Botnana * desc,
-                             int32_t count);
+void set_scripts_pop_count(struct Botnana * desc,
+                           uint32_t count);
+
+// Set poll interval
+//
+// desc:  server descriptor
+// interval: poll interval [ms]
+void set_poll_interval_ms(struct Botnana * desc,
+                          uint64_t interval);
+
 
 //****** Json API ********/
 
