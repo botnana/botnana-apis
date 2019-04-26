@@ -130,8 +130,7 @@ impl Botnana {
                         .name("WS_CLIENT".to_string())
                         .spawn(move || {
                             // connect ws server
-                            let url = bna.url.lock().expect("Connect").to_string();
-                            let _ = connect(url, |sender| Client {
+                            let _ = connect(bna.url(), |sender| Client {
                                 ws_out: sender,
                                 sender: client_sender.clone(),
                                 thread_tx: thread_tx.clone(),
@@ -464,8 +463,7 @@ impl Botnana {
     fn execute_on_open_cb(&self) {
         let cb = self.on_open_cb.lock().expect("execute_on_open_cb");
         if cb.len() > 0 {
-            let mut temp_msg =
-                String::from("Connect to ".to_owned() + &self.url.lock().expect("")).into_bytes();
+            let mut temp_msg = String::from("Connect to ".to_owned() + &self.url()).into_bytes();
             temp_msg.push(0);
             let msg = CStr::from_bytes_with_nul(temp_msg.as_slice())
                 .expect("toCstr")
