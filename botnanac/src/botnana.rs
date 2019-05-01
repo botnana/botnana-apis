@@ -138,12 +138,12 @@ impl Botnana {
                                 is_watchdog_refreshed: false,
                             });
                             // 直到 WS Client Event loop 結束， 才會執行以下程式。
-                            *bna.is_connecting.lock().expect("Try connecting") = false;
-                            *bna.user_sender.lock().expect("execute_on_error_cb") = None;
-                            *bna.ws_out.lock().expect("execute_on_error_cb") = None;
+                            *bna.is_connecting.lock().expect("Exit WS Event Loop") = false;
+                            *bna.user_sender.lock().expect("Exit WS Event Loop") = None;
+                            *bna.ws_out.lock().expect("Exit WS Event Loop") = None;
                             bna.scripts_buffer
                                 .lock()
-                                .expect("execute_on_error_cb")
+                                .expect("Exit WS Event Loop")
                                 .clear();
                         })
                 {
