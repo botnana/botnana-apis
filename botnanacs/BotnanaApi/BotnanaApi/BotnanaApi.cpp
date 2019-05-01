@@ -27,7 +27,7 @@ extern "C" {
 	// Disconnect with Botnana Control
 	// @botnana: Botnana Control descriptor
 	__declspec(dllexport) void botnana_disconnect_dll(struct Botnana *botnana) {
-		botnana_connect(botnana);
+		botnana_disconnect(botnana);
 	}
 
 	// Set WS on_open callback function 
