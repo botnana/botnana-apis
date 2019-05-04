@@ -29,7 +29,6 @@ void on_send_cb (const char * src)
 
 int main()
 {
-    // connect to motion server
     struct Botnana * botnana = botnana_new("192.168.7.2");
     botnana_set_on_open_cb(botnana, on_ws_open_cb);
     botnana_set_on_error_cb(botnana, on_ws_error_cb);

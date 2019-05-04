@@ -53,6 +53,7 @@ int main()
     config_axis_set_ext_encoder_ppu(botnana, 1, 3000000.0);
     // 設定 Axis 參數檔中的位置雙回授濾波器的截止頻率
     config_axis_set_closed_loop_filter(botnana, 1, 15.0);
+    config_axis_set_max_position_deviation(botnana, 1, 0.05);
     // 設定 Axis 參數檔中的 home offset
     config_axis_set_home_offset(botnana, 1, 0.5);
     // 設定 Axis 參數檔中的編碼器方向
