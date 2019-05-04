@@ -25,66 +25,85 @@ namespace BotnanaLib
             innerProgrm = program_new_dll("program");
         }
 
+        // Library version
+        public String LibraryVersion()
+        {
+            return library_version_dll();
+        }
+
+        // WebSocket Connect
         public void Connect()
         {
             botnana_connect_dll(innerBotnana);
         }
 
+        // WebSocket Disconnect
         public void Disconnect()
         {
             botnana_disconnect_dll(innerBotnana);
         }
 
+        // Send real time script  
         public void EvaluateScript(string script)
         {
             script_evaluate_dll(innerBotnana, script);
         }
 
+        // Set callback function of WS on_open event
         public void SetOnOpenCB(HandleMessage hm)
         {
             botnana_set_on_open_cb_dll(innerBotnana, hm);
         }
 
+        // Set callback function of WS on_error event
         public void SetOnErrorCB(HandleMessage hm)
         {
             botnana_set_on_error_cb_dll(innerBotnana, hm);
         }
-        
+
+        // Set callback function of WS on_message event
         public void SetOnMessageCB(HandleMessage hm)
         {
             botnana_set_on_message_cb_dll(innerBotnana, hm);
         }
 
+        // Set callback function of WS on_send event
         public void SetOnSendCB(HandleMessage hm)
         {
             botnana_set_on_send_cb_dll(innerBotnana, hm);
         }
 
+        // Set callback function of tag 
         public void SetTagCB(string tag, int count, HandleMessage hm)
         {
             botnana_set_tag_cb_dll(innerBotnana, tag, count, hm);
         }
-             
+
+        // Depoly program to NC background task
         public void DeployProgram()
         {
             program_deploy_dll(innerBotnana, innerProgrm);
         }
 
+        // Add command to program 
         public void AddProgramLine(string script)
         {
             program_line_dll(innerProgrm, script);
         }
 
+        // Run Program
         public void RunProgram()
         {
             program_run_dll(innerBotnana, innerProgrm);
         }
 
+        // Clear program
         public void ClearProgram()
         {
             program_clear_dll(innerProgrm);
         }
 
+        // Abort program
         public void AbortProgram()
         {
             botnana_abort_program_dll(innerBotnana);
@@ -101,9 +120,12 @@ namespace BotnanaLib
         {
             script_evaluate_dll(innerBotnana, $"0sfc");
         }
-        
+
         private IntPtr innerBotnana;
         private IntPtr innerProgrm;
+
+        [DllImport(@"BotnanaApi.dll", CharSet = CharSet.Ansi, CallingConvention = CallingConvention.Cdecl)]
+        private static extern string library_version_dll();
 
         [DllImport(@"BotnanaApi.dll", CharSet = CharSet.Ansi, CallingConvention = CallingConvention.Cdecl)]
         private static extern IntPtr botnana_new_dll(string ip);
@@ -149,5 +171,5 @@ namespace BotnanaLib
 
         [DllImport(@"BotnanaApi.dll", CharSet = CharSet.Ansi, CallingConvention = CallingConvention.Cdecl)]
         private static extern void botnana_abort_program_dll(IntPtr botnana);
-    } 
+    }
 }

@@ -10,8 +10,12 @@
 //typedef void(*HandleMessage)(const char* str);
 
 extern "C" {
-
 	
+	// Library version
+	__declspec(dllexport) const char * library_version_dll(const char * ip) {
+		return library_version();
+	}
+
 	// New Botnana
 	// @ip : Botnana 的 IP 位置
 	__declspec(dllexport) struct Botnana * botnana_new_dll(const char * ip) {
