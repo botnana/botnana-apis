@@ -246,7 +246,7 @@ pub extern "C" fn config_slave_set_pdo_demand_position(
 
 /// config.slave.set (pdo_demand_velocity)
 #[no_mangle]
-pub extern "C" fn config_slave_pdo_demand_velocity(
+pub extern "C" fn config_slave_set_pdo_demand_velocity(
     botnana: Box<Botnana>,
     alias: libc::uint32_t,
     position: libc::uint32_t,
@@ -265,7 +265,7 @@ pub extern "C" fn config_slave_pdo_demand_velocity(
 
 /// config.slave.set (pdo_demand_torque)
 #[no_mangle]
-pub extern "C" fn config_slave_pdo_demand_torque(
+pub extern "C" fn config_slave_set_pdo_demand_torque(
     botnana: Box<Botnana>,
     alias: libc::uint32_t,
     position: libc::uint32_t,
@@ -284,7 +284,7 @@ pub extern "C" fn config_slave_pdo_demand_torque(
 
 /// config.slave.set (pdo_real_velocity)
 #[no_mangle]
-pub extern "C" fn config_slave_pdo_real_velocity(
+pub extern "C" fn config_slave_set_pdo_real_velocity(
     botnana: Box<Botnana>,
     alias: libc::uint32_t,
     position: libc::uint32_t,
@@ -303,7 +303,7 @@ pub extern "C" fn config_slave_pdo_real_velocity(
 
 /// config.slave.set (pdo_real_torque)
 #[no_mangle]
-pub extern "C" fn config_slave_pdo_real_torque(
+pub extern "C" fn config_slave_set_pdo_real_torque(
     botnana: Box<Botnana>,
     alias: libc::uint32_t,
     position: libc::uint32_t,

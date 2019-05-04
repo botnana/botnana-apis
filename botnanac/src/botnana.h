@@ -244,7 +244,7 @@ void config_slave_set_pdo_demand_position(struct Botnana * botnana,
 // position: slave position, start by 1
 // channel:  device channel, start by 1
 // value != 0 : enable of pdo_demand_velocity in PDO Mapping
-void config_slave_pdo_demand_velocity(struct Botnana * botnana,
+void config_slave_set_pdo_demand_velocity(struct Botnana * botnana,
                                       uint32_t alias,
                                       uint32_t position,
                                       uint32_t channel,
@@ -255,7 +255,7 @@ void config_slave_pdo_demand_velocity(struct Botnana * botnana,
 // position: slave position, start by 1
 // channel:  device channel, start by 1
 // value != 0 : enable of pdo_demand_torque in PDO Mapping
-void config_slave_pdo_demand_torque(struct Botnana * botnana,
+void config_slave_set_pdo_demand_torque(struct Botnana * botnana,
                                     uint32_t alias,
                                     uint32_t position,
                                     uint32_t channel,
@@ -266,7 +266,7 @@ void config_slave_pdo_demand_torque(struct Botnana * botnana,
 // position: slave position, start by 1
 // channel:  device channel, start by 1
 // value != 0 : enable of pdo_real_velocity in PDO Mapping
-void config_slave_pdo_real_velocity(struct Botnana * botnana,
+void config_slave_set_pdo_real_velocity(struct Botnana * botnana,
                                     uint32_t alias,
                                     uint32_t position,
                                     uint32_t channel,
@@ -277,7 +277,7 @@ void config_slave_pdo_real_velocity(struct Botnana * botnana,
 // position: slave position, start by 1
 // channel:  device channel, start by 1
 // value != 0 : enable of pdo_real_torque in PDO Mapping
-void config_slave_pdo_real_torque(struct Botnana * botnana,
+void config_slave_set_pdo_real_torque(struct Botnana * botnana,
                                   uint32_t alias,
                                   uint32_t position,
                                   uint32_t channel,
@@ -383,7 +383,7 @@ void config_group_get(struct Botnana * botnana,
 // botnana: Botnana motion server descriptor
 // position: axis index
 // name: axis name
-int config_axis_set_name(struct Botnana * botnana,
+int32_t config_axis_set_name(struct Botnana * botnana,
                          uint32_t position,
                          const char * name);
 
@@ -537,7 +537,7 @@ void config_axis_get(struct Botnana * desc,
 // save configuration
 //
 // desc:     server descriptor
-void configure_save(struct Botnana * desc);
+void config_save(struct Botnana * desc);
 
 // Poweroff
 //
