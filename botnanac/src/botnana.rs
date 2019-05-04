@@ -14,6 +14,7 @@ use ws::{self, connect, util::Token, CloseCode, Error, ErrorKind, Handler, Hands
          Result};
 const WS_TIMEOUT_TOKEN: Token = Token(1);
 const WS_WATCHDOG_PERIOD_MS: u64 = 10_000;
+const VERSION: &'static str = env!("CARGO_PKG_VERSION");
 
 /// Botnana
 #[repr(C)]
@@ -138,12 +139,12 @@ impl Botnana {
                                 is_watchdog_refreshed: false,
                             });
                             // 直到 WS Client Event loop 結束， 才會執行以下程式。
-                            *bna.is_connecting.lock().expect("Try connecting") = false;
-                            *bna.user_sender.lock().expect("execute_on_error_cb") = None;
-                            *bna.ws_out.lock().expect("execute_on_error_cb") = None;
+                            *bna.is_connecting.lock().expect("Exit WS Event Loop") = false;
+                            *bna.user_sender.lock().expect("Exit WS Event Loop") = None;
+                            *bna.ws_out.lock().expect("Exit WS Event Loop") = None;
                             bna.scripts_buffer
                                 .lock()
-                                .expect("execute_on_error_cb")
+                                .expect("Exit WS Event Loop")
                                 .clear();
                         })
                 {
@@ -500,6 +501,11 @@ impl Botnana {
         // 放入新的 callback function
         cb.push(Box::new(handler));
     }
+
+    /// Version
+    pub fn version() -> &'static str {
+        VERSION
+    }
 }
 
 /// WebSocket Client
@@ -589,6 +595,13 @@ pub fn send_message(botnana: Box<Botnana>, msg: &str) {
 pub fn evaluate(botnana: Box<Botnana>, script: &str) {
     let s = Box::into_raw(botnana);
     unsafe { (*s).evaluate(script) };
+}
+
+#[no_mangle]
+/// Library Version
+pub extern "C" fn library_version() -> *const c_char {
+    let version = CString::new(VERSION).expect("library version");
+    version.into_raw()
 }
 
 #[no_mangle]
