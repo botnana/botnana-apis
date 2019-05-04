@@ -13,12 +13,19 @@ variable machining-stopped
 
 \ 要求運動緊急停止
 : ems-motion  ( -- )
-    true homing-stopped !
-    true jogging-stopped !
-    true machining-stopped !
+    motion-state @ case
+        1 of    
+            true homing-stopped !
+        endof
+        2 of    
+            true jogging-stopped !
+        endof
+        3 of
+            true machining-stopped !
+        endof
+    endcase
     ." log|EMS motion" cr
     ;
-
 
 \ Motion Idle Step
 : motion-idle ( -- )

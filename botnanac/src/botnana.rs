@@ -19,7 +19,7 @@ const WS_WATCHDOG_PERIOD_MS: u64 = 10_000;
 #[repr(C)]
 #[derive(Clone)]
 pub struct Botnana {
-    url: String,
+    url: Arc<Mutex<String>>,
     user_sender: Arc<Mutex<Option<mpsc::Sender<Message>>>>,
     ws_out: Arc<Mutex<Option<ws::Sender>>>,
     handlers: Arc<Mutex<HashMap<String, Vec<Box<Fn(*const c_char) + Send>>>>>,
@@ -41,7 +41,7 @@ impl Botnana {
     /// New
     pub fn new() -> Botnana {
         Botnana {
-            url: "ws://192.168.7.2:3012".to_string(),
+            url: Arc::new(Mutex::new("ws://192.168.7.2:3012".to_string())),
             user_sender: Arc::new(Mutex::new(None)),
             ws_out: Arc::new(Mutex::new(None)),
             handlers: Arc::new(Mutex::new(HashMap::new())),
@@ -58,9 +58,9 @@ impl Botnana {
     }
 
     /// Set IP
-    pub fn set_ip(&mut self, ip: &str) -> Option<&str> {
+    pub fn set_ip(&mut self, ip: &str) -> Option<String> {
         if let Ok(url) = url::Url::parse(&("ws://".to_owned() + ip + ":3012")) {
-            self.url = url.to_string();
+            *self.url.lock().expect("") = url.to_string();
             Some(self.url())
         } else {
             None
@@ -68,8 +68,8 @@ impl Botnana {
     }
 
     /// URL
-    pub fn url(&self) -> &str {
-        &self.url
+    pub fn url(&self) -> String {
+        self.url.lock().expect("").to_string()
     }
 
     /// Set on_open callback
@@ -130,17 +130,21 @@ impl Botnana {
                         .name("WS_CLIENT".to_string())
                         .spawn(move || {
                             // connect ws server
-                            let _ = connect(bna.url.clone(), |sender| Client {
-                                url: bna.url.clone(),
+                            let _ = connect(bna.url(), |sender| Client {
                                 ws_out: sender,
                                 sender: client_sender.clone(),
                                 thread_tx: thread_tx.clone(),
-                                on_open_cb: bna.on_open_cb.clone(),
                                 on_error_cb: bna.on_error_cb.clone(),
                                 is_watchdog_refreshed: false,
                             });
                             // 直到 WS Client Event loop 結束， 才會執行以下程式。
-                            *bna.is_connecting.lock().expect("Try connecting") = false;
+                            *bna.is_connecting.lock().expect("Exit WS Event Loop") = false;
+                            *bna.user_sender.lock().expect("Exit WS Event Loop") = None;
+                            *bna.ws_out.lock().expect("Exit WS Event Loop") = None;
+                            bna.scripts_buffer
+                                .lock()
+                                .expect("Exit WS Event Loop")
+                                .clear();
                         })
                 {
                     botnana
@@ -224,6 +228,8 @@ impl Botnana {
                     {
                         botnana.execute_on_error_cb(&format!("Can't create POLL thread ({})\n", e));
                     }
+                    // 建制成功後呼叫 on_open callback
+                    botnana.execute_on_open_cb();
                 }
             })
             .expect("Create Try Connection Thread");
@@ -459,6 +465,20 @@ impl Botnana {
         }
     }
 
+    /// Execute on_open callback
+    fn execute_on_open_cb(&self) {
+        let cb = self.on_open_cb.lock().expect("execute_on_open_cb");
+        if cb.len() > 0 {
+            let mut temp_msg = String::from("Connect to ".to_owned() + &self.url()).into_bytes();
+            temp_msg.push(0);
+            let msg = CStr::from_bytes_with_nul(temp_msg.as_slice())
+                .expect("toCstr")
+                .as_ptr();
+
+            cb[0](msg);
+        }
+    }
+
     pub fn set_on_send_cb<F>(&mut self, handler: F)
     where
         F: Fn(*const c_char) + Send + 'static,
@@ -484,30 +504,14 @@ impl Botnana {
 
 /// WebSocket Client
 struct Client {
-    url: String,
     ws_out: ws::Sender,
     sender: mpsc::Sender<String>,
     thread_tx: mpsc::Sender<ws::Sender>,
-    on_open_cb: Arc<Mutex<Vec<Box<Fn(*const c_char) + Send>>>>,
     on_error_cb: Arc<Mutex<Vec<Box<Fn(*const c_char) + Send>>>>,
     is_watchdog_refreshed: bool,
 }
 
 impl Client {
-    /// Execute on_open callback
-    fn execute_on_open_cb(&self, msg: &str) {
-        let cb = self.on_open_cb.lock().expect("execute_on_open_cb");
-        if cb.len() > 0 {
-            let mut temp_msg = String::from(msg).into_bytes();
-            temp_msg.push(0);
-            let msg = CStr::from_bytes_with_nul(temp_msg.as_slice())
-                .expect("toCstr")
-                .as_ptr();
-
-            cb[0](msg);
-        }
-    }
-
     /// Execute on_error callback
     fn execute_on_error_cb(&self, msg: &str) {
         let cb = self.on_error_cb.lock().expect("execute_on_error_cb");
@@ -527,7 +531,6 @@ impl Handler for Client {
     fn on_open(&mut self, _: Handshake) -> Result<()> {
         self.ws_out
             .timeout(WS_WATCHDOG_PERIOD_MS, WS_TIMEOUT_TOKEN)?;
-        self.execute_on_open_cb(&("Connect to ".to_owned() + &self.url));
         self.thread_tx.send(self.ws_out.clone()).map_err(|err| {
             Error::new(
                 ErrorKind::Internal,
