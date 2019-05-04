@@ -9,29 +9,14 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.Runtime.InteropServices;
+using BotnanaLib;
 
 namespace TouchProbe
 {
     public partial class Form1 : Form
     {
 
-        [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
-        private delegate void HandleMessage(string str);
-
-        [DllImport(@"..\..\BotnanaApi.dll", CharSet = CharSet.Ansi, CallingConvention = CallingConvention.Cdecl)]
-        private static extern IntPtr botnana_connect_dll(string address, HandleMessage on_error_cb);
-
-        [DllImport(@"..\..\BotnanaApi.dll", CharSet = CharSet.Ansi, CallingConvention = CallingConvention.Cdecl)]
-        private static extern void script_evaluate_dll(IntPtr desc, string script);
-
-        [DllImport(@"..\..\BotnanaApi.dll", CharSet = CharSet.Ansi, CallingConvention = CallingConvention.Cdecl)]
-        private static extern void botnana_set_tag_cb_dll(IntPtr desc, string tag, int count, HandleMessage hm);
-
-        [DllImport(@"..\..\BotnanaApi.dll", CharSet = CharSet.Ansi, CallingConvention = CallingConvention.Cdecl)]
-        private static extern void botnana_set_on_message_cb_dll(IntPtr desc, HandleMessage hm);
-
-
-        private static IntPtr botnana;
+       private Botnana bot;
 
         private static HandleMessage on_ws_error_callback = new HandleMessage(on_ws_error_cb);
         private static void on_ws_error_cb(string str)
@@ -138,22 +123,24 @@ namespace TouchProbe
 
         private void Form1_Load(object sender, EventArgs e)
         {
-            botnana = botnana_connect_dll("192.168.7.2", on_ws_error_callback);
+            bot = new Botnana("192.168.7.2");
+            bot.SetOnErrorCB(on_ws_error_callback);
+            bot.Connect();
+            Thread.Sleep(1000);
+            bot.SetTagCB("sdo_index.1", 0, sdo_index_callback);
+            bot.SetTagCB("sdo_subindex.1", 0, sdo_subindex_callback);
+            bot.SetTagCB("sdo_error.1", 0, sdo_error_callback);
+            bot.SetTagCB("sdo_busy.1", 0, sdo_busy_callback);
+            bot.SetTagCB("sdo_data.1", 0, sdo_data_callback);
+            bot.SetTagCB("real_position.1.1", 0, realPositionCallback);
+            bot.SetTagCB("digital_inputs.1.1", 0, digitalInputsCallback);
+            bot.SetTagCB("operation_mode.1.1", 0, opModeCallback);
+            bot.SetTagCB("status_word.1.1", 0, statusWordCallback);
+            bot.SetTagCB("error", 0, errorCallback);
+            bot.SetTagCB("homing", 0, homingCallback);
+            bot.SetTagCB("slaves_responding", 1, slavesRespondingCallback);
 
-            botnana_set_tag_cb_dll(botnana, "sdo_index.1", 0, sdo_index_callback);
-            botnana_set_tag_cb_dll(botnana, "sdo_subindex.1", 0, sdo_subindex_callback);
-            botnana_set_tag_cb_dll(botnana, "sdo_error.1", 0, sdo_error_callback);
-            botnana_set_tag_cb_dll(botnana, "sdo_busy.1", 0, sdo_busy_callback);
-            botnana_set_tag_cb_dll(botnana, "sdo_data.1", 0, sdo_data_callback);
-            botnana_set_tag_cb_dll(botnana, "real_position.1.1", 0, realPositionCallback);
-            botnana_set_tag_cb_dll(botnana, "digital_inputs.1.1", 0, digitalInputsCallback);
-            botnana_set_tag_cb_dll(botnana, "operation_mode.1.1", 0, opModeCallback);
-            botnana_set_tag_cb_dll(botnana, "status_word.1.1", 0, statusWordCallback);
-            botnana_set_tag_cb_dll(botnana, "error", 0, errorCallback);
-            botnana_set_tag_cb_dll(botnana, "homing", 0, homingCallback);
-            botnana_set_tag_cb_dll(botnana, "slaves_responding", 1, slavesRespondingCallback);
-
-            script_evaluate_dll(botnana, ".ec-links 0 $60B8 1 sdo-upload-i16 1 .slave");
+            bot.EvaluateScript(".ec-links 0 $60B8 1 sdo-upload-i16 1 .slave");
 
             timer1.Interval = 50;
             timer1.Enabled = true;
@@ -163,7 +150,7 @@ namespace TouchProbe
         {
             if (slaveLen > 0)
             {
-                script_evaluate_dll(botnana, "1 .sdo 1 .slave-diff");
+                bot.EvaluateScript("1 .sdo 1 .slave-diff");
                 textSDOAddress.Text = sdo_index.ToString("X4") + ":" + sdo_subindex.ToString("X2");
 
                 textSDOError.Text = sdo_error_str;
@@ -181,7 +168,7 @@ namespace TouchProbe
                     if (has_new_setting)
                     {
                         // 如果有新的設定值,就設定 0x60B8 暫存器
-                        script_evaluate_dll(botnana, new_setting.ToString() + " 0 $60B8 1 sdo-download-i16");
+                        bot.EvaluateScript(new_setting.ToString() + " 0 $60B8 1 sdo-download-i16");
                         has_new_setting = false;
                     }
                     else if (sdo_index == 0x60B8)
@@ -201,7 +188,7 @@ namespace TouchProbe
                             is_inited = true;
                         }
                         // 使用 SDO 取回 0x60B9 (Touch porbe status) 暫存器內容
-                        script_evaluate_dll(botnana, "0 $60B9 1 sdo-upload-i16");
+                        bot.EvaluateScript("0 $60B9 1 sdo-upload-i16");
                     }
                     else if (sdo_index == 0x60B9)
                     {
@@ -214,35 +201,35 @@ namespace TouchProbe
                         radioTp2HasFalling.Checked = (sdo_data & 0x400) != 0;
 
                         // 使用 SDO 取回 0x60BA (Touch probe pos1 pos value) 暫存器內容
-                        script_evaluate_dll(botnana, "0 $60BA 1 sdo-upload-i32");
+                        bot.EvaluateScript("0 $60BA 1 sdo-upload-i32");
                     }
                     else if (sdo_index == 0x60BA)
                     {
                         // 更新 Touch probe pos1 pos value 的 text 元件
                         textTp1Pos1.Text = sdo_data.ToString();
                         // 使用 SDO 取回 0x60BB (Touch probe pos1 neg value) 暫存器內容
-                        script_evaluate_dll(botnana, "0 $60BB 1 sdo-upload-i32");
+                        bot.EvaluateScript("0 $60BB 1 sdo-upload-i32");
                     }
                     else if (sdo_index == 0x60BB)
                     {
                         // 更新 Touch probe pos1 neg value 的 text 元件
                         textTp1Pos2.Text = sdo_data.ToString();
                         // 使用 SDO 取回 0x60BC (Touch probe pos2 pos value) 暫存器內容
-                        script_evaluate_dll(botnana, "0 $60BC 1 sdo-upload-i32");
+                        bot.EvaluateScript("0 $60BC 1 sdo-upload-i32");
                     }
                     else if (sdo_index == 0x60BC)
                     {
                         // 更新 Touch probe pos2 pos value 的 text 元件
                         textTp2Pos1.Text = sdo_data.ToString();
                         // 使用 SDO 取回 0x60BD (Touch probe pos2 neg value) 暫存器內容
-                        script_evaluate_dll(botnana, "0 $60BD 1 sdo-upload-i32");
+                        bot.EvaluateScript("0 $60BD 1 sdo-upload-i32");
                     }
                     else if (sdo_index == 0x60BD)
                     {
                         // 更新 Touch probe pos2 neg value 的 text 元件
                         textTp2Pos2.Text = sdo_data.ToString();
                         // 使用 SDO 取回 0x60B9 (Touch porbe status) 暫存器內容
-                        script_evaluate_dll(botnana, "0 $60B9 1 sdo-upload-i16");
+                        bot.EvaluateScript("0 $60B9 1 sdo-upload-i16");
                     }
 
                 }
@@ -390,8 +377,8 @@ namespace TouchProbe
         private void buttonStartHoming_Click(object sender, EventArgs e)
         {
             // 回歸原點後才可以使用 touch probe function
-            script_evaluate_dll(botnana, "abort-program");
-            script_evaluate_dll(botnana, "deploy 1 1 reset-fault 1 1 until-no-fault" +
+            bot.EvaluateScript("abort-program");
+            bot.EvaluateScript("deploy 1 1 reset-fault 1 1 until-no-fault" +
                " 33 1 1 homing-method! hm 1 1 op-mode! until-no-requests 100 ms 1 1  drive-on 1 1 until-drive-on" +
               " 1 1 go 1 1 until-target-reached pp 1 1 op-mode! 1 1 until-no-requests 100 ms drive-off .( homing|Homing is Ok and change to PP mode)" +
              " ;deploy");
@@ -399,7 +386,7 @@ namespace TouchProbe
 
         private void buttonEvaluate_Click(object sender, EventArgs e)
         {
-            script_evaluate_dll(botnana, textEvalute.Text);
+            bot.EvaluateScript(textEvalute.Text);
             textEvalute.ResetText();
         }
     }

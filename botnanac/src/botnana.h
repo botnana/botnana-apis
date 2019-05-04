@@ -10,6 +10,12 @@ extern "C" {
 // server descriptor
 struct Botnana;
 
+// Library Version
+//
+// return : Library Version
+const char * library_version();
+
+
 // New Botnana motion server descriptor
 // ip: motion server IP address
 struct Botnana * botnana_new(const char * ip);
