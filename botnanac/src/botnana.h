@@ -245,10 +245,10 @@ void config_slave_set_pdo_demand_position(struct Botnana * botnana,
 // channel:  device channel, start by 1
 // value != 0 : enable of pdo_demand_velocity in PDO Mapping
 void config_slave_set_pdo_demand_velocity(struct Botnana * botnana,
-                                      uint32_t alias,
-                                      uint32_t position,
-                                      uint32_t channel,
-                                      int32_t value);
+        uint32_t alias,
+        uint32_t position,
+        uint32_t channel,
+        int32_t value);
 
 // JSON-API: pdo_demand_torque of config.slave.set
 // botnana:  Botnana motion server descriptor
@@ -256,10 +256,10 @@ void config_slave_set_pdo_demand_velocity(struct Botnana * botnana,
 // channel:  device channel, start by 1
 // value != 0 : enable of pdo_demand_torque in PDO Mapping
 void config_slave_set_pdo_demand_torque(struct Botnana * botnana,
-                                    uint32_t alias,
-                                    uint32_t position,
-                                    uint32_t channel,
-                                    int32_t value);
+                                        uint32_t alias,
+                                        uint32_t position,
+                                        uint32_t channel,
+                                        int32_t value);
 
 // JSON-API: pdo_real_velocity of config.slave.set
 // botnana:  Botnana motion server descriptor
@@ -267,10 +267,10 @@ void config_slave_set_pdo_demand_torque(struct Botnana * botnana,
 // channel:  device channel, start by 1
 // value != 0 : enable of pdo_real_velocity in PDO Mapping
 void config_slave_set_pdo_real_velocity(struct Botnana * botnana,
-                                    uint32_t alias,
-                                    uint32_t position,
-                                    uint32_t channel,
-                                    int32_t value);
+                                        uint32_t alias,
+                                        uint32_t position,
+                                        uint32_t channel,
+                                        int32_t value);
 
 // JSON-API: pdo_real_torque of config.slave.set
 // botnana:  Botnana motion server descriptor
@@ -278,10 +278,10 @@ void config_slave_set_pdo_real_velocity(struct Botnana * botnana,
 // channel:  device channel, start by 1
 // value != 0 : enable of pdo_real_torque in PDO Mapping
 void config_slave_set_pdo_real_torque(struct Botnana * botnana,
-                                  uint32_t alias,
-                                  uint32_t position,
-                                  uint32_t channel,
-                                  int32_t value);
+                                      uint32_t alias,
+                                      uint32_t position,
+                                      uint32_t channel,
+                                      int32_t value);
 
 // JSON-API: period_us of config.motion.set
 // botnana: Botnana motion server descriptor
@@ -317,35 +317,37 @@ int32_t config_group_set_name(struct Botnana * botnana,
 // JSON-API: type as 1D of config.group.set
 // botnana:  Botnana motion server descriptor
 // position: group index
+// a1: axis of group mapping
 void config_group_set_type_as_1d(struct Botnana * botnana,
-                                 uint32_t position);
+                                 uint32_t position,
+                                 uint32_t a1);
 
 // JSON-API: type as 2D of config.group.set
 // botnana:  Botnana motion server descriptor
 // position: group index
+// a1, a2: axis of group mapping
 void config_group_set_type_as_2d(struct Botnana * botnana,
-                                 uint32_t position);
+                                 uint32_t position,
+                                 uint32_t a1,
+                                 uint32_t a2);
 
 // JSON-API: type as 3D of config.group.set
 // botnana:  Botnana motion server descriptor
 // position: group index
+// a1, a2, a3: axis of group mapping
 void config_group_set_type_as_3d(struct Botnana * botnana,
-                                 uint32_t position);
+                                 uint32_t position,
+                                 uint32_t a1,
+                                 uint32_t a2,
+                                 uint32_t a3);
 
 // JSON-API: type as SINE of config.group.set
 // botnana:  Botnana motion server descriptor
 // position: group index
+// a1: axis of group mapping
 void config_group_set_type_as_sine(struct Botnana * botnana,
-                                   uint32_t position);
-
-// JSON-API: config.group.set for mapping
-// botnana:  Botnana motion server descriptor
-// position: group index
-// value:    mapping
-// return: 0 表示有將 JSON-API 送出
-int32_t config_group_set_mapping(struct Botnana * botnana,
-                                 uint32_t position,
-                                 const char *  value);
+                                   uint32_t position,
+                                   uint32_t a1);
 
 // JSON-API: vmax of config.group.set
 // botnana:  Botnana motion server descriptor
@@ -371,8 +373,6 @@ void config_group_set_jmax(struct Botnana * botnana,
                            uint32_t position,
                            double  value);
 
-
-
 // JSON-API: config.group.get
 // botnana: server descriptor
 // position: group index
@@ -384,8 +384,8 @@ void config_group_get(struct Botnana * botnana,
 // position: axis index
 // name: axis name
 int32_t config_axis_set_name(struct Botnana * botnana,
-                         uint32_t position,
-                         const char * name);
+                             uint32_t position,
+                             const char * name);
 
 // JSON-API: home_offset of config.axis.set
 // botnana: Botnana motion server descriptor
@@ -493,7 +493,6 @@ void config_axis_set_drive_slave_position(struct Botnana * botnana,
         uint32_t position,
         int32_t value);
 
-
 // JSON-API: drive_channel of config.axis.set
 // botnana: Botnana motion server descriptor
 // position: axis index
@@ -517,7 +516,6 @@ void config_axis_set_ext_encoder_alias(struct Botnana * botnana,
 void config_axis_set_ext_encoder_slave_position(struct Botnana * botnana,
         uint32_t position,
         int32_t value);
-
 
 // JSON-API: ext_encoder_channel of config.axis.set
 // botnana: Botnana motion server descriptor

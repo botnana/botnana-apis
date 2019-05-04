@@ -397,49 +397,75 @@ pub extern "C" fn config_group_set_name(
 
 /// config.group.set (gtype as 1D)
 #[no_mangle]
-pub extern "C" fn config_group_set_type_as_1d(botnana: Box<Botnana>, position: libc::uint32_t) {
-    config_group_set_string(botnana, position, "gtype", "1D");
+pub extern "C" fn config_group_set_type_as_1d(
+    botnana: Box<Botnana>,
+    position: libc::uint32_t,
+    a1: libc::uint32_t,
+) {
+    let msg = r#"{"jsonrpc":"2.0","method":"config.group.set","params":{"#.to_owned()
+        + r#""position":"#
+        + position.to_string().as_str()
+        + r#","gtype":"1D", "mapping":["#
+        + a1.to_string().as_str()
+        + r#"]}}"#;
+    send_message(botnana, &msg.to_owned());
 }
 
 /// config.group.set (gtype as 2D)
 #[no_mangle]
-pub extern "C" fn config_group_set_type_as_2d(botnana: Box<Botnana>, position: libc::uint32_t) {
-    config_group_set_string(botnana, position, "gtype", "2D");
+pub extern "C" fn config_group_set_type_as_2d(
+    botnana: Box<Botnana>,
+    position: libc::uint32_t,
+    a1: libc::uint32_t,
+    a2: libc::uint32_t,
+) {
+    let msg = r#"{"jsonrpc":"2.0","method":"config.group.set","params":{"#.to_owned()
+        + r#""position":"#
+        + position.to_string().as_str()
+        + r#","gtype":"2D", "mapping":["#
+        + a1.to_string().as_str()
+        + r#","#
+        + a2.to_string().as_str()
+        + r#"]}}"#;
+    send_message(botnana, &msg.to_owned());
 }
 
 /// config.group.set (gtype as 3D)
 #[no_mangle]
-pub extern "C" fn config_group_set_type_as_3d(botnana: Box<Botnana>, position: libc::uint32_t) {
-    config_group_set_string(botnana, position, "gtype", "3D");
+pub extern "C" fn config_group_set_type_as_3d(
+    botnana: Box<Botnana>,
+    position: libc::uint32_t,
+    a1: libc::uint32_t,
+    a2: libc::uint32_t,
+    a3: libc::uint32_t,
+) {
+    let msg = r#"{"jsonrpc":"2.0","method":"config.group.set","params":{"#.to_owned()
+        + r#""position":"#
+        + position.to_string().as_str()
+        + r#","gtype":"3D", "mapping":["#
+        + a1.to_string().as_str()
+        + r#","#
+        + a2.to_string().as_str()
+        + r#","#
+        + a3.to_string().as_str()
+        + r#"]}}"#;
+    send_message(botnana, &msg.to_owned());
 }
 
 /// config.group.set (gtype as SINE)
 #[no_mangle]
-pub extern "C" fn config_group_set_type_as_sine(botnana: Box<Botnana>, position: libc::uint32_t) {
-    config_group_set_string(botnana, position, "gtype", "SINE");
-}
-
-/// config.group.set for mapping
-#[no_mangle]
-pub extern "C" fn config_group_set_mapping(
+pub extern "C" fn config_group_set_type_as_sine(
     botnana: Box<Botnana>,
     position: libc::uint32_t,
-    value: *const c_char,
-) -> libc::int32_t {
-    if value.is_null() {
-        -1
-    } else {
-        let value = unsafe { str::from_utf8(CStr::from_ptr(value).to_bytes()).unwrap() };
-
-        let msg = r#"{"jsonrpc":"2.0","method":"config.group.set","params":{"#.to_owned()
-            + r#""position":"#
-            + position.to_string().as_str()
-            + r#","mapping":["#
-            + value
-            + r#"]}}"#;
-        send_message(botnana, &msg.to_owned());
-        0
-    }
+    a1: libc::uint32_t,
+) {
+    let msg = r#"{"jsonrpc":"2.0","method":"config.group.set","params":{"#.to_owned()
+        + r#""position":"#
+        + position.to_string().as_str()
+        + r#","gtype":"SINE", "mapping":["#
+        + a1.to_string().as_str()
+        + r#"]}}"#;
+    send_message(botnana, &msg.to_owned());
 }
 
 /// config.group.set for double data type

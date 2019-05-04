@@ -59,10 +59,10 @@ int main()
     // Drive PDO mapping
     config_slave_set_pdo_digital_inputs(botnana, 0, 1, 1, 0);
     config_slave_set_pdo_demand_position(botnana, 0, 1, 1, 1);
-    config_slave_pdo_demand_velocity(botnana, 0, 1, 1, 1);
-    config_slave_pdo_demand_torque(botnana, 0, 1, 1, 1);
-    config_slave_pdo_real_velocity(botnana, 0, 1, 1, 1);
-    config_slave_pdo_real_torque(botnana, 0, 1, 1, 1);
+    config_slave_set_pdo_demand_velocity(botnana, 0, 1, 1, 1);
+    config_slave_set_pdo_demand_torque(botnana, 0, 1, 1, 1);
+    config_slave_set_pdo_real_velocity(botnana, 0, 1, 1, 1);
+    config_slave_set_pdo_real_torque(botnana, 0, 1, 1, 1);
     // get slave information
     config_slave_get(botnana, 0, 1, 1);
     sleep(1);
@@ -84,10 +84,10 @@ int main()
     // Drive PDO mapping
     config_slave_set_pdo_digital_inputs(botnana, 0, 1, 1, 1);
     config_slave_set_pdo_demand_position(botnana, 0, 1, 1, 0);
-    config_slave_pdo_demand_velocity(botnana, 0, 1, 1, 0);
-    config_slave_pdo_demand_torque(botnana, 0, 1, 1, 0);
-    config_slave_pdo_real_velocity(botnana, 0, 1, 1, 0);
-    config_slave_pdo_real_torque(botnana, 0, 1, 1, 0);
+    config_slave_set_pdo_demand_velocity(botnana, 0, 1, 1, 0);
+    config_slave_set_pdo_demand_torque(botnana, 0, 1, 1, 0);
+    config_slave_set_pdo_real_velocity(botnana, 0, 1, 1, 0);
+    config_slave_set_pdo_real_torque(botnana, 0, 1, 1, 0);
     //config_slave_get
     config_slave_get(botnana, 0, 1, 1);
     sleep(1);

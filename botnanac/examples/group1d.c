@@ -134,8 +134,7 @@ int main()
     }
     if (has_params != 0xFF)
     {
-        config_group_set_type_as_1d(botnana, 1);
-        config_group_set_mapping(botnana, 1, "1");
+        config_group_set_type_as_1d(botnana, 1, 1);
         config_axis_set_drive_alias(botnana, 1, 0);
         config_axis_set_drive_slave_position(botnana, 1, 1);
         config_axis_set_drive_channel(botnana, 1, 1);

@@ -44,15 +44,13 @@ int main()
     // set group name
     config_group_set_name(botnana, 1, "G2XY");
     // set group type to 2D
-    config_group_set_type_as_2d(botnana, 1);
+    config_group_set_type_as_2d(botnana, 1, 3, 2);
     // set group vmax
     config_group_set_vmax(botnana, 1, 0.01);
     // set group amax
     config_group_set_amax(botnana, 1, 2.5);
     // set group jmax
     config_group_set_jmax(botnana, 1, 80.0);
-    // set group mapping
-    config_group_set_mapping(botnana, 1, "3,2");
     //config.group.get
     config_group_get(botnana, 1);
     sleep(1);
@@ -60,9 +58,7 @@ int main()
     // set group name
     config_group_set_name(botnana, 1, "G3XYZ");
     // set group type to 3D
-    config_group_set_type_as_3d(botnana, 1);
-    // set group mapping
-    config_group_set_mapping(botnana, 1, "1,2,5");
+    config_group_set_type_as_3d(botnana, 1, 1, 2, 5);
     //config.group.get
     config_group_get(botnana, 1);
     sleep(1);
@@ -70,8 +66,7 @@ int main()
     // set group name
     config_group_set_name(botnana, 1, "SINE");
     // set group type to SINE
-    config_group_set_type_as_sine(botnana, 1);
-    config_group_set_mapping(botnana, 1, "2");
+    config_group_set_type_as_sine(botnana, 1, 2);
     //config.group.get
     config_group_get(botnana, 1);
     sleep(1);
@@ -79,7 +74,7 @@ int main()
     // set group name
     config_group_set_name(botnana, 1, "G1X");
     // set group type to 1D
-    config_group_set_type_as_1d(botnana, 1);
+    config_group_set_type_as_1d(botnana, 1, 1);
     // set group vmax
     config_group_set_vmax(botnana, 1, 0.05);
     // set group amax
@@ -87,7 +82,6 @@ int main()
     // set group jmax
     config_group_set_jmax(botnana, 1, 40.0);
     // set group mapping
-    config_group_set_mapping(botnana, 1, "1");
 
     //config.group.get
     config_group_get(botnana, 1);
