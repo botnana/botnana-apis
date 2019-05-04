@@ -317,26 +317,26 @@ int32_t config_group_set_name(struct Botnana * botnana,
 // JSON-API: type as 1D of config.group.set
 // botnana:  Botnana motion server descriptor
 // position: group index
-void config_group_set_gtype_as_1d(struct Botnana * botnana,
-                                  uint32_t position);
+void config_group_set_type_as_1d(struct Botnana * botnana,
+                                 uint32_t position);
 
 // JSON-API: type as 2D of config.group.set
 // botnana:  Botnana motion server descriptor
 // position: group index
-void config_group_set_gtype_as_2d(struct Botnana * botnana,
-                                  uint32_t position);
+void config_group_set_type_as_2d(struct Botnana * botnana,
+                                 uint32_t position);
 
 // JSON-API: type as 3D of config.group.set
 // botnana:  Botnana motion server descriptor
 // position: group index
-void config_group_set_gtype_as_3d(struct Botnana * botnana,
-                                  uint32_t position);
+void config_group_set_type_as_3d(struct Botnana * botnana,
+                                 uint32_t position);
 
 // JSON-API: type as SINE of config.group.set
 // botnana:  Botnana motion server descriptor
 // position: group index
-void config_group_set_gtype_as_sine(struct Botnana * botnana,
-                                    uint32_t position);
+void config_group_set_type_as_sine(struct Botnana * botnana,
+                                   uint32_t position);
 
 // JSON-API: config.group.set for mapping
 // botnana:  Botnana motion server descriptor
