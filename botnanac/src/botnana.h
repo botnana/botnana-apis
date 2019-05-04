@@ -134,28 +134,148 @@ void config_slave_get(struct Botnana * desc,
                       uint32_t position,
                       uint32_t channel);
 
-// JSON-API: config.slave.set
-//
-// desc:     server descriptor
+// JSON-API: homing_method of config.slave.set
+// botnana:  Botnana motion server descriptor
 // position: slave position, start by 1
 // channel:  device channel, start by 1
-// param:    setting item. possible item:
-//	        homing_method,
-//		home_offset,
-//		homing_speed_1,
-//		homing_speed_2,
-//		homing_acceleration,
-//    		profile_velocity,
-//		profile_acceleration,
-//		profile_deceleration
-// value: setting value
-// return: 0 表示有將 JSON-API 送出
-int32_t config_slave_set(struct Botnana * desc,
-                         uint32_t alias,
-                         uint32_t position,
-                         uint32_t channel,
-                         const char * param,
-                         int32_t value);
+// value: homing_method
+void config_slave_set_homing_method(struct Botnana * botnana,
+                                    uint32_t alias,
+                                    uint32_t position,
+                                    uint32_t channel,
+                                    int32_t value);
+
+// JSON-API: homing_speed_1 of config.slave.set
+// botnana:  Botnana motion server descriptor
+// position: slave position, start by 1
+// channel:  device channel, start by 1
+// value: homing_speed_1
+void config_slave_set_homing_speed_1(struct Botnana * botnana,
+                                     uint32_t alias,
+                                     uint32_t position,
+                                     uint32_t channel,
+                                     int32_t value);
+
+// JSON-API: homing_speed_2 of config.slave.set
+// botnana:  Botnana motion server descriptor
+// position: slave position, start by 1
+// channel:  device channel, start by 1
+// value: homing_speed_2
+void config_slave_set_homing_speed_2(struct Botnana * botnana,
+                                     uint32_t alias,
+                                     uint32_t position,
+                                     uint32_t channel,
+                                     int32_t value);
+
+// JSON-API: homing_acceleration of config.slave.set
+// botnana:  Botnana motion server descriptor
+// position: slave position, start by 1
+// channel:  device channel, start by 1
+// value: homing_acceleration
+void config_slave_set_homing_acceleration(struct Botnana * botnana,
+        uint32_t alias,
+        uint32_t position,
+        uint32_t channel,
+        int32_t value);
+
+// JSON-API: profile_velocity of config.slave.set
+// botnana:  Botnana motion server descriptor
+// position: slave position, start by 1
+// channel:  device channel, start by 1
+// value: profile_velocity
+void config_slave_set_profile_velocity(struct Botnana * botnana,
+                                       uint32_t alias,
+                                       uint32_t position,
+                                       uint32_t channel,
+                                       int32_t value);
+
+// JSON-API: profile_acceleration of config.slave.set
+// botnana:  Botnana motion server descriptor
+// position: slave position, start by 1
+// channel:  device channel, start by 1
+// value: profile_acceleration
+void config_slave_set_profile_acceleration(struct Botnana * botnana,
+        uint32_t alias,
+        uint32_t position,
+        uint32_t channel,
+        int32_t value);
+
+// JSON-API: profile_deceleration of config.slave.set
+// botnana:  Botnana motion server descriptor
+// position: slave position, start by 1
+// channel:  device channel, start by 1
+// value: profile_deceleration
+void config_slave_set_profile_deceleration(struct Botnana * botnana,
+        uint32_t alias,
+        uint32_t position,
+        uint32_t channel,
+        int32_t value);
+
+// JSON-API: pdo_digital_inputs of config.slave.set
+// botnana:  Botnana motion server descriptor
+// position: slave position, start by 1
+// channel:  device channel, start by 1
+// value != 0 : enable of pdo_digital_inputs in PDO Mapping
+void config_slave_set_pdo_digital_inputs(struct Botnana * botnana,
+        uint32_t alias,
+        uint32_t position,
+        uint32_t channel,
+        int32_t value);
+
+// JSON-API: pdo_demand_position of config.slave.set
+// botnana:  Botnana motion server descriptor
+// position: slave position, start by 1
+// channel:  device channel, start by 1
+// value != 0 : enable of pdo_demand_position in PDO Mapping
+void config_slave_set_pdo_demand_position(struct Botnana * botnana,
+        uint32_t alias,
+        uint32_t position,
+        uint32_t channel,
+        int32_t value);
+
+// JSON-API: pdo_demand_velocity of config.slave.set
+// botnana:  Botnana motion server descriptor
+// position: slave position, start by 1
+// channel:  device channel, start by 1
+// value != 0 : enable of pdo_demand_velocity in PDO Mapping
+void config_slave_pdo_demand_velocity(struct Botnana * botnana,
+                                      uint32_t alias,
+                                      uint32_t position,
+                                      uint32_t channel,
+                                      int32_t value);
+
+// JSON-API: pdo_demand_torque of config.slave.set
+// botnana:  Botnana motion server descriptor
+// position: slave position, start by 1
+// channel:  device channel, start by 1
+// value != 0 : enable of pdo_demand_torque in PDO Mapping
+void config_slave_pdo_demand_torque(struct Botnana * botnana,
+                                    uint32_t alias,
+                                    uint32_t position,
+                                    uint32_t channel,
+                                    int32_t value);
+
+// JSON-API: pdo_real_velocity of config.slave.set
+// botnana:  Botnana motion server descriptor
+// position: slave position, start by 1
+// channel:  device channel, start by 1
+// value != 0 : enable of pdo_real_velocity in PDO Mapping
+void config_slave_pdo_real_velocity(struct Botnana * botnana,
+                                    uint32_t alias,
+                                    uint32_t position,
+                                    uint32_t channel,
+                                    int32_t value);
+
+// JSON-API: pdo_real_torque of config.slave.set
+// botnana:  Botnana motion server descriptor
+// position: slave position, start by 1
+// channel:  device channel, start by 1
+// value != 0 : enable of pdo_real_torque in PDO Mapping
+void config_slave_pdo_real_torque(struct Botnana * botnana,
+                                  uint32_t alias,
+                                  uint32_t position,
+                                  uint32_t channel,
+                                  int32_t value);
 
 // JSON-API: period_us of config.motion.set
 // botnana: Botnana motion server descriptor
@@ -199,7 +319,6 @@ void config_group_set_gtype_as_1d(struct Botnana * botnana,
 // position: group index
 void config_group_set_gtype_as_2d(struct Botnana * botnana,
                                   uint32_t position);
-
 
 // JSON-API: type as 3D of config.group.set
 // botnana:  Botnana motion server descriptor
@@ -253,7 +372,6 @@ void config_group_set_jmax(struct Botnana * botnana,
 // position: group index
 void config_group_get(struct Botnana * botnana,
                       uint32_t position);
-
 
 // JSON-API: name of config.axis.set
 // botnana: Botnana motion server descriptor
@@ -321,6 +439,22 @@ void config_axis_set_ext_encoder_direction(struct Botnana * botnana,
         uint32_t position,
         int32_t value);
 
+// JSON-API: closed_loop_filter of config.axis.set
+// botnana: Botnana motion server descriptor
+// position: axis index
+// value : closed_loop_filter
+void config_axis_set_closed_loop_filter(struct Botnana * botnana,
+                                        uint32_t position,
+                                        double value);
+
+// JSON-API: max_position_deviation of config.axis.set
+// botnana: Botnana motion server descriptor
+// position: axis index
+// value : max_position_deviation
+void config_axis_set_max_position_deviation(struct Botnana * botnana,
+        uint32_t position,
+        double value);
+
 // JSON-API: vmax of config.axis.set
 // botnana: Botnana motion server descriptor
 // position: axis index
@@ -336,7 +470,6 @@ void config_axis_set_vmax(struct Botnana * botnana,
 void config_axis_set_amax(struct Botnana * botnana,
                           uint32_t position,
                           double value);
-
 
 // JSON-API: drive_alias of config.axis.set
 // botnana: Botnana motion server descriptor
@@ -387,7 +520,6 @@ void config_axis_set_ext_encoder_slave_position(struct Botnana * botnana,
 void config_axis_set_ext_encoder_channel(struct Botnana * botnana,
         uint32_t position,
         int32_t value);
-
 
 // JSON-API: config.axis.get
 //
