@@ -7,7 +7,7 @@ extern "C"
 	typedef void(*HandleMessage)(const char *str);
 
 	// Library version
-	__declspec(dllexport) const char * library_version_dll(const char * ip);
+	__declspec(dllexport) const char * library_version_dll(void);
 
 	// New Botnana
 	// @ip : Botnana 的 IP 位置
