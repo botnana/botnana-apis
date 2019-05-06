@@ -12,7 +12,7 @@
 extern "C" {
 
 	// Library version
-	__declspec(dllexport) const char * library_version_dll(const char * ip) {
+	__declspec(dllexport) const char * library_version_dll(void) {
 		return library_version();
 	}
 
