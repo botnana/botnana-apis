@@ -21,9 +21,6 @@
     <ClInclude Include="targetver.h">
       <Filter>標頭檔</Filter>
     </ClInclude>
-    <ClInclude Include="botnana.h">
-      <Filter>標頭檔</Filter>
-    </ClInclude>
     <ClInclude Include="BotnanaApi.h">
       <Filter>標頭檔</Filter>
     </ClInclude>
@@ -38,10 +35,5 @@
     <ClCompile Include="dllmain.cpp">
       <Filter>來源檔案</Filter>
     </ClCompile>
-  </ItemGroup>
-  <ItemGroup>
-    <Library Include="botnana.lib">
-      <Filter>資源檔</Filter>
-    </Library>
   </ItemGroup>
 </Project>
