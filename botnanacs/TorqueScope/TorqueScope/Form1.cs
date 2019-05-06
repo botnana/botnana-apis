@@ -97,8 +97,8 @@ namespace TorqueScope
                     bot.EvaluateScript("0sfc ignore-overrun");
                     bot.EvaluateScript("-work marker -work");
 
-                    bot.LoadSFC(@"..\..\torque.sfc");
-                    bot.LoadSFC(@"..\..\demo.sfc");
+                    bot.LoadSFC(@"torque.sfc");
+                    bot.LoadSFC(@"demo.sfc");
                     bot.EvaluateScript("marker -work");
                     hasUpdated = true;
                     // 等待 SFC 設置完成
