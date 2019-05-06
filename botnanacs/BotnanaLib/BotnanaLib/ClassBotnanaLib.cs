@@ -267,27 +267,27 @@ namespace BotnanaLib
         }
 
         // JSON-API: type as 1D of config.group.set
-        public void ConfigGroupSetTypeAs1D(UInt32 position)
+        public void ConfigGroupSetTypeAs1D(UInt32 position, UInt32 a1)
         {
-            configure_group_set_type_as_1d(innerBotnana, position);
+            configure_group_set_type_as_1d(innerBotnana, position, a1);
         }
 
         // JSON-API: type as 2D of config.group.set
-        public void ConfigGroupSetTypeAs2D(UInt32 position)
+        public void ConfigGroupSetTypeAs2D(UInt32 position, UInt32 axis1, UInt32 axis2)
         {
-            configure_group_set_type_as_2d(innerBotnana, position);
+            configure_group_set_type_as_2d(innerBotnana, position, axis1, axis2);
         }
 
         // JSON-API: type as 3D of config.group.set
-        public void ConfigGroupSetTypeAs3D(UInt32 position)
+        public void ConfigGroupSetTypeAs3D(UInt32 position, UInt32 axis1, UInt32 axis2, UInt32 axis3)
         {
-            configure_group_set_type_as_3d(innerBotnana, position);
+            configure_group_set_type_as_3d(innerBotnana, position, axis1, axis2, axis3);
         }
 
         // JSON-API: type as SINE of config.group.set
-        public void ConfigGroupSetTypeAsSine(UInt32 position)
+        public void ConfigGroupSetTypeAsSine(UInt32 position, UInt32 a1)
         {
-            configure_group_set_type_as_sine(innerBotnana, position);
+            configure_group_set_type_as_sine(innerBotnana, position, a1);
         }
 
         // JSON-API: vmax of config.group.set
@@ -303,7 +303,7 @@ namespace BotnanaLib
         }
 
         // JSON-API: jmax of config.group.set
-        public void ConfigGroupSetjmax(UInt32 position, double value)
+        public void ConfigGroupSetJmax(UInt32 position, double value)
         {
             configure_group_set_jmax(innerBotnana, position, value);
         }
@@ -418,7 +418,7 @@ namespace BotnanaLib
         }
 
         // JSON-API: ext_encoder_slave_position of config.axis.set
-        public void ConfigAxisSetExtEncoderSlavePositions(UInt32 position, Int32 value)
+        public void ConfigAxisSetExtEncoderSlavePosition(UInt32 position, Int32 value)
         {
             configure_axis_set_ext_encoder_slave_position(innerBotnana, position, value);
         }
@@ -571,16 +571,16 @@ namespace BotnanaLib
         private static extern Int32 configure_group_set_name(IntPtr botnana, UInt32 position, string value);
 
         [DllImport(@"BotnanaApi.dll", CharSet = CharSet.Ansi, CallingConvention = CallingConvention.Cdecl)]
-        private static extern void configure_group_set_type_as_1d(IntPtr botnana, UInt32 position);
+        private static extern void configure_group_set_type_as_1d(IntPtr botnana, UInt32 position, UInt32 axis1);
 
         [DllImport(@"BotnanaApi.dll", CharSet = CharSet.Ansi, CallingConvention = CallingConvention.Cdecl)]
-        private static extern void configure_group_set_type_as_2d(IntPtr botnana, UInt32 position);
+        private static extern void configure_group_set_type_as_2d(IntPtr botnana, UInt32 position, UInt32 axis1, UInt32 axis2);
 
         [DllImport(@"BotnanaApi.dll", CharSet = CharSet.Ansi, CallingConvention = CallingConvention.Cdecl)]
-        private static extern void configure_group_set_type_as_3d(IntPtr botnana, UInt32 position);
+        private static extern void configure_group_set_type_as_3d(IntPtr botnana, UInt32 position, UInt32 axis1, UInt32 axis2, UInt32 axis3);
 
         [DllImport(@"BotnanaApi.dll", CharSet = CharSet.Ansi, CallingConvention = CallingConvention.Cdecl)]
-        private static extern void configure_group_set_type_as_sine(IntPtr botnana, UInt32 position);
+        private static extern void configure_group_set_type_as_sine(IntPtr botnana, UInt32 position, UInt32 axis1);
 
         [DllImport(@"BotnanaApi.dll", CharSet = CharSet.Ansi, CallingConvention = CallingConvention.Cdecl)]
         private static extern void configure_group_set_vmax(IntPtr botnana, UInt32 position, double value);

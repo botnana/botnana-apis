@@ -243,22 +243,29 @@ extern "C"
 	// JSON-API: type as 1D of config.group.set
 	__declspec(dllexport) void configure_group_set_type_as_1d(
 		struct Botnana * botnana,
-		uint32_t position);
+		uint32_t position,
+		uint32_t a1);
 
 	// JSON-API: type as 2D of config.group.set
 	__declspec(dllexport) void configure_group_set_type_as_2d(
 		struct Botnana * botnana,
-		uint32_t position);
+		uint32_t position,
+		uint32_t a1,
+		uint32_t a2);
 
 	// JSON-API: type as 3D of config.group.set
 	__declspec(dllexport) 	void configure_group_set_type_as_3d(
 		struct Botnana * botnana,
-		uint32_t position);
+		uint32_t position,
+		uint32_t a1,
+		uint32_t a2,
+		uint32_t a3);
 
 	// JSON-API: type as SINE of config.group.set
 	__declspec(dllexport) void configure_group_set_type_as_sine(
 		struct Botnana * botnana,
-		uint32_t position);
+		uint32_t position,
+		uint32_t a1);
 
 	// JSON-API: vmax of config.group.set
 	__declspec(dllexport) void configure_group_set_vmax(
