@@ -20,7 +20,8 @@ const VERSION: &'static str = env!("CARGO_PKG_VERSION");
 #[repr(C)]
 #[derive(Clone)]
 pub struct Botnana {
-    url: Arc<Mutex<String>>,
+    ip: Arc<Mutex<String>>,
+    port: Arc<Mutex<String>>,
     user_sender: Arc<Mutex<Option<mpsc::Sender<Message>>>>,
     ws_out: Arc<Mutex<Option<ws::Sender>>>,
     handlers: Arc<Mutex<HashMap<String, Vec<Box<Fn(*const c_char) + Send>>>>>,
@@ -42,7 +43,8 @@ impl Botnana {
     /// New
     pub fn new() -> Botnana {
         Botnana {
-            url: Arc::new(Mutex::new("ws://192.168.7.2:3012".to_string())),
+            ip: Arc::new(Mutex::new("192.168.7.2".to_string())),
+            port: Arc::new(Mutex::new("3012".to_string())),
             user_sender: Arc::new(Mutex::new(None)),
             ws_out: Arc::new(Mutex::new(None)),
             handlers: Arc::new(Mutex::new(HashMap::new())),
@@ -59,18 +61,34 @@ impl Botnana {
     }
 
     /// Set IP
-    pub fn set_ip(&mut self, ip: &str) -> Option<String> {
-        if let Ok(url) = url::Url::parse(&("ws://".to_owned() + ip + ":3012")) {
-            *self.url.lock().expect("") = url.to_string();
-            Some(self.url())
-        } else {
-            None
+    pub fn set_ip(&mut self, ip: &str) -> String {
+        if let Ok(_) = url::Url::parse(&("ws://".to_owned() + ip + ":" + self.port().as_str())) {
+            *self.ip.lock().expect("") = ip.to_string();
         }
+        self.ip()
+    }
+
+    /// Set port
+    pub fn set_port(&mut self, port: &str) -> String {
+        if let Ok(_) = url::Url::parse(&("ws://".to_owned() + self.ip().as_str() + ":" + port)) {
+            *self.port.lock().expect("") = port.to_string();
+        }
+        self.port()
+    }
+
+    /// IP
+    fn ip(&self) -> String {
+        self.ip.lock().expect("").to_string()
+    }
+
+    /// Port
+    fn port(&self) -> String {
+        self.port.lock().expect("").to_string()
     }
 
     /// URL
     pub fn url(&self) -> String {
-        self.url.lock().expect("").to_string()
+        "ws://".to_owned() + self.ip().as_str() + ":" + self.port().as_str()
     }
 
     /// Set on_open callback
@@ -666,8 +684,24 @@ pub extern "C" fn botnana_set_ip(botnana: Box<Botnana>, ip: *const c_char) -> *c
     let s = Box::into_raw(botnana);
     unsafe {
         (*s).set_ip(ip);
-        let url = CString::new((*s).url()).expect("botnana_url");
-        url.into_raw()
+        let ip = CString::new((*s).ip()).expect("botnana_ip");
+        ip.into_raw()
+    }
+}
+
+/// Set motion server port
+/// `port`: IP of botnana
+#[no_mangle]
+pub extern "C" fn botnana_set_port(botnana: Box<Botnana>, port: *const c_char) -> *const c_char {
+    let port = unsafe {
+        assert!(!port.is_null());
+        str::from_utf8(CStr::from_ptr(port).to_bytes()).unwrap()
+    };
+    let s = Box::into_raw(botnana);
+    unsafe {
+        (*s).set_port(port);
+        let port = CString::new((*s).port()).expect("botnana_port");
+        port.into_raw()
     }
 }
 
