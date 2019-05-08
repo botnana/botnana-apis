@@ -53,8 +53,11 @@ recorder: clean recorder.o
 	gcc -lpthread -o botnana $@.o $(LDFLAGS)
 	
 target_reached: clean target_reached.o
-	gcc -lpthread -o botnana $@.o $(LDFLAGS)			
-	 		
+	gcc -lpthread -o botnana $@.o $(LDFLAGS)
+	
+reboot: clean reboot.o
+	gcc -lpthread -o botnana $@.o $(LDFLAGS)
+
 run:
 	./botnana
 	
