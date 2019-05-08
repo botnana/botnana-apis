@@ -34,6 +34,26 @@ extern "C" {
 		botnana_disconnect(botnana);
 	}
 
+	// Set IP
+	// @botnana: Botnana Control descriptor
+	// @ip: IP of Motion Server 
+	__declspec(dllexport) const char * botnana_set_ip_dll(struct Botnana *botnana, const char * ip) {
+		return botnana_set_ip(botnana, ip);
+	}
+
+	// Set Port
+	// @botnana: Botnana Control descriptor
+	// @port: Port of Motion Server 
+	__declspec(dllexport) const char * botnana_set_port_dll(struct Botnana *botnana, const char * port) {
+		return botnana_set_port(botnana, port);
+	}
+
+	// URL of motion server
+	// @botnana: Botnana Control descriptor
+	__declspec(dllexport) const char * botnana_url_dll(struct Botnana *botnana) {
+		return botnana_url(botnana);
+	}
+
 	// Set WS on_open callback function 
 	// @botnana: Botnana Control descriptor
 	// @cb: callback function
@@ -309,7 +329,7 @@ extern "C" {
 	}
 
 	// JSON-API: axis_capacity of config.motion.set
-	__declspec(dllexport) void configure_motion_set_axis_capacity(struct Botnana * botnana, uint32_t value){
+	__declspec(dllexport) void configure_motion_set_axis_capacity(struct Botnana * botnana, uint32_t value) {
 		config_motion_set_axis_capacity(botnana, value);
 	}
 
@@ -385,12 +405,12 @@ extern "C" {
 		double  value) {
 		config_group_set_jmax(botnana, position, value);
 	}
-	
+
 	// JSON-API: config.axis.get
 	__declspec(dllexport) void configure_axis_get(struct Botnana * botnana, uint32_t position) {
 		config_axis_get(botnana, position);
 	}
-	
+
 	// JSON-API: name of config.axis.set
 	__declspec(dllexport) int32_t configure_axis_set_name(struct Botnana * botnana, uint32_t position, const char * name) {
 		return config_axis_set_name(botnana, position, name);
@@ -425,7 +445,7 @@ extern "C" {
 	__declspec(dllexport) void configure_axis_set_ext_encoder_ppu(struct Botnana * botnana, uint32_t position, double value) {
 		config_axis_set_ext_encoder_ppu(botnana, position, value);
 	}
-	
+
 	// JSON-API: encoder_direction of config.axis.set
 	__declspec(dllexport) void configure_axis_set_encoder_direction(struct Botnana * botnana, uint32_t position, int32_t value) {
 		config_axis_set_encoder_direction(botnana, position, value);
@@ -435,7 +455,7 @@ extern "C" {
 	__declspec(dllexport) void configure_axis_set_ext_encoder_direction(struct Botnana * botnana, uint32_t position, int32_t value) {
 		config_axis_set_ext_encoder_direction(botnana, position, value);
 	}
-	
+
 	// JSON-API: closed_loop_filter of config.axis.set
 	__declspec(dllexport) void configure_axis_set_closed_loop_filter(struct Botnana * botnana, uint32_t position, double value) {
 		config_axis_set_closed_loop_filter(botnana, position, value);
@@ -450,7 +470,7 @@ extern "C" {
 	__declspec(dllexport) void configure_axis_set_vmax(struct Botnana * botnana, uint32_t position, double value) {
 		config_axis_set_vmax(botnana, position, value);
 	}
-	
+
 	// JSON-API: amax of config.axis.set
 	__declspec(dllexport) void configure_axis_set_amax(struct Botnana * botnana, uint32_t position, double value) {
 		config_axis_set_amax(botnana, position, value);
@@ -460,33 +480,33 @@ extern "C" {
 	__declspec(dllexport) void configure_axis_set_drive_alias(struct Botnana * botnana, uint32_t position, int32_t value) {
 		config_axis_set_drive_alias(botnana, position, value);
 	}
-	
+
 
 	// JSON-API: drive_slave_position of config.axis.set
 	__declspec(dllexport) void configure_axis_set_drive_slave_position(struct Botnana * botnana, uint32_t position, int32_t value) {
 		config_axis_set_drive_slave_position(botnana, position, value);
 	}
-	
+
 	// JSON-API: drive_channel of config.axis.set
 	__declspec(dllexport) void configure_axis_set_drive_channel(struct Botnana * botnana, uint32_t position, int32_t value) {
 		config_axis_set_drive_channel(botnana, position, value);
 	}
-	
+
 	// JSON-API: ext_encoder_alias of config.axis.set
 	__declspec(dllexport) void configure_axis_set_ext_encoder_alias(struct Botnana * botnana, uint32_t position, int32_t value) {
 		config_axis_set_ext_encoder_alias(botnana, position, value);
 	}
-	
+
 	// JSON-API: ext_encoder_slave_position of config.axis.set
 	__declspec(dllexport) void configure_axis_set_ext_encoder_slave_position(struct Botnana * botnana, uint32_t position, int32_t value) {
 		config_axis_set_ext_encoder_slave_position(botnana, position, value);
 	}
-	
+
 	// JSON-API: ext_encoder_channel of config.axis.set
 	__declspec(dllexport) void configure_axis_set_ext_encoder_channel(struct Botnana * botnana, uint32_t position, int32_t value) {
 		config_axis_set_ext_encoder_channel(botnana, position, value);
 	}
-	
+
 	// Save configuration
 	__declspec(dllexport) void configure_save(struct Botnana *botnana) {
 		config_save(botnana);

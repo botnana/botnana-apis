@@ -43,6 +43,24 @@ namespace BotnanaLib
             botnana_disconnect_dll(innerBotnana);
         }
 
+        // Set IP
+        public string set_ip(string ip)
+        {
+            return botnana_set_ip_dll(innerBotnana, ip);
+        }
+
+        // Set Port
+        public string set_port(string port)
+        {
+            return botnana_set_port_dll(innerBotnana, port);
+        }
+
+        // URL
+        public string url()
+        {
+            return botnana_url_dll(innerBotnana);
+        }
+
         // Send real time script (立即送出) 
         public void EvaluateScript(string script)
         {
@@ -462,6 +480,15 @@ namespace BotnanaLib
         [DllImport(@"BotnanaApi.dll", CharSet = CharSet.Ansi, CallingConvention = CallingConvention.Cdecl)]
         private static extern void botnana_disconnect_dll(IntPtr desc);
 
+        [DllImport(@"BotnanaApi.dll", CharSet = CharSet.Ansi, CallingConvention = CallingConvention.Cdecl)]
+        private static extern string botnana_set_ip_dll(IntPtr desc, string ip);
+
+        [DllImport(@"BotnanaApi.dll", CharSet = CharSet.Ansi, CallingConvention = CallingConvention.Cdecl)]
+        private static extern string botnana_set_port_dll(IntPtr desc, string port);
+
+        [DllImport(@"BotnanaApi.dll", CharSet = CharSet.Ansi, CallingConvention = CallingConvention.Cdecl)]
+        private static extern string botnana_url_dll(IntPtr desc);
+        
         [DllImport(@"BotnanaApi.dll", CharSet = CharSet.Ansi, CallingConvention = CallingConvention.Cdecl)]
         private static extern void script_evaluate_dll(IntPtr desc, string script);
 

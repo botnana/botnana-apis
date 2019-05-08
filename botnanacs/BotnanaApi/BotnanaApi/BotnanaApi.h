@@ -21,6 +21,26 @@ extern "C"
 	// @botnana: Botnana Control descriptor
 	__declspec(dllexport) void botnana_disconnect_dll(struct Botnana *botnana);
 
+	// Set IP
+	// @botnana: Botnana Control descriptor
+	// @ip: IP of Motion Server 
+	__declspec(dllexport) const char * botnana_set_ip_dll(struct Botnana *botnana, const char * ip);
+
+	// Set Port
+	// @botnana: Botnana Control descriptor
+	// @port: Port of Motion Server 
+	__declspec(dllexport) const char * botnana_set_port_dll(struct Botnana *botnana, const char * port);
+
+	// URL of motion server
+	// @botnana: Botnana Control descriptor
+	__declspec(dllexport) const char * botnana_url_dll(struct Botnana *botnana);
+	   
+	// Disconnect with Botnana Control
+	// @botnana: Botnana Control descriptor
+	__declspec(dllexport) void botnana_disconnect_dll(struct Botnana *botnana);
+
+
+
 
 	// Set WS on_open callback function 
 	// @botnana: Botnana Control descriptor
