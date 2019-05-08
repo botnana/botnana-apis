@@ -17,7 +17,7 @@ create jogging-positions falign 0e f, 0e f, 0e f, 0e f,
     true homing-accepted !
     motion-idle? not if false homing-accepted ! ." log|Not Motion Idle" cr then
     servo-on? not if false homing-accepted ! ." log|Not Servo On" cr then
-    event-acked? not if false servo-on-accepted ! ." log|No Error Event Acknowledge " cr then
+    event-acked? not if false homing-accepted ! ." log|No Error Event Acknowledge " cr then
     homing-accepted @ if
         1 motion-state !
         start-axes-homing
@@ -32,7 +32,7 @@ create jogging-positions falign 0e f, 0e f, 0e f, 0e f,
     true jogging-accepted !
     motion-idle? not if false jogging-accepted ! ." log|Not Motion Idle" cr then
     servo-on? not if false jogging-accepted ! ." log|Not Servo On" cr then
-    event-acked? not if false servo-on-accepted ! ." log|No Error Event Acknowledge " cr then
+    event-acked? not if false jogging-accepted ! ." log|No Error Event Acknowledge " cr then
     jogging-accepted @ if
         2 motion-state !
         1
@@ -61,7 +61,7 @@ variable machining-finished
     true machining-accepted !
     motion-idle? not if false machining-accepted ! ." log|Not Motion Idle" cr then
     servo-on? not if false machining-accepted ! ." log|Not Servo On" cr then
-    event-acked? not if false servo-on-accepted ! ." log|No Error Event Acknowledge " cr then
+    event-acked? not if false machining-accepted ! ." log|No Error Event Acknowledge " cr then
     machining-accepted @ if
         3 motion-state !
         resume-nc 1 group! +group start-job
@@ -173,12 +173,12 @@ variable ec-ready-once
 
 \ 確認異警
 : ack-monitor
-    event-acked? if
-        true monitor-acked !
-    else
-        0event-level
-    then
-    ;
+	event-acked? if
+		0event-level
+	else
+		true monitor-acked !
+	then
+	;
 
 \ 輸出監控機制目前所收到的異警等級
 : .monitor
@@ -196,7 +196,7 @@ variable ec-ready-once
         0event-level
         false monitor-acked !
         reset-overrun
-    else
+	else
         report-warning
     then
     ;
@@ -231,7 +231,7 @@ variable ec-ready-once
 
 \ 從 Monitor Init 切換到 Motion Loop 的條件
 : monitor2loop?
-    event-level@ warning-class <
+    event-level@ 0 =
     ;
 
 \ 從 Monitor Loop 切換到 Motion Post Action 的條件
@@ -255,12 +255,13 @@ transition  monitor2post?
 transition  monitor2init?
 
 \ 連結 Monitor SFC
-' monitor-init      ' monitor2loop? -->
-' monitor2loop?     ' monitor-loop  -->
-' monitor-loop      ' monitor2post? -->
-' monitor2post?     ' monitor-post  -->
-' monitor-post      ' monitor2init? -->
-' monitor2init?     ' monitor-init  -->
+' monitor-init     ' monitor2loop? -->
+' monitor2loop?    ' monitor-loop  -->
+' monitor-loop     ' monitor2post? -->
+' monitor2post?    ' monitor-post  -->
+' monitor-post     ' monitor2init? -->
+' monitor2init?    ' monitor-init  -->
+
 
 \ 啟動 SFC step
 ' motion-idle +step

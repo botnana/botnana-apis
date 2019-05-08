@@ -119,7 +119,7 @@ variable homing-priority
 \ 取得目前適用的 following error limit
 \ Servo Off 或是運動軸靜止的時候採用 min-ferr-limit
 : ferr-limit@ ( index -- )( F: -- limit )
-    axis@ dup axis-rest? servo-on? not or if
+    dup axis@ axis-rest? servo-on? not or if
         min-ferr-limit
     else
         max-ferr-limit
@@ -208,7 +208,7 @@ variable event-level
     event-level @
     ;
 
-\ 目前回報的異警等級是否需要回應
+\ 目前回報的異警是否已經被 ACK 過，表示目前只有 alarm 
 : event-acked?
     event-level @ warning-class <
     ;

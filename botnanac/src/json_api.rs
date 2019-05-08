@@ -1,9 +1,6 @@
 extern crate libc;
-use std::os::raw::c_char;
-use std::ffi::CStr;
-use botnana::Botnana;
-use std::str;
-use botnana::{evaluate, send_message};
+use botnana::{evaluate, send_message, Botnana};
+use std::{ffi::CStr, os::raw::c_char, str};
 
 /// motion_evaluate
 #[no_mangle]
@@ -47,6 +44,7 @@ pub extern "C" fn version_get(botnana: Box<Botnana>) {
 #[no_mangle]
 pub extern "C" fn config_slave_set(
     botnana: Box<Botnana>,
+    alias: libc::uint32_t,
     position: libc::uint32_t,
     channel: libc::uint32_t,
     param: *const c_char,
@@ -57,10 +55,17 @@ pub extern "C" fn config_slave_set(
     } else {
         let param = unsafe { str::from_utf8(CStr::from_ptr(param).to_bytes()).unwrap() };
 
-        let msg = r#"{"jsonrpc":"2.0","method":"config.slave.set","params":{"position":"#.to_owned()
-            + position.to_string().as_str() + r#","channel":"#
-            + channel.to_string().as_str() + r#",""# + param + r#"":"#
-            + value.to_string().as_str() + r#"}}"#;
+        let msg = r#"{"jsonrpc":"2.0","method":"config.slave.set","params":{"alias":"#.to_owned()
+            + alias.to_string().as_str()
+            + r#","position":"#
+            + position.to_string().as_str()
+            + r#","channel":"#
+            + channel.to_string().as_str()
+            + r#",""#
+            + param
+            + r#"":"#
+            + value.to_string().as_str()
+            + r#"}}"#;
         send_message(botnana, &msg.to_owned());
         0
     }
@@ -70,12 +75,17 @@ pub extern "C" fn config_slave_set(
 #[no_mangle]
 pub extern "C" fn config_slave_get(
     botnana: Box<Botnana>,
+    alias: libc::uint32_t,
     position: libc::uint32_t,
     channel: libc::uint32_t,
 ) {
-    let msg = r#"{"jsonrpc":"2.0","method":"config.slave.get","params":{"position":"#.to_owned()
-        + position.to_string().as_str() + r#","channel":"#
-        + channel.to_string().as_str() + r#"}}"#;
+    let msg = r#"{"jsonrpc":"2.0","method":"config.slave.get","params":{"alias":"#.to_owned()
+        + alias.to_string().as_str()
+        + r#","position":"#
+        + position.to_string().as_str()
+        + r#","channel":"#
+        + channel.to_string().as_str()
+        + r#"}}"#;
     send_message(botnana, &msg.to_owned());
 }
 
@@ -91,8 +101,11 @@ pub extern "C" fn config_motion_set(
     } else {
         let param = unsafe { str::from_utf8(CStr::from_ptr(param).to_bytes()).unwrap() };
 
-        let msg = r#"{"jsonrpc":"2.0","method":"config.motion.set","params":{""#.to_owned() + param
-            + r#"":"# + value.to_string().as_str() + r#"}}"#;
+        let msg = r#"{"jsonrpc":"2.0","method":"config.motion.set","params":{""#.to_owned()
+            + param
+            + r#"":"#
+            + value.to_string().as_str()
+            + r#"}}"#;
         send_message(botnana, &msg.to_owned());
         0
     }
@@ -120,8 +133,13 @@ pub extern "C" fn config_group_set_string(
         let value = unsafe { str::from_utf8(CStr::from_ptr(value).to_bytes()).unwrap() };
 
         let msg = r#"{"jsonrpc":"2.0","method":"config.group.set","params":{"#.to_owned()
-            + r#""position":"# + position.to_string().as_str() + r#",""# + param
-            + r#"":""# + value + r#""}}"#;
+            + r#""position":"#
+            + position.to_string().as_str()
+            + r#",""#
+            + param
+            + r#"":""#
+            + value
+            + r#""}}"#;
         send_message(botnana, &msg.to_owned());
         0
     }
@@ -140,8 +158,11 @@ pub extern "C" fn config_group_set_mapping(
         let value = unsafe { str::from_utf8(CStr::from_ptr(value).to_bytes()).unwrap() };
 
         let msg = r#"{"jsonrpc":"2.0","method":"config.group.set","params":{"#.to_owned()
-            + r#""position":"# + position.to_string().as_str() + r#","mapping":["#
-            + value + r#"]}}"#;
+            + r#""position":"#
+            + position.to_string().as_str()
+            + r#","mapping":["#
+            + value
+            + r#"]}}"#;
         send_message(botnana, &msg.to_owned());
         0
     }
@@ -161,8 +182,13 @@ pub extern "C" fn config_group_set_double(
         let param = unsafe { str::from_utf8(CStr::from_ptr(param).to_bytes()).unwrap() };
 
         let msg = r#"{"jsonrpc":"2.0","method":"config.group.set","params":{"#.to_owned()
-            + r#""position":"# + position.to_string().as_str() + r#",""# + param
-            + r#"":"# + value.to_string().as_str() + r#"}}"#;
+            + r#""position":"#
+            + position.to_string().as_str()
+            + r#",""#
+            + param
+            + r#"":"#
+            + value.to_string().as_str()
+            + r#"}}"#;
         send_message(botnana, &msg.to_owned());
         0
     }
@@ -172,7 +198,8 @@ pub extern "C" fn config_group_set_double(
 #[no_mangle]
 pub extern "C" fn config_group_get(botnana: Box<Botnana>, position: libc::uint32_t) {
     let msg = r#"{"jsonrpc":"2.0","method":"config.group.get","params":{"position":"#.to_owned()
-        + position.to_string().as_str() + r#"}}"#;
+        + position.to_string().as_str()
+        + r#"}}"#;
     send_message(botnana, &msg.to_owned());
 }
 
@@ -191,8 +218,13 @@ pub extern "C" fn config_axis_set_string(
         let value = unsafe { str::from_utf8(CStr::from_ptr(value).to_bytes()).unwrap() };
 
         let msg = r#"{"jsonrpc":"2.0","method":"config.axis.set","params":{"#.to_owned()
-            + r#""position":"# + position.to_string().as_str() + r#",""# + param
-            + r#"":""# + value + r#""}}"#;
+            + r#""position":"#
+            + position.to_string().as_str()
+            + r#",""#
+            + param
+            + r#"":""#
+            + value
+            + r#""}}"#;
         send_message(botnana, &msg.to_owned());
         0
     }
@@ -212,8 +244,13 @@ pub extern "C" fn config_axis_set_double(
         let param = unsafe { str::from_utf8(CStr::from_ptr(param).to_bytes()).unwrap() };
 
         let msg = r#"{"jsonrpc":"2.0","method":"config.axis.set","params":{"#.to_owned()
-            + r#""position":"# + position.to_string().as_str() + r#",""# + param
-            + r#"":"# + value.to_string().as_str() + r#"}}"#;
+            + r#""position":"#
+            + position.to_string().as_str()
+            + r#",""#
+            + param
+            + r#"":"#
+            + value.to_string().as_str()
+            + r#"}}"#;
         send_message(botnana, &msg.to_owned());
         0
     }
@@ -233,8 +270,13 @@ pub extern "C" fn config_axis_set_integer(
         let param = unsafe { str::from_utf8(CStr::from_ptr(param).to_bytes()).unwrap() };
 
         let msg = r#"{"jsonrpc":"2.0","method":"config.axis.set","params":{"#.to_owned()
-            + r#""position":"# + position.to_string().as_str() + r#",""# + param
-            + r#"":"# + value.to_string().as_str() + r#"}}"#;
+            + r#""position":"#
+            + position.to_string().as_str()
+            + r#",""#
+            + param
+            + r#"":"#
+            + value.to_string().as_str()
+            + r#"}}"#;
         send_message(botnana, &msg.to_owned());
         0
     }
@@ -244,7 +286,8 @@ pub extern "C" fn config_axis_set_integer(
 #[no_mangle]
 pub extern "C" fn config_axis_get(botnana: Box<Botnana>, position: libc::uint32_t) {
     let msg = r#"{"jsonrpc":"2.0","method":"config.axis.get","params":{"position":"#.to_owned()
-        + position.to_string().as_str() + r#"}}"#;
+        + position.to_string().as_str()
+        + r#"}}"#;
     send_message(botnana, &msg.to_owned());
 }
 
@@ -252,5 +295,19 @@ pub extern "C" fn config_axis_get(botnana: Box<Botnana>, position: libc::uint32_
 #[no_mangle]
 pub extern "C" fn config_save(botnana: Box<Botnana>) {
     let msg = r#"{"jsonrpc":"2.0","method":"config.save"}"#;
+    send_message(botnana, &msg.to_owned());
+}
+
+/// System poweroff
+#[no_mangle]
+pub extern "C" fn poweroff(botnana: Box<Botnana>) {
+    let msg = r#"{"jsonrpc":"2.0","method":"system.poweroff"}"#;
+    send_message(botnana, &msg.to_owned());
+}
+
+/// System reboot
+#[no_mangle]
+pub extern "C" fn reboot(botnana: Box<Botnana>) {
+    let msg = r#"{"jsonrpc":"2.0","method":"system.reboot"}"#;
     send_message(botnana, &msg.to_owned());
 }
