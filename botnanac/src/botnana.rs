@@ -684,8 +684,7 @@ pub extern "C" fn botnana_set_ip(botnana: Box<Botnana>, ip: *const c_char) -> *c
     let s = Box::into_raw(botnana);
     unsafe {
         (*s).set_ip(ip);
-        let ip = CString::new((*s).ip()).expect("botnana_ip");
-        ip.into_raw()
+        CString::new((*s).ip()).expect("botnana_ip").into_raw()
     }
 }
 
@@ -700,8 +699,7 @@ pub extern "C" fn botnana_set_port(botnana: Box<Botnana>, port: *const c_char) -
     let s = Box::into_raw(botnana);
     unsafe {
         (*s).set_port(port);
-        let port = CString::new((*s).port()).expect("botnana_port");
-        port.into_raw()
+        CString::new((*s).port()).expect("botnana_port").into_raw()
     }
 }
 
