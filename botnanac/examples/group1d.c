@@ -134,10 +134,10 @@ int main()
     }
     if (has_params != 0xFF)
     {
-        config_group_set_string(botnana, 1, "gtype", "1D");
-        config_group_set_mapping(botnana, 1, "1");
-        config_axis_set_integer(botnana, 1, "slave_position", 1);
-        config_axis_set_integer(botnana, 1, "drive_channel", 1);
+        config_group_set_type_as_1d(botnana, 1, 1);
+        config_axis_set_drive_alias(botnana, 1, 0);
+        config_axis_set_drive_slave_position(botnana, 1, 1);
+        config_axis_set_drive_channel(botnana, 1, 1);
         config_save(botnana);
         printf("Change parameters and reboot Botnana-control !!\n");
         sleep(1);
