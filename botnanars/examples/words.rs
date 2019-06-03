@@ -1,11 +1,11 @@
 extern crate botnanars;
 use botnanars::Botnana;
-use std::{ffi::CStr, str, thread, time};
+use std::{ffi::CStr, str, thread, time, os::raw::c_char};
 
 static mut IS_OPENED: bool = false;
 
 /// On ws open
-fn on_ws_open(msg: *const i8) {
+fn on_ws_open(msg: *const c_char) {
     let message = unsafe {
         assert!(!msg.is_null());
         str::from_utf8(CStr::from_ptr(msg).to_bytes()).unwrap()
@@ -17,7 +17,7 @@ fn on_ws_open(msg: *const i8) {
 }
 
 /// On ws error
-fn on_ws_error(msg: *const i8) {
+fn on_ws_error(msg: *const c_char) {
     let message = unsafe {
         assert!(!msg.is_null());
         str::from_utf8(CStr::from_ptr(msg).to_bytes()).unwrap()
@@ -29,7 +29,7 @@ fn on_ws_error(msg: *const i8) {
 }
 
 /// On ws message
-fn on_ws_message(msg: *const i8) {
+fn on_ws_message(msg: *const c_char) {
     let message = unsafe {
         assert!(!msg.is_null());
         str::from_utf8(CStr::from_ptr(msg).to_bytes()).unwrap()
