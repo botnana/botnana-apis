@@ -39,7 +39,7 @@ const char * botnana_set_ip(struct Botnana * desc, const char * ip);
 // port   : Port of motion server
 //
 // return : Port of motion server
-const char * botnana_set_port(struct Botnana * desc, const char * port);
+uint16_t botnana_set_port(struct Botnana * desc, uint16_t port);
 
 // URL of motion server
 // desc : motion server descriptor
