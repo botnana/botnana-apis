@@ -60,6 +60,8 @@
         <UWP_CppLogo44>$(BDS)\bin\Artwork\Windows\UWP\cppreg_UwpDefault_44.png</UWP_CppLogo44>
         <UWP_CppLogo150>$(BDS)\bin\Artwork\Windows\UWP\cppreg_UwpDefault_150.png</UWP_CppLogo150>
         <SanitizedProjectName>SingleDrive</SanitizedProjectName>
+        <IncludePath>..\..\botnanacs\BotnanaApi\BotnanaApi\;$(IncludePath)</IncludePath>
+        <ILINK_LibraryPath>..\..\botnanacs\BotnanaApi\BotnanaApi\;$(ILINK_LibraryPath)</ILINK_LibraryPath>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Base_Win32)'!=''">
         <PackageImports>appanalytics;bcbsmp;bindcomp;bindcompfmx;bindcompvcl;bindengine;CustomIPTransport;dbrtl;dsnap;fmx;fmxase;fmxdae;fmxobj;IndyCore;IndyProtocols;IndySystem;rtl;svn;tethering;vcl;vclactnband;vcldb;vcldsnap;vclie;vclimg;VclSmp;vcltouch;vclwinx;vclx;xmlrtl;$(PackageImports)</PackageImports>
@@ -69,6 +71,7 @@
         <VerInfo_Keys>CompanyName=;FileDescription=$(MSBuildProjectName);FileVersion=1.0.0.0;InternalName=;LegalCopyright=;LegalTrademarks=;OriginalFilename=;ProgramID=com.embarcadero.$(MSBuildProjectName);ProductName=$(MSBuildProjectName);ProductVersion=1.0.0.0;Comments=</VerInfo_Keys>
         <VerInfo_Locale>1033</VerInfo_Locale>
         <Manifest_File>$(BDS)\bin\default_app.manifest</Manifest_File>
+        <ILINK_LibraryPath>D:\mapacode\bitbucket\botnana-apis\botnanacs\BotnanaApi\Release\;$(ILINK_LibraryPath)</ILINK_LibraryPath>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Cfg_1)'!=''">
         <BCC_OptimizeForSpeed>false</BCC_OptimizeForSpeed>
@@ -115,13 +118,6 @@
             <DependentOn>bcbhmi.h</DependentOn>
             <BuildOrder>2</BuildOrder>
         </CppCompile>
-        <None Include="BotnanaApi.h">
-            <BuildOrder>4</BuildOrder>
-        </None>
-        <LibFiles Include="BotnanaApiBCB.lib" Condition="'$(Platform)'=='Win32'">
-            <BuildOrder>4</BuildOrder>
-            <IgnorePath>true</IgnorePath>
-        </LibFiles>
         <CppCompile Include="SingleDrive.cpp">
             <BuildOrder>0</BuildOrder>
         </CppCompile>
@@ -129,6 +125,14 @@
             <BuildOrder>1</BuildOrder>
             <PCH>true</PCH>
         </PCHCompile>
+        <None Include="..\..\botnanacs\BotnanaApi\BotnanaApi\BotnanaApi.h">
+            <BuildOrder>5</BuildOrder>
+        </None>
+        <None Include="..\..\botnanacs\BotnanaApi\Release\BotnanaApi.dll"/>
+        <LibFiles Include="..\..\botnanacs\BotnanaApi\Release\BotnanaApiBCB.lib" Condition="'$(Platform)'=='Win32'">
+            <BuildOrder>5</BuildOrder>
+            <IgnorePath>true</IgnorePath>
+        </LibFiles>
         <FormResources Include="bcbhmi.dfm"/>
         <BuildConfiguration Include="Release">
             <Key>Cfg_2</Key>
