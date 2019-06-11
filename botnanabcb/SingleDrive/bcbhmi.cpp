@@ -14,7 +14,13 @@ static struct Botnana * btn;
 
 // on error callback
 void on_error(const char * str){
-    ShowMessage(str);
+	ShowMessage(str);
+}
+
+bool wsOnOpened = false;
+// on open callback
+void on_open(const char * str){
+   wsOnOpened = true;
 }
 
 // websocket 回傳資料時的 callback function
@@ -58,7 +64,7 @@ void operation_mode_cb(const char * str){
 		operation_mode = AnsiString("HM");
 	} else {
 	  operation_mode = AnsiString("Other");
-    }
+	}
 }
 
 
@@ -73,7 +79,9 @@ __fastcall TForm1::TForm1(TComponent* Owner)
 void __fastcall TForm1::FormCreate(TObject *Sender)
 {
 	// 連線到 Botnana A2, 設定接收 WebSocket 資料時的callback function
-	btn = botnana_connect_dll("192.168.7.2", on_error);
+	btn = botnana_new_dll("192.168.7.2");
+	botnana_set_on_error_cb_dll(btn, on_error);
+	botnana_set_on_open_cb_dll(btn, on_open);
 
 	// 設定接收到特定資料時的 callback function
 	botnana_set_tag_cb_dll(btn, "real_position.1.1", 0, real_position_cb);
@@ -81,9 +89,11 @@ void __fastcall TForm1::FormCreate(TObject *Sender)
 	botnana_set_tag_cb_dll(btn, "status_word.1.1", 0, status_word_cb);
 	botnana_set_tag_cb_dll(btn, "operation_mode.1.1", 0, operation_mode_cb);
 	botnana_set_on_message_cb_dll(btn,handle_message);
-	script_evaluate_dll(btn, "1 .slave");
+	botnana_connect_dll(btn);
 }
 //---------------------------------------------------------------------------
+
+bool hasSlaveUpdated = false;
 void __fastcall TForm1::Timer1Timer(TObject *Sender)
 {
 	EditRealPosition->Text = real_position;
@@ -94,7 +104,16 @@ void __fastcall TForm1::Timer1Timer(TObject *Sender)
 	RadioServoOff->Checked = ! servo_on;
 	RadioFault->Checked = has_fault;
 	RadioTargetReached->Checked = target_reached;
-   	script_evaluate_dll(btn, "1 .slave-diff");
+	if (wsOnOpened)
+	{
+		if (hasSlaveUpdated){
+			script_evaluate_dll(btn, "1 .slave-diff");
+		} else {
+			script_evaluate_dll(btn, "1 .slave");
+            hasSlaveUpdated = true;
+		}
+
+    }
 }
 //---------------------------------------------------------------------------
 void __fastcall TForm1::Button1Click(TObject *Sender)

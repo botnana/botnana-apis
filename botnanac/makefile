@@ -8,16 +8,16 @@ fmt:
 	cargo fmt
 	astyle --style=allman -r *.c *.h
 
-build: fmt
+build: 
 	cargo build --release --target=$(TARGET)
-	rm -rf lib
+	rm -rf lib/$(TARGET)
 	mkdir -p lib/$(TARGET)
 	cp target/$(TARGET)/release/libbotnana.so ./lib/$(TARGET)
 	cp target/$(TARGET)/release/libbotnana.a ./lib/$(TARGET)	
 	
 arm: fmt
 	cargo build --release --target=armv7-unknown-linux-gnueabihf
-	rm -rf lib
+	rm -rf lib/armv7-unknown-linux-gnueabihf
 	mkdir -p lib/armv7-unknown-linux-gnueabihf
 	cp target/armv7-unknown-linux-gnueabihf/release/libbotnana.so ./lib/armv7-unknown-linux-gnueabihf
 	cp target/armv7-unknown-linux-gnueabihf/release/libbotnana.a ./lib/armv7-unknown-linux-gnueabihf		
@@ -49,6 +49,7 @@ version: clean version.o
 drive_pp: clean drive_pp.o
 	gcc -o botnana $@.o $(LDFLAGS)
 	
+
 recorder: clean recorder.o
 	gcc -lpthread -o botnana $@.o $(LDFLAGS)
 	
