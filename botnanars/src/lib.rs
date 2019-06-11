@@ -1,9 +1,11 @@
-extern crate futures;
-extern crate tokio_core;
-extern crate websocket;
+extern crate libc;
+extern crate serde_json;
+extern crate url;
+extern crate ws;
 
 pub mod botnana;
+pub mod json_api;
 pub mod program;
-pub mod ethercat;
 
 pub use botnana::Botnana;
+pub use program::Program;

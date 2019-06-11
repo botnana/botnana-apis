@@ -44,9 +44,9 @@ namespace BotnanaLib
         }
 
         // Set IP
-        public string set_ip(string ip)
+        public void set_ip(UInt16 ip)
         {
-            return botnana_set_ip_dll(innerBotnana, ip);
+            botnana_set_ip_dll(innerBotnana, ip);
         }
 
         // Set Port
@@ -481,7 +481,7 @@ namespace BotnanaLib
         private static extern void botnana_disconnect_dll(IntPtr desc);
 
         [DllImport(@"BotnanaApi.dll", CharSet = CharSet.Ansi, CallingConvention = CallingConvention.Cdecl)]
-        private static extern string botnana_set_ip_dll(IntPtr desc, string ip);
+        private static extern void botnana_set_ip_dll(IntPtr desc, UInt16 ip);
 
         [DllImport(@"BotnanaApi.dll", CharSet = CharSet.Ansi, CallingConvention = CallingConvention.Cdecl)]
         private static extern string botnana_set_port_dll(IntPtr desc, string port);

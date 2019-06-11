@@ -1,17 +1,58 @@
 extern crate botnanars;
 use botnanars::Botnana;
-use std::sync::{Arc, Mutex};
+use std::{ffi::CStr, str, thread, time, os::raw::c_char};
+
+static mut IS_OPENED: bool = false;
+
+/// On ws open
+fn on_ws_open(msg: *const c_char) {
+    let message = unsafe {
+        assert!(!msg.is_null());
+        str::from_utf8(CStr::from_ptr(msg).to_bytes()).unwrap()
+    };
+    unsafe {
+        IS_OPENED = true;
+    }
+    println!("WS Open : {}", message);
+}
+
+/// On ws error
+fn on_ws_error(msg: *const c_char) {
+    let message = unsafe {
+        assert!(!msg.is_null());
+        str::from_utf8(CStr::from_ptr(msg).to_bytes()).unwrap()
+    };
+    unsafe {
+        IS_OPENED = false;
+    }
+    println!("WS Error : {}", message);
+}
+
+/// On ws message
+fn on_ws_message(msg: *const c_char) {
+    let message = unsafe {
+        assert!(!msg.is_null());
+        str::from_utf8(CStr::from_ptr(msg).to_bytes()).unwrap()
+    };
+    println!("WS message : {}", message);
+}
 
 fn main() {
-    let botnana = Arc::new(Mutex::new(Botnana::new()));
+    let mut botnana = Botnana::new();
 
-    let btn = botnana.clone();
-    botnana.lock().unwrap().once("ready", move |_| {
-        let script = "words";
-        btn.lock().unwrap().evaluate(script);
-    });
+    botnana.set_on_open_cb(on_ws_open);
+    botnana.set_on_error_cb(on_ws_error);
+    botnana.set_on_message_cb(on_ws_message);
+    botnana.connect();
+    unsafe {
+        while !IS_OPENED {
+            thread::sleep(time::Duration::from_millis(1000));
+        }
+    }
 
-    botnana.lock().unwrap().start("ws://192.168.50.197:3012");
+    botnana.evaluate("words");
 
-    loop {}
+    loop {
+        thread::sleep(time::Duration::from_millis(2000));
+    }
 }
