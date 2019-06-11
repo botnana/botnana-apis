@@ -8,7 +8,7 @@
   },
   "dependencies": {},
   "devDependencies": {
-    "ws": "^1.1.1"
+    "ws": "^3.3.1"
   },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
