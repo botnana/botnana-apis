@@ -32,6 +32,7 @@ pub struct Botnana {
     scripts_pop_count: Arc<Mutex<u32>>,
     /// poll thread 啟動的時間
     poll_interval_ms: Arc<Mutex<u64>>,
+    is_connected: Arc<Mutex<bool>>,
     is_connecting: Arc<Mutex<bool>>,
     on_open_cb: Arc<Mutex<Vec<Box<Fn(*const c_char) + Send>>>>,
     on_error_cb: Arc<Mutex<Vec<Box<Fn(*const c_char) + Send>>>>,
@@ -52,6 +53,7 @@ impl Botnana {
             scripts_buffer: Arc::new(Mutex::new(VecDeque::with_capacity(1024))),
             scripts_pop_count: Arc::new(Mutex::new(8)),
             poll_interval_ms: Arc::new(Mutex::new(10)),
+            is_connected: Arc::new(Mutex::new(false)),
             is_connecting: Arc::new(Mutex::new(false)),
             on_open_cb: Arc::new(Mutex::new(Vec::with_capacity(1))),
             on_error_cb: Arc::new(Mutex::new(Vec::with_capacity(1))),
@@ -92,6 +94,11 @@ impl Botnana {
     /// URL
     pub fn url(&self) -> String {
         "ws://".to_owned() + self.ip().as_str() + ":" + &self.port().to_string()
+    }
+
+    /// Is connected ?
+    pub fn is_connected(&self) -> bool {
+        *self.is_connected.lock().expect("")
     }
 
     /// Set on_open callback
@@ -160,7 +167,6 @@ impl Botnana {
                                 is_watchdog_refreshed: false,
                             });
                             // 直到 WS Client Event loop 結束， 才會執行以下程式。
-                            *bna.is_connecting.lock().expect("Exit WS Event Loop") = false;
                             *bna.user_sender.lock().expect("Exit WS Event Loop") = None;
                             *bna.ws_out.lock().expect("Exit WS Event Loop") = None;
                             bna.scripts_buffer
@@ -250,6 +256,7 @@ impl Botnana {
                     {
                         botnana.execute_on_error_cb(&format!("Can't create POLL thread ({})\n", e));
                     }
+                    *botnana.is_connected.lock().expect("Exit WS Event Loop") = true;
                     // 建制成功後呼叫 on_open callback
                     botnana.execute_on_open_cb();
                 }
@@ -469,6 +476,8 @@ impl Botnana {
 
     /// Execute on_error callback
     fn execute_on_error_cb(&mut self, msg: &str) {
+        *self.is_connecting.lock().expect("execute_on_error_cb") = false;
+        *self.is_connected.lock().expect("execute_on_error_cb") = false;
         *self.user_sender.lock().expect("execute_on_error_cb") = None;
         *self.ws_out.lock().expect("execute_on_error_cb") = None;
         self.scripts_buffer
