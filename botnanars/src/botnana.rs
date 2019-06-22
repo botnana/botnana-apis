@@ -16,6 +16,14 @@ const WS_TIMEOUT_TOKEN: Token = Token(1);
 const WS_WATCHDOG_PERIOD_MS: u64 = 10_000;
 const VERSION: &'static str = env!("CARGO_PKG_VERSION");
 
+/// Callback Handler for tag
+struct CallbackHandler {
+    /// 執行次數
+    count: u32,
+    /// callback 函式指標
+    callback: Box<Fn(*const c_char) + Send>,
+}
+
 /// Botnana
 #[repr(C)]
 #[derive(Clone)]
@@ -24,8 +32,7 @@ pub struct Botnana {
     port: Arc<Mutex<u16>>,
     user_sender: Arc<Mutex<Option<mpsc::Sender<Message>>>>,
     ws_out: Arc<Mutex<Option<ws::Sender>>>,
-    handlers: Arc<Mutex<HashMap<String, Vec<Box<Fn(*const c_char) + Send>>>>>,
-    handler_counters: Arc<Mutex<HashMap<String, Vec<u32>>>>,
+    handlers: Arc<Mutex<HashMap<String, Vec<CallbackHandler>>>>,
     /// 用來存放 forth 命令的 buffer
     scripts_buffer: Arc<Mutex<VecDeque<String>>>,
     /// 在 polling thread裡，每次從 scripts buffer 裡拿出 scripts_pop_count 個暫存命令送出給 Botnana motion server
@@ -49,7 +56,6 @@ impl Botnana {
             user_sender: Arc::new(Mutex::new(None)),
             ws_out: Arc::new(Mutex::new(None)),
             handlers: Arc::new(Mutex::new(HashMap::new())),
-            handler_counters: Arc::new(Mutex::new(HashMap::new())),
             scripts_buffer: Arc::new(Mutex::new(VecDeque::with_capacity(1024))),
             scripts_pop_count: Arc::new(Mutex::new(8)),
             poll_interval_ms: Arc::new(Mutex::new(10)),
@@ -395,59 +401,43 @@ impl Botnana {
 
         let lines: Vec<&str> = message.split("\n").collect();
         let mut handlers = self.handlers.lock().expect("self.handlers.lock()");
-        let mut handler_counters = self
-            .handler_counters
-            .lock()
-            .expect("self.handler_counters.lock()");
-
         for line in lines {
-            let mut r: Vec<&str> = line.split("|").collect();
-            let mut index = 0;
+            let r: Vec<&str> = line.split("|").collect();
+            let mut next_tag = true;
             let mut event = "";
             for e in r {
-                if index % 2 == 0 {
+                if next_tag {
                     event = e.trim_start();
+                    next_tag = false;
                 } else {
-                    let mut remove_list = Vec::new();
-                    let mut counter_exist = false;
+                    let mut remove_event = false;
+                    if let Some(handler) = handlers.get_mut(event) {
+                        // 轉換字串型態
+                        let mut msg = String::from(e).into_bytes();
+                        msg.push(0);
+                        let msg = CStr::from_bytes_with_nul(msg.as_slice())
+                            .expect("toCstr")
+                            .as_ptr();
 
-                    match handlers.get(event) {
-                        Some(handle) => {
-                            counter_exist = true;
-                            let counter = handler_counters.get_mut(event).unwrap();
-
-                            let mut idx = 0;
-                            for h in handle {
-                                let mut msg = String::from(e).into_bytes();
-                                msg.push(0);
-                                let msg = CStr::from_bytes_with_nul(msg.as_slice())
-                                    .expect("toCstr")
-                                    .as_ptr();
-
-                                h(msg);
-                                if counter[idx] > 0 {
-                                    counter[idx] -= 1;
-                                    if counter[idx] == 0 {
-                                        remove_list.push(idx);
-                                    }
+                        // 執行對應的 callback function
+                        // 使用 rev() 是為了 handler.remove，從後面刪除才不會影響 i 對應 vec 內的成員
+                        for i in (0..handler.len()).rev() {
+                            (handler[i].callback)(msg);
+                            if handler[i].count > 0 {
+                                handler[i].count -= 1;
+                                if handler[i].count == 0 {
+                                    handler.remove(i);
                                 }
-                                idx += 1;
                             }
                         }
-                        None => {}
-                    };
-
-                    if counter_exist {
-                        let counter = handler_counters.get_mut(event).unwrap();
-                        let handler = handlers.get_mut(event).unwrap();
-
-                        for i in &remove_list {
-                            handler.remove(*i);
-                            counter.remove(*i);
-                        }
+                        remove_event = handler.len() == 0;
                     }
+                    // 假如都沒有 handle 就將此事件刪除
+                    if remove_event {
+                        handlers.remove(event);
+                    }
+                    next_tag = true;
                 }
-                index += 1;
             }
         }
     }
@@ -456,17 +446,16 @@ impl Botnana {
     /// `event` is event name
     /// `count` is handler called times
     /// `handler` is user function
-    pub fn times<F>(&mut self, event: &'static str, count: u32, handler: F)
+    pub fn times<F>(&mut self, event: &'static str, count: u32, cb: F)
     where
         F: Fn(*const c_char) + Send + 'static,
     {
-        let event = event.to_string();
         let mut handlers = self.handlers.lock().unwrap();
-        let mut handler_counters = self.handler_counters.lock().unwrap();
-        let h = handlers.entry(event.clone()).or_insert(Vec::new());
-        let hc = handler_counters.entry(event).or_insert(Vec::new());
-        h.push(Box::new(handler));
-        hc.push(count);
+        let handler = handlers.entry(event.to_owned()).or_insert(Vec::new());
+        handler.push(CallbackHandler {
+            count: count,
+            callback: Box::new(cb),
+        });
     }
 
     /// Has WS sender ?
