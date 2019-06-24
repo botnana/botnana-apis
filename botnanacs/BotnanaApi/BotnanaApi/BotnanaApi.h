@@ -29,7 +29,7 @@ extern "C"
 	// Set Port
 	// @botnana: Botnana Control descriptor
 	// @port: Port of Motion Server 
-	__declspec(dllexport) void botnana_set_port_dll(struct Botnana *botnana, uint16_t port);
+	__declspec(dllexport) uint16_t botnana_set_port_dll(struct Botnana *botnana, uint16_t port);
 
 	// URL of motion server
 	// @botnana: Botnana Control descriptor
