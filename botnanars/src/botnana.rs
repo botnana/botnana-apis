@@ -1,3 +1,4 @@
+use data_pool::DataPool;
 use program::Program;
 use serde_json;
 use std::{self,
@@ -45,6 +46,13 @@ pub struct Botnana {
     on_error_cb: Arc<Mutex<Option<Box<Fn(*const c_char) + Send>>>>,
     on_send_cb: Arc<Mutex<Option<Box<Fn(*const c_char) + Send>>>>,
     on_message_cb: Arc<Mutex<Option<Box<Fn(*const c_char) + Send>>>>,
+    pub data_pool: Arc<Mutex<DataPool>>,
+    pub(crate) internal_handlers:
+        Arc<Mutex<HashMap<String, Box<Fn(&mut DataPool, usize, usize, &str) + Send>>>>,
+    pub(crate) init_queries: Arc<Mutex<Vec<String>>>,
+    pub(crate) cyclic_queries: Arc<Mutex<Vec<String>>>,
+    last_query: Arc<Mutex<usize>>,
+    query_count: Arc<Mutex<usize>>,
 }
 
 impl Botnana {
@@ -65,6 +73,12 @@ impl Botnana {
             on_error_cb: Arc::new(Mutex::new(None)),
             on_send_cb: Arc::new(Mutex::new(None)),
             on_message_cb: Arc::new(Mutex::new(None)),
+            data_pool: Arc::new(Mutex::new(DataPool::new())),
+            internal_handlers: Arc::new(Mutex::new(HashMap::new())),
+            init_queries: Arc::new(Mutex::new(Vec::new())),
+            cyclic_queries: Arc::new(Mutex::new(Vec::new())),
+            last_query: Arc::new(Mutex::new(0)),
+            query_count: Arc::new(Mutex::new(3)),
         }
     }
 
@@ -243,11 +257,21 @@ impl Botnana {
                                         }
                                         _ => {}
                                     }
+                                    let mut no_command = true;
 
                                     if bna.scripts_buffer_len() > 0 {
                                         bna.pop_scripts_buffer();
-                                    } else if ws_sender.send(poll_msg.clone()).is_err() {
-                                        break;
+                                        no_command = false;
+                                    }
+
+                                    if bna.send_internal_query_command() > 0 {
+                                        no_command = false;
+                                    }
+
+                                    if no_command {
+                                        if ws_sender.send(poll_msg.clone()).is_err() {
+                                            break;
+                                        }
                                     }
                                 }
                             })
@@ -365,7 +389,44 @@ impl Botnana {
         }
     }
 
+    /// Send internal query command
+    /// 送出要求狀態的指令
+    fn send_internal_query_command(&mut self) -> usize {
+        let len;
+        let mut msg = String::new();
+        {
+            let mut init_queries = self.init_queries.lock().expect("");
+            // 每次處理的命令數
+            let query_count = *self.query_count.lock().expect("");
+            // 如果有初始化命令就先處理
+            if init_queries.len() > 0 {
+                len = init_queries.len().min(query_count);
+                for _i in 0..len {
+                    // 初始化的命令，送出後就移除
+                    msg.push_str(&init_queries.remove(0));
+                }
+            } else {
+                let queries = self.cyclic_queries.lock().expect("");
+                let start = *self.last_query.lock().expect("");
+                let end = (start + query_count).min(queries.len());
+                // 固定要循環送出的命令，
+                for i in start..end {
+                    msg.push_str(&queries[i]);
+                }
+
+                // 紀錄下次執時要從哪一個開始送
+                *self.last_query.lock().expect("") = if end == queries.len() { 0 } else { end };
+                len = end - start;
+            }
+        }
+        if len > 0 {
+            self.evaluate(&msg);
+        }
+        len
+    }
+
     /// Handle message
+    /// 處理 server 送過來的訊息
     fn handle_message(&mut self, message: &str) {
         if message.len() > 0 {
             if let Some(ref cb) = *self.on_message_cb.lock().unwrap() {
@@ -382,47 +443,72 @@ impl Botnana {
             }
         }
 
-        let lines: Vec<&str> = message.split("\n").collect();
-        let mut handlers = self.handlers.lock().expect("self.handlers.lock()");
-        for line in lines {
-            let r: Vec<&str> = line.split("|").collect();
-            let mut next_tag = true;
-            let mut event = "";
-            for e in r {
-                if next_tag {
-                    event = e.trim_start();
-                    next_tag = false;
-                } else {
-                    let mut remove_event = false;
-                    if let Some(handler) = handlers.get_mut(event) {
-                        // 轉換字串型態
-                        let mut msg = String::from(e).into_bytes();
-                        msg.push(0);
-                        let msg = CStr::from_bytes_with_nul(msg.as_slice())
-                            .expect("toCstr")
-                            .as_ptr();
+        {
+            let lines: Vec<&str> = message.split("\n").collect();
+            let mut handlers = self.handlers.lock().expect("self.handlers.lock()");
+            let internal_handlers = self
+                .internal_handlers
+                .lock()
+                .expect("self.internal_handles.lock()");
 
-                        // 執行對應的 callback function
-                        // 使用 rev() 是為了 handler.remove，從後面刪除才不會影響 i 對應 vec 內的成員
-                        for i in (0..handler.len()).rev() {
-                            (handler[i].callback)(msg);
-                            if handler[i].count > 0 {
-                                handler[i].count -= 1;
-                                if handler[i].count == 0 {
-                                    handler.remove(i);
+            for line in lines {
+                // 用 `|` 解析訊息
+                let r: Vec<&str> = line.split("|").collect();
+                let mut next_tag = true;
+                let mut event = "";
+                for e in r {
+                    if next_tag {
+                        event = e.trim_start();
+                        next_tag = false;
+                    } else {
+                        // 處理內部要求的訊息
+                        // 先將 event 解析成 tag_name.x.x
+                        let tag: Vec<&str> = event.split(".").collect();
+                        // internal_handlers
+                        if let Some(handler) = internal_handlers.get(tag[0]) {
+                            let mut data_pool =
+                                self.data_pool.lock().expect("self.internal_handles.lock()");
+                            let mut tag_index: [usize; 2] = [0; 2];
+                            for i in 1..tag.len().min(3) {
+                                if let Ok(x) = tag[i].parse::<usize>() {
+                                    tag_index[2 - i] = x;
                                 }
                             }
+                            handler(&mut data_pool, tag_index[0], tag_index[1], e);
                         }
-                        remove_event = handler.len() == 0;
+
+                        let mut remove_event = false;
+                        if let Some(handler) = handlers.get_mut(event) {
+                            // 轉換字串型態
+                            let mut msg = String::from(e).into_bytes();
+                            msg.push(0);
+                            let msg = CStr::from_bytes_with_nul(msg.as_slice())
+                                .expect("toCstr")
+                                .as_ptr();
+
+                            // 執行對應的 callback function
+                            // 使用 rev() 是為了 handler.remove，從後面刪除才不會影響 i 對應 vec 內的成員
+                            for i in (0..handler.len()).rev() {
+                                (handler[i].callback)(msg);
+                                if handler[i].count > 0 {
+                                    handler[i].count -= 1;
+                                    if handler[i].count == 0 {
+                                        handler.remove(i);
+                                    }
+                                }
+                            }
+                            remove_event = handler.len() == 0;
+                        }
+                        // 假如都沒有 handle 就將此事件刪除
+                        if remove_event {
+                            handlers.remove(event);
+                        }
+                        next_tag = true;
                     }
-                    // 假如都沒有 handle 就將此事件刪除
-                    if remove_event {
-                        handlers.remove(event);
-                    }
-                    next_tag = true;
                 }
             }
         }
+        self.data_pool_forth();
     }
 
     /// times

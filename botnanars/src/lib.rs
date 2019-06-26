@@ -18,6 +18,7 @@ macro_rules! slave_position {
 }
 
 pub mod botnana;
+pub mod data_pool;
 pub mod drive_api;
 pub mod ethercat_api;
 pub mod json_api;
