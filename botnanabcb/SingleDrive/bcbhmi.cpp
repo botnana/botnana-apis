@@ -1,4 +1,4 @@
-//---------------------------------------------------------------------------
+ï»¿//---------------------------------------------------------------------------
 
 #include <vcl.h>
 #pragma hdrstop
@@ -8,62 +8,66 @@
 #pragma package(smart_init)
 #pragma resource "*.dfm"
 
-#include "BotnanaApi.h"
-
-static struct Botnana * btn;
-
 // on error callback
-void on_error(const char * str){
+void on_error(void * ptr, const char * str){
+    TForm1 * form = (TForm1 *) ptr;
+   form->wsOpened = false;
 	ShowMessage(str);
 }
 
-bool wsOnOpened = false;
 // on open callback
-void on_open(const char * str){
-   wsOnOpened = true;
+void on_open(void * ptr, const char * str){
+   TForm1 * form = (TForm1 *) ptr;
+   form->wsOpened = true;
 }
 
-// websocket ¦^¶Ç¸ê®Æ®Éªº callback function
-static AnsiString message;
-void handle_message(const char * str){
-	message = AnsiString(str);
+// websocket å›žå‚³è³‡æ–™æ™‚çš„ callback function
+void handle_message(void * ptr, const char * str){
+	TForm1 * form = (TForm1 *) ptr;
+	form->message = AnsiString(str);
 }
 
-// ®³¨ì real_posiiton.1 ¸ê®Æ®Éªº callback function
-static AnsiString real_position;
-void real_position_cb(const char * str){
-	real_position = AnsiString(str);
+// æ‹¿åˆ° real_posiiton è³‡æ–™æ™‚çš„ callback function
+void real_position_cb(void * pointer, uint32_t position, uint32_t channel, const char * str){
+	if (position == 1 && channel == 1) {
+		TForm1 * form = (TForm1 *) pointer;
+		form->realPosition = AnsiString(str);
+	}
 }
 
-// ®³¨ì target_posiiton.1 ¸ê®Æ®Éªº callback function
-static AnsiString target_position;
-void target_position_cb(const char * str){
-	target_position = AnsiString(str);
+// æ‹¿åˆ° target_posiiton è³‡æ–™æ™‚çš„ callback function
+void target_position_cb(void * pointer, uint32_t position, uint32_t channel, const char * str){
+	if (position == 1 && channel == 1) {
+		TForm1 * form = (TForm1 *) pointer;
+		form->targetPosition = AnsiString(str);
+	}
 }
 
-// ®³¨ì status_word.1 ¸ê®Æ®Éªº callback function
-static BOOL servo_on = false;
-static BOOL has_fault = false;
-static BOOL target_reached = false;
-void status_word_cb(const char *str){
-	int status = StrToInt(AnsiString(str));
-	// ¨Ì¾Ú status word ªº©w¸q¨ú±o servo_on, fault, target reached ¸ê°T
-	// ¥i¥HÅX°Ê¾¹¤â¥U 0x6041 ªº©w¸q
-	servo_on = (status & 0x4) != 0;
-	has_fault = (status & 0x8) != 0;
-	target_reached = (status & 0x400) == 0x400;
+// æ‹¿åˆ° status_word.1 è³‡æ–™æ™‚çš„ callback function
+void status_word_cb(void * pointer, uint32_t position, uint32_t channel, const char *str){
+    TForm1 * form = (TForm1 *) pointer;
+	if (position == 1 && channel == 1) {
+		int status = StrToInt(AnsiString(str));
+		// ä¾æ“š status word çš„å®šç¾©å–å¾— servo_on, fault, target reached è³‡è¨Š
+		// å¯ä»¥é©…å‹•å™¨æ‰‹å†Š 0x6041 çš„å®šç¾©
+		form->servoOn = (status & 0x4) != 0;
+		form->hasFault = (status & 0x8) != 0;
+		form->targetReached = (status & 0x400) == 0x400;
+	}
 }
 
-// ®³¨ì operation_mode.1 ¸ê®Æ®Éªº callback function
-static AnsiString operation_mode;
-void operation_mode_cb(const char * str){
-	int mode = StrToInt(AnsiString(str));
-	if (mode == 1){
-		operation_mode = AnsiString("PP");
-	} else if (mode == 6){
-		operation_mode = AnsiString("HM");
-	} else {
-	  operation_mode = AnsiString("Other");
+// æ‹¿åˆ° operation_mode  è³‡æ–™æ™‚çš„ callback function
+void operation_mode_cb(void * pointer, uint32_t position, uint32_t channel, const char * str){
+	TForm1 * form = (TForm1 *) pointer;
+	if (position == 1 && channel == 1) {
+		int mode = StrToInt(AnsiString(str));
+		if (mode == 1){
+			form->operationMode = AnsiString("PP");
+		} else if (mode == 6){
+			form->operationMode = AnsiString("HM");
+		} else {
+			form->operationMode = AnsiString("Other");
+		}
 	}
 }
 
@@ -78,90 +82,95 @@ __fastcall TForm1::TForm1(TComponent* Owner)
 //---------------------------------------------------------------------------
 void __fastcall TForm1::FormCreate(TObject *Sender)
 {
-	// ³s½u¨ì Botnana A2, ³]©w±µ¦¬ WebSocket ¸ê®Æ®Éªºcallback function
-	btn = botnana_new_dll("192.168.7.2");
-	botnana_set_on_error_cb_dll(btn, on_error);
-	botnana_set_on_open_cb_dll(btn, on_open);
+	// è¨­å®šé€£ç·š IP èˆ‡ Port
+	botnana.SetWsIP("192.168.7.2");
+	botnana.SetWsPort(3012);
 
-	// ³]©w±µ¦¬¨ì¯S©w¸ê®Æ®Éªº callback function
-	botnana_set_tag_cb_dll(btn, "real_position.1.1", 0, real_position_cb);
-	botnana_set_tag_cb_dll(btn, "target_position.1.1", 0, target_position_cb);
-	botnana_set_tag_cb_dll(btn, "status_word.1.1", 0, status_word_cb);
-	botnana_set_tag_cb_dll(btn, "operation_mode.1.1", 0, operation_mode_cb);
-	botnana_set_on_message_cb_dll(btn,handle_message);
-	botnana_connect_dll(btn);
+	// è¨­å®š WebSocket OnOpen, OnError èˆ‡ OnMessage çš„ Callback
+	botnana.SetOnErrorCB((void *)this, on_error);
+	botnana.SetOnOpenCB((void *)this, on_open);
+	botnana.SetOnMessageCB((void *)this, handle_message);
+
+	// è¨­å®šæŽ¥æ”¶åˆ°ç‰¹å®šè³‡æ–™æ™‚çš„ callback function
+	botnana.SetTagCB("real_position", 0, (void *)this, real_position_cb);
+	botnana.SetTagCB("target_position", 0, (void *)this,target_position_cb);
+	botnana.SetTagCB("status_word", 0, (void *)this,status_word_cb);
+	botnana.SetTagCB("operation_mode", 0, (void *)this,operation_mode_cb);
+
+	// é€£ç·š
+	botnana.Connect();
 }
 //---------------------------------------------------------------------------
 
 bool hasSlaveUpdated = false;
 void __fastcall TForm1::Timer1Timer(TObject *Sender)
 {
-	EditRealPosition->Text = real_position;
-	EditTargetPosition->Text = target_position;
-	EditOPMode->Text = operation_mode;
+	EditRealPosition->Text = realPosition;
+	EditTargetPosition->Text = targetPosition;
+	EditOPMode->Text = operationMode;
 	MemoMessage->Text = message;
-	RadioServoOn->Checked = servo_on;
-	RadioServoOff->Checked = ! servo_on;
-	RadioFault->Checked = has_fault;
-	RadioTargetReached->Checked = target_reached;
-	if (wsOnOpened)
+	RadioServoOn->Checked = servoOn;
+	RadioServoOff->Checked = ! servoOn;
+	RadioFault->Checked = hasFault;
+	RadioTargetReached->Checked = targetReached;
+	if (wsOpened)
 	{
 		if (hasSlaveUpdated){
-			script_evaluate_dll(btn, "1 .slave-diff");
+			botnana.EvaluateScript("1 .slave-diff");
 		} else {
-			script_evaluate_dll(btn, "1 .slave");
-            hasSlaveUpdated = true;
+			botnana.EvaluateScript("1 .slave");
+			hasSlaveUpdated = true;
 		}
 
-    }
+	}
 }
 //---------------------------------------------------------------------------
 void __fastcall TForm1::Button1Click(TObject *Sender)
 {
-	// ²M°£ÅX°Ê¾¹²§Äµ
-	script_evaluate_dll(btn, "1 1 reset-fault");
+	// æ¸…é™¤é©…å‹•å™¨ç•°è­¦
+	botnana.EvaluateScript("1 1 reset-fault");
 }
 //---------------------------------------------------------------------------
 void __fastcall TForm1::Button4Click(TObject *Sender)
 {
 	// drive off
-	script_evaluate_dll(btn, "1 1 drive-off");
+	botnana.EvaluateScript("1 1 drive-off");
 }
 //---------------------------------------------------------------------------
 void __fastcall TForm1::Button3Click(TObject *Sender)
 {
 	// new set-point of PP mode, start-homing of HM mode
-	script_evaluate_dll(btn, "1 1 go");
+	botnana.EvaluateScript("1 1 go");
 }
 //---------------------------------------------------------------------------
 void __fastcall TForm1::Button2Click(TObject *Sender)
 {
 	// drive on
-	script_evaluate_dll(btn, "1 1 drive-on");
+	botnana.EvaluateScript("1 1 drive-on");
 }
 //---------------------------------------------------------------------------
 void __fastcall TForm1::Button5Click(TObject *Sender)
 {
 	// set profile velocity and target position
-	script_evaluate_dll(btn, "10000 1 1 profile-v! -20000 1 1 target-p!");
+	botnana.EvaluateScript("10000 1 1 profile-v! -20000 1 1 target-p!");
 }
 //---------------------------------------------------------------------------
 void __fastcall TForm1::Button7Click(TObject *Sender)
 {
 	// set profile velocity and target position
-	script_evaluate_dll(btn, "5000 1  1 profile-v! 20000 1 1 target-p!");
+	botnana.EvaluateScript("5000 1  1 profile-v! 20000 1 1 target-p!");
 }
 //---------------------------------------------------------------------------
 void __fastcall TForm1::Button6Click(TObject *Sender)
 {
 	// Set operation mode to HM
-	script_evaluate_dll(btn, "hm 1 1 op-mode!");
+	botnana.EvaluateScript("hm 1 1 op-mode!");
 }
 //---------------------------------------------------------------------------
 void __fastcall TForm1::Button8Click(TObject *Sender)
 {
 	// Set operation mode to PP
-	script_evaluate_dll(btn, "pp 1 1 op-mode!");
+	botnana.EvaluateScript("pp 1 1 op-mode!");
 }
 //---------------------------------------------------------------------------
 

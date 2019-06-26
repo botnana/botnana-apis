@@ -5,7 +5,7 @@ use std::{self,
           boxed::Box,
           collections::{HashMap, VecDeque},
           ffi::CStr,
-          os::raw::c_char,
+          os::raw::{c_char, c_void},
           str,
           sync::{mpsc::{self, TryRecvError},
                  Arc, Mutex},
@@ -17,13 +17,31 @@ const WS_TIMEOUT_TOKEN: Token = Token(1);
 const WS_WATCHDOG_PERIOD_MS: u64 = 10_000;
 const VERSION: &'static str = env!("CARGO_PKG_VERSION");
 
-/// Callback Handler for tag
+/// Callback Handler
 struct CallbackHandler {
+    /// 用來回傳指標給使用者
+    pointer: *mut c_void,
+    /// callback 函式指標
+    callback: Box<Fn(*mut c_void, *const c_char) + Send>,
+}
+
+unsafe impl Send for CallbackHandler {}
+
+/// Callback Handler for tag
+struct TagCallbackHandler {
     /// 執行次數
     count: u32,
+    /// 用來回傳指標給使用者
+    pointer: *mut c_void,
     /// callback 函式指標
-    callback: Box<Fn(*const c_char) + Send>,
+    /// *mut c_void: 使用者設定的指標
+    /// u32: position
+    /// u32: channel
+    /// u32: value (string)
+    callback: Box<Fn(*mut c_void, u32, u32, *const c_char) + Send>,
 }
+
+unsafe impl Send for TagCallbackHandler {}
 
 /// Botnana
 #[repr(C)]
@@ -33,7 +51,7 @@ pub struct Botnana {
     port: Arc<Mutex<u16>>,
     user_sender: Arc<Mutex<Option<mpsc::Sender<Message>>>>,
     ws_out: Arc<Mutex<Option<ws::Sender>>>,
-    handlers: Arc<Mutex<HashMap<String, Vec<CallbackHandler>>>>,
+    handlers: Arc<Mutex<HashMap<String, Vec<TagCallbackHandler>>>>,
     /// 用來存放 forth 命令的 buffer
     scripts_buffer: Arc<Mutex<VecDeque<String>>>,
     /// 在 polling thread裡，每次從 scripts buffer 裡拿出 scripts_pop_count 個暫存命令送出給 Botnana motion server
@@ -42,10 +60,10 @@ pub struct Botnana {
     poll_interval_ms: Arc<Mutex<u64>>,
     is_connected: Arc<Mutex<bool>>,
     is_connecting: Arc<Mutex<bool>>,
-    on_open_cb: Arc<Mutex<Option<Box<Fn(*const c_char) + Send>>>>,
-    on_error_cb: Arc<Mutex<Option<Box<Fn(*const c_char) + Send>>>>,
-    on_send_cb: Arc<Mutex<Option<Box<Fn(*const c_char) + Send>>>>,
-    on_message_cb: Arc<Mutex<Option<Box<Fn(*const c_char) + Send>>>>,
+    on_open_cb: Arc<Mutex<Option<CallbackHandler>>>,
+    on_error_cb: Arc<Mutex<Option<CallbackHandler>>>,
+    on_send_cb: Arc<Mutex<Option<CallbackHandler>>>,
+    on_message_cb: Arc<Mutex<Option<CallbackHandler>>>,
     pub data_pool: Arc<Mutex<DataPool>>,
     pub(crate) internal_handlers:
         Arc<Mutex<HashMap<String, Box<Fn(&mut DataPool, usize, usize, &str) + Send>>>>,
@@ -80,6 +98,11 @@ impl Botnana {
             last_query: Arc::new(Mutex::new(0)),
             query_count: Arc::new(Mutex::new(3)),
         }
+    }
+
+    /// Clone
+    pub fn clone(botnana: Botnana) -> Botnana {
+        botnana.clone()
     }
 
     /// Set IP
@@ -122,19 +145,25 @@ impl Botnana {
     }
 
     /// Set on_open callback
-    pub fn set_on_open_cb<F>(&mut self, cb: F)
+    pub fn set_on_open_cb<F>(&mut self, pointer: *mut c_void, cb: F)
     where
-        F: Fn(*const c_char) + Send + 'static,
+        F: Fn(*mut c_void, *const c_char) + Send + 'static,
     {
-        *self.on_open_cb.lock().expect("set_on_open_cb") = Some(Box::new(cb));
+        *self.on_open_cb.lock().expect("set_on_open_cb") = Some(CallbackHandler {
+            pointer: pointer,
+            callback: Box::new(cb),
+        });
     }
 
     /// Set on_error callback
-    pub fn set_on_error_cb<F>(&mut self, cb: F)
+    pub fn set_on_error_cb<F>(&mut self, pointer: *mut c_void, cb: F)
     where
-        F: Fn(*const c_char) + Send + 'static,
+        F: Fn(*mut c_void, *const c_char) + Send + 'static,
     {
-        *self.on_error_cb.lock().expect("set_on_error_cb") = Some(Box::new(cb));
+        *self.on_error_cb.lock().expect("set_on_error_cb") = Some(CallbackHandler {
+            pointer: pointer,
+            callback: Box::new(cb),
+        });
     }
 
     /// Connect to botnana
@@ -439,10 +468,9 @@ impl Botnana {
                 let msg = CStr::from_bytes_with_nul(temp_msg.as_slice())
                     .expect("toCstr")
                     .as_ptr();
-                cb(msg);
+                (cb.callback)(cb.pointer, msg);
             }
         }
-
         {
             let lines: Vec<&str> = message.split("\n").collect();
             let mut handlers = self.handlers.lock().expect("self.handlers.lock()");
@@ -478,18 +506,31 @@ impl Botnana {
                         }
 
                         let mut remove_event = false;
-                        if let Some(handler) = handlers.get_mut(event) {
+                        if let Some(handler) = handlers.get_mut(tag[0]) {
+                            // tag_index[0]: position
+                            // tag_index[1]: channel
+                            let mut tag_index: [u32; 2] = [0; 2];
+                            for i in 1..tag.len().min(3) {
+                                if let Ok(x) = tag[i].parse::<u32>() {
+                                    tag_index[2 - i] = x;
+                                }
+                            }
                             // 轉換字串型態
                             let mut msg = String::from(e).into_bytes();
                             msg.push(0);
                             let msg = CStr::from_bytes_with_nul(msg.as_slice())
                                 .expect("toCstr")
                                 .as_ptr();
-
                             // 執行對應的 callback function
                             // 使用 rev() 是為了 handler.remove，從後面刪除才不會影響 i 對應 vec 內的成員
                             for i in (0..handler.len()).rev() {
-                                (handler[i].callback)(msg);
+                                (handler[i].callback)(
+                                    handler[i].pointer,
+                                    tag_index[0],
+                                    tag_index[1],
+                                    msg,
+                                );
+
                                 if handler[i].count > 0 {
                                     handler[i].count -= 1;
                                     if handler[i].count == 0 {
@@ -515,14 +556,15 @@ impl Botnana {
     /// `event` is event name
     /// `count` is handler called times
     /// `handler` is user function
-    pub fn times<F>(&mut self, event: &'static str, count: u32, cb: F)
+    pub fn times<F>(&mut self, event: &'static str, count: u32, pointer: *mut c_void, cb: F)
     where
-        F: Fn(*const c_char) + Send + 'static,
+        F: Fn(*mut c_void, u32, u32, *const c_char) + Send + 'static,
     {
         let mut handlers = self.handlers.lock().unwrap();
         let handler = handlers.entry(event.to_owned()).or_insert(Vec::new());
-        handler.push(CallbackHandler {
+        handler.push(TagCallbackHandler {
             count: count,
+            pointer: pointer,
             callback: Box::new(cb),
         });
     }
@@ -548,7 +590,7 @@ impl Botnana {
             let msg = CStr::from_bytes_with_nul(temp_msg.as_slice())
                 .expect("toCstr")
                 .as_ptr();
-            cb(msg);
+            (cb.callback)(cb.pointer, msg);
         }
     }
 
@@ -560,7 +602,7 @@ impl Botnana {
             let msg = CStr::from_bytes_with_nul(temp_msg.as_slice())
                 .expect("toCstr")
                 .as_ptr();
-            cb(msg);
+            (cb.callback)(cb.pointer, msg);
         }
     }
 
@@ -572,22 +614,28 @@ impl Botnana {
             let msg = CStr::from_bytes_with_nul(temp_msg.as_slice())
                 .expect("toCstr")
                 .as_ptr();
-            cb(msg);
+            (cb.callback)(cb.pointer, msg);
         }
     }
 
-    pub fn set_on_send_cb<F>(&mut self, cb: F)
+    pub fn set_on_send_cb<F>(&mut self, pointer: *mut c_void, cb: F)
     where
-        F: Fn(*const c_char) + Send + 'static,
+        F: Fn(*mut c_void, *const c_char) + Send + 'static,
     {
-        *self.on_send_cb.lock().unwrap() = Some(Box::new(cb));
+        *self.on_send_cb.lock().unwrap() = Some(CallbackHandler {
+            pointer: pointer,
+            callback: Box::new(cb),
+        });
     }
 
-    pub fn set_on_message_cb<F>(&mut self, cb: F)
+    pub fn set_on_message_cb<F>(&mut self, pointer: *mut c_void, cb: F)
     where
-        F: Fn(*const c_char) + Send + 'static,
+        F: Fn(*mut c_void, *const c_char) + Send + 'static,
     {
-        *self.on_message_cb.lock().unwrap() = Some(Box::new(cb));
+        *self.on_message_cb.lock().unwrap() = Some(CallbackHandler {
+            pointer: pointer,
+            callback: Box::new(cb),
+        });
     }
 
     /// Abort porgram
@@ -623,7 +671,7 @@ struct Client {
     ws_out: ws::Sender,
     sender: mpsc::Sender<String>,
     thread_tx: mpsc::Sender<ws::Sender>,
-    on_error_cb: Arc<Mutex<Option<Box<Fn(*const c_char) + Send>>>>,
+    on_error_cb: Arc<Mutex<Option<CallbackHandler>>>,
     is_watchdog_refreshed: bool,
 }
 
@@ -636,7 +684,7 @@ impl Client {
             let msg = CStr::from_bytes_with_nul(temp_msg.as_slice())
                 .expect("toCstr")
                 .as_ptr();
-            cb(msg);
+            (cb.callback)(cb.pointer, msg);
         }
     }
 }

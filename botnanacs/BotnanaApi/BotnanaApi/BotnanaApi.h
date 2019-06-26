@@ -1,10 +1,23 @@
-#pragma once
-
+﻿#pragma once
+#include <stdint.h>
 extern "C"
 {
 
 	// 定義 callback function 的形態
-	typedef void(*HandleMessage)(const char *str);
+	// @ pointer: 回傳使用者設定的指標
+	// @ str: 回傳的訊息
+	typedef void(*HandleMessage)(void * pointer, const char *str);
+
+	// 定義 tag callback function 的形態
+	// tag 會有以下 3 種型態
+	// tag_name     : position = 0, channel = 0
+	// tag_name.x   : position = x, channel = 0
+	// tag_name.y.x : position = x, channel = y
+	// @ pointer    : 回傳使用者設定的指標
+	// @ position   : 如果有此欄位 position > 0 
+	// @ channel    : 如果有此欄位 channel > 0
+	// @ str: 回傳的訊息
+	typedef void(*TagHandleMessage)(void * pointer, uint32_t position, uint32_t channel,  const char *str);
 
 	// Library version
 	__declspec(dllexport) const char * library_version_dll(void);
@@ -29,7 +42,7 @@ extern "C"
 	// Set Port
 	// @botnana: Botnana Control descriptor
 	// @port: Port of Motion Server 
-	__declspec(dllexport) void botnana_set_port_dll(struct Botnana *botnana, uint16_t port);
+	__declspec(dllexport) uint16_t botnana_set_port_dll(struct Botnana *botnana, uint16_t port);
 
 	// URL of motion server
 	// @botnana: Botnana Control descriptor
@@ -37,13 +50,15 @@ extern "C"
 	   	 
 	// Set WS on_open callback function 
 	// @botnana: Botnana Control descriptor
+	// @pointer: callback function 執行時要回傳的指標
 	// @cb: callback function
-	__declspec(dllexport) void botnana_set_on_open_cb_dll(struct Botnana *botnana, HandleMessage cb);
+	__declspec(dllexport) void botnana_set_on_open_cb_dll(struct Botnana *botnana, void * pointer,  HandleMessage cb);
 
 	// Set WS on_error callback function 
 	// @botnana: Botnana Control descriptor
+	// @pointer: callback function 執行時要回傳的指標
 	// @cb: callback function
-	__declspec(dllexport) void botnana_set_on_error_cb_dll(struct Botnana *botnana, HandleMessage cb);
+	__declspec(dllexport) void botnana_set_on_error_cb_dll(struct Botnana *botnana, void * pointer, HandleMessage cb);
 
 	// 送出 real time command (直接送到 motion server)
 	// @botnana: Botnana Control descriptor
@@ -76,22 +91,26 @@ extern "C"
 	// @botnana: Botnana Control descriptor
 	// @event: 資訊名稱
 	// @count: 最多可以呼叫此 callback function 的次數，設定 0 表示永遠都會呼叫此 callback function
+	// @pointer: callback function 執行時要回傳的指標
 	// @cb: 當收到 event 時要執行的 callback function
 	__declspec(dllexport) void botnana_set_tag_cb_dll(struct Botnana *botnana,
 		const char *tag,
 		int count,
+		void * pointer,
+		TagHandleMessage cb);
+
+	// Set on_message callback function
+	// @botnana: Botnana Control descriptor
+	// @pointer: callback function 執行時要回傳的指標
+	// @cb: 當送出命令時或將送出的命令的回傳給此callback function
+	__declspec(dllexport) void botnana_set_on_send_cb_dll(struct Botnana *botnana, void * pointer,
 		HandleMessage cb);
 
 	// Set on_message callback function
 	// @botnana: Botnana Control descriptor
+	// @pointer: callback function 執行時要回傳的指標
 	// @cb: 當送出命令時或將送出的命令的回傳給此callback function
-	__declspec(dllexport) void botnana_set_on_send_cb_dll(struct Botnana *botnana,
-		HandleMessage cb);
-
-	// Set on_message callback function
-	// @botnana: Botnana Control descriptor
-	// @cb: 當送出命令時或將送出的命令的回傳給此callback function
-	__declspec(dllexport) void botnana_set_on_message_cb_dll(struct Botnana *botnana,
+	__declspec(dllexport) void botnana_set_on_message_cb_dll(struct Botnana *botnana, void * pointer,
 		HandleMessage cb);
 
 	// 建立一個新的 real time program

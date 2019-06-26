@@ -1,4 +1,4 @@
-//---------------------------------------------------------------------------
+﻿//---------------------------------------------------------------------------
 
 #ifndef bcbhmiH
 #define bcbhmiH
@@ -8,6 +8,8 @@
 #include <Vcl.StdCtrls.hpp>
 #include <Vcl.Forms.hpp>
 #include <Vcl.ExtCtrls.hpp>
+//#include "BotnanaApi.h"
+#include "BotnanaLib.h"
 //---------------------------------------------------------------------------
 class TForm1 : public TForm
 {
@@ -46,9 +48,29 @@ __published:	// IDE-managed Components
 	void __fastcall Button6Click(TObject *Sender);
 	void __fastcall Button8Click(TObject *Sender);
 private:	// User declarations
+	BotnanaLib botnana;
 
 public:		// User declarations
 	__fastcall TForm1(TComponent* Owner);
+    // Botnanq return message
+	AnsiString message;
+	// Real Position
+	AnsiString realPosition;
+	// Target Position
+	AnsiString targetPosition;
+	// Operation Mode
+	AnsiString operationMode;
+	// Servo On?
+	BOOL servoOn;
+	// Has Fault?
+	BOOL hasFault;
+	// Target Reached ?
+	BOOL targetReached;
+	// WebSocket opened ?
+	BOOL wsOpened;
+
+
+
 };
 //---------------------------------------------------------------------------
 extern PACKAGE TForm1 *Form1;

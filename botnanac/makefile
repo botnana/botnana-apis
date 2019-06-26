@@ -1,26 +1,31 @@
-TARGET = $(shell uname -p)-unknown-linux-gnu
-LIBBOTNANA = ./lib/$(TARGET)/libbotnana.a
-
 CFLAGS = -Isrc
-LDFLAGS = $(LIBBOTNANA) -ldl -pthread -lssl -lcrypto -O2
+LDFLAGS = ./lib/libbotnana.a -ldl -pthread -lssl -lcrypto -O2
 
 fmt:
 	cargo fmt
 	astyle --style=allman -r *.c *.h
 
-build: 
-	cargo build --release --target=$(TARGET)
-	rm -rf lib/$(TARGET)
-	mkdir -p lib/$(TARGET)
-	cp target/$(TARGET)/release/libbotnana.so ./lib/$(TARGET)
-	cp target/$(TARGET)/release/libbotnana.a ./lib/$(TARGET)	
+i686: fmt
+	cargo build --release --target=i686-unknown-linux-gnu
+	mkdir -p lib
+	rm -rf lib/libbotnana.*
+	cp target/i686-unknown-linux-gnu/release/libbotnana.so ./lib/libbotnana.so
+	cp target/i686-unknown-linux-gnu/release/libbotnana.a ./lib/libbotnana.a
+
+x86_64: fmt
+	cargo build --release --target=x86_64-unknown-linux-gnu
+	mkdir -p lib
+	rm -rf lib/libbotnana_x86_64.*
+	cp target/x86_64-unknown-linux-gnu/release/libbotnana.so ./lib/libbotnana_x86_64.so
+	cp target/x86_64-unknown-linux-gnu/release/libbotnana.a ./lib/libbotnana_x86_64.a
+
 	
 arm: fmt
 	cargo build --release --target=armv7-unknown-linux-gnueabihf
-	rm -rf lib/armv7-unknown-linux-gnueabihf
-	mkdir -p lib/armv7-unknown-linux-gnueabihf
-	cp target/armv7-unknown-linux-gnueabihf/release/libbotnana.so ./lib/armv7-unknown-linux-gnueabihf
-	cp target/armv7-unknown-linux-gnueabihf/release/libbotnana.a ./lib/armv7-unknown-linux-gnueabihf		
+	mkdir -p lib
+	rm -rf lib/libbotnana_armv7.*
+	cp target/armv7-unknown-linux-gnueabihf/release/libbotnana.so ./lib/libbotnana_armv7.so
+	cp target/armv7-unknown-linux-gnueabihf/release/libbotnana.a ./lib/libbotnana_armv7.a
 
 %.o: 
 	gcc $(CFLAGS) -O2 -c ./examples/$*.c -o $@ 	
@@ -33,7 +38,7 @@ config_slave: clean config_slave.o
 
 config_motion: clean config_motion.o
 	gcc -o botnana $@.o $(LDFLAGS)
-	
+
 config_group: clean config_group.o
 	gcc -o botnana $@.o $(LDFLAGS)
 	
