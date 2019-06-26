@@ -6,9 +6,6 @@
 #include "botnana.h"
 #include "BotnanaApi.h"
 
-// 定義 callback function 的形態
-//typedef void(*HandleMessage)(const char* str);
-
 extern "C" {
 
 	// Library version
@@ -57,15 +54,15 @@ extern "C" {
 	// Set WS on_open callback function 
 	// @botnana: Botnana Control descriptor
 	// @cb: callback function
-	__declspec(dllexport) void botnana_set_on_open_cb_dll(struct Botnana *botnana, HandleMessage cb) {
-		botnana_set_on_open_cb(botnana, cb);
+	__declspec(dllexport) void botnana_set_on_open_cb_dll(struct Botnana *botnana, void * pointer, HandleMessage cb) {
+		botnana_set_on_open_cb(botnana, pointer ,cb);
 	}
 
 	// Set WS on_error callback function 
 	// @botnana: Botnana Control descriptor
 	// @cb: callback function
-	__declspec(dllexport) void botnana_set_on_error_cb_dll(struct Botnana *botnana, HandleMessage cb) {
-		botnana_set_on_error_cb(botnana, cb);
+	__declspec(dllexport) void botnana_set_on_error_cb_dll(struct Botnana *botnana, void * pointer, HandleMessage cb) {
+		botnana_set_on_error_cb(botnana, pointer,cb);
 	}
 
 	// 送出 real time command
@@ -112,22 +109,23 @@ extern "C" {
 	__declspec(dllexport) void botnana_set_tag_cb_dll(struct Botnana * botnana,
 		const char * tag,
 		int count,
-		HandleMessage hm) {
-		botnana_set_tag_cb(botnana, tag, count, hm);
+		void * pointer,
+		TagHandleMessage hm) {
+		botnana_set_tag_cb(botnana, tag, count, pointer, hm);
 	}
 
 	// 設定debug 時要接收訊息的 callback function
 	// hm: 當送出命令時或將送出的命令的回傳給此callback function
-	__declspec(dllexport) void botnana_set_on_send_cb_dll(struct Botnana * botnana,
+	__declspec(dllexport) void botnana_set_on_send_cb_dll(struct Botnana * botnana, void * pointer,
 		HandleMessage hm) {
-		botnana_set_on_send_cb(botnana, hm);
+		botnana_set_on_send_cb(botnana, pointer, hm);
 	}
 
 	// 設定debug 時要接收訊息的 callback function
 	// hm: 當送出命令時或將送出的命令的回傳給此callback function
-	__declspec(dllexport) void botnana_set_on_message_cb_dll(struct Botnana * botnana,
+	__declspec(dllexport) void botnana_set_on_message_cb_dll(struct Botnana * botnana, void * pointer,
 		HandleMessage hm) {
-		botnana_set_on_message_cb(botnana, hm);
+		botnana_set_on_message_cb(botnana, pointer, hm);
 	}
 
 	// 建立一個新的 real time program
