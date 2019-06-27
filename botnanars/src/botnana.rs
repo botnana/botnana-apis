@@ -19,6 +19,8 @@ const VERSION: &'static str = env!("CARGO_PKG_VERSION");
 
 /// Callback Handler
 struct CallbackHandler {
+    /// 執行次數
+    count: u32,
     /// 用來回傳指標給使用者
     pointer: *mut c_void,
     /// callback 函式指標
@@ -51,7 +53,8 @@ pub struct Botnana {
     port: Arc<Mutex<u16>>,
     user_sender: Arc<Mutex<Option<mpsc::Sender<Message>>>>,
     ws_out: Arc<Mutex<Option<ws::Sender>>>,
-    handlers: Arc<Mutex<HashMap<String, Vec<TagCallbackHandler>>>>,
+    tag_handlers: Arc<Mutex<HashMap<String, Vec<CallbackHandler>>>>,
+    tagname_handlers: Arc<Mutex<HashMap<String, Vec<TagCallbackHandler>>>>,
     /// 用來存放 forth 命令的 buffer
     scripts_buffer: Arc<Mutex<VecDeque<String>>>,
     /// 在 polling thread裡，每次從 scripts buffer 裡拿出 scripts_pop_count 個暫存命令送出給 Botnana motion server
@@ -81,7 +84,8 @@ impl Botnana {
             port: Arc::new(Mutex::new(3012)),
             user_sender: Arc::new(Mutex::new(None)),
             ws_out: Arc::new(Mutex::new(None)),
-            handlers: Arc::new(Mutex::new(HashMap::new())),
+            tag_handlers: Arc::new(Mutex::new(HashMap::new())),
+            tagname_handlers: Arc::new(Mutex::new(HashMap::new())),
             scripts_buffer: Arc::new(Mutex::new(VecDeque::with_capacity(1024))),
             scripts_pop_count: Arc::new(Mutex::new(8)),
             poll_interval_ms: Arc::new(Mutex::new(10)),
@@ -150,6 +154,7 @@ impl Botnana {
         F: Fn(*mut c_void, *const c_char) + Send + 'static,
     {
         *self.on_open_cb.lock().expect("set_on_open_cb") = Some(CallbackHandler {
+            count: 0,
             pointer: pointer,
             callback: Box::new(cb),
         });
@@ -161,6 +166,7 @@ impl Botnana {
         F: Fn(*mut c_void, *const c_char) + Send + 'static,
     {
         *self.on_error_cb.lock().expect("set_on_error_cb") = Some(CallbackHandler {
+            count: 0,
             pointer: pointer,
             callback: Box::new(cb),
         });
@@ -473,7 +479,8 @@ impl Botnana {
         }
         {
             let lines: Vec<&str> = message.split("\n").collect();
-            let mut handlers = self.handlers.lock().expect("self.handlers.lock()");
+            let mut tagname_handlers = self.tagname_handlers.lock().expect("self.handlers.lock()");
+            let mut tag_handlers = self.tag_handlers.lock().expect("self.handlers.lock()");
             let internal_handlers = self
                 .internal_handlers
                 .lock()
@@ -506,7 +513,7 @@ impl Botnana {
                         }
 
                         let mut remove_event = false;
-                        if let Some(handler) = handlers.get_mut(tag[0]) {
+                        if let Some(handler) = tagname_handlers.get_mut(tag[0]) {
                             // tag_index[0]: position
                             // tag_index[1]: channel
                             let mut tag_index: [u32; 2] = [0; 2];
@@ -542,7 +549,34 @@ impl Botnana {
                         }
                         // 假如都沒有 handle 就將此事件刪除
                         if remove_event {
-                            handlers.remove(event);
+                            tagname_handlers.remove(tag[0]);
+                        }
+
+                        remove_event = false;
+                        if let Some(handler) = tag_handlers.get_mut(event) {
+                            // 轉換字串型態
+                            let mut msg = String::from(e).into_bytes();
+                            msg.push(0);
+                            let msg = CStr::from_bytes_with_nul(msg.as_slice())
+                                .expect("toCstr")
+                                .as_ptr();
+                            // 執行對應的 callback function
+                            // 使用 rev() 是為了 handler.remove，從後面刪除才不會影響 i 對應 vec 內的成員
+                            for i in (0..handler.len()).rev() {
+                                (handler[i].callback)(handler[i].pointer, msg);
+
+                                if handler[i].count > 0 {
+                                    handler[i].count -= 1;
+                                    if handler[i].count == 0 {
+                                        handler.remove(i);
+                                    }
+                                }
+                            }
+                            remove_event = handler.len() == 0;
+                        }
+                        // 假如都沒有 handle 就將此事件刪除
+                        if remove_event {
+                            tag_handlers.remove(event);
                         }
                         next_tag = true;
                     }
@@ -552,16 +586,47 @@ impl Botnana {
         self.data_pool_forth();
     }
 
-    /// times
-    /// `event` is event name
+    /// Set callback for tag
+    /// `tag` is tag
     /// `count` is handler called times
+    /// `pointer` is user data pointer
     /// `handler` is user function
-    pub fn times<F>(&mut self, event: &'static str, count: u32, pointer: *mut c_void, cb: F)
-    where
+    pub fn set_tag_callback<F>(
+        &mut self,
+        tag: &'static str,
+        count: u32,
+        pointer: *mut c_void,
+        cb: F,
+    ) where
+        F: Fn(*mut c_void, *const c_char) + Send + 'static,
+    {
+        let mut tag_handlers = self.tag_handlers.lock().unwrap();
+        let handler = tag_handlers.entry(tag.to_owned()).or_insert(Vec::new());
+        handler.push(CallbackHandler {
+            count: count,
+            pointer: pointer,
+            callback: Box::new(cb),
+        });
+    }
+
+    /// Set callback for name of tag
+    /// `name` is name of tag
+    /// `count` is handler called times
+    /// `pointer` is user data pointer
+    /// `handler` is user function
+    pub fn set_tagname_callback<F>(
+        &mut self,
+        name: &'static str,
+        count: u32,
+        pointer: *mut c_void,
+        cb: F,
+    ) where
         F: Fn(*mut c_void, u32, u32, *const c_char) + Send + 'static,
     {
-        let mut handlers = self.handlers.lock().unwrap();
-        let handler = handlers.entry(event.to_owned()).or_insert(Vec::new());
+        let mut tagname_handlers = self.tagname_handlers.lock().unwrap();
+        let handler = tagname_handlers
+            .entry(name.to_owned())
+            .or_insert(Vec::new());
         handler.push(TagCallbackHandler {
             count: count,
             pointer: pointer,
@@ -623,6 +688,7 @@ impl Botnana {
         F: Fn(*mut c_void, *const c_char) + Send + 'static,
     {
         *self.on_send_cb.lock().unwrap() = Some(CallbackHandler {
+            count: 0,
             pointer: pointer,
             callback: Box::new(cb),
         });
@@ -633,6 +699,7 @@ impl Botnana {
         F: Fn(*mut c_void, *const c_char) + Send + 'static,
     {
         *self.on_message_cb.lock().unwrap() = Some(CallbackHandler {
+            count: 0,
             pointer: pointer,
             callback: Box::new(cb),
         });

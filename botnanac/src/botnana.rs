@@ -96,7 +96,7 @@ pub extern "C" fn botnana_send_message(botnana: Box<Botnana>, msg: *const c_char
     unsafe { (*s).send_message(message) };
 }
 
-/// attach function to event
+/// attach function to tag
 /// `count` = 0 : always call function if event is posted
 #[no_mangle]
 pub extern "C" fn botnana_set_tag_cb(
@@ -104,14 +104,34 @@ pub extern "C" fn botnana_set_tag_cb(
     tag: *const c_char,
     count: u32,
     pointer: *mut c_void,
-    cb: fn(*mut c_void, u32, u32, *const c_char),
+    cb: fn(*mut c_void, *const c_char),
 ) -> i32 {
     if tag.is_null() {
         -1
     } else {
         let tag = unsafe { CStr::from_ptr(tag).to_str().unwrap() };
         let s = Box::into_raw(botnana);
-        unsafe { (*s).times(&tag, count, pointer, cb) };
+        unsafe { (*s).set_tag_callback(&tag, count, pointer, cb) };
+        0
+    }
+}
+
+/// attach function to name of tag
+/// `count` = 0 : always call function if event is posted
+#[no_mangle]
+pub extern "C" fn botnana_set_tagname_cb(
+    botnana: Box<Botnana>,
+    name: *const c_char,
+    count: u32,
+    pointer: *mut c_void,
+    cb: fn(*mut c_void, u32, u32, *const c_char),
+) -> i32 {
+    if name.is_null() {
+        -1
+    } else {
+        let name = unsafe { CStr::from_ptr(name).to_str().unwrap() };
+        let s = Box::into_raw(botnana);
+        unsafe { (*s).set_tagname_callback(&name, count, pointer, cb) };
         0
     }
 }

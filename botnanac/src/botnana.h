@@ -78,7 +78,20 @@ int32_t botnana_set_tag_cb (struct Botnana * desc,
                             const char * tag,
                             uint32_t count,
                             void * ptr,
-                            void (* cb)(void * ptr, uint32_t position, uint32_t channel, const char * str));
+                            void (* cb)(void * ptr, const char * str));
+
+
+// Set tag callback function
+// desc  : motion server descriptor
+// tag   : tag
+// count : called times, 0 as always
+// cb    : handle corresponding valve function
+int32_t botnana_set_tagname_cb (struct Botnana * desc,
+                                const char * tag,
+                                uint32_t count,
+                                void * ptr,
+                                void (* cb)(void * ptr, uint32_t position, uint32_t channel, const char * str));
+
 
 // Set on_message callback function
 // desc: motion server descriptor

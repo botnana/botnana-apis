@@ -5,14 +5,14 @@ fmt:
 	cargo fmt
 	astyle --style=allman -r *.c *.h
 
-i686: fmt
+i686:
 	cargo build --release --target=i686-unknown-linux-gnu
 	mkdir -p lib
 	rm -rf lib/libbotnana.*
 	cp target/i686-unknown-linux-gnu/release/libbotnana.so ./lib/libbotnana.so
 	cp target/i686-unknown-linux-gnu/release/libbotnana.a ./lib/libbotnana.a
 
-x86_64: fmt
+x86_64:
 	cargo build --release --target=x86_64-unknown-linux-gnu
 	mkdir -p lib
 	rm -rf lib/libbotnana_x86_64.*
@@ -20,7 +20,7 @@ x86_64: fmt
 	cp target/x86_64-unknown-linux-gnu/release/libbotnana.a ./lib/libbotnana_x86_64.a
 
 	
-arm: fmt
+arm:
 	cargo build --release --target=armv7-unknown-linux-gnueabihf
 	mkdir -p lib
 	rm -rf lib/libbotnana_armv7.*
