@@ -51,7 +51,12 @@ class BotnanaLib
 	  // 設定 WebSocket 收到指定標籤名稱的 Callback function
 	  // @ pointer  : cb 呼叫時要回傳的指標
 	  // @ cb       : Callback function
-	  void SetTagCB(const char *tag, int count, void * pointer, TagHandleMessage cb);
+	  void SetTagCB(const char *tag, int count, void * pointer, HandleMessage cb);
+
+	  // 設定 WebSocket 收到指定標籤名稱的 Callback function
+	  // @ pointer  : cb 呼叫時要回傳的指標
+	  // @ cb       : Callback function
+	  void SetTagNameCB(const char *tag, int count, void * pointer, TagNameHandleMessage cb);
 
 	  // 送出 rtForth 指令 (立即執行)
 	  // @ str: rtForth 指令

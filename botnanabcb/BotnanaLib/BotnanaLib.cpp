@@ -57,9 +57,14 @@ void BotnanaLib::SetOnSendCB(void * pointer, HandleMessage cb)
 	botnana_set_on_send_cb_dll(innerBotnana, pointer, cb);
 }
 
-void BotnanaLib::SetTagCB(const char *tag, int count, void * pointer,TagHandleMessage cb)
+void BotnanaLib::SetTagCB(const char *tag, int count, void * pointer, HandleMessage cb)
 {
 	botnana_set_tag_cb_dll(innerBotnana, tag, count, pointer, cb);
+}
+
+void BotnanaLib::SetTagNameCB(const char *tag, int count, void * pointer, TagNameHandleMessage cb)
+{
+	botnana_set_tagname_cb_dll(innerBotnana, tag, count, pointer, cb);
 }
 
 void BotnanaLib::EvaluateScript(const char *str)

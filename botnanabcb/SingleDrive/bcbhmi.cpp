@@ -28,19 +28,15 @@ void handle_message(void * ptr, const char * str){
 }
 
 // 拿到 real_posiiton 資料時的 callback function
-void real_position_cb(void * pointer, uint32_t position, uint32_t channel, const char * str){
-	if (position == 1 && channel == 1) {
-		TForm1 * form = (TForm1 *) pointer;
-		form->realPosition = AnsiString(str);
-	}
+void real_position_cb(void * pointer, const char * str){
+	TForm1 * form = (TForm1 *) pointer;
+	form->realPosition = AnsiString(str);
 }
 
 // 拿到 target_posiiton 資料時的 callback function
-void target_position_cb(void * pointer, uint32_t position, uint32_t channel, const char * str){
-	if (position == 1 && channel == 1) {
-		TForm1 * form = (TForm1 *) pointer;
-		form->targetPosition = AnsiString(str);
-	}
+void target_position_cb(void * pointer, const char * str){
+	TForm1 * form = (TForm1 *) pointer;
+	form->targetPosition = AnsiString(str);
 }
 
 // 拿到 status_word.1 資料時的 callback function
@@ -92,10 +88,10 @@ void __fastcall TForm1::FormCreate(TObject *Sender)
 	botnana.SetOnMessageCB((void *)this, handle_message);
 
 	// 設定接收到特定資料時的 callback function
-	botnana.SetTagCB("real_position", 0, (void *)this, real_position_cb);
-	botnana.SetTagCB("target_position", 0, (void *)this,target_position_cb);
-	botnana.SetTagCB("status_word", 0, (void *)this,status_word_cb);
-	botnana.SetTagCB("operation_mode", 0, (void *)this,operation_mode_cb);
+	botnana.SetTagCB("real_position.1.1", 0, (void *)this, real_position_cb);
+	botnana.SetTagCB("target_position.1.1", 0, (void *)this,target_position_cb);
+	botnana.SetTagNameCB("status_word", 0, (void *)this,status_word_cb);
+	botnana.SetTagNameCB("operation_mode", 0, (void *)this,operation_mode_cb);
 
 	// 連線
 	botnana.Connect();

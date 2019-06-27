@@ -110,8 +110,22 @@ extern "C" {
 		const char * tag,
 		int count,
 		void * pointer,
-		TagHandleMessage hm) {
+		HandleMessage hm) {
 		botnana_set_tag_cb(botnana, tag, count, pointer, hm);
+	}
+
+	// 設定接收到預設資訊時的 callback function
+	// @botnana: Botnana Control descriptor
+	// @name: name of tag
+	// @count: 最多可以呼叫此 callback function 的次數，設定 0 表示永遠都會呼叫此 callback function
+	// @pointer: callback function 執行時要回傳的指標
+	// @cb: 當收到 event 時要執行的 callback function
+	__declspec(dllexport) void botnana_set_tagname_cb_dll(struct Botnana *botnana,
+		const char *name,
+		int count,
+		void * pointer,
+		TagNameHandleMessage cb) {
+		botnana_set_tagname_cb(botnana, name, count, pointer, cb);
 	}
 
 	// 設定debug 時要接收訊息的 callback function

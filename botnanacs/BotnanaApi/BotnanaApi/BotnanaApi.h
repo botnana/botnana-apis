@@ -8,7 +8,7 @@ extern "C"
 	// @ str: 回傳的訊息
 	typedef void(*HandleMessage)(void * pointer, const char *str);
 
-	// 定義 tag callback function 的形態
+	// 定義 tag name callback function 的形態
 	// tag 會有以下 3 種型態
 	// tag_name     : position = 0, channel = 0
 	// tag_name.x   : position = x, channel = 0
@@ -17,7 +17,7 @@ extern "C"
 	// @ position   : 如果有此欄位 position > 0 
 	// @ channel    : 如果有此欄位 channel > 0
 	// @ str: 回傳的訊息
-	typedef void(*TagHandleMessage)(void * pointer, uint32_t position, uint32_t channel,  const char *str);
+	typedef void(*TagNameHandleMessage)(void * pointer, uint32_t position, uint32_t channel,  const char *str);
 
 	// Library version
 	__declspec(dllexport) const char * library_version_dll(void);
@@ -97,7 +97,19 @@ extern "C"
 		const char *tag,
 		int count,
 		void * pointer,
-		TagHandleMessage cb);
+		HandleMessage cb);
+
+	// 設定接收到預設資訊時的 callback function
+	// @botnana: Botnana Control descriptor
+	// @name: name of tag
+	// @count: 最多可以呼叫此 callback function 的次數，設定 0 表示永遠都會呼叫此 callback function
+	// @pointer: callback function 執行時要回傳的指標
+	// @cb: 當收到 event 時要執行的 callback function
+	__declspec(dllexport) void botnana_set_tagname_cb_dll(struct Botnana *botnana,
+		const char *name,
+		int count,
+		void * pointer,
+		TagNameHandleMessage cb);
 
 	// Set on_message callback function
 	// @botnana: Botnana Control descriptor
