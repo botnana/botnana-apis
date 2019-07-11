@@ -16,6 +16,14 @@ const WS_TIMEOUT_TOKEN: Token = Token(1);
 const WS_WATCHDOG_PERIOD_MS: u64 = 10_000;
 const VERSION: &'static str = env!("CARGO_PKG_VERSION");
 
+/// Callback Handler for tag
+struct CallbackHandler {
+    /// 執行次數
+    count: u32,
+    /// callback 函式指標
+    callback: Box<Fn(*const c_char) + Send>,
+}
+
 /// Botnana
 #[repr(C)]
 #[derive(Clone)]
@@ -24,19 +32,19 @@ pub struct Botnana {
     port: Arc<Mutex<u16>>,
     user_sender: Arc<Mutex<Option<mpsc::Sender<Message>>>>,
     ws_out: Arc<Mutex<Option<ws::Sender>>>,
-    handlers: Arc<Mutex<HashMap<String, Vec<Box<Fn(*const c_char) + Send>>>>>,
-    handler_counters: Arc<Mutex<HashMap<String, Vec<u32>>>>,
+    handlers: Arc<Mutex<HashMap<String, Vec<CallbackHandler>>>>,
     /// 用來存放 forth 命令的 buffer
     scripts_buffer: Arc<Mutex<VecDeque<String>>>,
     /// 在 polling thread裡，每次從 scripts buffer 裡拿出 scripts_pop_count 個暫存命令送出給 Botnana motion server
     scripts_pop_count: Arc<Mutex<u32>>,
     /// poll thread 啟動的時間
     poll_interval_ms: Arc<Mutex<u64>>,
+    is_connected: Arc<Mutex<bool>>,
     is_connecting: Arc<Mutex<bool>>,
-    on_open_cb: Arc<Mutex<Vec<Box<Fn(*const c_char) + Send>>>>,
-    on_error_cb: Arc<Mutex<Vec<Box<Fn(*const c_char) + Send>>>>,
-    on_send_cb: Arc<Mutex<Vec<Box<Fn(*const c_char) + Send>>>>,
-    on_message_cb: Arc<Mutex<Vec<Box<Fn(*const c_char) + Send>>>>,
+    on_open_cb: Arc<Mutex<Option<Box<Fn(*const c_char) + Send>>>>,
+    on_error_cb: Arc<Mutex<Option<Box<Fn(*const c_char) + Send>>>>,
+    on_send_cb: Arc<Mutex<Option<Box<Fn(*const c_char) + Send>>>>,
+    on_message_cb: Arc<Mutex<Option<Box<Fn(*const c_char) + Send>>>>,
 }
 
 impl Botnana {
@@ -48,15 +56,15 @@ impl Botnana {
             user_sender: Arc::new(Mutex::new(None)),
             ws_out: Arc::new(Mutex::new(None)),
             handlers: Arc::new(Mutex::new(HashMap::new())),
-            handler_counters: Arc::new(Mutex::new(HashMap::new())),
             scripts_buffer: Arc::new(Mutex::new(VecDeque::with_capacity(1024))),
             scripts_pop_count: Arc::new(Mutex::new(8)),
             poll_interval_ms: Arc::new(Mutex::new(10)),
+            is_connected: Arc::new(Mutex::new(false)),
             is_connecting: Arc::new(Mutex::new(false)),
-            on_open_cb: Arc::new(Mutex::new(Vec::with_capacity(1))),
-            on_error_cb: Arc::new(Mutex::new(Vec::with_capacity(1))),
-            on_send_cb: Arc::new(Mutex::new(Vec::with_capacity(1))),
-            on_message_cb: Arc::new(Mutex::new(Vec::with_capacity(1))),
+            on_open_cb: Arc::new(Mutex::new(None)),
+            on_error_cb: Arc::new(Mutex::new(None)),
+            on_send_cb: Arc::new(Mutex::new(None)),
+            on_message_cb: Arc::new(Mutex::new(None)),
         }
     }
 
@@ -94,28 +102,25 @@ impl Botnana {
         "ws://".to_owned() + self.ip().as_str() + ":" + &self.port().to_string()
     }
 
+    /// Is connected ?
+    pub fn is_connected(&self) -> bool {
+        *self.is_connected.lock().expect("")
+    }
+
     /// Set on_open callback
-    pub fn set_on_open_cb<F>(&mut self, handler: F)
+    pub fn set_on_open_cb<F>(&mut self, cb: F)
     where
         F: Fn(*const c_char) + Send + 'static,
     {
-        let mut cb = self.on_open_cb.lock().expect("set_on_open_cb");
-        // 移除原來的, 如果原本是空的會回傳 Error
-        let _output = cb.pop();
-        // 放入新的 callback function
-        cb.push(Box::new(handler));
+        *self.on_open_cb.lock().expect("set_on_open_cb") = Some(Box::new(cb));
     }
 
     /// Set on_error callback
-    pub fn set_on_error_cb<F>(&mut self, handler: F)
+    pub fn set_on_error_cb<F>(&mut self, cb: F)
     where
         F: Fn(*const c_char) + Send + 'static,
     {
-        let mut cb = self.on_error_cb.lock().expect("set_on_error_cb");
-        // 移除原來的, 如果原本是空的會回傳 Error
-        let _output = cb.pop();
-        // 放入新的 callback function
-        cb.push(Box::new(handler));
+        *self.on_error_cb.lock().expect("set_on_error_cb") = Some(Box::new(cb));
     }
 
     /// Connect to botnana
@@ -160,7 +165,8 @@ impl Botnana {
                                 is_watchdog_refreshed: false,
                             });
                             // 直到 WS Client Event loop 結束， 才會執行以下程式。
-                            *bna.is_connecting.lock().expect("Exit WS Event Loop") = false;
+                            *self.is_connecting.lock().expect("Exit WS Event Loop") = false;
+                            *self.is_connected.lock().expect("Exit WS Event Loop") = false;
                             *bna.user_sender.lock().expect("Exit WS Event Loop") = None;
                             *bna.ws_out.lock().expect("Exit WS Event Loop") = None;
                             bna.scripts_buffer
@@ -250,6 +256,7 @@ impl Botnana {
                     {
                         botnana.execute_on_error_cb(&format!("Can't create POLL thread ({})\n", e));
                     }
+                    *botnana.is_connected.lock().expect("Exit WS Event Loop") = true;
                     // 建制成功後呼叫 on_open callback
                     botnana.execute_on_open_cb();
                 }
@@ -267,18 +274,7 @@ impl Botnana {
     /// Send message to mpsc channel
     pub fn send_message(&mut self, msg: &str) {
         if self.has_ws_sender() {
-            {
-                let cb = self.on_send_cb.lock().unwrap();
-                if cb.len() > 0 && msg.len() > 0 {
-                    let mut temp_msg = String::from(msg).into_bytes();
-                    temp_msg.push(0);
-                    let msg = CStr::from_bytes_with_nul(temp_msg.as_slice())
-                        .expect("toCstr")
-                        .as_ptr();
-
-                    cb[0](msg);
-                }
-            }
+            self.execute_on_send_cb(msg);
             let mut error_info = Ok(());
             if let Some(ref sender) = *self.user_sender.lock().expect("send message") {
                 error_info = sender.send(Message::Text(msg.to_string()));
@@ -298,6 +294,7 @@ impl Botnana {
                     .to_owned()
                     + &x.to_string()
                     + r#"}}"#;
+                self.execute_on_send_cb(&msg);
                 if let Some(ref sender) = *self.user_sender.lock().expect("evaluate") {
                     sender
                         .send(Message::Text(msg.to_string()))
@@ -372,75 +369,60 @@ impl Botnana {
 
     /// Handle message
     fn handle_message(&mut self, message: &str) {
-        let cb = self.on_message_cb.lock().unwrap();
-        if cb.len() > 0 && message.len() > 0 {
-            let mut temp_msg = String::from(message).into_bytes();
-            // 如果不是換行結束的,補上換行符號,如果沒有在 C 的輸出有問題
-            if temp_msg[temp_msg.len() - 1] != 10 {
-                temp_msg.push(10);
+        if message.len() > 0 {
+            if let Some(ref cb) = *self.on_message_cb.lock().unwrap() {
+                let mut temp_msg = String::from(message).into_bytes();
+                // 如果不是換行結束的,補上換行符號,如果沒有在 C 的輸出有問題
+                if temp_msg[temp_msg.len() - 1] != 10 {
+                    temp_msg.push(10);
+                }
+                temp_msg.push(0);
+                let msg = CStr::from_bytes_with_nul(temp_msg.as_slice())
+                    .expect("toCstr")
+                    .as_ptr();
+                cb(msg);
             }
-            temp_msg.push(0);
-            let msg = CStr::from_bytes_with_nul(temp_msg.as_slice())
-                .expect("toCstr")
-                .as_ptr();
-            cb[0](msg);
         }
 
         let lines: Vec<&str> = message.split("\n").collect();
         let mut handlers = self.handlers.lock().expect("self.handlers.lock()");
-        let mut handler_counters = self
-            .handler_counters
-            .lock()
-            .expect("self.handler_counters.lock()");
-
         for line in lines {
-            let mut r: Vec<&str> = line.split("|").collect();
-            let mut index = 0;
+            let r: Vec<&str> = line.split("|").collect();
+            let mut next_tag = true;
             let mut event = "";
             for e in r {
-                if index % 2 == 0 {
+                if next_tag {
                     event = e.trim_start();
+                    next_tag = false;
                 } else {
-                    let mut remove_list = Vec::new();
-                    let mut counter_exist = false;
+                    let mut remove_event = false;
+                    if let Some(handler) = handlers.get_mut(event) {
+                        // 轉換字串型態
+                        let mut msg = String::from(e).into_bytes();
+                        msg.push(0);
+                        let msg = CStr::from_bytes_with_nul(msg.as_slice())
+                            .expect("toCstr")
+                            .as_ptr();
 
-                    match handlers.get(event) {
-                        Some(handle) => {
-                            counter_exist = true;
-                            let counter = handler_counters.get_mut(event).unwrap();
-
-                            let mut idx = 0;
-                            for h in handle {
-                                let mut msg = String::from(e).into_bytes();
-                                msg.push(0);
-                                let msg = CStr::from_bytes_with_nul(msg.as_slice())
-                                    .expect("toCstr")
-                                    .as_ptr();
-
-                                h(msg);
-                                if counter[idx] > 0 {
-                                    counter[idx] -= 1;
-                                    if counter[idx] == 0 {
-                                        remove_list.push(idx);
-                                    }
+                        // 執行對應的 callback function
+                        // 使用 rev() 是為了 handler.remove，從後面刪除才不會影響 i 對應 vec 內的成員
+                        for i in (0..handler.len()).rev() {
+                            (handler[i].callback)(msg);
+                            if handler[i].count > 0 {
+                                handler[i].count -= 1;
+                                if handler[i].count == 0 {
+                                    handler.remove(i);
                                 }
-                                idx += 1;
                             }
                         }
-                        None => {}
-                    };
-
-                    if counter_exist {
-                        let counter = handler_counters.get_mut(event).unwrap();
-                        let handler = handlers.get_mut(event).unwrap();
-
-                        for i in &remove_list {
-                            handler.remove(*i);
-                            counter.remove(*i);
-                        }
+                        remove_event = handler.len() == 0;
                     }
+                    // 假如都沒有 handle 就將此事件刪除
+                    if remove_event {
+                        handlers.remove(event);
+                    }
+                    next_tag = true;
                 }
-                index += 1;
             }
         }
     }
@@ -449,17 +431,16 @@ impl Botnana {
     /// `event` is event name
     /// `count` is handler called times
     /// `handler` is user function
-    pub fn times<F>(&mut self, event: &'static str, count: u32, handler: F)
+    pub fn times<F>(&mut self, event: &'static str, count: u32, cb: F)
     where
         F: Fn(*const c_char) + Send + 'static,
     {
-        let event = event.to_string();
         let mut handlers = self.handlers.lock().unwrap();
-        let mut handler_counters = self.handler_counters.lock().unwrap();
-        let h = handlers.entry(event.clone()).or_insert(Vec::new());
-        let hc = handler_counters.entry(event).or_insert(Vec::new());
-        h.push(Box::new(handler));
-        hc.push(count);
+        let handler = handlers.entry(event.to_owned()).or_insert(Vec::new());
+        handler.push(CallbackHandler {
+            count: count,
+            callback: Box::new(cb),
+        });
     }
 
     /// Has WS sender ?
@@ -469,58 +450,60 @@ impl Botnana {
 
     /// Execute on_error callback
     fn execute_on_error_cb(&mut self, msg: &str) {
+        *self.is_connecting.lock().expect("execute_on_error_cb") = false;
+        *self.is_connected.lock().expect("execute_on_error_cb") = false;
         *self.user_sender.lock().expect("execute_on_error_cb") = None;
         *self.ws_out.lock().expect("execute_on_error_cb") = None;
         self.scripts_buffer
             .lock()
             .expect("execute_on_error_cb")
             .clear();
-        let cb = self.on_error_cb.lock().expect("execute_on_error_cb");
-        if cb.len() > 0 {
+        if let Some(ref cb) = *self.on_error_cb.lock().expect("execute_on_error_cb") {
             let mut temp_msg = String::from(msg).into_bytes();
             temp_msg.push(0);
             let msg = CStr::from_bytes_with_nul(temp_msg.as_slice())
                 .expect("toCstr")
                 .as_ptr();
-
-            cb[0](msg);
+            cb(msg);
         }
     }
 
     /// Execute on_open callback
     fn execute_on_open_cb(&self) {
-        let cb = self.on_open_cb.lock().expect("execute_on_open_cb");
-        if cb.len() > 0 {
+        if let Some(ref cb) = *self.on_open_cb.lock().expect("execute_on_open_cb") {
             let mut temp_msg = String::from("Connect to ".to_owned() + &self.url()).into_bytes();
             temp_msg.push(0);
             let msg = CStr::from_bytes_with_nul(temp_msg.as_slice())
                 .expect("toCstr")
                 .as_ptr();
-
-            cb[0](msg);
+            cb(msg);
         }
     }
 
-    pub fn set_on_send_cb<F>(&mut self, handler: F)
-    where
-        F: Fn(*const c_char) + Send + 'static,
-    {
-        let mut cb = self.on_send_cb.lock().unwrap();
-        // 移除原來的, 如果原本是空的會回傳 Error
-        let _output = cb.pop();
-        // 放入新的 callback function
-        cb.push(Box::new(handler));
+    /// Execute on_send callback
+    fn execute_on_send_cb(&mut self, msg: &str) {
+        if let Some(ref cb) = *self.on_send_cb.lock().expect("execute_on_send_cb") {
+            let mut temp_msg = String::from(msg).into_bytes();
+            temp_msg.push(0);
+            let msg = CStr::from_bytes_with_nul(temp_msg.as_slice())
+                .expect("toCstr")
+                .as_ptr();
+            cb(msg);
+        }
     }
 
-    pub fn set_on_message_cb<F>(&mut self, handler: F)
+    pub fn set_on_send_cb<F>(&mut self, cb: F)
     where
         F: Fn(*const c_char) + Send + 'static,
     {
-        let mut cb = self.on_message_cb.lock().unwrap();
-        // 移除原來的, 如果原本是空的會回傳 Error
-        let _output = cb.pop();
-        // 放入新的 callback function
-        cb.push(Box::new(handler));
+        *self.on_send_cb.lock().unwrap() = Some(Box::new(cb));
+    }
+
+    pub fn set_on_message_cb<F>(&mut self, cb: F)
+    where
+        F: Fn(*const c_char) + Send + 'static,
+    {
+        *self.on_message_cb.lock().unwrap() = Some(Box::new(cb));
     }
 
     /// Abort porgram
@@ -556,21 +539,20 @@ struct Client {
     ws_out: ws::Sender,
     sender: mpsc::Sender<String>,
     thread_tx: mpsc::Sender<ws::Sender>,
-    on_error_cb: Arc<Mutex<Vec<Box<Fn(*const c_char) + Send>>>>,
+    on_error_cb: Arc<Mutex<Option<Box<Fn(*const c_char) + Send>>>>,
     is_watchdog_refreshed: bool,
 }
 
 impl Client {
     /// Execute on_error callback
     fn execute_on_error_cb(&self, msg: &str) {
-        let cb = self.on_error_cb.lock().expect("execute_on_error_cb");
-        if cb.len() > 0 {
+        if let Some(ref cb) = *self.on_error_cb.lock().expect("execute_on_error_cb") {
             let mut temp_msg = String::from(msg).into_bytes();
             temp_msg.push(0);
             let msg = CStr::from_bytes_with_nul(temp_msg.as_slice())
                 .expect("toCstr")
                 .as_ptr();
-            cb[0](msg);
+            cb(msg);
         }
     }
 }
