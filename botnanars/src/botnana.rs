@@ -220,6 +220,8 @@ impl Botnana {
                                 .lock()
                                 .expect("Exit WS Event Loop")
                                 .clear();
+                            *bna.is_connecting.lock().expect("Exit WS Event Loop") = false;
+                            *bna.is_connected.lock().expect("Exit WS Event Loop") = false;
                         })
                 {
                     botnana
