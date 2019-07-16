@@ -20,18 +20,19 @@ namespace PositionComparsionPanaA6B
         private Botnana bot;
 
         private HandleMessage onWSError;
-        public void OnWSErrorCallback(string data)
+        public void OnWSErrorCallback(IntPtr dataPtr, string data)
         {
             new Thread(() => System.Windows.Forms.MessageBox.Show("WS error : " + data)).Start();
         }
 
         private int messageCount = 0;
         private HandleMessage onMessage;
-        public void OnMessageCallback(string data)
+        public void OnMessageCallback(IntPtr dataPtr, string data)
         {
             //MessageBox.Show("On message : " + data);
             messageCount++;
-            if (messageCount > 256) {
+            if (messageCount > 256)
+            {
                 messageCount = 0;
             }
         }
@@ -40,7 +41,7 @@ namespace PositionComparsionPanaA6B
         // 取得 userParameter
         private bool has_updated = false;
         private HandleMessage onUserParameter;
-        private void OnUserParameterCallback(string str)
+        private void OnUserParameterCallback(IntPtr dataPtr, string str)
         {
             int para = Int32.Parse(str);
             switch (para)
@@ -63,19 +64,19 @@ namespace PositionComparsionPanaA6B
                 default:
                     break;
             }
-            
+
         }
 
 
         // 收到 error 的處置
         private HandleMessage onError;
-        private void OnErrorCallback(string str)
+        private void OnErrorCallback(IntPtr dataPtr, string str)
         {
             new Thread(() => System.Windows.Forms.MessageBox.Show("error|" + str)).Start();
         }
 
         private HandleMessage onPr3411;
-        private void OnPr3411Callback(string str)
+        private void OnPr3411Callback(IntPtr dataPtr, string str)
         {
             UInt32 number;
             if (UInt32.TryParse(str, out number))
@@ -89,153 +90,154 @@ namespace PositionComparsionPanaA6B
         }
 
         private HandleMessage onPr3444;
-        private void OnPr3444Callback(string str)
+        private void OnPr3444Callback(IntPtr dataPtr, string str)
         {
             textPr3444.Text = str;
         }
 
         private HandleMessage onPr3445;
-        private void OnPr3445Callback(string str)
+        private void OnPr3445Callback(IntPtr dataPtr, string str)
         {
             textPr3445.Text = str;
         }
 
         private HandleMessage onPr3447;
-        private void OnPr3447Callback(string str)
+        private void OnPr3447Callback(IntPtr dataPtr, string str)
         {
             textPr3447.Text = str;
         }
 
         private HandleMessage onPr3448;
-        private void OnPr3448Callback(string str)
+        private void OnPr3448Callback(IntPtr dataPtr, string str)
         {
             textPr3448.Text = str;
         }
 
         private HandleMessage onPr3449;
-        private void OnPr3449Callback(string str)
+        private void OnPr3449Callback(IntPtr dataPtr, string str)
         {
             textPr3449.Text = str;
         }
 
         private HandleMessage onPr3450;
-        private void OnPr3450Callback(string str)
+        private void OnPr3450Callback(IntPtr dataPtr, string str)
         {
             textPr3450.Text = str;
         }
 
         private HandleMessage onPr3451;
-        private void OnPr3451Callback(string str)
+        private void OnPr3451Callback(IntPtr dataPtr, string str)
         {
             textPr3451.Text = str;
         }
 
         private HandleMessage onPr3452;
-        private void OnPr3452Callback(string str)
+        private void OnPr3452Callback(IntPtr dataPtr, string str)
         {
             textPr3452.Text = str;
         }
 
         private HandleMessage onPr3453;
-        private void OnPr3453Callback(string str)
+        private void OnPr3453Callback(IntPtr dataPtr, string str)
         {
             textPr3453.Text = str;
         }
 
         private HandleMessage onPr3454;
-        private void OnPr3454Callback(string str)
+        private void OnPr3454Callback(IntPtr dataPtr, string str)
         {
             textPr3454.Text = str;
         }
 
         private HandleMessage onPr3455;
-        private void OnPr3455Callback(string str)
+        private void OnPr3455Callback(IntPtr dataPtr, string str)
         {
             textPr3455.Text = str;
         }
 
         private HandleMessage onPr3456;
-        private void OnPr3456Callback(string str)
+        private void OnPr3456Callback(IntPtr dataPtr, string str)
         {
             textPr3456.Text = str;
         }
 
         private HandleMessage onPr3457;
-        private void OnPr3457Callback(string str)
+        private void OnPr3457Callback(IntPtr dataPtr, string str)
         {
             UInt32 number;
             if (UInt32.TryParse(str, out number))
             {
                 textPr3457.Text = number.ToString("X8");
-            } else
+            }
+            else
             {
                 textPr3457.Text = str;
             }
         }
 
         private HandleMessage onRealPosition;
-        private void OnRealPositionCallback(string str)
+        private void OnRealPositionCallback(IntPtr dataPtr, string str)
         {
             textRealPosition.Text = str;
         }
 
         private HandleMessage onTargetPosition;
-        private void OnTargetPositionCallback(string str)
+        private void OnTargetPositionCallback(IntPtr dataPtr, string str)
         {
             textTargetPosition.Text = str;
         }
 
         private HandleMessage onPDSState;
-        private void OnPDSStateCallback(string str)
+        private void OnPDSStateCallback(IntPtr dataPtr, string str)
         {
             textPDSState.Text = str;
         }
 
         private HandleMessage onOperationMode;
-        private void OnOperationModeCallback(string str)
+        private void OnOperationModeCallback(IntPtr dataPtr, string str)
         {
             textOperationMode.Text = str;
         }
 
         private HandleMessage onHomingMethod;
-        private void OnHomingMethodCallback(string str)
+        private void OnHomingMethodCallback(IntPtr dataPtr, string str)
         {
             textHomingMethod.Text = str;
         }
 
         private HandleMessage onHomingSpeed2;
-        private void OnHomingSpeed2Callback(string str)
+        private void OnHomingSpeed2Callback(IntPtr dataPtr, string str)
         {
             textHomingSpeed2.Text = str;
         }
 
         private HandleMessage onProfileVelocity;
-        private void OnProfileVelocityCallback(string str)
+        private void OnProfileVelocityCallback(IntPtr dataPtr, string str)
         {
             textProfileVelocity.Text = str;
         }
 
         private HandleMessage onProfileAcc;
-        private void OnProfileAccCallback(string str)
+        private void OnProfileAccCallback(IntPtr dataPtr, string str)
         {
             textProfileAcc.Text = str;
         }
-               
+
         private int slavesResponding = 0;
         private HandleMessage onSlavesResponding;
-        private void OnSlavesRespondingCallback(string str)
+        private void OnSlavesRespondingCallback(IntPtr dataPtr, string str)
         {
             slavesResponding = int.Parse(str);
             textSlavesResponding.Text = str;
         }
 
         private HandleMessage onWaitingSDOs;
-        private void OnWaitingSDOsCallback(string str)
+        private void OnWaitingSDOsCallback(IntPtr dataPtr, string str)
         {
             textWaitingSDOs.Text = str;
         }
 
-       
+
         public Form1()
         {
             InitializeComponent();
@@ -245,81 +247,81 @@ namespace PositionComparsionPanaA6B
         {
             Process thisProc = Process.GetCurrentProcess();
             thisProc.PriorityClass = ProcessPriorityClass.RealTime;
-            
+
             bot = new Botnana("192.168.7.2");
-            
+
             onWSError = new HandleMessage(OnWSErrorCallback);
-            bot.SetOnErrorCB(onWSError);
-                       
+            bot.SetOnErrorCB(IntPtr.Zero, onWSError);
+
             onMessage = new HandleMessage(OnMessageCallback);
-            bot.SetOnMessageCB(onMessage);
+            bot.SetOnMessageCB(IntPtr.Zero, onMessage);
 
             onUserParameter = new HandleMessage(OnUserParameterCallback);
-            bot.SetTagCB($"user_parameter", 0, onUserParameter);
+            bot.SetTagCB($"user_parameter", 0, IntPtr.Zero, onUserParameter);
 
             onError = new HandleMessage(OnErrorCallback);
-            bot.SetTagCB("error", 0, onError);
+            bot.SetTagCB("error", 0, IntPtr.Zero, onError);
             onPr3411 = new HandleMessage(OnPr3411Callback);
-            bot.SetTagCB("pr3411 ", 0, onPr3411);
+            bot.SetTagCB("pr3411 ", 0, IntPtr.Zero, onPr3411);
             onPr3444 = new HandleMessage(OnPr3444Callback);
-            bot.SetTagCB("pr3444 ", 0, onPr3444);
+            bot.SetTagCB("pr3444 ", 0, IntPtr.Zero, onPr3444);
             onPr3445 = new HandleMessage(OnPr3445Callback);
-            bot.SetTagCB("pr3445 ", 0, onPr3445);
+            bot.SetTagCB("pr3445 ", 0, IntPtr.Zero, onPr3445);
             onPr3447 = new HandleMessage(OnPr3447Callback);
-            bot.SetTagCB("pr3447 ", 0, onPr3447);
+            bot.SetTagCB("pr3447 ", 0, IntPtr.Zero, onPr3447);
             onPr3448 = new HandleMessage(OnPr3448Callback);
-            bot.SetTagCB("pr3448 ", 0, onPr3448);
+            bot.SetTagCB("pr3448 ", 0, IntPtr.Zero, onPr3448);
             onPr3449 = new HandleMessage(OnPr3449Callback);
-            bot.SetTagCB("pr3449 ", 0, onPr3449);
+            bot.SetTagCB("pr3449 ", 0, IntPtr.Zero, onPr3449);
             onPr3450 = new HandleMessage(OnPr3450Callback);
-            bot.SetTagCB("pr3450 ", 0, onPr3450);
+            bot.SetTagCB("pr3450 ", 0, IntPtr.Zero, onPr3450);
             onPr3451 = new HandleMessage(OnPr3451Callback);
-            bot.SetTagCB("pr3451 ", 0, onPr3451);
+            bot.SetTagCB("pr3451 ", 0, IntPtr.Zero, onPr3451);
             onPr3452 = new HandleMessage(OnPr3452Callback);
-            bot.SetTagCB("pr3452 ", 0, onPr3452);
+            bot.SetTagCB("pr3452 ", 0, IntPtr.Zero, onPr3452);
             onPr3453 = new HandleMessage(OnPr3453Callback);
-            bot.SetTagCB("pr3453 ", 0, onPr3453);
+            bot.SetTagCB("pr3453 ", 0, IntPtr.Zero, onPr3453);
             onPr3454 = new HandleMessage(OnPr3454Callback);
-            bot.SetTagCB("pr3454 ", 0, onPr3454);
+            bot.SetTagCB("pr3454 ", 0, IntPtr.Zero, onPr3454);
             onPr3455 = new HandleMessage(OnPr3455Callback);
-            bot.SetTagCB("pr3455 ", 0, onPr3455);
+            bot.SetTagCB("pr3455 ", 0, IntPtr.Zero, onPr3455);
             onPr3456 = new HandleMessage(OnPr3456Callback);
-            bot.SetTagCB("pr3456 ", 0, onPr3456);
+            bot.SetTagCB("pr3456 ", 0, IntPtr.Zero, onPr3456);
             onPr3457 = new HandleMessage(OnPr3457Callback);
-            bot.SetTagCB("pr3457 ", 0, onPr3457);
+            bot.SetTagCB("pr3457 ", 0, IntPtr.Zero, onPr3457);
 
             onSlavesResponding = new HandleMessage(OnSlavesRespondingCallback);
-            bot.SetTagCB($"slaves_responding", 0, onSlavesResponding);
+            bot.SetTagCB($"slaves_responding", 0, IntPtr.Zero, onSlavesResponding);
 
             onWaitingSDOs = new HandleMessage(OnWaitingSDOsCallback);
-            bot.SetTagCB($"waiting_sdos_len", 0, onWaitingSDOs);
-            
+            bot.SetTagCB($"waiting_sdos_len", 0, IntPtr.Zero, onWaitingSDOs);
+
             onOperationMode = new HandleMessage(OnOperationModeCallback);
-            bot.SetTagCB($"operation_mode.1.1", 0, onOperationMode);
+            bot.SetTagCB($"operation_mode.1.1", 0, IntPtr.Zero, onOperationMode);
 
             onHomingMethod = new HandleMessage(OnHomingMethodCallback);
-            bot.SetTagCB($"homing_method.1.1", 0, onHomingMethod);
+            bot.SetTagCB($"homing_method.1.1", 0, IntPtr.Zero, onHomingMethod);
 
             onHomingSpeed2 = new HandleMessage(OnHomingSpeed2Callback);
-            bot.SetTagCB($"homing_speed_2.1.1", 0, onHomingSpeed2);
+            bot.SetTagCB($"homing_speed_2.1.1", 0, IntPtr.Zero, onHomingSpeed2);
 
             onProfileVelocity = new HandleMessage(OnProfileVelocityCallback);
-            bot.SetTagCB($"profile_velocity.1.1", 0, onProfileVelocity);
+            bot.SetTagCB($"profile_velocity.1.1", 0, IntPtr.Zero, onProfileVelocity);
 
             onProfileAcc = new HandleMessage(OnProfileAccCallback);
-            bot.SetTagCB($"profile_acceleration.1.1", 0, onProfileAcc);
+            bot.SetTagCB($"profile_acceleration.1.1", 0, IntPtr.Zero, onProfileAcc);
 
             onRealPosition = new HandleMessage(OnRealPositionCallback);
-            bot.SetTagCB($"real_position.1.1", 0, onRealPosition);
+            bot.SetTagCB($"real_position.1.1", 0, IntPtr.Zero, onRealPosition);
 
             onTargetPosition = new HandleMessage(OnTargetPositionCallback);
-            bot.SetTagCB($"target_position.1.1", 0, onTargetPosition);
+            bot.SetTagCB($"target_position.1.1", 0, IntPtr.Zero, onTargetPosition);
 
             onPDSState = new HandleMessage(OnPDSStateCallback);
-            bot.SetTagCB($"pds_state.1.1", 0, onPDSState);
+            bot.SetTagCB($"pds_state.1.1", 0, IntPtr.Zero, onPDSState);
 
             bot.Connect();
-            
+
             timer1.Interval = 50;
             timer1.Enabled = true;
             timer2.Interval = 200;
@@ -335,7 +337,8 @@ namespace PositionComparsionPanaA6B
                 if (has_slave_info)
                 {
                     bot.EvaluateScript("1 .slave-diff");
-                } else
+                }
+                else
                 {
                     bot.EvaluateScript("1 .slave");
                 }
@@ -445,16 +448,18 @@ namespace PositionComparsionPanaA6B
             {
                 UInt16 number;
                 if (UInt16.TryParse(textPr3444.Text, out number))
-                { 
+                {
                     if (number <= 32767)
                     {
                         old_pr3444 = textPr3444.Text;
                         bot.EvaluateScript(textPr3444.Text + $" 0 $3444 1 sdo-download-u16");
-                    } else
+                    }
+                    else
                     {
                         textPr3444.Text = old_pr3444;
-                    } 
-                } else
+                    }
+                }
+                else
                 {
                     textPr3444.Text = old_pr3444;
                 }
