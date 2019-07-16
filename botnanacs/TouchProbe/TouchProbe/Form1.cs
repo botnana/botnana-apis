@@ -16,93 +16,93 @@ namespace TouchProbe
     public partial class Form1 : Form
     {
 
-       private Botnana bot;
+        private Botnana bot;
 
-        private static HandleMessage on_ws_error_callback = new HandleMessage(on_ws_error_cb);
-        private static void on_ws_error_cb(string str)
+        private HandleMessage on_ws_error_callback;
+        private void on_ws_error_cb(IntPtr dataPtr, string str)
         {
             new Thread(() => System.Windows.Forms.MessageBox.Show("WS error : " + str)).Start();
         }
 
 
-        private static HandleMessage sdo_index_callback = new HandleMessage(sdo_index_cb);
-        private static int sdo_index = 0;
-        private static void sdo_index_cb(string str)
+        private HandleMessage sdo_index_callback;
+        private int sdo_index = 0;
+        private void sdo_index_cb(IntPtr dataPtr, string str)
         {
-            sdo_index  = Convert.ToInt32(str, 16);
+            sdo_index = Convert.ToInt32(str, 16);
         }
 
-        private static HandleMessage sdo_subindex_callback = new HandleMessage(sdo_subindex_cb);
-        private static int sdo_subindex = 0;
-        private static void sdo_subindex_cb(string str)
+        private HandleMessage sdo_subindex_callback;
+        private int sdo_subindex = 0;
+        private void sdo_subindex_cb(IntPtr dataPtr, string str)
         {
             sdo_subindex = Convert.ToInt32(str, 16);
         }
 
-        private static HandleMessage sdo_error_callback = new HandleMessage(sdo_error_cb);
-        private static string sdo_error_str = "true";
-        private static void sdo_error_cb(string str)
+        private HandleMessage sdo_error_callback;
+        private string sdo_error_str = "true";
+        private void sdo_error_cb(IntPtr dataPtr, string str)
         {
             sdo_error_str = str;
         }
 
-        private static HandleMessage sdo_busy_callback = new HandleMessage(sdo_busy_cb);
-        private static string sdo_busy_str = "true";
-        private static void sdo_busy_cb(string str)
+        private HandleMessage sdo_busy_callback;
+        private string sdo_busy_str = "true";
+        private void sdo_busy_cb(IntPtr dataPtr, string str)
         {
             sdo_busy_str = str;
         }
 
-        private static HandleMessage sdo_data_callback = new HandleMessage(sdo_data_cb);
-        private static int sdo_data = 0;
-        private static void sdo_data_cb(string str)
+        private HandleMessage sdo_data_callback;
+        private int sdo_data = 0;
+        private void sdo_data_cb(IntPtr dataPtr, string str)
         {
             sdo_data = Convert.ToInt32(str, 10);
         }
 
-        private static HandleMessage realPositionCallback = new HandleMessage(realPositionCB);
-        private static string realPositionStr = "0";
-        private static void realPositionCB(string str)
+        private HandleMessage realPositionCallback;
+        private string realPositionStr = "0";
+        private void realPositionCB(IntPtr dataPtr, string str)
         {
             realPositionStr = str;
         }
 
-        private static HandleMessage digitalInputsCallback = new HandleMessage(digitalInputsCB);
-        private static string digitalInputsStr = "0";
-        private static void digitalInputsCB(string str)
+        private HandleMessage digitalInputsCallback;
+        private string digitalInputsStr = "0";
+        private void digitalInputsCB(IntPtr dataPtr, string str)
         {
             digitalInputsStr = str;
         }
 
-        private static HandleMessage statusWordCallback = new HandleMessage(statusWordCB);
-        private static string statusWordStr = "0";
-        private static void statusWordCB(string str)
+        private HandleMessage statusWordCallback;
+        private string statusWordStr = "0";
+        private void statusWordCB(IntPtr dataPtr, string str)
         {
             statusWordStr = str;
         }
 
-        private static HandleMessage opModeCallback = new HandleMessage(opModeCB);
-        private static string opModeStr = "0";
-        private static void opModeCB(string str)
+        private HandleMessage opModeCallback;
+        private string opModeStr = "0";
+        private void opModeCB(IntPtr dataPtr, string str)
         {
             opModeStr = str;
         }
 
-        private static HandleMessage errorCallback = new HandleMessage(errorCB);
-        private static void errorCB(string str)
+        private HandleMessage errorCallback;
+        private void errorCB(IntPtr dataPtr, string str)
         {
             new Thread(() => System.Windows.Forms.MessageBox.Show("error|" + str)).Start();
         }
 
-        private static HandleMessage homingCallback = new HandleMessage(homingCB);
-        private static void homingCB(string str)
+        private HandleMessage homingCallback;
+        private void homingCB(IntPtr dataPtr, string str)
         {
             new Thread(() => System.Windows.Forms.MessageBox.Show(str)).Start();
         }
 
-        private static HandleMessage slavesRespondingCallback = new HandleMessage(slavesRespondingCB);
-        static int slaveLen = 0;
-        private static void slavesRespondingCB(string str)
+        private HandleMessage slavesRespondingCallback;
+        private int slaveLen = 0;
+        private void slavesRespondingCB(IntPtr dataPtr, string str)
         {
             slaveLen = Int32.Parse(str);
             if (slaveLen == 0)
@@ -112,9 +112,9 @@ namespace TouchProbe
         }
 
 
-        private static Boolean has_new_setting = false;
-        private static int new_setting = 0;
-        private static Boolean is_inited = false;
+        private Boolean has_new_setting = false;
+        private int new_setting = 0;
+        private Boolean is_inited = false;
 
         public Form1()
         {
@@ -124,22 +124,47 @@ namespace TouchProbe
         private void Form1_Load(object sender, EventArgs e)
         {
             bot = new Botnana("192.168.7.2");
-            bot.SetOnErrorCB(on_ws_error_callback);
+
+            on_ws_error_callback = new HandleMessage(on_ws_error_cb);
+            bot.SetOnErrorCB(IntPtr.Zero, on_ws_error_callback);
+
+            sdo_index_callback = new HandleMessage(sdo_index_cb);
+            bot.SetTagCB("sdo_index.1", 0, IntPtr.Zero, sdo_index_callback);
+
+            sdo_subindex_callback = new HandleMessage(sdo_subindex_cb);
+            bot.SetTagCB("sdo_subindex.1", 0, IntPtr.Zero, sdo_subindex_callback);
+
+            sdo_error_callback = new HandleMessage(sdo_error_cb);
+            bot.SetTagCB("sdo_error.1", 0, IntPtr.Zero, sdo_error_callback);
+
+            sdo_busy_callback = new HandleMessage(sdo_busy_cb);
+            bot.SetTagCB("sdo_busy.1", 0, IntPtr.Zero, sdo_busy_callback);
+
+            sdo_data_callback = new HandleMessage(sdo_data_cb);
+            bot.SetTagCB("sdo_data.1", 0, IntPtr.Zero, sdo_data_callback);
+
+            realPositionCallback = new HandleMessage(realPositionCB);
+            bot.SetTagCB("real_position.1.1", 0, IntPtr.Zero, realPositionCallback);
+
+            digitalInputsCallback = new HandleMessage(digitalInputsCB);
+            bot.SetTagCB("digital_inputs.1.1", 0, IntPtr.Zero, digitalInputsCallback);
+
+            opModeCallback = new HandleMessage(opModeCB);
+            bot.SetTagCB("operation_mode.1.1", 0, IntPtr.Zero, opModeCallback);
+
+            statusWordCallback = new HandleMessage(statusWordCB);
+            bot.SetTagCB("status_word.1.1", 0, IntPtr.Zero, statusWordCallback);
+
+            errorCallback = new HandleMessage(errorCB);
+            bot.SetTagCB("error", 0, IntPtr.Zero, errorCallback);
+
+            homingCallback = new HandleMessage(homingCB);
+            bot.SetTagCB("homing", 0, IntPtr.Zero, homingCallback);
+
+            slavesRespondingCallback = new HandleMessage(slavesRespondingCB);
+            bot.SetTagCB("slaves_responding", 1, IntPtr.Zero, slavesRespondingCallback);
             bot.Connect();
             Thread.Sleep(1000);
-            bot.SetTagCB("sdo_index.1", 0, sdo_index_callback);
-            bot.SetTagCB("sdo_subindex.1", 0, sdo_subindex_callback);
-            bot.SetTagCB("sdo_error.1", 0, sdo_error_callback);
-            bot.SetTagCB("sdo_busy.1", 0, sdo_busy_callback);
-            bot.SetTagCB("sdo_data.1", 0, sdo_data_callback);
-            bot.SetTagCB("real_position.1.1", 0, realPositionCallback);
-            bot.SetTagCB("digital_inputs.1.1", 0, digitalInputsCallback);
-            bot.SetTagCB("operation_mode.1.1", 0, opModeCallback);
-            bot.SetTagCB("status_word.1.1", 0, statusWordCallback);
-            bot.SetTagCB("error", 0, errorCallback);
-            bot.SetTagCB("homing", 0, homingCallback);
-            bot.SetTagCB("slaves_responding", 1, slavesRespondingCallback);
-
             bot.EvaluateScript(".ec-links 0 $60B8 1 sdo-upload-i16 1 .slave");
 
             timer1.Interval = 50;
@@ -156,7 +181,7 @@ namespace TouchProbe
                 textSDOError.Text = sdo_error_str;
                 textSDOBusy.Text = sdo_busy_str;
                 textSDOData.Text = sdo_data.ToString();
-                
+
                 textRealPosition.Text = realPositionStr;
                 textDigitalInputs.Text = digitalInputsStr;
                 textOPMode.Text = opModeStr;
@@ -237,7 +262,7 @@ namespace TouchProbe
 
         }
 
-        
+
         private void radioTp1Enable_Click(object sender, EventArgs e)
         {
             radioTp1Enable.Checked = !radioTp1Enable.Checked;
@@ -245,7 +270,8 @@ namespace TouchProbe
             if (radioTp1Enable.Checked)
             {
                 new_setting = new_setting | 0x1;
-            } else
+            }
+            else
             {
                 new_setting = new_setting & 0xFFFE;
             }
@@ -340,13 +366,13 @@ namespace TouchProbe
         private void radioTp1Falling_Click(object sender, EventArgs e)
         {
             radioTp1Falling.Checked = !radioTp1Falling.Checked;
-            
+
             if (radioTp1Falling.Checked)
             {
                 radioTp1Rising.Checked = false;
                 new_setting = new_setting & 0xFFEF;
                 new_setting = new_setting | 0x20;
-               
+
             }
             else
             {
@@ -362,9 +388,9 @@ namespace TouchProbe
 
             if (radioTp2Falling.Checked)
             {
-               radioTp2Rising.Checked = false;
-               new_setting = new_setting & 0xEFFF;
-               new_setting = new_setting | 0x2000;
+                radioTp2Rising.Checked = false;
+                new_setting = new_setting & 0xEFFF;
+                new_setting = new_setting | 0x2000;
             }
             else
             {
