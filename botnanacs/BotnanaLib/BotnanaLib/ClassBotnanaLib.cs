@@ -10,6 +10,9 @@ namespace BotnanaLib
     [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
     public delegate void HandleMessage(IntPtr dataPtr, string value);
 
+    [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
+    public delegate void HandleTagNameMessage(IntPtr dataPtr, UInt32 position, UInt32 channel, string value);
+
     public class Botnana
     {
 
@@ -115,10 +118,16 @@ namespace BotnanaLib
             botnana_set_on_send_cb_dll(innerBotnana, dataPtr, hm);
         }
 
-        // Set callback function of tag 
+        // Set callback function of tag
         public void SetTagCB(string tag, int count, IntPtr dataPtr, HandleMessage hm)
         {
             botnana_set_tag_cb_dll(innerBotnana, tag, count, dataPtr, hm);
+        }
+
+        // Set callback function of name of tag
+        public void SetTagNameCB(string tag, int count, IntPtr dataPtr, HandleTagNameMessage hm)
+        {
+            botnana_set_tagname_cb_dll(innerBotnana, tag, count, dataPtr, hm);
         }
 
         // Depoly program to NC background task
@@ -517,7 +526,7 @@ namespace BotnanaLib
         private static extern void botnana_set_tag_cb_dll(IntPtr desc, string tag, int count, IntPtr dataPtr, HandleMessage hm);
 
         [DllImport(@"BotnanaApi.dll", CharSet = CharSet.Ansi, CallingConvention = CallingConvention.Cdecl)]
-        private static extern void botnana_set_tagname_cb_dll(IntPtr desc, string tagName, int count, IntPtr dataPtr, HandleMessage hm);
+        private static extern void botnana_set_tagname_cb_dll(IntPtr desc, string tagName, int count, IntPtr dataPtr, HandleTagNameMessage hm);
 
         [DllImport(@"BotnanaApi.dll", CharSet = CharSet.Ansi, CallingConvention = CallingConvention.Cdecl)]
         private static extern void botnana_set_on_open_cb_dll(IntPtr desc, IntPtr dataPt, HandleMessage hm);
