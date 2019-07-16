@@ -55,14 +55,14 @@ extern "C" {
 	// @botnana: Botnana Control descriptor
 	// @cb: callback function
 	__declspec(dllexport) void botnana_set_on_open_cb_dll(struct Botnana *botnana, void * pointer, HandleMessage cb) {
-		botnana_set_on_open_cb(botnana, pointer ,cb);
+		botnana_set_on_open_cb(botnana, pointer, cb);
 	}
 
 	// Set WS on_error callback function 
 	// @botnana: Botnana Control descriptor
 	// @cb: callback function
 	__declspec(dllexport) void botnana_set_on_error_cb_dll(struct Botnana *botnana, void * pointer, HandleMessage cb) {
-		botnana_set_on_error_cb(botnana, pointer,cb);
+		botnana_set_on_error_cb(botnana, pointer, cb);
 	}
 
 	// 送出 real time command
@@ -100,6 +100,14 @@ extern "C" {
 	// @interval: poll interval [ms]
 	__declspec(dllexport) void set_poll_interval_ms_dll(struct Botnana * botnana, uint64_t interval) {
 		set_poll_interval_ms(botnana, interval);
+	}
+
+	// Send Message (Raw message)
+	//
+	// @botnana: Botnana Control descriptor
+	// @msg: message
+	__declspec(dllexport) void botnana_send_message_dll(struct Botnana * botnana, const char * msg) {
+		botnana_send_message(botnana, msg);
 	}
 
 	// 設定接收到預設資訊時的 callback function

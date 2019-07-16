@@ -17,7 +17,7 @@ extern "C"
 	// @ position   : 如果有此欄位 position > 0 
 	// @ channel    : 如果有此欄位 channel > 0
 	// @ str: 回傳的訊息
-	typedef void(*TagNameHandleMessage)(void * pointer, uint32_t position, uint32_t channel,  const char *str);
+	typedef void(*TagNameHandleMessage)(void * pointer, uint32_t position, uint32_t channel, const char *str);
 
 	// Library version
 	__declspec(dllexport) const char * library_version_dll(void);
@@ -47,12 +47,12 @@ extern "C"
 	// URL of motion server
 	// @botnana: Botnana Control descriptor
 	__declspec(dllexport) const char * botnana_url_dll(struct Botnana *botnana);
-	   	 
+
 	// Set WS on_open callback function 
 	// @botnana: Botnana Control descriptor
 	// @pointer: callback function 執行時要回傳的指標
 	// @cb: callback function
-	__declspec(dllexport) void botnana_set_on_open_cb_dll(struct Botnana *botnana, void * pointer,  HandleMessage cb);
+	__declspec(dllexport) void botnana_set_on_open_cb_dll(struct Botnana *botnana, void * pointer, HandleMessage cb);
 
 	// Set WS on_error callback function 
 	// @botnana: Botnana Control descriptor
@@ -86,6 +86,12 @@ extern "C"
 	// @botnana: Botnana Control descriptor
 	// @interval: poll interval [ms]
 	__declspec(dllexport) void set_poll_interval_ms_dll(struct Botnana * botnana, uint64_t interval);
+
+	// Send Message (Raw message)
+	//
+	// @botnana: Botnana Control descriptor
+	// @msg: message
+	__declspec(dllexport) void botnana_send_message_dll(struct Botnana * botnana, const char * msg);
 
 	// 設定接收到預設資訊時的 callback function
 	// @botnana: Botnana Control descriptor

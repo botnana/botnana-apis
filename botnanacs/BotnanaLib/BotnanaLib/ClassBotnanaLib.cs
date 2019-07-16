@@ -85,6 +85,12 @@ namespace BotnanaLib
             set_poll_interval_ms_dll(innerBotnana, interval);
         }
 
+        // 送出自定義的訊息
+        public void SendMessage(string message)
+        {
+            botnana_send_message_dll(innerBotnana, message);
+        }
+
         // Set callback function of WS on_open event
         public void SetOnOpenCB(IntPtr dataPtr, HandleMessage hm)
         {
@@ -325,7 +331,7 @@ namespace BotnanaLib
         {
             configure_group_set_jmax(innerBotnana, position, value);
         }
-               
+
         // JSON-API: config.axis.get
         public void ConfigAxisGet(UInt32 position)
         {
@@ -416,7 +422,7 @@ namespace BotnanaLib
         {
             configure_axis_set_drive_alias(innerBotnana, position, value);
         }
-        
+
         // JSON-API: drive_slave_position of config.axis.set
         public void ConfigAxisSetDriveSlavePosition(UInt32 position, Int32 value)
         {
@@ -446,7 +452,7 @@ namespace BotnanaLib
         {
             configure_axis_set_ext_encoder_channel(innerBotnana, position, value);
         }
-                     
+
         // JSON-API: config.save
         public void ConfigSave()
         {
@@ -488,7 +494,7 @@ namespace BotnanaLib
 
         [DllImport(@"BotnanaApi.dll", CharSet = CharSet.Ansi, CallingConvention = CallingConvention.Cdecl)]
         private static extern string botnana_url_dll(IntPtr desc);
-        
+
         [DllImport(@"BotnanaApi.dll", CharSet = CharSet.Ansi, CallingConvention = CallingConvention.Cdecl)]
         private static extern void script_evaluate_dll(IntPtr desc, string script);
 
@@ -505,11 +511,13 @@ namespace BotnanaLib
         private static extern IntPtr program_new_dll(string name);
 
         [DllImport(@"BotnanaApi.dll", CharSet = CharSet.Ansi, CallingConvention = CallingConvention.Cdecl)]
+        private static extern void botnana_send_message_dll(IntPtr desc, string msg);
+
+        [DllImport(@"BotnanaApi.dll", CharSet = CharSet.Ansi, CallingConvention = CallingConvention.Cdecl)]
         private static extern void botnana_set_tag_cb_dll(IntPtr desc, string tag, int count, IntPtr dataPtr, HandleMessage hm);
 
         [DllImport(@"BotnanaApi.dll", CharSet = CharSet.Ansi, CallingConvention = CallingConvention.Cdecl)]
         private static extern void botnana_set_tagname_cb_dll(IntPtr desc, string tagName, int count, IntPtr dataPtr, HandleMessage hm);
-
 
         [DllImport(@"BotnanaApi.dll", CharSet = CharSet.Ansi, CallingConvention = CallingConvention.Cdecl)]
         private static extern void botnana_set_on_open_cb_dll(IntPtr desc, IntPtr dataPt, HandleMessage hm);
