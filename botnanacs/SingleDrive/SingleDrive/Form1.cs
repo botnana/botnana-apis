@@ -19,126 +19,126 @@ namespace SingleDrive
         private Botnana bot;
 
         // 因為會有垃圾收集的關係，所以callback 要這樣宣告
-        private HandleMessage on_ws_error_callback;
-        private void on_ws_error_cb(IntPtr dataPtr, string str)
+        private HandleMessage onWsErrorCallback;
+        private void OnWsErrorCB(IntPtr dataPtr, string str)
         {
             new Thread(() => System.Windows.Forms.MessageBox.Show("WS error : " + str)).Start();
         }
 
-        private HandleMessage on_message_callback;
-        private int message_index = 0;
-        private void handle_message_cb(IntPtr dataPtr, string str)
+        private HandleMessage onMessageCallback;
+        private int messageIndex = 0;
+        private void HandleMessageCB(IntPtr dataPtr, string str)
         {
-            message_index += 1;
-            if (message_index > 0xFF)
+            messageIndex += 1;
+            if (messageIndex > 0xFF)
             {
-                message_index = 0;
+                messageIndex = 0;
             }
         }
 
-        private HandleMessage slaves_responding_callback;
-        private int slave_count = 0;
-        private void slaves_responding_cb(IntPtr dataPtr, string str)
+        private HandleMessage slavesRespondingCallback;
+        private int slaveCount = 0;
+        private void SlavesRespondingCB(IntPtr dataPtr, string str)
         {
-            slave_count = Int32.Parse(str);
+            slaveCount = Int32.Parse(str);
         }
 
-        private HandleMessage status_word_callback;
-        private bool drive_fault = false;
-        private bool target_reached = false;
-        private bool servo_on = false;
-        private bool quick_stop_request = false;
-        private void status_word_cb(IntPtr dataPtr, string str)
+        private HandleMessage statusWordCallback;
+        private bool driveFault = false;
+        private bool targetReached = false;
+        private bool servoOn = false;
+        private bool quickStopRequest = false;
+        private void StatusWordCB(IntPtr dataPtr, string str)
         {
             int code = Convert.ToInt32(str, 16);
-            drive_fault = (code & 8) != 0;
-            target_reached = (code & 0x400) != 0;
-            servo_on = (code & 4) != 0;
-            quick_stop_request = (code & 0x20) == 0;
+            driveFault = (code & 8) != 0;
+            targetReached = (code & 0x400) != 0;
+            servoOn = (code & 4) != 0;
+            quickStopRequest = (code & 0x20) == 0;
         }
 
-        private HandleMessage digital_inputs_callback;
-        private bool drive_org = false;
-        private bool drive_nl = false;
-        private bool drive_pl = false;
-        private void digital_inputs_cb(IntPtr dataPtr, string str)
+        private HandleMessage digitalInputsCallback;
+        private bool driveOrg = false;
+        private bool driveNl = false;
+        private bool drivePl = false;
+        private void DigitalInputsCB(IntPtr dataPtr, string str)
         {
             int dins = Convert.ToInt32(str, 16);
-            drive_org = (dins & 0x4) != 0;
-            drive_nl = (dins & 0x1) != 0;
-            drive_pl = (dins & 0x2) != 0;
+            driveOrg = (dins & 0x4) != 0;
+            driveNl = (dins & 0x1) != 0;
+            drivePl = (dins & 0x2) != 0;
         }
 
-        private HandleMessage real_position_callback;
-        private string real_position_str = "0";
-        private void real_position_cb(IntPtr dataPtr, string str)
+        private HandleMessage realPositionCallback;
+        private string realPositionStr = "0";
+        private void RealPositionCB(IntPtr dataPtr, string str)
         {
-            real_position_str = str;
+            realPositionStr = str;
         }
 
-        private HandleMessage target_position_callback;
-        private string target_position_str = "0";
-        private void target_position_cb(IntPtr dataPtr, string str)
+        private HandleMessage targetPositionCallback;
+        private string targetPositionStr = "0";
+        private void TargetPositionCB(IntPtr dataPtr, string str)
         {
-            target_position_str = str;
+            targetPositionStr = str;
         }
 
-        private HandleMessage op_mode_callback;
-        private string op_mode_str = "Other";
-        private void op_mode_cb(IntPtr dataPtr, string str)
+        private HandleMessage opModeCallback;
+        private string opModeStr = "Other";
+        private void OpModeCB(IntPtr dataPtr, string str)
         {
             int mode = Int32.Parse(str);
             switch (mode)
             {
                 case 1:
-                    op_mode_str = "PP";
+                    opModeStr = "PP";
                     break;
                 case 6:
-                    op_mode_str = "HM";
+                    opModeStr = "HM";
                     break;
                 case 8:
-                    op_mode_str = "CSP";
+                    opModeStr = "CSP";
                     break;
                 default:
-                    op_mode_str = "Other";
+                    opModeStr = "Other";
                     break;
             }
         }
 
-        private HandleMessage profile_velocity_callback;
-        private string profile_velocity_str = "0";
-        private void profile_velocity_cb(IntPtr dataPtr, string str)
+        private HandleMessage profileVelocityCallback;
+        private string profileVelocityStr = "0";
+        private void ProfileVelocityCB(IntPtr dataPtr, string str)
         {
-            profile_velocity_str = str;
+            profileVelocityStr = str;
         }
 
-        private HandleMessage profile_acceleration_callback;
-        private string profile_acceleration_str = "0";
-        private void profile_acceleration_cb(IntPtr dataPtr, string str)
+        private HandleMessage profileAccelerationCallback;
+        private string profileAccelerationStr = "0";
+        private void ProfileAccelerationCB(IntPtr dataPtr, string str)
         {
-            profile_acceleration_str = str;
+            profileAccelerationStr = str;
         }
 
-        private HandleMessage deployed_callback;
-        private void deployed_cb(IntPtr dataPtr, string str)
+        private HandleMessage deployedCallback;
+        private void DeployedCB(IntPtr dataPtr, string str)
         {
             new Thread(() => System.Windows.Forms.MessageBox.Show("Deployed : " + str)).Start();
         }
 
-        private HandleMessage end_of_program_callback;
-        private void end_of_program_cb(IntPtr dataPtr, string str)
+        private HandleMessage endOfProgramCallback;
+        private void EndOfProgramCB(IntPtr dataPtr, string str)
         {
             new Thread(() => System.Windows.Forms.MessageBox.Show("End-of-program : " + str)).Start();
         }
 
-        private HandleMessage error_callback;
-        private void error_cb(IntPtr dataPtr, string str)
+        private HandleMessage errorCallback;
+        private void ErrorCB(IntPtr dataPtr, string str)
         {
             new Thread(() => System.Windows.Forms.MessageBox.Show(str)).Start();
         }
 
-        private Boolean profile_velocity_changing = false;
-        private Boolean profile_acceleration_changing = false;
+        private Boolean profileVelocityChanging = false;
+        private Boolean profileAccelerationChanging = false;
 
         public Form1()
         {
@@ -149,32 +149,45 @@ namespace SingleDrive
         {
             bot = new Botnana("192.168.7.2");
 
-            on_ws_error_callback = new HandleMessage(on_ws_error_cb);
-            bot.SetOnErrorCB(IntPtr.Zero, on_ws_error_callback);
-            on_message_callback = new HandleMessage(handle_message_cb);
-            bot.SetOnMessageCB(IntPtr.Zero, on_message_callback);
-            slaves_responding_callback = new HandleMessage(slaves_responding_cb);
-            bot.SetTagCB("slaves_responding", 0, IntPtr.Zero, slaves_responding_callback);
-            status_word_callback = new HandleMessage(status_word_cb);
-            bot.SetTagCB("status_word.1.1", 0, IntPtr.Zero, status_word_callback);
-            real_position_callback = new HandleMessage(real_position_cb);
-            bot.SetTagCB("real_position.1.1", 0, IntPtr.Zero, real_position_callback);
-            target_position_callback = new HandleMessage(target_position_cb);
-            bot.SetTagCB("target_position.1.1", 0, IntPtr.Zero, target_position_callback);
-            op_mode_callback = new HandleMessage(op_mode_cb);
-            bot.SetTagCB("operation_mode.1.1", 0, IntPtr.Zero, op_mode_callback);
-            digital_inputs_callback = new HandleMessage(digital_inputs_cb);
-            bot.SetTagCB("digital_inputs.1.1", 0, IntPtr.Zero, digital_inputs_callback);
-            profile_velocity_callback = new HandleMessage(profile_velocity_cb);
-            bot.SetTagCB("profile_velocity.1.1", 0, IntPtr.Zero, profile_velocity_callback);
-            profile_acceleration_callback = new HandleMessage(profile_acceleration_cb);
-            bot.SetTagCB("profile_acceleration.1.1", 0, IntPtr.Zero, profile_acceleration_callback);
-            deployed_callback = new HandleMessage(deployed_cb);
-            bot.SetTagCB("deployed", 0, IntPtr.Zero, deployed_callback);
-            end_of_program_callback = new HandleMessage(end_of_program_cb);
-            bot.SetTagCB("end-of-program", 0, IntPtr.Zero, end_of_program_callback);
-            error_callback = new HandleMessage(error_cb);
-            bot.SetTagCB("error", 0, IntPtr.Zero, error_callback);
+            onWsErrorCallback = new HandleMessage(OnWsErrorCB);
+            bot.SetOnErrorCB(IntPtr.Zero, onWsErrorCallback);
+
+            onMessageCallback = new HandleMessage(HandleMessageCB);
+            bot.SetOnMessageCB(IntPtr.Zero, onMessageCallback);
+
+            slavesRespondingCallback = new HandleMessage(SlavesRespondingCB);
+            bot.SetTagCB("slaves_responding", 0, IntPtr.Zero, slavesRespondingCallback);
+
+            statusWordCallback = new HandleMessage(StatusWordCB);
+            bot.SetTagCB("status_word.1.1", 0, IntPtr.Zero, statusWordCallback);
+
+            realPositionCallback = new HandleMessage(RealPositionCB);
+            bot.SetTagCB("real_position.1.1", 0, IntPtr.Zero, realPositionCallback);
+
+            targetPositionCallback = new HandleMessage(TargetPositionCB);
+            bot.SetTagCB("target_position.1.1", 0, IntPtr.Zero, targetPositionCallback);
+
+            opModeCallback = new HandleMessage(OpModeCB);
+            bot.SetTagCB("operation_mode.1.1", 0, IntPtr.Zero, opModeCallback);
+
+            digitalInputsCallback = new HandleMessage(DigitalInputsCB);
+            bot.SetTagCB("digital_inputs.1.1", 0, IntPtr.Zero, digitalInputsCallback);
+
+            profileVelocityCallback = new HandleMessage(ProfileVelocityCB);
+            bot.SetTagCB("profile_velocity.1.1", 0, IntPtr.Zero, profileVelocityCallback);
+
+            profileAccelerationCallback = new HandleMessage(ProfileAccelerationCB);
+            bot.SetTagCB("profile_acceleration.1.1", 0, IntPtr.Zero, profileAccelerationCallback);
+
+            deployedCallback = new HandleMessage(DeployedCB);
+            bot.SetTagCB("deployed", 0, IntPtr.Zero, deployedCallback);
+
+            endOfProgramCallback = new HandleMessage(EndOfProgramCB);
+            bot.SetTagCB("end-of-program", 0, IntPtr.Zero, endOfProgramCallback);
+
+            errorCallback = new HandleMessage(ErrorCB);
+            bot.SetTagCB("error", 0, IntPtr.Zero, errorCallback);
+
             bot.Connect();
             Thread.Sleep(1000);
 
@@ -186,30 +199,30 @@ namespace SingleDrive
 
         private void timer1_Tick(object sender, EventArgs e)
         {
-            textSlaveCount.Text = slave_count.ToString();
-            if (slave_count > 0)
+            textSlaveCount.Text = slaveCount.ToString();
+            if (slaveCount > 0)
             {
                 bot.EvaluateScript("1 .slave-diff");
-                textSlaveCount.Text = slave_count.ToString();
-                if (profile_velocity_changing == false)
+                textSlaveCount.Text = slaveCount.ToString();
+                if (profileVelocityChanging == false)
                 {
-                    textProfileVelocity.Text = profile_velocity_str;
+                    textProfileVelocity.Text = profileVelocityStr;
                 }
-                if (profile_acceleration_changing == false)
+                if (profileAccelerationChanging == false)
                 {
-                    textProfileAcceleration.Text = profile_acceleration_str;
+                    textProfileAcceleration.Text = profileAccelerationStr;
                 }
-                textRealPosition.Text = real_position_str;
-                textTargetPosition.Text = target_position_str;
-                textOPMode.Text = op_mode_str;
-                radioFault.Checked = drive_fault;
-                radioTargetReached.Checked = target_reached;
-                radioServoOn.Checked = !quick_stop_request & servo_on;
-                radioServoStop.Checked = quick_stop_request & servo_on;
-                radioOrg.Checked = drive_org;
-                radioPosLimit.Checked = drive_pl;
-                radioNegLimit.Checked = drive_nl;
-                labCount.Text = message_index.ToString("X2");
+                textRealPosition.Text = realPositionStr;
+                textTargetPosition.Text = targetPositionStr;
+                textOPMode.Text = opModeStr;
+                radioFault.Checked = driveFault;
+                radioTargetReached.Checked = targetReached;
+                radioServoOn.Checked = !quickStopRequest & servoOn;
+                radioServoStop.Checked = quickStopRequest & servoOn;
+                radioOrg.Checked = driveOrg;
+                radioPosLimit.Checked = drivePl;
+                radioNegLimit.Checked = driveNl;
+                labCount.Text = messageIndex.ToString("X2");
             }
         }
 
@@ -285,25 +298,25 @@ namespace SingleDrive
 
         private void textProfileVelocity_Enter(object sender, EventArgs e)
         {
-            profile_velocity_changing = true;
+            profileVelocityChanging = true;
         }
 
         private void textProfileVelocity_Leave(object sender, EventArgs e)
         {
             bot.EvaluateScript(textProfileVelocity.Text + " 1 1 profile-v!");
-            profile_velocity_changing = false;
+            profileVelocityChanging = false;
         }
 
         private void textProfileAcceleration_Enter(object sender, EventArgs e)
         {
-            profile_acceleration_changing = true;
+            profileAccelerationChanging = true;
         }
 
         private void textProfileAcceleration_Leave(object sender, EventArgs e)
         {
             bot.EvaluateScript(textProfileAcceleration.Text + " 1 1 profile-a1!");
             bot.EvaluateScript(textProfileAcceleration.Text + " 1 1 profile-a2!");
-            profile_acceleration_changing = false;
+            profileAccelerationChanging = false;
         }
     }
 }
