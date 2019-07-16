@@ -18,91 +18,90 @@ namespace TouchProbe
 
         private Botnana bot;
 
-        private HandleMessage on_ws_error_callback;
-        private void on_ws_error_cb(IntPtr dataPtr, string str)
+        private HandleMessage onWsErrorCallback;
+        private void OnWsErrorCB(IntPtr dataPtr, string str)
         {
             new Thread(() => System.Windows.Forms.MessageBox.Show("WS error : " + str)).Start();
         }
 
-
-        private HandleMessage sdo_index_callback;
-        private int sdo_index = 0;
-        private void sdo_index_cb(IntPtr dataPtr, string str)
+        private HandleMessage sdoIndexCallback;
+        private int sdoIndex = 0;
+        private void SdoIndexCB(IntPtr dataPtr, string str)
         {
-            sdo_index = Convert.ToInt32(str, 16);
+            sdoIndex = Convert.ToInt32(str, 16);
         }
 
-        private HandleMessage sdo_subindex_callback;
-        private int sdo_subindex = 0;
-        private void sdo_subindex_cb(IntPtr dataPtr, string str)
+        private HandleMessage sdoSubindexCallback;
+        private int sdoSubindex = 0;
+        private void SdoSubindexCB(IntPtr dataPtr, string str)
         {
-            sdo_subindex = Convert.ToInt32(str, 16);
+            sdoSubindex = Convert.ToInt32(str, 16);
         }
 
-        private HandleMessage sdo_error_callback;
-        private string sdo_error_str = "true";
-        private void sdo_error_cb(IntPtr dataPtr, string str)
+        private HandleMessage sdoErrorCallback;
+        private string sdoErrorStr = "true";
+        private void SdoErrorCB(IntPtr dataPtr, string str)
         {
-            sdo_error_str = str;
+            sdoErrorStr = str;
         }
 
-        private HandleMessage sdo_busy_callback;
-        private string sdo_busy_str = "true";
-        private void sdo_busy_cb(IntPtr dataPtr, string str)
+        private HandleMessage sdoBusyCallback;
+        private string sdoBusyStr = "true";
+        private void SdoBusyCB(IntPtr dataPtr, string str)
         {
-            sdo_busy_str = str;
+            sdoBusyStr = str;
         }
 
-        private HandleMessage sdo_data_callback;
-        private int sdo_data = 0;
-        private void sdo_data_cb(IntPtr dataPtr, string str)
+        private HandleMessage sdoDataCallback;
+        private int sdoData = 0;
+        private void SdoDataCB(IntPtr dataPtr, string str)
         {
-            sdo_data = Convert.ToInt32(str, 10);
+            sdoData = Convert.ToInt32(str, 10);
         }
 
         private HandleMessage realPositionCallback;
         private string realPositionStr = "0";
-        private void realPositionCB(IntPtr dataPtr, string str)
+        private void RealPositionCB(IntPtr dataPtr, string str)
         {
             realPositionStr = str;
         }
 
         private HandleMessage digitalInputsCallback;
         private string digitalInputsStr = "0";
-        private void digitalInputsCB(IntPtr dataPtr, string str)
+        private void DigitalInputsCB(IntPtr dataPtr, string str)
         {
             digitalInputsStr = str;
         }
 
         private HandleMessage statusWordCallback;
         private string statusWordStr = "0";
-        private void statusWordCB(IntPtr dataPtr, string str)
+        private void StatusWordCB(IntPtr dataPtr, string str)
         {
             statusWordStr = str;
         }
 
         private HandleMessage opModeCallback;
         private string opModeStr = "0";
-        private void opModeCB(IntPtr dataPtr, string str)
+        private void OpModeCB(IntPtr dataPtr, string str)
         {
             opModeStr = str;
         }
 
         private HandleMessage errorCallback;
-        private void errorCB(IntPtr dataPtr, string str)
+        private void ErrorCB(IntPtr dataPtr, string str)
         {
             new Thread(() => System.Windows.Forms.MessageBox.Show("error|" + str)).Start();
         }
 
         private HandleMessage homingCallback;
-        private void homingCB(IntPtr dataPtr, string str)
+        private void HomingCB(IntPtr dataPtr, string str)
         {
             new Thread(() => System.Windows.Forms.MessageBox.Show(str)).Start();
         }
 
         private HandleMessage slavesRespondingCallback;
         private int slaveLen = 0;
-        private void slavesRespondingCB(IntPtr dataPtr, string str)
+        private void SlavesRespondingCB(IntPtr dataPtr, string str)
         {
             slaveLen = Int32.Parse(str);
             if (slaveLen == 0)
@@ -111,10 +110,9 @@ namespace TouchProbe
             }
         }
 
-
-        private Boolean has_new_setting = false;
-        private int new_setting = 0;
-        private Boolean is_inited = false;
+        private Boolean hasNewSetting = false;
+        private int newSetting = 0;
+        private Boolean isInited = false;
 
         public Form1()
         {
@@ -125,43 +123,43 @@ namespace TouchProbe
         {
             bot = new Botnana("192.168.7.2");
 
-            on_ws_error_callback = new HandleMessage(on_ws_error_cb);
-            bot.SetOnErrorCB(IntPtr.Zero, on_ws_error_callback);
+            onWsErrorCallback = new HandleMessage(OnWsErrorCB);
+            bot.SetOnErrorCB(IntPtr.Zero, onWsErrorCallback);
 
-            sdo_index_callback = new HandleMessage(sdo_index_cb);
-            bot.SetTagCB("sdo_index.1", 0, IntPtr.Zero, sdo_index_callback);
+            sdoIndexCallback = new HandleMessage(SdoIndexCB);
+            bot.SetTagCB("sdo_index.1", 0, IntPtr.Zero, sdoIndexCallback);
 
-            sdo_subindex_callback = new HandleMessage(sdo_subindex_cb);
-            bot.SetTagCB("sdo_subindex.1", 0, IntPtr.Zero, sdo_subindex_callback);
+            sdoSubindexCallback = new HandleMessage(SdoSubindexCB);
+            bot.SetTagCB("sdo_subindex.1", 0, IntPtr.Zero, sdoSubindexCallback);
 
-            sdo_error_callback = new HandleMessage(sdo_error_cb);
-            bot.SetTagCB("sdo_error.1", 0, IntPtr.Zero, sdo_error_callback);
+            sdoErrorCallback = new HandleMessage(SdoErrorCB);
+            bot.SetTagCB("sdo_error.1", 0, IntPtr.Zero, sdoErrorCallback);
 
-            sdo_busy_callback = new HandleMessage(sdo_busy_cb);
-            bot.SetTagCB("sdo_busy.1", 0, IntPtr.Zero, sdo_busy_callback);
+            sdoBusyCallback = new HandleMessage(SdoBusyCB);
+            bot.SetTagCB("sdo_busy.1", 0, IntPtr.Zero, sdoBusyCallback);
 
-            sdo_data_callback = new HandleMessage(sdo_data_cb);
-            bot.SetTagCB("sdo_data.1", 0, IntPtr.Zero, sdo_data_callback);
+            sdoDataCallback = new HandleMessage(SdoDataCB);
+            bot.SetTagCB("sdo_data.1", 0, IntPtr.Zero, sdoDataCallback);
 
-            realPositionCallback = new HandleMessage(realPositionCB);
+            realPositionCallback = new HandleMessage(RealPositionCB);
             bot.SetTagCB("real_position.1.1", 0, IntPtr.Zero, realPositionCallback);
 
-            digitalInputsCallback = new HandleMessage(digitalInputsCB);
+            digitalInputsCallback = new HandleMessage(DigitalInputsCB);
             bot.SetTagCB("digital_inputs.1.1", 0, IntPtr.Zero, digitalInputsCallback);
 
-            opModeCallback = new HandleMessage(opModeCB);
+            opModeCallback = new HandleMessage(OpModeCB);
             bot.SetTagCB("operation_mode.1.1", 0, IntPtr.Zero, opModeCallback);
 
-            statusWordCallback = new HandleMessage(statusWordCB);
+            statusWordCallback = new HandleMessage(StatusWordCB);
             bot.SetTagCB("status_word.1.1", 0, IntPtr.Zero, statusWordCallback);
 
-            errorCallback = new HandleMessage(errorCB);
+            errorCallback = new HandleMessage(ErrorCB);
             bot.SetTagCB("error", 0, IntPtr.Zero, errorCallback);
 
-            homingCallback = new HandleMessage(homingCB);
+            homingCallback = new HandleMessage(HomingCB);
             bot.SetTagCB("homing", 0, IntPtr.Zero, homingCallback);
 
-            slavesRespondingCallback = new HandleMessage(slavesRespondingCB);
+            slavesRespondingCallback = new HandleMessage(SlavesRespondingCB);
             bot.SetTagCB("slaves_responding", 1, IntPtr.Zero, slavesRespondingCallback);
             bot.Connect();
             Thread.Sleep(1000);
@@ -176,11 +174,11 @@ namespace TouchProbe
             if (slaveLen > 0)
             {
                 bot.EvaluateScript("1 .sdo 1 .slave-diff");
-                textSDOAddress.Text = sdo_index.ToString("X4") + ":" + sdo_subindex.ToString("X2");
+                textSDOAddress.Text = sdoIndex.ToString("X4") + ":" + sdoSubindex.ToString("X2");
 
-                textSDOError.Text = sdo_error_str;
-                textSDOBusy.Text = sdo_busy_str;
-                textSDOData.Text = sdo_data.ToString();
+                textSDOError.Text = sdoErrorStr;
+                textSDOBusy.Text = sdoBusyStr;
+                textSDOData.Text = sdoData.ToString();
 
                 textRealPosition.Text = realPositionStr;
                 textDigitalInputs.Text = digitalInputsStr;
@@ -188,80 +186,78 @@ namespace TouchProbe
                 textStatusWord.Text = statusWordStr;
 
                 // 如果SDO 已經設定完成
-                if (sdo_busy_str == "false")
+                if (sdoBusyStr == "false")
                 {
-                    if (has_new_setting)
+                    if (hasNewSetting)
                     {
                         // 如果有新的設定值,就設定 0x60B8 暫存器
-                        bot.EvaluateScript(new_setting.ToString() + " 0 $60B8 1 sdo-download-i16");
-                        has_new_setting = false;
+                        bot.EvaluateScript(newSetting.ToString() + " 0 $60B8 1 sdo-download-i16");
+                        hasNewSetting = false;
                     }
-                    else if (sdo_index == 0x60B8)
+                    else if (sdoIndex == 0x60B8)
                     {
                         // 依 60B8 的讀值設定畫面上的 radio 元件
-                        if (!is_inited)
+                        if (!isInited)
                         {
-                            new_setting = sdo_data;
-                            radioTp1Enable.Checked = (sdo_data & 0x1) != 0;
-                            radioTp1Cont.Checked = (sdo_data & 0x2) != 0;
-                            radioTp1Rising.Checked = (sdo_data & 0x10) != 0;
-                            radioTp1Falling.Checked = (sdo_data & 0x20) != 0;
-                            radioTp2Enable.Checked = (sdo_data & 0x100) != 0;
-                            radioTp2Cont.Checked = (sdo_data & 0x200) != 0;
-                            radioTp2Rising.Checked = (sdo_data & 0x1000) != 0;
-                            radioTp2Falling.Checked = (sdo_data & 0x2000) != 0;
-                            is_inited = true;
+                            newSetting = sdoData;
+                            radioTp1Enable.Checked = (sdoData & 0x1) != 0;
+                            radioTp1Cont.Checked = (sdoData & 0x2) != 0;
+                            radioTp1Rising.Checked = (sdoData & 0x10) != 0;
+                            radioTp1Falling.Checked = (sdoData & 0x20) != 0;
+                            radioTp2Enable.Checked = (sdoData & 0x100) != 0;
+                            radioTp2Cont.Checked = (sdoData & 0x200) != 0;
+                            radioTp2Rising.Checked = (sdoData & 0x1000) != 0;
+                            radioTp2Falling.Checked = (sdoData & 0x2000) != 0;
+                            isInited = true;
                         }
                         // 使用 SDO 取回 0x60B9 (Touch porbe status) 暫存器內容
                         bot.EvaluateScript("0 $60B9 1 sdo-upload-i16");
                     }
-                    else if (sdo_index == 0x60B9)
+                    else if (sdoIndex == 0x60B9)
                     {
                         // 依 60B9 的讀值設定畫面上的 radio 元件
-                        radioTp1Enabled.Checked = (sdo_data & 0x1) != 0;
-                        radioTp1HasRising.Checked = (sdo_data & 0x2) != 0;
-                        radioTp1HasFalling.Checked = (sdo_data & 0x4) != 0;
-                        radioTp2Enabled.Checked = (sdo_data & 0x100) != 0;
-                        radioTp2HasRising.Checked = (sdo_data & 0x200) != 0;
-                        radioTp2HasFalling.Checked = (sdo_data & 0x400) != 0;
+                        radioTp1Enabled.Checked = (sdoData & 0x1) != 0;
+                        radioTp1HasRising.Checked = (sdoData & 0x2) != 0;
+                        radioTp1HasFalling.Checked = (sdoData & 0x4) != 0;
+                        radioTp2Enabled.Checked = (sdoData & 0x100) != 0;
+                        radioTp2HasRising.Checked = (sdoData & 0x200) != 0;
+                        radioTp2HasFalling.Checked = (sdoData & 0x400) != 0;
 
                         // 使用 SDO 取回 0x60BA (Touch probe pos1 pos value) 暫存器內容
                         bot.EvaluateScript("0 $60BA 1 sdo-upload-i32");
                     }
-                    else if (sdo_index == 0x60BA)
+                    else if (sdoIndex == 0x60BA)
                     {
                         // 更新 Touch probe pos1 pos value 的 text 元件
-                        textTp1Pos1.Text = sdo_data.ToString();
+                        textTp1Pos1.Text = sdoData.ToString();
                         // 使用 SDO 取回 0x60BB (Touch probe pos1 neg value) 暫存器內容
                         bot.EvaluateScript("0 $60BB 1 sdo-upload-i32");
                     }
-                    else if (sdo_index == 0x60BB)
+                    else if (sdoIndex == 0x60BB)
                     {
                         // 更新 Touch probe pos1 neg value 的 text 元件
-                        textTp1Pos2.Text = sdo_data.ToString();
+                        textTp1Pos2.Text = sdoData.ToString();
                         // 使用 SDO 取回 0x60BC (Touch probe pos2 pos value) 暫存器內容
                         bot.EvaluateScript("0 $60BC 1 sdo-upload-i32");
                     }
-                    else if (sdo_index == 0x60BC)
+                    else if (sdoIndex == 0x60BC)
                     {
                         // 更新 Touch probe pos2 pos value 的 text 元件
-                        textTp2Pos1.Text = sdo_data.ToString();
+                        textTp2Pos1.Text = sdoData.ToString();
                         // 使用 SDO 取回 0x60BD (Touch probe pos2 neg value) 暫存器內容
                         bot.EvaluateScript("0 $60BD 1 sdo-upload-i32");
                     }
-                    else if (sdo_index == 0x60BD)
+                    else if (sdoIndex == 0x60BD)
                     {
                         // 更新 Touch probe pos2 neg value 的 text 元件
-                        textTp2Pos2.Text = sdo_data.ToString();
+                        textTp2Pos2.Text = sdoData.ToString();
                         // 使用 SDO 取回 0x60B9 (Touch porbe status) 暫存器內容
                         bot.EvaluateScript("0 $60B9 1 sdo-upload-i16");
                     }
 
                 }
             }
-
         }
-
 
         private void radioTp1Enable_Click(object sender, EventArgs e)
         {
@@ -269,14 +265,14 @@ namespace TouchProbe
 
             if (radioTp1Enable.Checked)
             {
-                new_setting = new_setting | 0x1;
+                newSetting = newSetting | 0x1;
             }
             else
             {
-                new_setting = new_setting & 0xFFFE;
+                newSetting = newSetting & 0xFFFE;
             }
 
-            has_new_setting = true;
+            hasNewSetting = true;
         }
 
         private void radioTp2Enable_Click(object sender, EventArgs e)
@@ -285,14 +281,14 @@ namespace TouchProbe
 
             if (radioTp2Enable.Checked)
             {
-                new_setting = new_setting | 0x100;
+                newSetting = newSetting | 0x100;
             }
             else
             {
-                new_setting = new_setting & 0xFEFF;
+                newSetting = newSetting & 0xFEFF;
             }
 
-            has_new_setting = true;
+            hasNewSetting = true;
         }
 
         private void radioTp1Cont_Click(object sender, EventArgs e)
@@ -301,14 +297,14 @@ namespace TouchProbe
 
             if (radioTp1Cont.Checked)
             {
-                new_setting = new_setting | 0x2;
+                newSetting = newSetting | 0x2;
             }
             else
             {
-                new_setting = new_setting & 0xFFFD;
+                newSetting = newSetting & 0xFFFD;
             }
 
-            has_new_setting = true;
+            hasNewSetting = true;
         }
 
         private void radioTp2Cont_Click(object sender, EventArgs e)
@@ -317,14 +313,14 @@ namespace TouchProbe
 
             if (radioTp1Cont.Checked)
             {
-                new_setting = new_setting | 0x200;
+                newSetting = newSetting | 0x200;
             }
             else
             {
-                new_setting = new_setting & 0xFDFF;
+                newSetting = newSetting & 0xFDFF;
             }
 
-            has_new_setting = true;
+            hasNewSetting = true;
         }
 
         private void radioTp1Rising_Click(object sender, EventArgs e)
@@ -334,15 +330,15 @@ namespace TouchProbe
             if (radioTp1Rising.Checked)
             {
                 radioTp1Falling.Checked = false;
-                new_setting = new_setting & 0xFFDF;
-                new_setting = new_setting | 0x10;
+                newSetting = newSetting & 0xFFDF;
+                newSetting = newSetting | 0x10;
             }
             else
             {
-                new_setting = new_setting & 0xFFEF;
+                newSetting = newSetting & 0xFFEF;
             }
 
-            has_new_setting = true;
+            hasNewSetting = true;
         }
 
         private void radioTp2Rising_Click(object sender, EventArgs e)
@@ -352,15 +348,15 @@ namespace TouchProbe
             if (radioTp2Rising.Checked)
             {
                 radioTp2Falling.Checked = false;
-                new_setting = new_setting & 0xDFFF;
-                new_setting = new_setting | 0x1000;
+                newSetting = newSetting & 0xDFFF;
+                newSetting = newSetting | 0x1000;
             }
             else
             {
-                new_setting = new_setting & 0xEFFF;
+                newSetting = newSetting & 0xEFFF;
             }
 
-            has_new_setting = true;
+            hasNewSetting = true;
         }
 
         private void radioTp1Falling_Click(object sender, EventArgs e)
@@ -370,16 +366,16 @@ namespace TouchProbe
             if (radioTp1Falling.Checked)
             {
                 radioTp1Rising.Checked = false;
-                new_setting = new_setting & 0xFFEF;
-                new_setting = new_setting | 0x20;
+                newSetting = newSetting & 0xFFEF;
+                newSetting = newSetting | 0x20;
 
             }
             else
             {
-                new_setting = new_setting & 0xFFDF;
+                newSetting = newSetting & 0xFFDF;
             }
 
-            has_new_setting = true;
+            hasNewSetting = true;
         }
 
         private void radioTp2Falling_Click(object sender, EventArgs e)
@@ -389,15 +385,15 @@ namespace TouchProbe
             if (radioTp2Falling.Checked)
             {
                 radioTp2Rising.Checked = false;
-                new_setting = new_setting & 0xEFFF;
-                new_setting = new_setting | 0x2000;
+                newSetting = newSetting & 0xEFFF;
+                newSetting = newSetting | 0x2000;
             }
             else
             {
-                new_setting = new_setting & 0xDFFF;
+                newSetting = newSetting & 0xDFFF;
             }
 
-            has_new_setting = true;
+            hasNewSetting = true;
         }
 
         private void buttonStartHoming_Click(object sender, EventArgs e)
