@@ -5,17 +5,32 @@ botnanacs 為 C# 的範例程式，開發工具式採用 Microsoft Visual Studio
 # 目錄結構
 
     botnanacs
+    |-----> AIO
     |-----> AxisGroup
-    |-----> BotnanaApi 
+    |-----> BotnanaApi
+    |-----> BotnanaLib
+    |-----> DIO
+    |-----> PositionComparsionPanaA6B
     |-----> SingleDrive
+    |-----> TorqueScope
     |-----> TouchProbe
 
+* AIO: 類比輸入與輸出模組範例。
 * AxisGroup: 此範例結合 SFC 與 3D 運動軸組，可以作為 3 軸運動平台的基礎，包含回歸機械原點，軸移動，NC 程式運作。
 * BotnanaApi: 將 C 語言函式庫 `botnana.lib` 轉換為 C# 使用的動態連結檔 `BotnanaApi.dll` 。
+* BotnanaLib: 將 BotnanaApi 包裝成 C# class libraray。
+* DIO: 數位輸入與輸出範例。
+* PositionComparsionPanaA6B: Panasonic A6B 驅動器的到位觸發功能。
 * SingleDrive: 一個單軸馬達驅動器的測試範例。
+* TorqueScope: 即時監看馬扭力的應用範例。
 * TouchProbe: 馬達驅動器 Touch Probe Function 的測試範例。
-
 ---
+
+# lib 與 dll
+
+botnana.lib 與 BotnanaApi.dll 可以在此網址: [https://drive.google.com/drive/u/0/folders/1O4bFQf0uiLUoFM1fJhZvS96VkOySOFW9](https://drive.google.com/drive/u/0/folders/1O4bFQf0uiLUoFM1fJhZvS96VkOySOFW9) 取得。
+
+BotnanaLib.dll 則是目錄 BotnanaLib 下的 BotnanaLib 專案就可以編譯產生。
 
 # Axis Group (3D)
 
