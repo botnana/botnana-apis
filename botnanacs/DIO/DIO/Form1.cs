@@ -20,10 +20,18 @@ namespace DIO
     {
         private Botnana bot;
 
+        private int wsState = 0;
         private HandleMessage onWSError;
         public void OnWSErrorCallback(IntPtr ptr, string data)
         {
+            wsState = 0;
             new Thread(() => System.Windows.Forms.MessageBox.Show("WS error : " + data)).Start();
+        }
+
+        private HandleMessage onWSOpen;
+        public void OnWSOpenCallback(IntPtr ptr, string data)
+        {
+            wsState = 2;
         }
 
         private int messageCount = 0;
@@ -79,6 +87,9 @@ namespace DIO
 
             bot = new Botnana("192.168.7.2");
 
+            onWSOpen = new HandleMessage(OnWSOpenCallback);
+            bot.SetOnOpenCB(IntPtr.Zero, onWSOpen);
+
             onWSError = new HandleMessage(OnWSErrorCallback);
             bot.SetOnErrorCB(IntPtr.Zero, onWSError);
 
@@ -106,23 +117,22 @@ namespace DIO
             timer2.Enabled = true;
         }
 
-        private bool has_slave_info = false;
+        private bool hasSlaveInfo = false;
 
         private void timer1_Tick(object sender, EventArgs e)
         {
             if (slavesCount > 0)
             {
-                if (has_slave_info)
+                if (hasSlaveInfo)
                 {
                     bot.EvaluateScript("2 .slave-diff 3 .slave-diff");
                 }
                 else
                 {
                     bot.EvaluateScript("2 .slave 3 .slave");
-                    has_slave_info = true;
+                    hasSlaveInfo = true;
                 }
             }
-
 
             labMessageCount.Text = messageCount.ToString("X2");
             textSlavesCount.Text = slavesCount.ToString();
@@ -283,6 +293,34 @@ namespace DIO
         private void timer2_Tick(object sender, EventArgs e)
         {
             bot.EvaluateScript(".ec-links");
+            // 設定 WsConnected 連線狀態的顏色 
+            if (wsState == 2)
+            {
+                buttonWsConnected.BackColor = Color.SpringGreen;
+            }
+            else if (wsState == 1)
+            {
+                buttonWsConnected.BackColor = Color.Gold;
+            }
+            else
+            {
+                buttonWsConnected.BackColor = Color.IndianRed;
+            }
+        }
+
+        private void button2_Click(object sender, EventArgs e)
+        {
+            bot.Connect();
+            if (wsState != 2)
+            {
+                wsState = 1;
+                hasSlaveInfo = false;
+            }
+        }
+
+        private void button1_Click(object sender, EventArgs e)
+        {
+            bot.Reboot();
         }
     }
 }
