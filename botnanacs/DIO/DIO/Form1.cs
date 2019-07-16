@@ -15,19 +15,20 @@ using BotnanaLib;
 
 namespace DIO
 {
+
     public partial class Form1 : Form
     {
         private Botnana bot;
 
         private HandleMessage onWSError;
-        public void OnWSErrorCallback(string data)
+        public void OnWSErrorCallback(IntPtr ptr, string data)
         {
             new Thread(() => System.Windows.Forms.MessageBox.Show("WS error : " + data)).Start();
         }
-                
+
         private int messageCount = 0;
         private HandleMessage onMessage;
-        public void OnMessageCallback(string data)
+        public void OnMessageCallback(IntPtr ptr, string data)
         {
             messageCount++;
             if (messageCount > 256)
@@ -38,14 +39,14 @@ namespace DIO
 
         private HandleMessage onDiWord;
         private UInt32 diWord;
-        private void OnDiWordCallback(string str)
+        private void OnDiWordCallback(IntPtr ptr, string str)
         {
             diWord = UInt32.Parse(str);
         }
 
         private HandleMessage onDoWord;
         private UInt32 doWord;
-        private void OnDoWordCallback(string str)
+        private void OnDoWordCallback(IntPtr ptr, string str)
         {
             doWord = UInt32.Parse(str);
 
@@ -53,14 +54,14 @@ namespace DIO
 
         private int slavesCount = 0;
         private HandleMessage onSlavesResponding;
-        private void OnSlavesRespondingCallback(string str)
+        private void OnSlavesRespondingCallback(IntPtr ptr, string str)
         {
             slavesCount = int.Parse(str);
         }
 
         private int slavesState = 0;
         private HandleMessage onSlavesState;
-        private void OnSlavesStateCallback(string str)
+        private void OnSlavesStateCallback(IntPtr ptr, string str)
         {
             slavesState = int.Parse(str);
         }
@@ -75,29 +76,29 @@ namespace DIO
         {
             Process thisProc = Process.GetCurrentProcess();
             thisProc.PriorityClass = ProcessPriorityClass.RealTime;
-            
+
             bot = new Botnana("192.168.7.2");
-            
+
             onWSError = new HandleMessage(OnWSErrorCallback);
-            bot.SetOnErrorCB(onWSError);
+            bot.SetOnErrorCB(IntPtr.Zero, onWSError);
 
             onMessage = new HandleMessage(OnMessageCallback);
-            bot.SetOnMessageCB(onMessage);
+            bot.SetOnMessageCB(IntPtr.Zero, onMessage);
 
             onDiWord = new HandleMessage(OnDiWordCallback);
-            bot.SetTagCB("din_wd.1.3", 0, onDiWord);
-                        
+            bot.SetTagCB("din_wd.1.3", 0, IntPtr.Zero, onDiWord);
+
             onDoWord = new HandleMessage(OnDoWordCallback);
-            bot.SetTagCB("dout_wd.1.2", 0, onDoWord);
+            bot.SetTagCB("dout_wd.1.2", 0, IntPtr.Zero, onDoWord);
 
             onSlavesResponding = new HandleMessage(OnSlavesRespondingCallback);
-            bot.SetTagCB($"slaves_responding", 0, onSlavesResponding);
+            bot.SetTagCB($"slaves_responding", 0, IntPtr.Zero, onSlavesResponding);
 
             onSlavesState = new HandleMessage(OnSlavesStateCallback);
-            bot.SetTagCB($"al_states", 0, onSlavesState);
+            bot.SetTagCB($"al_states", 0, IntPtr.Zero, onSlavesState);
 
             bot.Connect();
-           
+
             timer1.Interval = 50;
             timer1.Enabled = true;
 
@@ -118,10 +119,10 @@ namespace DIO
                 else
                 {
                     bot.EvaluateScript("2 .slave 3 .slave");
-                   has_slave_info = true;
+                    has_slave_info = true;
                 }
             }
-                      
+
 
             labMessageCount.Text = messageCount.ToString("X2");
             textSlavesCount.Text = slavesCount.ToString();
@@ -197,7 +198,7 @@ namespace DIO
             int value = checkDo6.Checked ? 1 : 0;
             bot.EvaluateScript(value.ToString() + " 6 2 ec-dout!");
         }
-        
+
         private void checkDo7_Click(object sender, EventArgs e)
         {
             int value = checkDo7.Checked ? 1 : 0;
@@ -255,7 +256,7 @@ namespace DIO
             int value = checkDo16.Checked ? 1 : 0;
             bot.EvaluateScript(value.ToString() + " 16 2 ec-dout!");
         }
-        
+
         private void set_dout_wd()
         {
             Int32 number;
@@ -265,7 +266,7 @@ namespace DIO
             }
             textDoWord.Text = "";
         }
-        
+
         private void textDoWord_KeyDown(object sender, KeyEventArgs e)
         {
             if (e.KeyCode == Keys.Enter)
