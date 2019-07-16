@@ -8,7 +8,7 @@ using System.Runtime.InteropServices;
 namespace BotnanaLib
 {
     [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
-    public delegate void HandleMessage(string value);
+    public delegate void HandleMessage(IntPtr dataPtr, string value);
 
     public class Botnana
     {
@@ -86,33 +86,33 @@ namespace BotnanaLib
         }
 
         // Set callback function of WS on_open event
-        public void SetOnOpenCB(HandleMessage hm)
+        public void SetOnOpenCB(IntPtr dataPtr, HandleMessage hm)
         {
-            botnana_set_on_open_cb_dll(innerBotnana, hm);
+            botnana_set_on_open_cb_dll(innerBotnana, dataPtr, hm);
         }
 
         // Set callback function of WS on_error event
-        public void SetOnErrorCB(HandleMessage hm)
+        public void SetOnErrorCB(IntPtr dataPtr, HandleMessage hm)
         {
-            botnana_set_on_error_cb_dll(innerBotnana, hm);
+            botnana_set_on_error_cb_dll(innerBotnana, dataPtr, hm);
         }
 
         // Set callback function of WS on_message event
-        public void SetOnMessageCB(HandleMessage hm)
+        public void SetOnMessageCB(IntPtr dataPtr, HandleMessage hm)
         {
-            botnana_set_on_message_cb_dll(innerBotnana, hm);
+            botnana_set_on_message_cb_dll(innerBotnana, dataPtr, hm);
         }
 
         // Set callback function of WS on_send event
-        public void SetOnSendCB(HandleMessage hm)
+        public void SetOnSendCB(IntPtr dataPtr, HandleMessage hm)
         {
-            botnana_set_on_send_cb_dll(innerBotnana, hm);
+            botnana_set_on_send_cb_dll(innerBotnana, dataPtr, hm);
         }
 
         // Set callback function of tag 
-        public void SetTagCB(string tag, int count, HandleMessage hm)
+        public void SetTagCB(string tag, int count, IntPtr dataPtr, HandleMessage hm)
         {
-            botnana_set_tag_cb_dll(innerBotnana, tag, count, hm);
+            botnana_set_tag_cb_dll(innerBotnana, tag, count, dataPtr, hm);
         }
 
         // Depoly program to NC background task
@@ -505,19 +505,23 @@ namespace BotnanaLib
         private static extern IntPtr program_new_dll(string name);
 
         [DllImport(@"BotnanaApi.dll", CharSet = CharSet.Ansi, CallingConvention = CallingConvention.Cdecl)]
-        private static extern void botnana_set_tag_cb_dll(IntPtr desc, string tag, int count, HandleMessage hm);
+        private static extern void botnana_set_tag_cb_dll(IntPtr desc, string tag, int count, IntPtr dataPtr, HandleMessage hm);
 
         [DllImport(@"BotnanaApi.dll", CharSet = CharSet.Ansi, CallingConvention = CallingConvention.Cdecl)]
-        private static extern void botnana_set_on_open_cb_dll(IntPtr desc, HandleMessage hm);
+        private static extern void botnana_set_tagname_cb_dll(IntPtr desc, string tagName, int count, IntPtr dataPtr, HandleMessage hm);
+
 
         [DllImport(@"BotnanaApi.dll", CharSet = CharSet.Ansi, CallingConvention = CallingConvention.Cdecl)]
-        private static extern void botnana_set_on_error_cb_dll(IntPtr desc, HandleMessage hm);
+        private static extern void botnana_set_on_open_cb_dll(IntPtr desc, IntPtr dataPt, HandleMessage hm);
 
         [DllImport(@"BotnanaApi.dll", CharSet = CharSet.Ansi, CallingConvention = CallingConvention.Cdecl)]
-        private static extern void botnana_set_on_message_cb_dll(IntPtr desc, HandleMessage hm);
+        private static extern void botnana_set_on_error_cb_dll(IntPtr desc, IntPtr dataPt, HandleMessage hm);
 
         [DllImport(@"BotnanaApi.dll", CharSet = CharSet.Ansi, CallingConvention = CallingConvention.Cdecl)]
-        private static extern void botnana_set_on_send_cb_dll(IntPtr desc, HandleMessage hm);
+        private static extern void botnana_set_on_message_cb_dll(IntPtr desc, IntPtr dataPt, HandleMessage hm);
+
+        [DllImport(@"BotnanaApi.dll", CharSet = CharSet.Ansi, CallingConvention = CallingConvention.Cdecl)]
+        private static extern void botnana_set_on_send_cb_dll(IntPtr desc, IntPtr dataPtr, HandleMessage hm);
 
         [DllImport(@"BotnanaApi.dll", CharSet = CharSet.Ansi, CallingConvention = CallingConvention.Cdecl)]
         private static extern void program_line_dll(IntPtr pm, string cmd);
