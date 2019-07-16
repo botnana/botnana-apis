@@ -1,5 +1,5 @@
 CFLAGS = -Isrc
-LDFLAGS = ./lib/libbotnana.a -ldl -pthread -lssl -lcrypto -O2
+LDFLAGS = ./lib/libbotnana.a -ldl -pthread -lssl -lcrypto -O2 -lm
 
 fmt:
 	cargo fmt
@@ -75,6 +75,6 @@ debug:
 
 all: build words config_slave config_motion config_group config_axis group1d version drive_pp recorder
 	 
-clean: fmt
+clean: 
 	-rm *.o botnana */*.c.orig */*.h.orig
 			
