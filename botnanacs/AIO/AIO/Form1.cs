@@ -167,27 +167,47 @@ namespace AIO
         private bool hasAoutsMode = false;
         private void OnAout1ModeCallback(IntPtr dataPtr, string str)
         {
-            aoutsMode[1] = int.Parse(str);
+            int mode = int.Parse(str);
+            if (mode >= 0 && mode <= 3)
+            {
+                aoutsMode[1] = mode;
+            }
         }
         private void OnAout2ModeCallback(IntPtr dataPtr, string str)
         {
-            aoutsMode[2] = int.Parse(str);
+            int mode = int.Parse(str);
+            if (mode >= 0 && mode <= 3)
+            {
+                aoutsMode[2] = mode;
+            }
         }
         private void OnAout3ModeCallback(IntPtr dataPtr, string str)
         {
-            aoutsMode[3] = int.Parse(str);
+            int mode = int.Parse(str);
+            if (mode >= 0 && mode <= 3)
+            {
+                aoutsMode[3] = mode;
+            }
         }
         private void OnAout4ModeCallback(IntPtr dataPtr, string str)
         {
-            aoutsMode[4] = int.Parse(str);
-            hasAoutsMode = true;
+            int mode = int.Parse(str);
+            if (mode >= 0 && mode <= 3)
+            {
+                aoutsMode[4] = mode;
+                hasAoutsMode = true;
+            }
         }
 
         private bool hasAinMode = false;
         private void OnAinModeCallback(IntPtr dataPtr, string str)
         {
-            ainMode = int.Parse(str);
-            hasAinMode = true;
+            int mode = int.Parse(str);
+            if (mode >= 0 && mode <= 1)
+            {
+                ainMode = mode;
+                hasAinMode = true;
+            }
         }
 
         private HandleMessage onUserParameter;
