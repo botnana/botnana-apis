@@ -4,63 +4,66 @@
 #include "botnana.h"
 
 // 處理主站傳回的資料
-void on_message_cb (const char * src)
+void on_message_cb (void * data, const char * src)
 {
     printf("on_message:  %s\n", src);
 }
 
-int ws_open = 0;
 // 處理 WebSocket on_open
-void on_ws_open_cb (const char * src)
+void on_ws_open_cb (void * data, const char * src)
 {
-    ws_open = 1;
+    int * open = (int *) data;
+    *open = 1;
 }
 
 // 處理 WebSocket 連線異常
-void on_ws_error_cb (const char * src)
+void on_ws_error_cb (void * data, const char * src)
 {
+    int * open = (int *) data;
+    *open = 0;
     printf("WS client error: %s\n", src);
     exit(1);
 }
 
-void on_send_cb (const char * src)
+void on_send_cb (void * data, const char * src)
 {
     printf("on_send: %s\n", src);
 }
 
-int is_finished = 0;
-void end_of_program (const char * src)
+void end_of_program (void * data, const char * src)
 {
     if (strstr(src, "ok") != 0)
     {
-        is_finished = 1;
+        int * finished = (int *) data;
+        *finished = 1;
     }
 }
 
-int deployed_ok = 0;
-void deployed_cb (const char * src)
+void deployed_cb (void * data, const char * src)
 {
-    deployed_ok = 1;
+    int * ok = (int *) data;
+    *ok = 1;
 }
 
-int real_position = 0;
-void real_position_cb (const char * src)
+
+void real_position_cb (void * data, const char * src)
 {
-    real_position = atoi(src);
+    int * pos = (int *) data;
+    *pos = atoi(src);
 }
 
-int target_position = 0;
-void target_position_cb (const char * src)
+void target_position_cb (void * data, const char * src)
 {
-    target_position = atoi(src);
+    int * pos = (int *) data;
+    *pos = atoi(src);
 }
 
-void log_cb (const char * src)
+void log_cb (void * data, const char * src)
 {
     printf("log|%s\n", src);
 }
 
-void error_cb (const char * src)
+void error_cb (void * data, const char * src)
 {
     printf("error|%s\n", src);
 }
@@ -68,18 +71,24 @@ void error_cb (const char * src)
 
 int main()
 {
+    int ws_open = 0;
+    int is_finished = 0;
+    int deployed_ok = 0;
+    int real_position = 0;
+    int target_position = 0;
+
     // connect to motion server
     struct Botnana * botnana = botnana_new("192.168.7.2");
-    botnana_set_on_open_cb(botnana, on_ws_open_cb);
-    botnana_set_on_error_cb(botnana, on_ws_error_cb);
+    botnana_set_on_open_cb(botnana, (void *) & ws_open, on_ws_open_cb);
+    botnana_set_on_error_cb(botnana, (void *) & ws_open, on_ws_error_cb);
     //botnana_set_on_message_cb(botnana, on_message_cb);
     //botnana_set_on_send_cb(botnana, on_send_cb);
-    botnana_set_tag_cb(botnana, "end-of-program", 0, end_of_program);
-    botnana_set_tag_cb(botnana, "deployed", 0, deployed_cb);
-    botnana_set_tag_cb(botnana, "real_position.1.1", 0, real_position_cb);
-    botnana_set_tag_cb(botnana, "target_position.1.1", 0, target_position_cb);
-    botnana_set_tag_cb(botnana, "log", 0, log_cb);
-    botnana_set_tag_cb(botnana, "error", 0, error_cb);
+    botnana_set_tag_cb(botnana, "end-of-program", 0, (void *) & is_finished, end_of_program);
+    botnana_set_tag_cb(botnana, "deployed", 0, (void *) & deployed_ok, deployed_cb);
+    botnana_set_tag_cb(botnana, "real_position.1.1", 0,  (void *) & real_position, real_position_cb);
+    botnana_set_tag_cb(botnana, "target_position.1.1", 0,  (void *) & target_position, target_position_cb);
+    botnana_set_tag_cb(botnana, "log", 0, NULL, log_cb);
+    botnana_set_tag_cb(botnana, "error", 0, NULL ,error_cb);
     // new program
     struct Program * pm = program_new("drive-pp");
 
