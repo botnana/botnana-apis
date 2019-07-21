@@ -5,7 +5,7 @@ authors = ["Mapacode Inc."]
 
 [dependencies]
 libc = "0.2"
-botnanars = { path = "../botnanars"}
+botnanars = {git="https://github.com/botnana/botnana-api-rs.git"}
 
 [lib]
 name="botnana"
