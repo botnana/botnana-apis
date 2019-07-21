@@ -3,7 +3,7 @@ LDFLAGS = ./lib/libbotnana.a -ldl -pthread -lssl -lcrypto -O2 -lm
 
 fmt:
 	cargo fmt
-	astyle --style=allman -r *.c *.h
+	astyle --style=allman -r "*.c" "*.h"
 
 i686:
 	cargo build --release --target=i686-unknown-linux-gnu

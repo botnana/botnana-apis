@@ -5,12 +5,22 @@ use std::{boxed::Box,
           os::raw::{c_char, c_void},
           str};
 
+const VERSION: &'static str = env!("CARGO_PKG_VERSION");
+
+#[no_mangle]
+/// Rust Library Version
+pub extern "C" fn rust_library_version() -> *const c_char {
+    let version = CString::new(Botnana::version()).expect("rust library version");
+    version.into_raw()
+}
+
 #[no_mangle]
 /// Library Version
 pub extern "C" fn library_version() -> *const c_char {
-    let version = CString::new(Botnana::version()).expect("library version");
+    let version = CString::new(VERSION).expect("library version");
     version.into_raw()
 }
+
 
 /// New Botnana
 /// `ip`: IP of botnana
