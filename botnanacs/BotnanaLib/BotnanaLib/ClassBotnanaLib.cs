@@ -19,13 +19,13 @@ namespace BotnanaLib
         public Botnana()
         {
             innerBotnana = botnana_new_dll("192.168.7.2");
-            innerProgrm = program_new_dll("program");
+            innerProgram = program_new_dll("program");
         }
 
         public Botnana(string ip)
         {
             innerBotnana = botnana_new_dll(ip);
-            innerProgrm = program_new_dll("program");
+            innerProgram = program_new_dll("program");
         }
 
         // Library version
@@ -133,25 +133,25 @@ namespace BotnanaLib
         // Depoly program to NC background task
         public void DeployProgram()
         {
-            program_deploy_dll(innerBotnana, innerProgrm);
+            program_deploy_dll(innerBotnana, innerProgram);
         }
 
         // Add command to program 
         public void AddProgramLine(string script)
         {
-            program_line_dll(innerProgrm, script);
+            program_line_dll(innerProgram, script);
         }
 
         // Run Program
         public void RunProgram()
         {
-            program_run_dll(innerBotnana, innerProgrm);
+            program_run_dll(innerBotnana, innerProgram);
         }
 
         // Clear program
         public void ClearProgram()
         {
-            program_clear_dll(innerProgrm);
+            program_clear_dll(innerProgram);
         }
 
         // Abort program
@@ -167,7 +167,7 @@ namespace BotnanaLib
         }
 
         // 清除 SFC
-        public void ClearSFC(string path)
+        public void ClearSFC()
         {
             script_evaluate_dll(innerBotnana, $"0sfc");
         }
@@ -481,7 +481,7 @@ namespace BotnanaLib
         }
 
         private IntPtr innerBotnana;
-        private IntPtr innerProgrm;
+        private IntPtr innerProgram;
 
         [DllImport(@"BotnanaApi.dll", CharSet = CharSet.Ansi, CallingConvention = CallingConvention.Cdecl)]
         private static extern string library_version_dll();
