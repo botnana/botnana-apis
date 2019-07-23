@@ -150,7 +150,7 @@
             // 
             this.buttonWSControl.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(224)))), ((int)(((byte)(224)))), ((int)(((byte)(224)))));
             this.buttonWSControl.Font = new System.Drawing.Font("微軟正黑體", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(136)));
-            this.buttonWSControl.Location = new System.Drawing.Point(53, 564);
+            this.buttonWSControl.Location = new System.Drawing.Point(53, 582);
             this.buttonWSControl.Name = "buttonWSControl";
             this.buttonWSControl.Size = new System.Drawing.Size(130, 40);
             this.buttonWSControl.TabIndex = 1;
@@ -161,7 +161,7 @@
             // buttonReboot
             // 
             this.buttonReboot.Font = new System.Drawing.Font("微軟正黑體", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(136)));
-            this.buttonReboot.Location = new System.Drawing.Point(53, 615);
+            this.buttonReboot.Location = new System.Drawing.Point(53, 633);
             this.buttonReboot.Name = "buttonReboot";
             this.buttonReboot.Size = new System.Drawing.Size(130, 40);
             this.buttonReboot.TabIndex = 2;
@@ -177,7 +177,7 @@
             // 
             this.labelAPPState.BackColor = System.Drawing.Color.Gray;
             this.labelAPPState.Font = new System.Drawing.Font("微軟正黑體", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(136)));
-            this.labelAPPState.Location = new System.Drawing.Point(21, 510);
+            this.labelAPPState.Location = new System.Drawing.Point(21, 528);
             this.labelAPPState.Name = "labelAPPState";
             this.labelAPPState.Size = new System.Drawing.Size(200, 40);
             this.labelAPPState.TabIndex = 3;
@@ -247,11 +247,12 @@
             // labelAXEMGS
             // 
             this.labelAXEMGS.AutoSize = true;
-            this.labelAXEMGS.Location = new System.Drawing.Point(291, 219);
+            this.labelAXEMGS.Font = new System.Drawing.Font("微軟正黑體", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(136)));
+            this.labelAXEMGS.Location = new System.Drawing.Point(291, 220);
             this.labelAXEMGS.Name = "labelAXEMGS";
-            this.labelAXEMGS.Size = new System.Drawing.Size(51, 19);
+            this.labelAXEMGS.Size = new System.Drawing.Size(151, 17);
             this.labelAXEMGS.TabIndex = 57;
-            this.labelAXEMGS.Text = "EMGS";
+            this.labelAXEMGS.Text = "EMGS : Emergency stop";
             // 
             // textBoxAXPPD
             // 
@@ -287,11 +288,12 @@
             // labelAXCRDY
             // 
             this.labelAXCRDY.AutoSize = true;
-            this.labelAXCRDY.Location = new System.Drawing.Point(291, 193);
+            this.labelAXCRDY.Font = new System.Drawing.Font("微軟正黑體", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(136)));
+            this.labelAXCRDY.Location = new System.Drawing.Point(291, 194);
             this.labelAXCRDY.Name = "labelAXCRDY";
-            this.labelAXCRDY.Size = new System.Drawing.Size(49, 19);
+            this.labelAXCRDY.Size = new System.Drawing.Size(150, 17);
             this.labelAXCRDY.TabIndex = 55;
-            this.labelAXCRDY.Text = "CRDY";
+            this.labelAXCRDY.Text = "CRDY : Controller ready";
             // 
             // textBoxAXMCCV
             // 
@@ -327,11 +329,12 @@
             // labelAXZONE2
             // 
             this.labelAXZONE2.AutoSize = true;
-            this.labelAXZONE2.Location = new System.Drawing.Point(291, 168);
+            this.labelAXZONE2.Font = new System.Drawing.Font("微軟正黑體", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(136)));
+            this.labelAXZONE2.Location = new System.Drawing.Point(291, 169);
             this.labelAXZONE2.Name = "labelAXZONE2";
-            this.labelAXZONE2.Size = new System.Drawing.Size(59, 19);
+            this.labelAXZONE2.Size = new System.Drawing.Size(148, 17);
             this.labelAXZONE2.TabIndex = 53;
-            this.labelAXZONE2.Text = "ZONE2";
+            this.labelAXZONE2.Text = "ZONE2 : Zone output 2";
             // 
             // textBoxAXPSPD
             // 
@@ -367,11 +370,12 @@
             // labelAXZONE1
             // 
             this.labelAXZONE1.AutoSize = true;
-            this.labelAXZONE1.Location = new System.Drawing.Point(291, 142);
+            this.labelAXZONE1.Font = new System.Drawing.Font("微軟正黑體", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(136)));
+            this.labelAXZONE1.Location = new System.Drawing.Point(291, 143);
             this.labelAXZONE1.Name = "labelAXZONE1";
-            this.labelAXZONE1.Size = new System.Drawing.Size(59, 19);
+            this.labelAXZONE1.Size = new System.Drawing.Size(148, 17);
             this.labelAXZONE1.TabIndex = 51;
-            this.labelAXZONE1.Text = "ZONE1";
+            this.labelAXZONE1.Text = "ZONE1 : Zone output 1";
             // 
             // textBoxAXALMC
             // 
@@ -397,11 +401,12 @@
             // labelAXPZONE
             // 
             this.labelAXPZONE.AutoSize = true;
-            this.labelAXPZONE.Location = new System.Drawing.Point(291, 116);
+            this.labelAXPZONE.Font = new System.Drawing.Font("微軟正黑體", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(136)));
+            this.labelAXPZONE.Location = new System.Drawing.Point(291, 117);
             this.labelAXPZONE.Name = "labelAXPZONE";
-            this.labelAXPZONE.Size = new System.Drawing.Size(59, 19);
+            this.labelAXPZONE.Size = new System.Drawing.Size(187, 17);
             this.labelAXPZONE.TabIndex = 49;
-            this.labelAXPZONE.Text = "PZONE";
+            this.labelAXPZONE.Text = "PZONE : Position zone output";
             // 
             // ledAXPZONE
             // 
@@ -417,11 +422,12 @@
             // labelAXMODES
             // 
             this.labelAXMODES.AutoSize = true;
-            this.labelAXMODES.Location = new System.Drawing.Point(291, 91);
+            this.labelAXMODES.Font = new System.Drawing.Font("微軟正黑體", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(136)));
+            this.labelAXMODES.Location = new System.Drawing.Point(291, 92);
             this.labelAXMODES.Name = "labelAXMODES";
-            this.labelAXMODES.Size = new System.Drawing.Size(63, 19);
+            this.labelAXMODES.Size = new System.Drawing.Size(197, 17);
             this.labelAXMODES.TabIndex = 47;
-            this.labelAXMODES.Text = "MODES";
+            this.labelAXMODES.Text = "MODES : Teaching mode status";
             // 
             // ledAXMODES
             // 
@@ -437,11 +443,12 @@
             // labelAXWEND
             // 
             this.labelAXWEND.AutoSize = true;
-            this.labelAXWEND.Location = new System.Drawing.Point(291, 65);
+            this.labelAXWEND.Font = new System.Drawing.Font("微軟正黑體", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(136)));
+            this.labelAXWEND.Location = new System.Drawing.Point(291, 66);
             this.labelAXWEND.Name = "labelAXWEND";
-            this.labelAXWEND.Size = new System.Drawing.Size(55, 19);
+            this.labelAXWEND.Size = new System.Drawing.Size(209, 17);
             this.labelAXWEND.TabIndex = 45;
-            this.labelAXWEND.Text = "WEND";
+            this.labelAXWEND.Text = "WEND : Position import complete";
             // 
             // ledAXWEND
             // 
@@ -457,11 +464,12 @@
             // labelAXMEND
             // 
             this.labelAXMEND.AutoSize = true;
-            this.labelAXMEND.Location = new System.Drawing.Point(291, 40);
+            this.labelAXMEND.Font = new System.Drawing.Font("微軟正黑體", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(136)));
+            this.labelAXMEND.Location = new System.Drawing.Point(291, 41);
             this.labelAXMEND.Name = "labelAXMEND";
-            this.labelAXMEND.Size = new System.Drawing.Size(54, 19);
+            this.labelAXMEND.Size = new System.Drawing.Size(180, 17);
             this.labelAXMEND.TabIndex = 43;
-            this.labelAXMEND.Text = "MEND";
+            this.labelAXMEND.Text = "MEND : Command complete";
             // 
             // ledAXMEND
             // 
@@ -477,18 +485,19 @@
             // labelAXALML
             // 
             this.labelAXALML.AutoSize = true;
-            this.labelAXALML.Location = new System.Drawing.Point(99, 220);
+            this.labelAXALML.Font = new System.Drawing.Font("微軟正黑體", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(136)));
+            this.labelAXALML.Location = new System.Drawing.Point(64, 222);
             this.labelAXALML.Name = "labelAXALML";
-            this.labelAXALML.Size = new System.Drawing.Size(49, 19);
+            this.labelAXALML.Size = new System.Drawing.Size(202, 17);
             this.labelAXALML.TabIndex = 41;
-            this.labelAXALML.Text = "ALML";
+            this.labelAXALML.Text = "ALML : Minor malfunction alarm";
             // 
             // ledAXALML
             // 
             this.ledAXALML.AutoSize = true;
             this.ledAXALML.BackColor = System.Drawing.SystemColors.Control;
             this.ledAXALML.ForeColor = System.Drawing.Color.LightGray;
-            this.ledAXALML.Location = new System.Drawing.Point(69, 220);
+            this.ledAXALML.Location = new System.Drawing.Point(34, 220);
             this.ledAXALML.Name = "ledAXALML";
             this.ledAXALML.Size = new System.Drawing.Size(24, 19);
             this.ledAXALML.TabIndex = 40;
@@ -497,18 +506,19 @@
             // labelAXLOAD
             // 
             this.labelAXLOAD.AutoSize = true;
-            this.labelAXLOAD.Location = new System.Drawing.Point(99, 193);
+            this.labelAXLOAD.Font = new System.Drawing.Font("微軟正黑體", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(136)));
+            this.labelAXLOAD.Location = new System.Drawing.Point(64, 195);
             this.labelAXLOAD.Name = "labelAXLOAD";
-            this.labelAXLOAD.Size = new System.Drawing.Size(50, 19);
+            this.labelAXLOAD.Size = new System.Drawing.Size(194, 17);
             this.labelAXLOAD.TabIndex = 39;
-            this.labelAXLOAD.Text = "LOAD";
+            this.labelAXLOAD.Text = "LOAD : Load output judgment ";
             // 
             // ledAXLOAD
             // 
             this.ledAXLOAD.AutoSize = true;
             this.ledAXLOAD.BackColor = System.Drawing.SystemColors.Control;
             this.ledAXLOAD.ForeColor = System.Drawing.Color.LightGray;
-            this.ledAXLOAD.Location = new System.Drawing.Point(69, 193);
+            this.ledAXLOAD.Location = new System.Drawing.Point(34, 193);
             this.ledAXLOAD.Name = "ledAXLOAD";
             this.ledAXLOAD.Size = new System.Drawing.Size(24, 19);
             this.ledAXLOAD.TabIndex = 38;
@@ -517,18 +527,19 @@
             // labelAXPSFL
             // 
             this.labelAXPSFL.AutoSize = true;
-            this.labelAXPSFL.Location = new System.Drawing.Point(99, 168);
+            this.labelAXPSFL.Font = new System.Drawing.Font("微軟正黑體", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(136)));
+            this.labelAXPSFL.Location = new System.Drawing.Point(64, 170);
             this.labelAXPSFL.Name = "labelAXPSFL";
-            this.labelAXPSFL.Size = new System.Drawing.Size(43, 19);
+            this.labelAXPSFL.Size = new System.Drawing.Size(199, 17);
             this.labelAXPSFL.TabIndex = 37;
-            this.labelAXPSFL.Text = "PSFL";
+            this.labelAXPSFL.Text = "PSFL : Push-motion contactless ";
             // 
             // ledAXPSFL
             // 
             this.ledAXPSFL.AutoSize = true;
             this.ledAXPSFL.BackColor = System.Drawing.SystemColors.Control;
             this.ledAXPSFL.ForeColor = System.Drawing.Color.LightGray;
-            this.ledAXPSFL.Location = new System.Drawing.Point(69, 168);
+            this.ledAXPSFL.Location = new System.Drawing.Point(34, 168);
             this.ledAXPSFL.Name = "ledAXPSFL";
             this.ledAXPSFL.Size = new System.Drawing.Size(24, 19);
             this.ledAXPSFL.TabIndex = 36;
@@ -537,18 +548,19 @@
             // labelAXSV
             // 
             this.labelAXSV.AutoSize = true;
-            this.labelAXSV.Location = new System.Drawing.Point(99, 142);
+            this.labelAXSV.Font = new System.Drawing.Font("微軟正黑體", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(136)));
+            this.labelAXSV.Location = new System.Drawing.Point(64, 144);
             this.labelAXSV.Name = "labelAXSV";
-            this.labelAXSV.Size = new System.Drawing.Size(28, 19);
+            this.labelAXSV.Size = new System.Drawing.Size(135, 17);
             this.labelAXSV.TabIndex = 35;
-            this.labelAXSV.Text = "SV";
+            this.labelAXSV.Text = "SV : Operation ready ";
             // 
             // ledAXSV
             // 
             this.ledAXSV.AutoSize = true;
             this.ledAXSV.BackColor = System.Drawing.SystemColors.Control;
             this.ledAXSV.ForeColor = System.Drawing.Color.LightGray;
-            this.ledAXSV.Location = new System.Drawing.Point(69, 142);
+            this.ledAXSV.Location = new System.Drawing.Point(34, 142);
             this.ledAXSV.Name = "ledAXSV";
             this.ledAXSV.Size = new System.Drawing.Size(24, 19);
             this.ledAXSV.TabIndex = 34;
@@ -557,18 +569,19 @@
             // labelAXALM
             // 
             this.labelAXALM.AutoSize = true;
-            this.labelAXALM.Location = new System.Drawing.Point(99, 117);
+            this.labelAXALM.Font = new System.Drawing.Font("微軟正黑體", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(136)));
+            this.labelAXALM.Location = new System.Drawing.Point(64, 119);
             this.labelAXALM.Name = "labelAXALM";
-            this.labelAXALM.Size = new System.Drawing.Size(41, 19);
+            this.labelAXALM.Size = new System.Drawing.Size(85, 17);
             this.labelAXALM.TabIndex = 33;
-            this.labelAXALM.Text = "ALM";
+            this.labelAXALM.Text = "ALM : Alarm ";
             // 
             // ledAXALM
             // 
             this.ledAXALM.AutoSize = true;
             this.ledAXALM.BackColor = System.Drawing.SystemColors.Control;
             this.ledAXALM.ForeColor = System.Drawing.Color.LightGray;
-            this.ledAXALM.Location = new System.Drawing.Point(69, 117);
+            this.ledAXALM.Location = new System.Drawing.Point(34, 117);
             this.ledAXALM.Name = "ledAXALM";
             this.ledAXALM.Size = new System.Drawing.Size(24, 19);
             this.ledAXALM.TabIndex = 32;
@@ -577,18 +590,19 @@
             // labelAXMOVE
             // 
             this.labelAXMOVE.AutoSize = true;
-            this.labelAXMOVE.Location = new System.Drawing.Point(99, 91);
+            this.labelAXMOVE.Font = new System.Drawing.Font("微軟正黑體", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(136)));
+            this.labelAXMOVE.Location = new System.Drawing.Point(64, 93);
             this.labelAXMOVE.Name = "labelAXMOVE";
-            this.labelAXMOVE.Size = new System.Drawing.Size(53, 19);
+            this.labelAXMOVE.Size = new System.Drawing.Size(112, 17);
             this.labelAXMOVE.TabIndex = 31;
-            this.labelAXMOVE.Text = "MOVE";
+            this.labelAXMOVE.Text = "MOVE : Traveling";
             // 
             // ledAXMOVE
             // 
             this.ledAXMOVE.AutoSize = true;
             this.ledAXMOVE.BackColor = System.Drawing.SystemColors.Control;
             this.ledAXMOVE.ForeColor = System.Drawing.Color.LightGray;
-            this.ledAXMOVE.Location = new System.Drawing.Point(69, 91);
+            this.ledAXMOVE.Location = new System.Drawing.Point(34, 91);
             this.ledAXMOVE.Name = "ledAXMOVE";
             this.ledAXMOVE.Size = new System.Drawing.Size(24, 19);
             this.ledAXMOVE.TabIndex = 30;
@@ -597,18 +611,19 @@
             // labelAXHEND
             // 
             this.labelAXHEND.AutoSize = true;
-            this.labelAXHEND.Location = new System.Drawing.Point(99, 66);
+            this.labelAXHEND.Font = new System.Drawing.Font("微軟正黑體", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(136)));
+            this.labelAXHEND.Location = new System.Drawing.Point(64, 68);
             this.labelAXHEND.Name = "labelAXHEND";
-            this.labelAXHEND.Size = new System.Drawing.Size(51, 19);
+            this.labelAXHEND.Size = new System.Drawing.Size(194, 17);
             this.labelAXHEND.TabIndex = 29;
-            this.labelAXHEND.Text = "HEND";
+            this.labelAXHEND.Text = "HEND : Home return complete ";
             // 
             // ledAXHEND
             // 
             this.ledAXHEND.AutoSize = true;
             this.ledAXHEND.BackColor = System.Drawing.SystemColors.Control;
             this.ledAXHEND.ForeColor = System.Drawing.Color.LightGray;
-            this.ledAXHEND.Location = new System.Drawing.Point(69, 66);
+            this.ledAXHEND.Location = new System.Drawing.Point(34, 66);
             this.ledAXHEND.Name = "ledAXHEND";
             this.ledAXHEND.Size = new System.Drawing.Size(24, 19);
             this.ledAXHEND.TabIndex = 28;
@@ -617,18 +632,19 @@
             // labelAXPEND
             // 
             this.labelAXPEND.AutoSize = true;
-            this.labelAXPEND.Location = new System.Drawing.Point(99, 40);
+            this.labelAXPEND.Font = new System.Drawing.Font("微軟正黑體", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(136)));
+            this.labelAXPEND.Location = new System.Drawing.Point(64, 42);
             this.labelAXPEND.Name = "labelAXPEND";
-            this.labelAXPEND.Size = new System.Drawing.Size(49, 19);
+            this.labelAXPEND.Size = new System.Drawing.Size(182, 17);
             this.labelAXPEND.TabIndex = 27;
-            this.labelAXPEND.Text = "PEND";
+            this.labelAXPEND.Text = "PEND : Positioning complete ";
             // 
             // ledAXPEND
             // 
             this.ledAXPEND.AutoSize = true;
             this.ledAXPEND.BackColor = System.Drawing.SystemColors.Control;
             this.ledAXPEND.ForeColor = System.Drawing.Color.LightGray;
-            this.ledAXPEND.Location = new System.Drawing.Point(69, 40);
+            this.ledAXPEND.Location = new System.Drawing.Point(34, 40);
             this.ledAXPEND.Name = "ledAXPEND";
             this.ledAXPEND.Size = new System.Drawing.Size(24, 19);
             this.ledAXPEND.TabIndex = 26;
@@ -904,7 +920,9 @@
             // groupAXControl
             // 
             this.groupAXControl.Controls.Add(this.labelAXPSD);
+            this.groupAXControl.Controls.Add(this.labelSelectAX);
             this.groupAXControl.Controls.Add(this.textBoxAXPSD);
+            this.groupAXControl.Controls.Add(this.comboBoxSelectedAX);
             this.groupAXControl.Controls.Add(this.labelAXPW);
             this.groupAXControl.Controls.Add(this.textBoxAXPW);
             this.groupAXControl.Controls.Add(this.labelAXSPD);
@@ -1040,9 +1058,9 @@
             this.labelAXBKRL.AutoSize = true;
             this.labelAXBKRL.Location = new System.Drawing.Point(295, 296);
             this.labelAXBKRL.Name = "labelAXBKRL";
-            this.labelAXBKRL.Size = new System.Drawing.Size(156, 38);
+            this.labelAXBKRL.Size = new System.Drawing.Size(153, 38);
             this.labelAXBKRL.TabIndex = 25;
-            this.labelAXBKRL.Text = "BKRL :\r\nForced brake release.";
+            this.labelAXBKRL.Text = "BKRL :\r\nForced brake release";
             // 
             // labelAXCL
             // 
@@ -1084,9 +1102,9 @@
             this.labelAXINC.AutoSize = true;
             this.labelAXINC.Location = new System.Drawing.Point(295, 246);
             this.labelAXINC.Name = "labelAXINC";
-            this.labelAXINC.Size = new System.Drawing.Size(94, 38);
+            this.labelAXINC.Size = new System.Drawing.Size(91, 38);
             this.labelAXINC.TabIndex = 23;
-            this.labelAXINC.Text = "INC :\r\nIncremental.";
+            this.labelAXINC.Text = "INC :\r\nIncremental";
             // 
             // ledAXINC
             // 
@@ -1106,9 +1124,9 @@
             this.labelAXDIR.AutoSize = true;
             this.labelAXDIR.Location = new System.Drawing.Point(295, 194);
             this.labelAXDIR.Name = "labelAXDIR";
-            this.labelAXDIR.Size = new System.Drawing.Size(180, 38);
+            this.labelAXDIR.Size = new System.Drawing.Size(177, 38);
             this.labelAXDIR.TabIndex = 21;
-            this.labelAXDIR.Text = "DIR :\r\nSpecified push direction.";
+            this.labelAXDIR.Text = "DIR :\r\nSpecified push direction";
             // 
             // ledAXDIR
             // 
@@ -1128,9 +1146,9 @@
             this.labelAXPUSH.AutoSize = true;
             this.labelAXPUSH.Location = new System.Drawing.Point(295, 144);
             this.labelAXPUSH.Name = "labelAXPUSH";
-            this.labelAXPUSH.Size = new System.Drawing.Size(192, 38);
+            this.labelAXPUSH.Size = new System.Drawing.Size(189, 38);
             this.labelAXPUSH.TabIndex = 19;
-            this.labelAXPUSH.Text = "PUSH :\r\nPush-motion specification.";
+            this.labelAXPUSH.Text = "PUSH :\r\nPush-motion specification";
             // 
             // ledAXPUSH
             // 
@@ -1196,7 +1214,7 @@
             this.labelAXJVEL.Name = "labelAXJVEL";
             this.labelAXJVEL.Size = new System.Drawing.Size(211, 57);
             this.labelAXJVEL.TabIndex = 13;
-            this.labelAXJVEL.Text = "JVEL :\r\nJog velocity/inching distance\r\nswitchover.";
+            this.labelAXJVEL.Text = "JVEL :\r\nJog velocity/inching distance\r\nswitchover";
             // 
             // ledAXJVEL
             // 
@@ -1216,9 +1234,9 @@
             this.labelAXJISL.AutoSize = true;
             this.labelAXJISL.Location = new System.Drawing.Point(67, 297);
             this.labelAXJISL.Name = "labelAXJISL";
-            this.labelAXJISL.Size = new System.Drawing.Size(143, 38);
+            this.labelAXJISL.Size = new System.Drawing.Size(140, 38);
             this.labelAXJISL.TabIndex = 11;
-            this.labelAXJISL.Text = "JISL :\r\nJog/Inching switch.";
+            this.labelAXJISL.Text = "JISL :\r\nJog/Inching switch";
             // 
             // ledAXJISL
             // 
@@ -1238,9 +1256,9 @@
             this.labelAXSON.AutoSize = true;
             this.labelAXSON.Location = new System.Drawing.Point(67, 246);
             this.labelAXSON.Name = "labelAXSON";
-            this.labelAXSON.Size = new System.Drawing.Size(80, 38);
+            this.labelAXSON.Size = new System.Drawing.Size(77, 38);
             this.labelAXSON.TabIndex = 9;
-            this.labelAXSON.Text = "SON :\r\nServo ON.";
+            this.labelAXSON.Text = "SON :\r\nServo ON";
             // 
             // ledAXSON
             // 
@@ -1260,9 +1278,9 @@
             this.labelAXRES.AutoSize = true;
             this.labelAXRES.Location = new System.Drawing.Point(67, 198);
             this.labelAXRES.Name = "labelAXRES";
-            this.labelAXRES.Size = new System.Drawing.Size(50, 38);
+            this.labelAXRES.Size = new System.Drawing.Size(47, 38);
             this.labelAXRES.TabIndex = 7;
-            this.labelAXRES.Text = "RES :\r\nReset.";
+            this.labelAXRES.Text = "RES :\r\nReset";
             // 
             // ledAXRES
             // 
@@ -1282,9 +1300,9 @@
             this.labelAXSTP.AutoSize = true;
             this.labelAXSTP.Location = new System.Drawing.Point(67, 147);
             this.labelAXSTP.Name = "labelAXSTP";
-            this.labelAXSTP.Size = new System.Drawing.Size(53, 38);
+            this.labelAXSTP.Size = new System.Drawing.Size(50, 38);
             this.labelAXSTP.TabIndex = 5;
-            this.labelAXSTP.Text = "STP :\r\nPause.";
+            this.labelAXSTP.Text = "STP :\r\nPause";
             // 
             // ledAXSTP
             // 
@@ -1304,9 +1322,9 @@
             this.labelAXHOME.AutoSize = true;
             this.labelAXHOME.Location = new System.Drawing.Point(67, 97);
             this.labelAXHOME.Name = "labelAXHOME";
-            this.labelAXHOME.Size = new System.Drawing.Size(104, 38);
+            this.labelAXHOME.Size = new System.Drawing.Size(101, 38);
             this.labelAXHOME.TabIndex = 3;
-            this.labelAXHOME.Text = "HOME :\r\nStart homing.";
+            this.labelAXHOME.Text = "HOME :\r\nStart homing";
             // 
             // ledAXHOME
             // 
@@ -1326,9 +1344,9 @@
             this.labelAXCSTR.AutoSize = true;
             this.labelAXCSTR.Location = new System.Drawing.Point(67, 46);
             this.labelAXCSTR.Name = "labelAXCSTR";
-            this.labelAXCSTR.Size = new System.Drawing.Size(128, 38);
+            this.labelAXCSTR.Size = new System.Drawing.Size(125, 38);
             this.labelAXCSTR.TabIndex = 1;
-            this.labelAXCSTR.Text = "CSTR :\r\nStart positioning.";
+            this.labelAXCSTR.Text = "CSTR :\r\nStart positioning";
             // 
             // ledAXCSTR
             // 
@@ -1356,7 +1374,7 @@
             "4",
             "5",
             "6"});
-            this.comboBoxSelectedAX.Location = new System.Drawing.Point(151, 717);
+            this.comboBoxSelectedAX.Location = new System.Drawing.Point(673, 376);
             this.comboBoxSelectedAX.Name = "comboBoxSelectedAX";
             this.comboBoxSelectedAX.Size = new System.Drawing.Size(60, 28);
             this.comboBoxSelectedAX.TabIndex = 8;
@@ -1367,7 +1385,7 @@
             // 
             this.labelSelectAX.AutoSize = true;
             this.labelSelectAX.Font = new System.Drawing.Font("微軟正黑體", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(136)));
-            this.labelSelectAX.Location = new System.Drawing.Point(30, 720);
+            this.labelSelectAX.Location = new System.Drawing.Point(552, 379);
             this.labelSelectAX.Name = "labelSelectAX";
             this.labelSelectAX.Size = new System.Drawing.Size(115, 20);
             this.labelSelectAX.TabIndex = 9;
@@ -1376,7 +1394,7 @@
             // buttonPLCEnable
             // 
             this.buttonPLCEnable.Font = new System.Drawing.Font("微軟正黑體", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(136)));
-            this.buttonPLCEnable.Location = new System.Drawing.Point(53, 665);
+            this.buttonPLCEnable.Location = new System.Drawing.Point(53, 683);
             this.buttonPLCEnable.Name = "buttonPLCEnable";
             this.buttonPLCEnable.Size = new System.Drawing.Size(130, 40);
             this.buttonPLCEnable.TabIndex = 10;
@@ -1390,8 +1408,6 @@
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(1035, 758);
             this.Controls.Add(this.buttonPLCEnable);
-            this.Controls.Add(this.labelSelectAX);
-            this.Controls.Add(this.comboBoxSelectedAX);
             this.Controls.Add(this.groupAX);
             this.Controls.Add(this.groupGW);
             this.Controls.Add(this.labelAPPState);
@@ -1411,7 +1427,6 @@
             this.groupAXControl.ResumeLayout(false);
             this.groupAXControl.PerformLayout();
             this.ResumeLayout(false);
-            this.PerformLayout();
 
         }
 
