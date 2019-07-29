@@ -1,14 +1,13 @@
 ﻿<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
     <PropertyGroup>
-        <ProjectGuid>{46956E93-CF6B-479B-81D8-80576BB8CC33}</ProjectGuid>
+        <ProjectGuid>{59239204-63BF-4C1F-964C-E6BA540286CF}</ProjectGuid>
         <ProjectVersion>18.6</ProjectVersion>
-        <FrameworkType>VCL</FrameworkType>
-        <AppType>Application</AppType>
-        <MainSource>SingleDrive.cpp</MainSource>
+        <FrameworkType>None</FrameworkType>
         <Base>True</Base>
         <Config Condition="'$(Config)'==''">Release</Config>
         <Platform Condition="'$(Platform)'==''">Win32</Platform>
         <TargetedPlatforms>1</TargetedPlatforms>
+        <AppType>StaticLibrary</AppType>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Config)'=='Base' or '$(Base)'!=''">
         <Base>true</Base>
@@ -23,21 +22,9 @@
         <CfgParent>Base</CfgParent>
         <Base>true</Base>
     </PropertyGroup>
-    <PropertyGroup Condition="('$(Platform)'=='Win32' and '$(Cfg_1)'=='true') or '$(Cfg_1_Win32)'!=''">
-        <Cfg_1_Win32>true</Cfg_1_Win32>
-        <CfgParent>Cfg_1</CfgParent>
-        <Cfg_1>true</Cfg_1>
-        <Base>true</Base>
-    </PropertyGroup>
     <PropertyGroup Condition="'$(Config)'=='Release' or '$(Cfg_2)'!=''">
         <Cfg_2>true</Cfg_2>
         <CfgParent>Base</CfgParent>
-        <Base>true</Base>
-    </PropertyGroup>
-    <PropertyGroup Condition="('$(Platform)'=='Win32' and '$(Cfg_2)'=='true') or '$(Cfg_2_Win32)'!=''">
-        <Cfg_2_Win32>true</Cfg_2_Win32>
-        <CfgParent>Cfg_2</CfgParent>
-        <Cfg_2>true</Cfg_2>
         <Base>true</Base>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Base)'!=''">
@@ -50,28 +37,15 @@
         <BCC_OptimizeForSpeed>true</BCC_OptimizeForSpeed>
         <BCC_ExtendedErrorInfo>true</BCC_ExtendedErrorInfo>
         <ILINK_TranslatedLibraryPath>$(BDSLIB)\$(PLATFORM)\release\$(LANGDIR);$(ILINK_TranslatedLibraryPath)</ILINK_TranslatedLibraryPath>
-        <ProjectType>CppVCLApplication</ProjectType>
+        <ProjectType>CppStaticLibrary</ProjectType>
         <PackageImports>inet;$(PackageImports)</PackageImports>
-        <DCC_Namespace>System;Xml;Data;Datasnap;Web;Soap;Vcl;Vcl.Imaging;Vcl.Touch;Vcl.Samples;Vcl.Shell;$(DCC_Namespace)</DCC_Namespace>
-        <AllPackageLibs>rtl.lib;vcl.lib</AllPackageLibs>
-        <_TCHARMapping>wchar_t</_TCHARMapping>
-        <Multithreaded>true</Multithreaded>
-        <Icon_MainIcon>$(BDS)\bin\cbuilder_PROJECTICON.ico</Icon_MainIcon>
-        <UWP_CppLogo44>$(BDS)\bin\Artwork\Windows\UWP\cppreg_UwpDefault_44.png</UWP_CppLogo44>
-        <UWP_CppLogo150>$(BDS)\bin\Artwork\Windows\UWP\cppreg_UwpDefault_150.png</UWP_CppLogo150>
-        <SanitizedProjectName>SingleDrive</SanitizedProjectName>
-        <IncludePath>..\BotnanaLib\;..\..\botnanacs\BotnanaApi\BotnanaApi\;$(IncludePath)</IncludePath>
-        <ILINK_LibraryPath>..\BotnanaLib\;..\..\botnanacs\BotnanaApi\BotnanaApi\;$(ILINK_LibraryPath)</ILINK_LibraryPath>
+        <DCC_Namespace>System;Xml;Data;Datasnap;Web;Soap;$(DCC_Namespace)</DCC_Namespace>
+        <SanitizedProjectName>BotnanaLib</SanitizedProjectName>
+        <IncludePath>..\..\botnanacs\BotnanaApi\BotnanaApi\;$(IncludePath)</IncludePath>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Base_Win32)'!=''">
         <PackageImports>appanalytics;bcbsmp;bindcomp;bindcompfmx;bindcompvcl;bindengine;CustomIPTransport;dbrtl;dsnap;fmx;fmxase;fmxdae;fmxobj;IndyCore;IndyProtocols;IndySystem;rtl;svn;tethering;vcl;vclactnband;vcldb;vcldsnap;vclie;vclimg;VclSmp;vcltouch;vclwinx;vclx;xmlrtl;$(PackageImports)</PackageImports>
-        <IncludePath>$(BDSINCLUDE)\windows\vcl;$(IncludePath)</IncludePath>
         <DCC_Namespace>Winapi;System.Win;Data.Win;Datasnap.Win;Web.Win;Soap.Win;Xml.Win;Bde;$(DCC_Namespace)</DCC_Namespace>
-        <VerInfo_IncludeVerInfo>true</VerInfo_IncludeVerInfo>
-        <VerInfo_Keys>CompanyName=;FileDescription=$(MSBuildProjectName);FileVersion=1.0.0.0;InternalName=;LegalCopyright=;LegalTrademarks=;OriginalFilename=;ProgramID=com.embarcadero.$(MSBuildProjectName);ProductName=$(MSBuildProjectName);ProductVersion=1.0.0.0;Comments=</VerInfo_Keys>
-        <VerInfo_Locale>1033</VerInfo_Locale>
-        <Manifest_File>$(BDS)\bin\default_app.manifest</Manifest_File>
-        <ILINK_LibraryPath>D:\mapacode\bitbucket\botnana-apis\botnanabcb\BotnanaLib\Win32\Release\;D:\mapacode\bitbucket\botnana-apis\botnanabcb\SingleDrive\;$(ILINK_LibraryPath)</ILINK_LibraryPath>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Cfg_1)'!=''">
         <BCC_OptimizeForSpeed>false</BCC_OptimizeForSpeed>
@@ -95,52 +69,20 @@
         <ILINK_LibraryPath>$(BDSLIB)\$(PLATFORM)\debug;$(ILINK_LibraryPath)</ILINK_LibraryPath>
         <ILINK_TranslatedLibraryPath>$(BDSLIB)\$(PLATFORM)\debug\$(LANGDIR);$(ILINK_TranslatedLibraryPath)</ILINK_TranslatedLibraryPath>
     </PropertyGroup>
-    <PropertyGroup Condition="'$(Cfg_1_Win32)'!=''">
-        <AppEnableRuntimeThemes>true</AppEnableRuntimeThemes>
-        <LinkPackageImports>rtl.bpi;vcl.bpi</LinkPackageImports>
-        <AppDPIAwarenessMode>PerMonitor</AppDPIAwarenessMode>
-    </PropertyGroup>
     <PropertyGroup Condition="'$(Cfg_2)'!=''">
         <Defines>NDEBUG;$(Defines)</Defines>
         <TASM_Debugging>None</TASM_Debugging>
     </PropertyGroup>
-    <PropertyGroup Condition="'$(Cfg_2_Win32)'!=''">
-        <AppEnableRuntimeThemes>true</AppEnableRuntimeThemes>
-        <LinkPackageImports>rtl.bpi;vcl.bpi</LinkPackageImports>
-        <VerInfo_IncludeVerInfo>true</VerInfo_IncludeVerInfo>
-        <VerInfo_Locale>1033</VerInfo_Locale>
-        <AppDPIAwarenessMode>PerMonitor</AppDPIAwarenessMode>
-    </PropertyGroup>
     <ItemGroup>
-        <None Include="..\BotnanaLib\BotnanaLib.h">
-            <BuildOrder>7</BuildOrder>
-        </None>
-        <LibFiles Include="..\BotnanaLib\Win32\Release\BotnanaLib.lib" Condition="'$(Platform)'=='Win32'">
-            <BuildOrder>6</BuildOrder>
-            <IgnorePath>true</IgnorePath>
-        </LibFiles>
-        <CppCompile Include="bcbhmi.cpp">
-            <Form>Form1</Form>
-            <FormType>dfm</FormType>
-            <DependentOn>bcbhmi.h</DependentOn>
+        <CppCompile Include="BotnanaLib.cpp">
             <BuildOrder>2</BuildOrder>
         </CppCompile>
-        <LibFiles Include="BotnanaApiBCB.lib" Condition="'$(Platform)'=='Win32'">
-            <BuildOrder>5</BuildOrder>
-            <IgnorePath>true</IgnorePath>
-        </LibFiles>
-        <CppCompile Include="SingleDrive.cpp">
+        <None Include="BotnanaLib.h">
             <BuildOrder>0</BuildOrder>
-        </CppCompile>
-        <PCHCompile Include="SingleDrivePCH1.h">
-            <BuildOrder>1</BuildOrder>
-            <PCH>true</PCH>
-        </PCHCompile>
-        <None Include="..\..\botnanacs\BotnanaApi\BotnanaApi\BotnanaApi.h">
-            <BuildOrder>5</BuildOrder>
         </None>
-        <None Include="..\..\botnanacs\BotnanaApi\Release\BotnanaApi.dll"/>
-        <FormResources Include="bcbhmi.dfm"/>
+        <None Include="..\..\botnanacs\BotnanaApi\BotnanaApi\BotnanaApi.h">
+            <BuildOrder>1</BuildOrder>
+        </None>
         <BuildConfiguration Include="Release">
             <Key>Cfg_2</Key>
             <CfgParent>Base</CfgParent>
@@ -155,7 +97,7 @@
     </ItemGroup>
     <ProjectExtensions>
         <Borland.Personality>CPlusPlusBuilder.Personality.12</Borland.Personality>
-        <Borland.ProjectType>CppVCLApplication</Borland.ProjectType>
+        <Borland.ProjectType>CppStaticLibrary</Borland.ProjectType>
         <BorlandProject>
             <CPlusPlusBuilder.Personality>
                 <ProjectProperties>
@@ -164,9 +106,6 @@
                     <ProjectProperties Name="VerifyPackages">True</ProjectProperties>
                     <ProjectProperties Name="IndexFiles">False</ProjectProperties>
                 </ProjectProperties>
-                <Source>
-                    <Source Name="MainSource">SingleDrive.cpp</Source>
-                </Source>
             </CPlusPlusBuilder.Personality>
             <Platforms>
                 <Platform value="Win32">True</Platform>

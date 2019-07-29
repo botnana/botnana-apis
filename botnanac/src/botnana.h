@@ -15,9 +15,18 @@ struct Botnana;
 // return : Library Version
 const char * library_version();
 
+// Rust Library Version
+//
+// return : Library Version
+const char * rust_library_version();
+
 // New Botnana motion server descriptor
 // ip: motion server IP address
 struct Botnana * botnana_new(const char * ip);
+
+// Clone Botnana motion server descriptor
+// desc : motion server descriptor
+struct Botnana * botnana_clone(struct Botnana * desc);
 
 // connect to motion server
 // desc: IP of motion server
@@ -50,15 +59,15 @@ const char * botnana_url(struct Botnana * desc);
 // Set on_open callback function
 // desc: motion server descriptor
 // cb  : on_open callback function
-void botnana_set_on_open_cb(struct Botnana * desc,
-                            void (* cb)(const char * str));
+void botnana_set_on_open_cb(struct Botnana * desc,void * ptr,
+                            void (* cb)(void * ptr, const char * str));
 
 
 // Set on_error callback function
 // desc: motion server descriptor
 // cb  : on_error callback function
-void botnana_set_on_error_cb(struct Botnana * desc,
-                             void (* cb)(const char * str));
+void botnana_set_on_error_cb(struct Botnana * desc,void * ptr,
+                             void (* cb)(void * ptr, const char * str));
 
 
 // Send raw message
@@ -73,20 +82,34 @@ void botnana_send_message(struct Botnana * desc,
 int32_t botnana_set_tag_cb (struct Botnana * desc,
                             const char * tag,
                             uint32_t count,
-                            void (* cb)(const char * str));
+                            void * ptr,
+                            void (* cb)(void * ptr, const char * str));
+
+
+// Set tag callback function
+// desc  : motion server descriptor
+// tag   : tag
+// count : called times, 0 as always
+// cb    : handle corresponding valve function
+int32_t botnana_set_tagname_cb (struct Botnana * desc,
+                                const char * tag,
+                                uint32_t count,
+                                void * ptr,
+                                void (* cb)(void * ptr, uint32_t position, uint32_t channel, const char * str));
+
 
 // Set on_message callback function
 // desc: motion server descriptor
 // cb  : on_message callback function
-void botnana_set_on_message_cb(struct Botnana * desc,
-                               void (* cb)(const char * str));
+void botnana_set_on_message_cb(struct Botnana * desc,void * ptr,
+                               void (* cb)(void * ptr, const char * str));
 
 
 // Set on_send callback function
 // desc: server descriptor
 // cb:   on_send callback function
-void botnana_set_on_send_cb(struct Botnana * desc,
-                            void (* cb)(const char * str));
+void botnana_set_on_send_cb(struct Botnana * desc,void * ptr,
+                            void (* cb)(void * ptr, const char * str));
 
 
 // Send script to command buffer

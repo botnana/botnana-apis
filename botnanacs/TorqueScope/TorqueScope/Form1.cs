@@ -29,14 +29,14 @@ namespace TorqueScope
 
         private int wsState = 0;
         private HandleMessage onWSError;
-        private void OnWSErrorCallback(string data)
+        private void OnWSErrorCallback(IntPtr dataPtr, string data)
         {
             wsState = 0;
             new Thread(() => System.Windows.Forms.MessageBox.Show("WS error : " + data)).Start();
         }
 
         private HandleMessage onWSOpen;
-        private void OnWSOpenCallback(string data)
+        private void OnWSOpenCallback(IntPtr dataPtr, string data)
         {
             wsState = 2;
         }
@@ -45,7 +45,7 @@ namespace TorqueScope
 
         private int messageCount = 0;
         private HandleMessage onMessage;
-        private void OnMessageCallback(string data)
+        private void OnMessageCallback(IntPtr dataPtr, string data)
         {
             //MessageBox.Show("On message : " + data);
             messageCount++;
@@ -57,7 +57,7 @@ namespace TorqueScope
 
         private HandleMessage onRTRealTorque;
         private bool plotEnabled = false;
-        private void OnRTRealTorqueCallback(string str)
+        private void OnRTRealTorqueCallback(IntPtr dataPtr, string str)
         {
             if (plotEnabled)
             {
@@ -76,14 +76,14 @@ namespace TorqueScope
 
         private HandleMessage onRealTorque;
         private Int32 realTorque;
-        private void OnRealTorqueCallback(string str)
+        private void OnRealTorqueCallback(IntPtr dataPtr, string str)
         {
             realTorque = Int32.Parse(str);
         }
 
         // 取得 userParameter
         private HandleMessage onUserParameter;
-        private void OnUserParameterCallback(string str)
+        private void OnUserParameterCallback(IntPtr dataPtr, string str)
         {
             int para = Int32.Parse(str);
             switch (para)
@@ -113,42 +113,42 @@ namespace TorqueScope
 
         private HandleMessage onRealPosition;
         private int realPosition;
-        private void OnRealPositionCallback(string str)
+        private void OnRealPositionCallback(IntPtr dataPtr, string str)
         {
             realPosition = int.Parse(str);
         }
 
         private HandleMessage onDigitalInputs;
         private int digitalInputs;
-        private void OnDigitalInputsCallback(string str)
+        private void OnDigitalInputsCallback(IntPtr dataPtr, string str)
         {
             digitalInputs = Convert.ToInt32(str, 16);
         }
 
         private HandleMessage onTargetPosition;
         private int targetPosition;
-        private void OnTargetPositionCallback(string str)
+        private void OnTargetPositionCallback(IntPtr dataPtr, string str)
         {
             targetPosition = int.Parse(str);
         }
 
         private HandleMessage onPDSState;
         private string pdsState = "--";
-        private void OnPDSStateCallback(string str)
+        private void OnPDSStateCallback(IntPtr dataPtr, string str)
         {
             pdsState = str;
         }
 
         private HandleMessage onDriveStatus;
         private string driveStatus = "--";
-        private void OnDriveStatusCallback(string str)
+        private void OnDriveStatusCallback(IntPtr dataPtr, string str)
         {
             driveStatus = str;
         }
 
         private HandleMessage onOperationMode;
         private string operationMode = "--";
-        private void OnOperationModeCallback(string str)
+        private void OnOperationModeCallback(IntPtr dataPtr, string str)
         {
             switch (str)
             {
@@ -168,83 +168,83 @@ namespace TorqueScope
 
         private HandleMessage onHomingMethod;
         private int homingMethod = 0;
-        private void OnHomingMethodCallback(string str)
+        private void OnHomingMethodCallback(IntPtr dataPtr, string str)
         {
             homingMethod = int.Parse(str);
         }
 
         private HandleMessage onHomingSpeed1;
         private int homingSpeed1;
-        private void OnHomingSpeed1Callback(string str)
+        private void OnHomingSpeed1Callback(IntPtr dataPtr, string str)
         {
             homingSpeed1 = int.Parse(str);
         }
 
         private HandleMessage onHomingSpeed2;
         private int homingSpeed2;
-        private void OnHomingSpeed2Callback(string str)
+        private void OnHomingSpeed2Callback(IntPtr dataPtr, string str)
         {
             homingSpeed2 = int.Parse(str);
         }
 
         private HandleMessage onHomingAcc;
         private int homingAcc;
-        private void OnHomingAccCallback(string str)
+        private void OnHomingAccCallback(IntPtr dataPtr, string str)
         {
             homingAcc = int.Parse(str);
         }
 
         private HandleMessage onProfileVelocity;
         private int profileVelocity;
-        private void OnProfileVelocityCallback(string str)
+        private void OnProfileVelocityCallback(IntPtr dataPtr, string str)
         {
             profileVelocity = int.Parse(str);
         }
 
         private HandleMessage onProfileAcc;
         private int profileAcc;
-        private void OnProfileAccCallback(string str)
+        private void OnProfileAccCallback(IntPtr dataPtr, string str)
         {
             profileAcc = int.Parse(str);
         }
 
         private int slavesCount = 0;
         private HandleMessage onSlavesResponding;
-        private void OnSlavesRespondingCallback(string str)
+        private void OnSlavesRespondingCallback(IntPtr dataPtr, string str)
         {
             slavesCount = int.Parse(str);
         }
 
         private int slavesState = 0;
         private HandleMessage onSlavesState;
-        private void OnSlavesStateCallback(string str)
+        private void OnSlavesStateCallback(IntPtr dataPtr, string str)
         {
             slavesState = int.Parse(str);
         }
 
         private HandleMessage onWaitingSDOs;
         private int waitingSDOs;
-        private void OnWaitingSDOsCallback(string str)
+        private void OnWaitingSDOsCallback(IntPtr dataPtr, string str)
         {
             waitingSDOs = int.Parse(str);
         }
 
         private HandleMessage onErrorMessage;
-        public void OnErrorMessageCallback(string data)
+        public void OnErrorMessageCallback(IntPtr dataPtr, string data)
         {
             new Thread(() => System.Windows.Forms.MessageBox.Show("Error|" + data)).Start();
         }
 
         private HandleMessage onAxisPosition;
         private double axisPosition;
-        public void OnAxisPositionCallback(string str)
+        public void OnAxisPositionCallback(IntPtr dataPtr, string str)
         {
             axisPosition = double.Parse(str) * 1000.0;
         }
 
         private HandleMessage onFeedbackPosition;
         private double feedbackPosition;
-        private void OnFeedbackPositionCallback(string str)
+        private void OnFeedbackPositionCallback(IntPtr dataPtr, string str)
         {
             feedbackPosition = double.Parse(str) * 1000.0;
         }
@@ -256,63 +256,63 @@ namespace TorqueScope
 
         private HandleMessage onEncoderLengthUnit;
         private string encoderLengthUnit = "m";
-        public void OnEncoderLengthUnitCallback(string str)
+        public void OnEncoderLengthUnitCallback(IntPtr dataPtr, string str)
         {
             encoderLengthUnit = str;
         }
 
         private HandleMessage onEncoderPPU;
         private double encoderPPU = 0.0;
-        public void OnEncoderPPUCallback(string str)
+        public void OnEncoderPPUCallback(IntPtr dataPtr, string str)
         {
             encoderPPU = double.Parse(str);
         }
 
         private HandleMessage onDriveAlias;
         private int driveAlias;
-        public void OnDriveAliasCallback(string str)
+        public void OnDriveAliasCallback(IntPtr dataPtr, string str)
         {
             driveAlias = int.Parse(str);
         }
 
         private HandleMessage onDriveSlavePosition;
         private int driveSlavePosition;
-        public void OnDriveSlavePositionCallback(string str)
+        public void OnDriveSlavePositionCallback(IntPtr dataPtr, string str)
         {
             driveSlavePosition = int.Parse(str);
         }
 
         private HandleMessage onDriveChannel;
         private int driveChannel;
-        public void OnDriveChannelCallback(string str)
+        public void OnDriveChannelCallback(IntPtr dataPtr, string str)
         {
             driveChannel = int.Parse(str);
         }
 
         private HandleMessage onAxisVmax;
         private double axisVmax = 0.0;
-        public void OnAxisVmaxCallback(string str)
+        public void OnAxisVmaxCallback(IntPtr dataPtr, string str)
         {
             axisVmax = double.Parse(str) * 1000.0 * 60.0;
         }
 
         private HandleMessage onAxisAmax;
         private double axisAmax = 0.0;
-        public void OnAxisAmaxCallback(string str)
+        public void OnAxisAmaxCallback(IntPtr dataPtr, string str)
         {
             axisAmax = double.Parse(str);
         }
 
         private HandleMessage onGroupType;
         private string groupType = "--";
-        public void OnGroupTypeCallback(string str)
+        public void OnGroupTypeCallback(IntPtr dataPtr, string str)
         {
             groupType = str;
         }
 
         private HandleMessage onGroupMapping;
         private string groupMapping = "--";
-        public void OnGroupMappingCallback(string str)
+        public void OnGroupMappingCallback(IntPtr dataPtr, string str)
         {
             groupMapping = str;
         }
@@ -320,27 +320,27 @@ namespace TorqueScope
 
         private HandleMessage onGroupVmax;
         private double groupVmax = 0.0;
-        public void OnGroupVmaxCallback(string str)
+        public void OnGroupVmaxCallback(IntPtr dataPtr, string str)
         {
             groupVmax = double.Parse(str) * 1000.0 * 60.0;
         }
 
         private HandleMessage onGroupAmax;
         private double groupAmax = 0.0;
-        public void OnGroupAmaxCallback(string str)
+        public void OnGroupAmaxCallback(IntPtr dataPtr, string str)
         {
             groupAmax = double.Parse(str);
         }
 
         private HandleMessage onGroupJmax;
         private double groupJmax = 0.0;
-        public void OnGroupJmaxCallback(string str)
+        public void OnGroupJmaxCallback(IntPtr dataPtr, string str)
         {
             groupJmax = double.Parse(str);
         }
 
         private HandleMessage onTravelTime;
-        public void OnTravelTimeCallback(string str)
+        public void OnTravelTimeCallback(IntPtr dataPtr, string str)
         {
             new Thread(() => System.Windows.Forms.MessageBox.Show("TravelTime|" + str)).Start();
         }
@@ -358,80 +358,80 @@ namespace TorqueScope
             bot = new Botnana("192.168.7.2");
 
             onWSError = new HandleMessage(OnWSErrorCallback);
-            bot.SetOnErrorCB(onWSError);
+            bot.SetOnErrorCB(IntPtr.Zero, onWSError);
             onWSOpen = new HandleMessage(OnWSOpenCallback);
-            bot.SetOnOpenCB(onWSOpen);
+            bot.SetOnOpenCB(IntPtr.Zero, onWSOpen);
             onMessage = new HandleMessage(OnMessageCallback);
-            bot.SetOnMessageCB(onMessage);
+            bot.SetOnMessageCB(IntPtr.Zero, onMessage);
 
             onUserParameter = new HandleMessage(OnUserParameterCallback);
-            bot.SetTagCB($"user_parameter", 0, onUserParameter);
+            bot.SetTagCB($"user_parameter", 0, IntPtr.Zero, onUserParameter);
             onRTRealTorque = new HandleMessage(OnRTRealTorqueCallback);
-            bot.SetTagCB($"rt_real_torque", 0, onRTRealTorque);
+            bot.SetTagCB($"rt_real_torque", 0, IntPtr.Zero, onRTRealTorque);
             onSlavesResponding = new HandleMessage(OnSlavesRespondingCallback);
-            bot.SetTagCB($"slaves_responding", 0, onSlavesResponding);
+            bot.SetTagCB($"slaves_responding", 0, IntPtr.Zero, onSlavesResponding);
             onSlavesState = new HandleMessage(OnSlavesStateCallback);
-            bot.SetTagCB($"al_states", 0, onSlavesState);
+            bot.SetTagCB($"al_states", 0, IntPtr.Zero, onSlavesState);
             onWaitingSDOs = new HandleMessage(OnWaitingSDOsCallback);
-            bot.SetTagCB($"waiting_sdos_len", 0, onWaitingSDOs);
+            bot.SetTagCB($"waiting_sdos_len", 0, IntPtr.Zero, onWaitingSDOs);
             onPDSState = new HandleMessage(OnPDSStateCallback);
-            bot.SetTagCB($"pds_state.1.1", 0, onPDSState);
+            bot.SetTagCB($"pds_state.1.1", 0, IntPtr.Zero, onPDSState);
             onDriveStatus = new HandleMessage(OnDriveStatusCallback);
-            bot.SetTagCB($"status_word.1.1", 0, onDriveStatus);
+            bot.SetTagCB($"status_word.1.1", 0, IntPtr.Zero, onDriveStatus);
             onOperationMode = new HandleMessage(OnOperationModeCallback);
-            bot.SetTagCB($"operation_mode.1.1", 0, onOperationMode);
+            bot.SetTagCB($"operation_mode.1.1", 0, IntPtr.Zero, onOperationMode);
             onHomingMethod = new HandleMessage(OnHomingMethodCallback);
-            bot.SetTagCB($"homing_method.1.1", 0, onHomingMethod);
+            bot.SetTagCB($"homing_method.1.1", 0, IntPtr.Zero, onHomingMethod);
             onHomingSpeed1 = new HandleMessage(OnHomingSpeed1Callback);
-            bot.SetTagCB($"homing_speed_1.1.1", 0, onHomingSpeed1);
+            bot.SetTagCB($"homing_speed_1.1.1", 0, IntPtr.Zero, onHomingSpeed1);
             onHomingSpeed2 = new HandleMessage(OnHomingSpeed2Callback);
-            bot.SetTagCB($"homing_speed_2.1.1", 0, onHomingSpeed2);
+            bot.SetTagCB($"homing_speed_2.1.1", 0, IntPtr.Zero, onHomingSpeed2);
             onHomingAcc = new HandleMessage(OnHomingAccCallback);
-            bot.SetTagCB($"homing_acceleration.1.1", 0, onHomingAcc);
+            bot.SetTagCB($"homing_acceleration.1.1", 0, IntPtr.Zero, onHomingAcc);
             onProfileVelocity = new HandleMessage(OnProfileVelocityCallback);
-            bot.SetTagCB($"profile_velocity.1.1", 0, onProfileVelocity);
+            bot.SetTagCB($"profile_velocity.1.1", 0, IntPtr.Zero, onProfileVelocity);
             onProfileAcc = new HandleMessage(OnProfileAccCallback);
-            bot.SetTagCB($"profile_acceleration.1.1", 0, onProfileAcc);
+            bot.SetTagCB($"profile_acceleration.1.1", 0, IntPtr.Zero, onProfileAcc);
             onRealPosition = new HandleMessage(OnRealPositionCallback);
-            bot.SetTagCB($"real_position.1.1", 0, onRealPosition);
+            bot.SetTagCB($"real_position.1.1", 0, IntPtr.Zero, onRealPosition);
             onRealTorque = new HandleMessage(OnRealTorqueCallback);
-            bot.SetTagCB($"real_torque.1.1", 0, onRealTorque);
+            bot.SetTagCB($"real_torque.1.1", 0, IntPtr.Zero, onRealTorque);
             onDigitalInputs = new HandleMessage(OnDigitalInputsCallback);
-            bot.SetTagCB("digital_inputs.1.1", 0, onDigitalInputs);
+            bot.SetTagCB("digital_inputs.1.1", 0, IntPtr.Zero, onDigitalInputs);
             onTargetPosition = new HandleMessage(OnTargetPositionCallback);
-            bot.SetTagCB($"target_position.1.1", 0, onTargetPosition);
+            bot.SetTagCB($"target_position.1.1", 0, IntPtr.Zero, onTargetPosition);
             onErrorMessage = new HandleMessage(OnErrorMessageCallback);
-            bot.SetTagCB($"error", 0, onErrorMessage);
+            bot.SetTagCB($"error", 0, IntPtr.Zero, onErrorMessage);
             onAxisPosition = new HandleMessage(OnAxisPositionCallback);
-            bot.SetTagCB($"axis_demand_position.1", 0, onAxisPosition);
+            bot.SetTagCB($"axis_demand_position.1", 0, IntPtr.Zero, onAxisPosition);
             onFeedbackPosition = new HandleMessage(OnFeedbackPositionCallback);
-            bot.SetTagCB($"feedback_position.1", 0, onFeedbackPosition);
+            bot.SetTagCB($"feedback_position.1", 0, IntPtr.Zero, onFeedbackPosition);
             onEncoderLengthUnit = new HandleMessage(OnEncoderLengthUnitCallback);
-            bot.SetTagCB($"encoder_length_unit.1", 0, onEncoderLengthUnit);
+            bot.SetTagCB($"encoder_length_unit.1", 0, IntPtr.Zero, onEncoderLengthUnit);
             onEncoderPPU = new HandleMessage(OnEncoderPPUCallback);
-            bot.SetTagCB($"encoder_ppu.1", 0, onEncoderPPU);
+            bot.SetTagCB($"encoder_ppu.1", 0, IntPtr.Zero, onEncoderPPU);
             onDriveAlias = new HandleMessage(OnDriveAliasCallback);
-            bot.SetTagCB($"drive_alias.1", 0, onDriveAlias);
+            bot.SetTagCB($"drive_alias.1", 0, IntPtr.Zero, onDriveAlias);
             onDriveSlavePosition = new HandleMessage(OnDriveSlavePositionCallback);
-            bot.SetTagCB($"drive_slave_position.1", 0, onDriveSlavePosition);
+            bot.SetTagCB($"drive_slave_position.1", 0, IntPtr.Zero, onDriveSlavePosition);
             onDriveChannel = new HandleMessage(OnDriveChannelCallback);
-            bot.SetTagCB($"drive_channel.1", 0, onDriveChannel);
+            bot.SetTagCB($"drive_channel.1", 0, IntPtr.Zero, onDriveChannel);
             onAxisVmax = new HandleMessage(OnAxisVmaxCallback);
-            bot.SetTagCB($"axis_vmax.1", 0, onAxisVmax);
+            bot.SetTagCB($"axis_vmax.1", 0, IntPtr.Zero, onAxisVmax);
             onAxisAmax = new HandleMessage(OnAxisAmaxCallback);
-            bot.SetTagCB($"axis_amax.1", 0, onAxisAmax);
+            bot.SetTagCB($"axis_amax.1", 0, IntPtr.Zero, onAxisAmax);
             onGroupType = new HandleMessage(OnGroupTypeCallback);
-            bot.SetTagCB($"group_type.1", 0, onGroupType);
+            bot.SetTagCB($"group_type.1", 0, IntPtr.Zero, onGroupType);
             onGroupMapping = new HandleMessage(OnGroupMappingCallback);
-            bot.SetTagCB($"group_mapping.1", 0, onGroupMapping);
+            bot.SetTagCB($"group_mapping.1", 0, IntPtr.Zero, onGroupMapping);
             onGroupVmax = new HandleMessage(OnGroupVmaxCallback);
-            bot.SetTagCB($"group_vmax.1", 0, onGroupVmax);
+            bot.SetTagCB($"group_vmax.1", 0, IntPtr.Zero, onGroupVmax);
             onGroupAmax = new HandleMessage(OnGroupAmaxCallback);
-            bot.SetTagCB($"group_amax.1", 0, onGroupAmax);
+            bot.SetTagCB($"group_amax.1", 0, IntPtr.Zero, onGroupAmax);
             onGroupJmax = new HandleMessage(OnGroupJmaxCallback);
-            bot.SetTagCB($"group_jmax.1", 0, onGroupJmax);
+            bot.SetTagCB($"group_jmax.1", 0, IntPtr.Zero, onGroupJmax);
             onTravelTime = new HandleMessage(OnTravelTimeCallback);
-            bot.SetTagCB($"travel_time", 0, onTravelTime);
+            bot.SetTagCB($"travel_time", 0, IntPtr.Zero, onTravelTime);
 
             bot.Connect();
             wsState = 1;

@@ -5,6 +5,7 @@
 **/*.exe
 .project
 botnanac/*.o
+botnanac/lib
 botnanac/*/*.h.orig
 botnanac/*.c.orig
 **/libbotnana.so

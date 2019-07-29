@@ -1,11 +1,11 @@
 [package]
 name = "botnanac"
-version ="0.2.5"
+version ="0.3.5"
 authors = ["Mapacode Inc."]
 
 [dependencies]
 libc = "0.2"
-botnanars = { path = "../botnanars"}
+botnanars = {git="https://github.com/botnana/botnana-api-rs.git"}
 
 [lib]
 name="botnana"

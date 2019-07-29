@@ -16,13 +16,13 @@ namespace AxisGroup
 
         // 因為會有垃圾收集的關係，所以callback 要這樣宣告
         private static HandleMessage onWSError = new HandleMessage(onWSErrorCB);
-        private static void onWSErrorCB(string str)
+        private static void onWSErrorCB(IntPtr dataPtr, string str)
         {
             new Thread(() => System.Windows.Forms.MessageBox.Show("WS error : " + str)).Start();
         }
 
         private static HandleMessage onMessage = new HandleMessage(OnMessageCB);
-        private static void OnMessageCB(string str)
+        private static void OnMessageCB(IntPtr dataPtr, string str)
         {
             //new Thread(() => System.Windows.Forms.MessageBox.Show(str)).Start();
         }
@@ -30,7 +30,7 @@ namespace AxisGroup
         // 更新 MCS 座標系
         private static HandleMessage onMcs = new HandleMessage(OnMcsCB);
         private static double[] mcsPositions;
-        private static void OnMcsCB(string str)
+        private static void OnMcsCB(IntPtr dataPtr, string str)
         {
             int i = 0;
             String[] elements = Regex.Split(str, @",");
@@ -44,7 +44,7 @@ namespace AxisGroup
         // 更新 PCS 座標系
         private static HandleMessage onPcs = new HandleMessage(OnPcsCB);
         private static double[] pcsPositions;
-        private static void OnPcsCB(string str)
+        private static void OnPcsCB(IntPtr dataPtr, string str)
         {
             int i = 0;
             String[] elements = Regex.Split(str, @",");
@@ -58,7 +58,7 @@ namespace AxisGroup
         // 更新軸組 PVA 資訊 
         private static HandleMessage onPva = new HandleMessage(OnPvaCB);
         private static double[] pva;
-        private static void OnPvaCB(string str)
+        private static void OnPvaCB(IntPtr dataPtr, string str)
         {
             int i = 0;
             String[] elements = Regex.Split(str, @",");
@@ -72,7 +72,7 @@ namespace AxisGroup
         // 更新目前在加工總路徑上的位置
         private static HandleMessage onMoveLength = new HandleMessage(OnMoveLengthCB);
         private static double moveLength;
-        private static void OnMoveLengthCB(string str)
+        private static void OnMoveLengthCB(IntPtr dataPtr, string str)
         {
             moveLength = Convert.ToDouble(str);
         }
@@ -80,7 +80,7 @@ namespace AxisGroup
         // 取得 NC 路徑編號
         private static HandleMessage onPathId = new HandleMessage(OnPathIdCB);
         private static int pathId;
-        private static void OnPathIdCB(string str)
+        private static void OnPathIdCB(IntPtr dataPtr, string str)
         {
             pathId = Int32.Parse(str);
         }
@@ -88,7 +88,7 @@ namespace AxisGroup
         // 取得 Servo On 狀態
         private static HandleMessage onServoOn = new HandleMessage(OnServoOnCB);
         private static int servoOn;
-        private static void OnServoOnCB(string str)
+        private static void OnServoOnCB(IntPtr dataPtr, string str)
         {
             servoOn = Int32.Parse(str);
         }
@@ -96,7 +96,7 @@ namespace AxisGroup
         // 運動狀態
         private static HandleMessage onMotionState = new HandleMessage(onMotionStateCB);
         private static int motionState;
-        private static void onMotionStateCB(string str)
+        private static void onMotionStateCB(IntPtr dataPtr, string str)
         {
             motionState = Int32.Parse(str);
         }
@@ -106,16 +106,16 @@ namespace AxisGroup
         private static HandleMessage onAxisRealPositionX = new HandleMessage(OnAxisRealPositionXCB);
         private static HandleMessage onAxisRealPositionY = new HandleMessage(OnAxisRealPositionYCB);
         private static HandleMessage onAxisRealPositionZ = new HandleMessage(OnAxisRealPositionZCB);
-        private static void OnAxisRealPositionXCB(string str)
+        private static void OnAxisRealPositionXCB(IntPtr dataPtr, string str)
         {
 
             axisRealPositions[0] = Double.Parse(str);
         }
-        private static void OnAxisRealPositionYCB(string str)
+        private static void OnAxisRealPositionYCB(IntPtr dataPtr, string str)
         {
             axisRealPositions[1] = Double.Parse(str);
         }
-        private static void OnAxisRealPositionZCB(string str)
+        private static void OnAxisRealPositionZCB(IntPtr dataPtr, string str)
         {
             axisRealPositions[2] = Double.Parse(str);
         }
@@ -125,15 +125,15 @@ namespace AxisGroup
         private static HandleMessage onAxisHomedX = new HandleMessage(OnAxisHomedXCB);
         private static HandleMessage onAxisHomedY = new HandleMessage(OnAxisHomedYCB);
         private static HandleMessage onAxisHomedZ = new HandleMessage(OnAxisHomedZCB);
-        private static void OnAxisHomedXCB(string str)
+        private static void OnAxisHomedXCB(IntPtr dataPtr, string str)
         {
             axisHomed[0] = Int32.Parse(str);
         }
-        private static void OnAxisHomedYCB(string str)
+        private static void OnAxisHomedYCB(IntPtr dataPtr, string str)
         {
             axisHomed[1] = Int32.Parse(str);
         }
-        private static void OnAxisHomedZCB(string str)
+        private static void OnAxisHomedZCB(IntPtr dataPtr, string str)
         {
             axisHomed[2] = Int32.Parse(str);
         }
@@ -141,7 +141,7 @@ namespace AxisGroup
         // 呼叫 NC Task 的前景 Task ID 
         private static int ncOwner;
         private static HandleMessage onNcOwner = new HandleMessage(OnNcOwnerCB);
-        private static void OnNcOwnerCB(string str)
+        private static void OnNcOwnerCB(IntPtr dataPtr, string str)
         {
             ncOwner = Int32.Parse(str);
         }
@@ -149,7 +149,7 @@ namespace AxisGroup
         // NC Task 是否暫停的旗標
         private static HandleMessage onNcSuspended = new HandleMessage(OnNcSuspendedCB);
         private static int ncSuspended;
-        private static void OnNcSuspendedCB(string str)
+        private static void OnNcSuspendedCB(IntPtr dataPtr, string str)
         {
             ncSuspended = Int32.Parse(str);
         }
@@ -157,7 +157,7 @@ namespace AxisGroup
         // SFC 邏輯中，硬體裝置檢查後的結果
         private static HandleMessage onDevicesOk = new HandleMessage(OnDevicesOkCB);
         private static int devicesOk;
-        private static void OnDevicesOkCB(string str)
+        private static void OnDevicesOkCB(IntPtr dataPtr, string str)
         {
             devicesOk = Int32.Parse(str);
         }
@@ -165,7 +165,7 @@ namespace AxisGroup
         // SFC 監控機制所收集到的異警等級訊息
         private static HandleMessage onMonitorFailed = new HandleMessage(OnMonitorFailedCB);
         private static int monitorFailed;
-        private static void OnMonitorFailedCB(string str)
+        private static void OnMonitorFailedCB(IntPtr dataPtr, string str)
         {
             monitorFailed = Int32.Parse(str);
         }
@@ -179,13 +179,13 @@ namespace AxisGroup
         private static UInt32[] axisHomingMethod;
 
         private static HandleMessage onRapidTravelsRate = new HandleMessage(OnRapidTravelsRateCB);
-        private static void OnRapidTravelsRateCB(string str)
+        private static void OnRapidTravelsRateCB(IntPtr dataPtr, string str)
         {
             rapidTravelsRate = Double.Parse(str);
             configUpdated = true;
         }
         private static HandleMessage onMachiningRate = new HandleMessage(OnMachiningRateCB);
-        private static void OnMachiningRateCB(string str)
+        private static void OnMachiningRateCB(IntPtr dataPtr, string str)
         {
             machiningRate = Double.Parse(str);
             configUpdated = true;
@@ -194,17 +194,17 @@ namespace AxisGroup
         private static HandleMessage onAxisHomingV1X = new HandleMessage(OnAxisHomingV1XCB);
         private static HandleMessage onAxisHomingV1Y = new HandleMessage(OnAxisHomingV1YCB);
         private static HandleMessage onAxisHomingV1Z = new HandleMessage(OnAxisHomingV1ZCB);
-        private static void OnAxisHomingV1XCB(string str)
+        private static void OnAxisHomingV1XCB(IntPtr dataPtr, string str)
         {
             axisHomingV1[0] = UInt32.Parse(str);
             configUpdated = true;
         }
-        private static void OnAxisHomingV1YCB(string str)
+        private static void OnAxisHomingV1YCB(IntPtr dataPtr, string str)
         {
             axisHomingV1[1] = UInt32.Parse(str);
             configUpdated = true;
         }
-        private static void OnAxisHomingV1ZCB(string str)
+        private static void OnAxisHomingV1ZCB(IntPtr dataPtr, string str)
         {
             axisHomingV1[2] = UInt32.Parse(str);
             configUpdated = true;
@@ -213,17 +213,17 @@ namespace AxisGroup
         private static HandleMessage onAxisHomingV2X = new HandleMessage(OnAxisHomingV2XCB);
         private static HandleMessage onAxisHomingV2Y = new HandleMessage(OnAxisHomingV2YCB);
         private static HandleMessage onAxisHomingV2Z = new HandleMessage(OnAxisHomingV2ZCB);
-        private static void OnAxisHomingV2XCB(string str)
+        private static void OnAxisHomingV2XCB(IntPtr dataPtr, string str)
         {
             axisHomingV2[0] = UInt32.Parse(str);
             configUpdated = true;
         }
-        private static void OnAxisHomingV2YCB(string str)
+        private static void OnAxisHomingV2YCB(IntPtr dataPtr, string str)
         {
             axisHomingV2[1] = UInt32.Parse(str);
             configUpdated = true;
         }
-        private static void OnAxisHomingV2ZCB(string str)
+        private static void OnAxisHomingV2ZCB(IntPtr dataPtr, string str)
         {
             axisHomingV2[2] = UInt32.Parse(str);
             configUpdated = true;
@@ -232,17 +232,17 @@ namespace AxisGroup
         private static HandleMessage onAxisHomingMethodX = new HandleMessage(OnAxisHomingMethodXCB);
         private static HandleMessage onAxisHomingMethodY = new HandleMessage(OnAxisHomingMethodYCB);
         private static HandleMessage onAxisHomingMethodZ = new HandleMessage(OnAxisHomingMethodZCB);
-        private static void OnAxisHomingMethodXCB(string str)
+        private static void OnAxisHomingMethodXCB(IntPtr dataPtr, string str)
         {
             axisHomingMethod[0] = UInt32.Parse(str);
             configUpdated = true;
         }
-        private static void OnAxisHomingMethodYCB(string str)
+        private static void OnAxisHomingMethodYCB(IntPtr dataPtr, string str)
         {
             axisHomingMethod[1] = UInt32.Parse(str);
             configUpdated = true;
         }
-        private static void OnAxisHomingMethodZCB(string str)
+        private static void OnAxisHomingMethodZCB(IntPtr dataPtr, string str)
         {
             axisHomingMethod[2] = UInt32.Parse(str);
             configUpdated = true;
@@ -250,14 +250,14 @@ namespace AxisGroup
 
         // 收到 error 的處置
         private static HandleMessage onError = new HandleMessage(onErrorCB);
-        private static void onErrorCB(string str)
+        private static void onErrorCB(IntPtr dataPtr, string str)
         {
             new Thread(() => System.Windows.Forms.MessageBox.Show("error|" + str)).Start();
         }
 
         // 收到 log 的處置
         private static HandleMessage onLog = new HandleMessage(OnLogCB);
-        private static void OnLogCB(string str)
+        private static void OnLogCB(IntPtr dataPtr, string str)
         {
             new Thread(() => System.Windows.Forms.MessageBox.Show("log|" + str)).Start();
 
@@ -268,7 +268,7 @@ namespace AxisGroup
 
         // 收到 deployed 的處置
         private static HandleMessage onDeployed = new HandleMessage(OnDeployedCB);
-        private static void OnDeployedCB(string str)
+        private static void OnDeployedCB(IntPtr dataPtr, string str)
         {
             if (str == "ok")
             {
@@ -279,7 +279,7 @@ namespace AxisGroup
         // 取得 userParameter
         private static HandleMessage onUserParameter = new HandleMessage(OnUserParameterCB);
         private static Boolean hasSFC;
-        private static void OnUserParameterCB(string str)
+        private static void OnUserParameterCB(IntPtr dataPtr, string str)
         {
             int para = Int32.Parse(str);
             switch (para)
@@ -326,43 +326,43 @@ namespace AxisGroup
 
             // 首先要連線到 Botnana Control, 當收到 WS 連線錯誤, 就呼叫 on_error_callback
             bot = new Botnana("192.168.7.2");
-            bot.SetOnErrorCB(onWSError);
+            bot.SetOnErrorCB(IntPtr.Zero, onWSError);
 
             // 當收到 Botnana Control 的訊息, 就呼叫 on_message_callback
-            bot.SetOnMessageCB(onMessage);
+            bot.SetOnMessageCB(IntPtr.Zero, onMessage);
             // 定義收到信息中指定的 Tag 時，所要呼叫的 callback 信息
-            bot.SetTagCB("MCS.1", 0, onMcs);
-            bot.SetTagCB("PCS.1", 0, onPcs);
-            bot.SetTagCB("pva.1", 0, onPva);
-            bot.SetTagCB("move_length.1", 0, onMoveLength);
-            bot.SetTagCB("path_id.1", 0, onPathId);
-            bot.SetTagCB("servo_on", 0, onServoOn);
-            bot.SetTagCB("motion_state", 0, onMotionState);
-            bot.SetTagCB("axis_corrected_position.1", 0, onAxisRealPositionX);
-            bot.SetTagCB("axis_corrected_position.2", 0, onAxisRealPositionY);
-            bot.SetTagCB("axis_corrected_position.3", 0, onAxisRealPositionZ);
-            bot.SetTagCB("axis_homed.1", 0, onAxisHomedX);
-            bot.SetTagCB("axis_homed.2", 0, onAxisHomedY);
-            bot.SetTagCB("axis_homed.3", 0, onAxisHomedZ);
-            bot.SetTagCB("nc_owner", 0, onNcOwner);
-            bot.SetTagCB("nc_suspended", 0, onNcSuspended);
-            bot.SetTagCB("devices_ok", 0, onDevicesOk);
-            bot.SetTagCB("monitor_failed", 0, onMonitorFailed);
-            bot.SetTagCB("rapid_travels_rate", 0, onRapidTravelsRate);
-            bot.SetTagCB("machining_rate", 0, onMachiningRate);
-            bot.SetTagCB("axis_homing_v1.1", 0, onAxisHomingV1X);
-            bot.SetTagCB("axis_homing_v1.2", 0, onAxisHomingV1Y);
-            bot.SetTagCB("axis_homing_v1.3", 0, onAxisHomingV1Z);
-            bot.SetTagCB("axis_homing_v2.1", 0, onAxisHomingV2X);
-            bot.SetTagCB("axis_homing_v2.2", 0, onAxisHomingV2Y);
-            bot.SetTagCB("axis_homing_v2.3", 0, onAxisHomingV2Z);
-            bot.SetTagCB("axis_homing_method.1", 0, onAxisHomingMethodX);
-            bot.SetTagCB("axis_homing_method.2", 0, onAxisHomingMethodY);
-            bot.SetTagCB("axis_homing_method.3", 0, onAxisHomingMethodZ);
-            bot.SetTagCB("error", 0, onError);
-            bot.SetTagCB("log", 0, onLog);
-            bot.SetTagCB("user_parameter", 0, onUserParameter);
-            bot.SetTagCB("deployed", 0, onDeployed);
+            bot.SetTagCB("MCS.1", 0, IntPtr.Zero, onMcs);
+            bot.SetTagCB("PCS.1", 0, IntPtr.Zero, onPcs);
+            bot.SetTagCB("pva.1", 0, IntPtr.Zero, onPva);
+            bot.SetTagCB("move_length.1", 0, IntPtr.Zero, onMoveLength);
+            bot.SetTagCB("path_id.1", 0, IntPtr.Zero, onPathId);
+            bot.SetTagCB("servo_on", 0, IntPtr.Zero, onServoOn);
+            bot.SetTagCB("motion_state", 0, IntPtr.Zero, onMotionState);
+            bot.SetTagCB("axis_corrected_position.1", 0, IntPtr.Zero, onAxisRealPositionX);
+            bot.SetTagCB("axis_corrected_position.2", 0, IntPtr.Zero, onAxisRealPositionY);
+            bot.SetTagCB("axis_corrected_position.3", 0, IntPtr.Zero, onAxisRealPositionZ);
+            bot.SetTagCB("axis_homed.1", 0, IntPtr.Zero, onAxisHomedX);
+            bot.SetTagCB("axis_homed.2", 0, IntPtr.Zero, onAxisHomedY);
+            bot.SetTagCB("axis_homed.3", 0, IntPtr.Zero, onAxisHomedZ);
+            bot.SetTagCB("nc_owner", 0, IntPtr.Zero, onNcOwner);
+            bot.SetTagCB("nc_suspended", 0, IntPtr.Zero, onNcSuspended);
+            bot.SetTagCB("devices_ok", 0, IntPtr.Zero, onDevicesOk);
+            bot.SetTagCB("monitor_failed", 0, IntPtr.Zero, onMonitorFailed);
+            bot.SetTagCB("rapid_travels_rate", 0, IntPtr.Zero, onRapidTravelsRate);
+            bot.SetTagCB("machining_rate", 0, IntPtr.Zero, onMachiningRate);
+            bot.SetTagCB("axis_homing_v1.1", 0, IntPtr.Zero, onAxisHomingV1X);
+            bot.SetTagCB("axis_homing_v1.2", 0, IntPtr.Zero, onAxisHomingV1Y);
+            bot.SetTagCB("axis_homing_v1.3", 0, IntPtr.Zero, onAxisHomingV1Z);
+            bot.SetTagCB("axis_homing_v2.1", 0, IntPtr.Zero, onAxisHomingV2X);
+            bot.SetTagCB("axis_homing_v2.2", 0, IntPtr.Zero, onAxisHomingV2Y);
+            bot.SetTagCB("axis_homing_v2.3", 0, IntPtr.Zero, onAxisHomingV2Z);
+            bot.SetTagCB("axis_homing_method.1", 0, IntPtr.Zero, onAxisHomingMethodX);
+            bot.SetTagCB("axis_homing_method.2", 0, IntPtr.Zero, onAxisHomingMethodY);
+            bot.SetTagCB("axis_homing_method.3", 0, IntPtr.Zero, onAxisHomingMethodZ);
+            bot.SetTagCB("error", 0, IntPtr.Zero, onError);
+            bot.SetTagCB("log", 0, IntPtr.Zero, onLog);
+            bot.SetTagCB("user_parameter", 0, IntPtr.Zero, onUserParameter);
+            bot.SetTagCB("deployed", 0, IntPtr.Zero, onDeployed);
 
             bot.Connect();
             Thread.Sleep(1000);
