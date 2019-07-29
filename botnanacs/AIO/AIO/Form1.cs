@@ -47,33 +47,33 @@ namespace AIO
 
         private int wsState = 0;
         private HandleMessage onWSError;
-        public void OnWSErrorCallback(string data)
+        public void OnWSErrorCallback(IntPtr dataPtr, string data)
         {
             wsState = 0;
         }
 
         private HandleMessage onWSOpen;
-        public void OnWSOpenCallback(string data)
+        public void OnWSOpenCallback(IntPtr dataPtr, string data)
         {
             wsState = 2;
         }
 
         private int slavesCount = 0;
         private HandleMessage onSlavesResponding;
-        private void OnSlavesRespondingCallback(string str)
+        private void OnSlavesRespondingCallback(IntPtr dataPtr, string str)
         {
             slavesCount = int.Parse(str);
         }
 
         private int slavesState = 0;
         private HandleMessage onSlavesState;
-        private void OnSlavesStateCallback(string str)
+        private void OnSlavesStateCallback(IntPtr dataPtr, string str)
         {
             slavesState = int.Parse(str);
         }
 
         private HandleMessage onErrorMessage;
-        private void OnErrorMessageCallback(string str)
+        private void OnErrorMessageCallback(IntPtr dataPtr, string str)
         {
             new Thread(() => System.Windows.Forms.MessageBox.Show("Error|" + str)).Start();
         }
@@ -92,107 +92,126 @@ namespace AIO
         private HandleMessage[] onAoutsMode = new HandleMessage[5];
         private HandleMessage onAinMode;
 
-        private void OnAin1Callback(string str)
+        private void OnAin1Callback(IntPtr dataPtr, string str)
         {
             // 台達的文件定義 AI 輸入值的形態為 UInt16
             // 但是在換算電壓值時使用 Int16 時比較方便，所以會有以下型別轉換。
             ains[1] = (Int16)UInt16.Parse(str);
         }
-        private void OnAin2Callback(string str)
+        private void OnAin2Callback(IntPtr dataPtr, string str)
         {
             ains[2] = (Int16)UInt16.Parse(str);
         }
-        private void OnAin3Callback(string str)
+        private void OnAin3Callback(IntPtr dataPtr, string str)
         {
             ains[3] = (Int16)UInt16.Parse(str);
         }
-        private void OnAin4Callback(string str)
+        private void OnAin4Callback(IntPtr dataPtr, string str)
         {
             ains[4] = (Int16)UInt16.Parse(str);
         }
-        private void OnAout1Callback(string str)
+        private void OnAout1Callback(IntPtr dataPtr, string str)
         {
             aouts[1] = int.Parse(str);
         }
-        private void OnAout2Callback(string str)
+        private void OnAout2Callback(IntPtr dataPtr, string str)
         {
             aouts[2] = int.Parse(str);
         }
-        private void OnAout3Callback(string str)
+        private void OnAout3Callback(IntPtr dataPtr, string str)
         {
             aouts[3] = int.Parse(str);
         }
-        private void OnAout4Callback(string str)
+        private void OnAout4Callback(IntPtr dataPtr, string str)
         {
             aouts[4] = int.Parse(str);
         }
 
-
-        private void OnAin1EnabledCallback(string str)
+        private void OnAin1EnabledCallback(IntPtr dataPtr, string str)
         {
             ainsEnabled[1] = int.Parse(str);
         }
 
-        private void OnAin2EnabledCallback(string str)
+        private void OnAin2EnabledCallback(IntPtr dataPtr, string str)
         {
             ainsEnabled[2] = int.Parse(str);
         }
 
-        private void OnAin3EnabledCallback(string str)
+        private void OnAin3EnabledCallback(IntPtr dataPtr, string str)
         {
             ainsEnabled[3] = int.Parse(str);
         }
 
-        private void OnAin4EnabledCallback(string str)
+        private void OnAin4EnabledCallback(IntPtr dataPtr, string str)
         {
             ainsEnabled[4] = int.Parse(str);
         }
 
-        private void OnAout1EnabledCallback(string str)
+        private void OnAout1EnabledCallback(IntPtr dataPtr, string str)
         {
             aoutsEnabled[1] = int.Parse(str);
         }
-        private void OnAout2EnabledCallback(string str)
+        private void OnAout2EnabledCallback(IntPtr dataPtr, string str)
         {
             aoutsEnabled[2] = int.Parse(str);
         }
-        private void OnAout3EnabledCallback(string str)
+        private void OnAout3EnabledCallback(IntPtr dataPtr, string str)
         {
             aoutsEnabled[3] = int.Parse(str);
         }
-        private void OnAout4EnabledCallback(string str)
+        private void OnAout4EnabledCallback(IntPtr dataPtr, string str)
         {
             aoutsEnabled[4] = int.Parse(str);
         }
 
         private bool hasAoutsMode = false;
-        private void OnAout1ModeCallback(string str)
+        private void OnAout1ModeCallback(IntPtr dataPtr, string str)
         {
-            aoutsMode[1] = int.Parse(str);
+            int mode = int.Parse(str);
+            if (mode >= 0 && mode <= 3)
+            {
+                aoutsMode[1] = mode;
+            }
         }
-        private void OnAout2ModeCallback(string str)
+        private void OnAout2ModeCallback(IntPtr dataPtr, string str)
         {
-            aoutsMode[2] = int.Parse(str);
+            int mode = int.Parse(str);
+            if (mode >= 0 && mode <= 3)
+            {
+                aoutsMode[2] = mode;
+            }
         }
-        private void OnAout3ModeCallback(string str)
+        private void OnAout3ModeCallback(IntPtr dataPtr, string str)
         {
-            aoutsMode[3] = int.Parse(str);
+            int mode = int.Parse(str);
+            if (mode >= 0 && mode <= 3)
+            {
+                aoutsMode[3] = mode;
+            }
         }
-        private void OnAout4ModeCallback(string str)
+        private void OnAout4ModeCallback(IntPtr dataPtr, string str)
         {
-            aoutsMode[4] = int.Parse(str);
-            hasAoutsMode = true;
+            int mode = int.Parse(str);
+            if (mode >= 0 && mode <= 3)
+            {
+                aoutsMode[4] = mode;
+                hasAoutsMode = true;
+            }
         }
 
         private bool hasAinMode = false;
-        private void OnAinModeCallback(string str)
+        private void OnAinModeCallback(IntPtr dataPtr, string str)
         {
-            ainMode = int.Parse(str);
-            hasAinMode = true;
+            int mode = int.Parse(str);
+            if (mode >= 0 && mode <= 1)
+            {
+                ainMode = mode;
+                hasAinMode = true;
+            }
         }
 
         private HandleMessage onUserParameter;
-        private void OnUserParameterCallback(string str)
+        private void OnUserParameterCallback(IntPtr dataPtr, string str)
         {
             int para = Int32.Parse(str);
             switch (para)
@@ -240,83 +259,83 @@ namespace AIO
 
             // WS 連線錯誤就呼叫 OnWSErrorCallback
             onWSError = new HandleMessage(OnWSErrorCallback);
-            bot.SetOnErrorCB(onWSError);
+            bot.SetOnErrorCB(IntPtr.Zero, onWSError);
 
             // WS 連線成功就呼叫 OnWSOpenCallback
             onWSOpen = new HandleMessage(OnWSOpenCallback);
-            bot.SetOnOpenCB(onWSOpen);
+            bot.SetOnOpenCB(IntPtr.Zero, onWSOpen);
 
             // 收到 tag = slaves_responding 就呼叫 OnSlavesRespondingCallback
             onSlavesResponding = new HandleMessage(OnSlavesRespondingCallback);
-            bot.SetTagCB($"slaves_responding", 0, onSlavesResponding);
+            bot.SetTagCB($"slaves_responding", 0, IntPtr.Zero, onSlavesResponding);
 
             // 收到 tag = al_states 就呼叫 OnSlavesStateCallback
             onSlavesState = new HandleMessage(OnSlavesStateCallback);
-            bot.SetTagCB($"al_states", 0, onSlavesState);
+            bot.SetTagCB($"al_states", 0, IntPtr.Zero, onSlavesState);
 
             // 收到 tag = error 就呼叫 OnErrorMessageCallback
             onErrorMessage = new HandleMessage(OnErrorMessageCallback);
-            bot.SetTagCB($"error", 0, onErrorMessage);
+            bot.SetTagCB($"error", 0, IntPtr.Zero, onErrorMessage);
 
             // 收到 tag = ain.1.4 就呼叫 OnAin1Callback
             // ain.1.4 表示第 4 個從站第 1 管道的 AIN
             onAins[1] = new HandleMessage(OnAin1Callback);
-            bot.SetTagCB($"ain.1." + DeltaAinSlavePosStr, 0, onAins[1]);
+            bot.SetTagCB($"ain.1." + DeltaAinSlavePosStr, 0, IntPtr.Zero, onAins[1]);
             onAins[2] = new HandleMessage(OnAin2Callback);
-            bot.SetTagCB($"ain.2." + DeltaAinSlavePosStr, 0, onAins[2]);
+            bot.SetTagCB($"ain.2." + DeltaAinSlavePosStr, 0, IntPtr.Zero, onAins[2]);
             onAins[3] = new HandleMessage(OnAin3Callback);
-            bot.SetTagCB($"ain.3." + DeltaAinSlavePosStr, 0, onAins[3]);
+            bot.SetTagCB($"ain.3." + DeltaAinSlavePosStr, 0, IntPtr.Zero, onAins[3]);
             onAins[4] = new HandleMessage(OnAin4Callback);
-            bot.SetTagCB($"ain.4." + DeltaAinSlavePosStr, 0, onAins[4]);
+            bot.SetTagCB($"ain.4." + DeltaAinSlavePosStr, 0, IntPtr.Zero, onAins[4]);
 
             // 收到 tag = aout.1.4 就呼叫 OnAout1Callback
             // aout.1.5 表示第 5 個從站第 1 管道的 Aout
             onAouts[1] = new HandleMessage(OnAout1Callback);
-            bot.SetTagCB($"aout.1." + DeltaAoutSlavePosStr, 0, onAouts[1]);
+            bot.SetTagCB($"aout.1." + DeltaAoutSlavePosStr, 0, IntPtr.Zero, onAouts[1]);
             onAouts[2] = new HandleMessage(OnAout2Callback);
-            bot.SetTagCB($"aout.2." + DeltaAoutSlavePosStr, 0, onAouts[2]);
+            bot.SetTagCB($"aout.2." + DeltaAoutSlavePosStr, 0, IntPtr.Zero, onAouts[2]);
             onAouts[3] = new HandleMessage(OnAout3Callback);
-            bot.SetTagCB($"aout.3." + DeltaAoutSlavePosStr, 0, onAouts[3]);
+            bot.SetTagCB($"aout.3." + DeltaAoutSlavePosStr, 0, IntPtr.Zero, onAouts[3]);
             onAouts[4] = new HandleMessage(OnAout4Callback);
-            bot.SetTagCB($"aout.4." + DeltaAoutSlavePosStr, 0, onAouts[4]);
+            bot.SetTagCB($"aout.4." + DeltaAoutSlavePosStr, 0, IntPtr.Zero, onAouts[4]);
 
             // 收到 tag = ain_enabled.1.4 就呼叫 OnAin1EnabledCallback
             // ain_enabled.1.4 表示第 4 個從站第 1 管道的 AIN Enabled
             onAinsEnabled[1] = new HandleMessage(OnAin1EnabledCallback);
-            bot.SetTagCB($"ain_enabled.1." + DeltaAinSlavePosStr, 0, onAinsEnabled[1]);
+            bot.SetTagCB($"ain_enabled.1." + DeltaAinSlavePosStr, 0, IntPtr.Zero, onAinsEnabled[1]);
             onAinsEnabled[2] = new HandleMessage(OnAin2EnabledCallback);
-            bot.SetTagCB($"ain_enabled.2." + DeltaAinSlavePosStr, 0, onAinsEnabled[2]);
+            bot.SetTagCB($"ain_enabled.2." + DeltaAinSlavePosStr, 0, IntPtr.Zero, onAinsEnabled[2]);
             onAinsEnabled[3] = new HandleMessage(OnAin3EnabledCallback);
-            bot.SetTagCB($"ain_enabled.3." + DeltaAinSlavePosStr, 0, onAinsEnabled[3]);
+            bot.SetTagCB($"ain_enabled.3." + DeltaAinSlavePosStr, 0, IntPtr.Zero, onAinsEnabled[3]);
             onAinsEnabled[4] = new HandleMessage(OnAin4EnabledCallback);
-            bot.SetTagCB($"ain_enabled.4." + DeltaAinSlavePosStr, 0, onAinsEnabled[4]);
+            bot.SetTagCB($"ain_enabled.4." + DeltaAinSlavePosStr, 0, IntPtr.Zero, onAinsEnabled[4]);
 
             // 收到 tag = aout_enabled.1.5 就呼叫 OnAout1EnabledCallback
             // aout_enabled.1.5 表示第 5 個從站第 1 管道的 AOUT Enabled
             onAoutsEnabled[1] = new HandleMessage(OnAout1EnabledCallback);
-            bot.SetTagCB($"aout_enabled.1." + DeltaAoutSlavePosStr, 0, onAoutsEnabled[1]);
+            bot.SetTagCB($"aout_enabled.1." + DeltaAoutSlavePosStr, 0, IntPtr.Zero, onAoutsEnabled[1]);
             onAoutsEnabled[2] = new HandleMessage(OnAout2EnabledCallback);
-            bot.SetTagCB($"aout_enabled.2." + DeltaAoutSlavePosStr, 0, onAoutsEnabled[2]);
+            bot.SetTagCB($"aout_enabled.2." + DeltaAoutSlavePosStr, 0, IntPtr.Zero, onAoutsEnabled[2]);
             onAoutsEnabled[3] = new HandleMessage(OnAout3EnabledCallback);
-            bot.SetTagCB($"aout_enabled.3." + DeltaAoutSlavePosStr, 0, onAoutsEnabled[3]);
+            bot.SetTagCB($"aout_enabled.3." + DeltaAoutSlavePosStr, 0, IntPtr.Zero, onAoutsEnabled[3]);
             onAoutsEnabled[4] = new HandleMessage(OnAout4EnabledCallback);
-            bot.SetTagCB($"aout_enabled.4." + DeltaAoutSlavePosStr, 0, onAoutsEnabled[4]);
+            bot.SetTagCB($"aout_enabled.4." + DeltaAoutSlavePosStr, 0, IntPtr.Zero, onAoutsEnabled[4]);
 
             // 收到 tag = aout1_mode 就呼叫 OnAout1ModeCallback
             onAoutsMode[1] = new HandleMessage(OnAout1ModeCallback);
-            bot.SetTagCB($"aout1_mode", 0, onAoutsMode[1]);
+            bot.SetTagCB($"aout1_mode", 0, IntPtr.Zero, onAoutsMode[1]);
             onAoutsMode[2] = new HandleMessage(OnAout2ModeCallback);
-            bot.SetTagCB($"aout2_mode", 0, onAoutsMode[2]);
+            bot.SetTagCB($"aout2_mode", 0, IntPtr.Zero, onAoutsMode[2]);
             onAoutsMode[3] = new HandleMessage(OnAout3ModeCallback);
-            bot.SetTagCB($"aout3_mode", 0, onAoutsMode[3]);
+            bot.SetTagCB($"aout3_mode", 0, IntPtr.Zero, onAoutsMode[3]);
             onAoutsMode[4] = new HandleMessage(OnAout4ModeCallback);
-            bot.SetTagCB($"aout4_mode", 0, onAoutsMode[4]);
+            bot.SetTagCB($"aout4_mode", 0, IntPtr.Zero, onAoutsMode[4]);
             onAinMode = new HandleMessage(OnAinModeCallback);
-            bot.SetTagCB($"ain_mode", 0, onAinMode);
+            bot.SetTagCB($"ain_mode", 0, IntPtr.Zero, onAinMode);
 
             // 收到 tag = user_parameter 就呼叫 OnUserParameterCallback
             onUserParameter = new HandleMessage(OnUserParameterCallback);
-            bot.SetTagCB($"user_parameter", 0, onUserParameter);
+            bot.SetTagCB($"user_parameter", 0, IntPtr.Zero, onUserParameter);
 
             // 進行連線
             wsState = 1;

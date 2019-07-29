@@ -31,15 +31,15 @@ dependencies = [
 
 [[package]]
 name = "botnanac"
-version = "0.2.5"
+version = "0.3.1"
 dependencies = [
- "botnanars 0.2.5",
+ "botnanars 0.3.1",
  "libc 0.2.58 (registry+https://github.com/rust-lang/crates.io-index)",
 ]
 
 [[package]]
 name = "botnanars"
-version = "0.2.5"
+version = "0.3.1"
 dependencies = [
  "libc 0.2.58 (registry+https://github.com/rust-lang/crates.io-index)",
  "serde_json 1.0.39 (registry+https://github.com/rust-lang/crates.io-index)",

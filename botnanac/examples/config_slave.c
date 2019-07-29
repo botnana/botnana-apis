@@ -2,39 +2,42 @@
 #include <stdlib.h>
 #include "botnana.h"
 
-int ws_open = 0;
 // 處理 WebSocket on_open
-void on_ws_open_cb (const char * src)
+void on_ws_open_cb (void * data, const char * src)
 {
-    ws_open = 1;
+    int * open = (int *) data;
+    *open = 1;
 }
 
 // 處理 WebSocket 連線異常
-void on_ws_error_cb (const char * src)
+void on_ws_error_cb (void * data, const char * src)
 {
+    int * open = (int *) data;
+    *open = 0;
     printf("WS client error: %s\n", src);
     exit(1);
 }
 
 // 處理主站傳回的資料
-void on_message_cb (const char * src)
+void on_message_cb (void * data, const char * src)
 {
     printf("on_meaasge: %s\n", src);
 }
 
-void on_send_cb (const char * src)
+void on_send_cb (void * data, const char * src)
 {
     printf("on_send: %s\n", src);
 }
 
 int main()
 {
+    int ws_open = 0;
     // connect to motion server
     struct Botnana * botnana = botnana_new("192.168.7.2");
-    botnana_set_on_open_cb(botnana, on_ws_open_cb);
-    botnana_set_on_error_cb(botnana, on_ws_error_cb);
-    botnana_set_on_message_cb(botnana, on_message_cb);
-    botnana_set_on_send_cb(botnana, on_send_cb);
+    botnana_set_on_open_cb(botnana, (void *) & ws_open, on_ws_open_cb);
+    botnana_set_on_error_cb(botnana, (void *) & ws_open, on_ws_error_cb);
+    botnana_set_on_message_cb(botnana, NULL, on_message_cb);
+    botnana_set_on_send_cb(botnana, NULL, on_send_cb);
 
     botnana_connect(botnana);
     while (ws_open == 0)

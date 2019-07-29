@@ -68,9 +68,8 @@
     <Prefer32Bit>true</Prefer32Bit>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="BotnanaLib, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\BotnanaLib\BotnanaLib\bin\x86\Release\BotnanaLib.dll</HintPath>
+    <Reference Include="BotnanaLib">
+      <HintPath>..\..\BotnanaLib\BotnanaLib\bin\Release\BotnanaLib.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
