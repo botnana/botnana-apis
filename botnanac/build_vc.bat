@@ -13,6 +13,7 @@ copy lib\BotnanaApi.dll ..\botnanacs\AIO\AIO\BotnanaApi.dll
 copy lib\BotnanaApi.dll ..\botnanacs\AxisGroup\AxisGroup\BotnanaApi.dll
 copy lib\BotnanaApi.dll ..\botnanacs\DIO\DIO\BotnanaApi.dll
 copy lib\BotnanaApi.dll ..\botnanacs\IAI_RCON_SYSTEM\IAI_RCON_SYSTEM\BotnanaApi.dll
+copy lib\BotnanaApi.dll ..\botnanacs\ManualPulseGenerator\ManualPulseGenerator\BotnanaApi.dll
 copy lib\BotnanaApi.dll ..\botnanacs\PositionComparsionPanaA6B\PositionComparsionPanaA6B\BotnanaApi.dll
 copy lib\BotnanaApi.dll ..\botnanacs\SingleDrive\SingleDrive\BotnanaApi.dll
 copy lib\BotnanaApi.dll ..\botnanacs\TorqueScope\TorqueScope\BotnanaApi.dll
