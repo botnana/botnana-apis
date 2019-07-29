@@ -1,0 +1,121 @@
+\ 宣告數位訊號正反器的編號與型態
+
+\ MPG 手輪 X 訊號
+1 constant mpg-on
+
+\ MPG 手輪 OFF 訊號
+2 constant mpg-off
+
+\ MPG 手輪 X1 訊號
+3 constant mpg-x1
+
+\ MPG 手輪 X10 訊號
+4 constant mpg-x10
+
+\ MPG 手輪 X100 訊號
+5 constant mpg-x100
+
+\ High level trigger, hold time = 10000 us
+1 mpg-on ff-type!   10000 mpg-on   ff-hold!
+
+\ Low level trigger, hold time = 10000 us
+2 mpg-off ff-type!  10000 mpg-off  ff-hold!
+
+\ High level trigger, hold time = 10000 us
+1 mpg-x1   ff-type! 10000 mpg-x1   ff-hold!
+
+\ High level trigger, hold time = 10000 us
+1 mpg-x10  ff-type! 10000 mpg-x10  ff-hold!
+
+\ High level trigger, hold time = 10000 us
+1 mpg-x100 ff-type! 10000 mpg-x100 ff-hold!  
+
+\ MPG 手輪的編碼器輸入
+: mpg-encoder@ ( -- count )
+    1 3 real-p@
+    ;
+
+\ 將 MPG SFC 的 'mpg-encoder 令牌設定為  mpg-encoder@
+' mpg-encoder@ 'mpg-encoder!  
+
+
+\      cyclic-prepare
+\            |
+\          --+-- 檢查硬體周邊  
+\            |
+\      cyclic-forth
+\            |
+\          --+-- False 
+\
+
+\ 前置的預備動作
+: cyclic-prepare
+  ;
+
+\ 依據訊號設定 MPG SFC 
+: cyclic-forth
+    
+   \ 依據手輪數位輸入訊號，設定數位訊號正反器   
+   1 1 drive-on? if
+       \ 當驅動器 Drive On 才依據手輪的數位輸入訊號決定是否要啟動 MPG SFC
+       1 4 ec-din@     
+   else
+       false
+   then
+   dup mpg-on ff-forth-uc mpg-off ff-forth-uc
+   2 4 ec-din@ mpg-x1   ff-forth-uc
+   3 4 ec-din@ mpg-x10  ff-forth-uc
+   4 4 ec-din@ mpg-x100 ff-forth-uc
+   
+   \ 啟動或是關閉
+   mpg-on ff-triggered-uc? if 1 mpg-selecting! then
+   mpg-off ff-triggered-uc? if  0 mpg-selecting! then
+   \ 倍率選擇 
+   mpg-x1 ff-triggered-uc? if 0.25e um mpg-rate! then
+   mpg-x10 ff-triggered-uc? if 2.5e um mpg-rate! then
+   mpg-x100 ff-triggered-uc? if 25e um mpg-rate! then
+   ;
+
+\ 是否硬體周邊
+: condition-ok?
+    \ EtherCAT 通訊正常
+    ec-ready? 
+    \ 馬達驅動器
+    1 1 ec-drive? and
+    \ 手輪編碼器輸入, 使用台達電 5621 模組，所以會是一個驅動器模組
+    1 3 ec-drive? and
+    \ 選擇運動軸
+    1 4 ec-din? and
+    \ 倍率 X1
+    2 4 ec-din? and
+    \ 倍率 X10
+    3 4 ec-din? and
+    \ 倍率 X100
+    4 4 ec-din? and
+    ;
+
+: cyclic-forth-stop?
+    false
+;
+
+\ 輸出 sfc manager 狀態
+: .sfc-manager
+   ." condition_ok|" condition-ok? 0 .r 
+   cr
+  ;
+
+\ 宣告 SFC Step  
+step cyclic-prepare
+step cyclic-forth
+
+\ 宣告 SFC transition
+transition condition-ok?
+transition cyclic-forth-stop?
+
+\ 連結 SFC
+' cyclic-prepare ' condition-ok?  -->
+' condition-ok? ' cyclic-forth -->
+' cyclic-forth ' cyclic-forth-stop? -->
+
+\ 啟動 SFC
+' cyclic-prepare +step

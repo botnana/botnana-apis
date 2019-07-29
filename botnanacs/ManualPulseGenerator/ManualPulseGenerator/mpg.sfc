@@ -1,0 +1,149 @@
+\ MPG SFC 變數
+\ mpg-selecting! ( axis -- ) 選擇運動軸
+\ mpg-rate!     ( F: rate -- )手輪倍率 
+\ 'mpg-encoder! ( addr -- ) 設定手輪編碼器令牌
+\ simu-mpg-encoder! ( count -- ) 設定模擬手輪編碼器的輸出值
+\ .mpg ( -- ) 輸出 mpg sfc 資訊
+\
+\ 流程圖
+\
+\          Idle
+\           | 
+\         --+--  mpg-selecting > 0
+\           | 
+\    prepare-action 
+\           |
+\         --+-- mpg-enter? (true) 
+\           |
+\        mpg-forth
+\           |
+\         --+--  mpg-selecting changed ?
+\           |
+\       post-action
+\           |
+\         --+-- mpg-exit? (運動停止?)
+\           |
+\         Idle 
+\
+
+variable mpg-selecting 0 mpg-selecting ! 
+variable mpg-selected 0 mpg-selected ! 
+variable old-mpg-encoder
+variable simu-mpg-encoder
+fvariable mpg-rate
+variable 'mpg-encoder
+
+\ 選擇運動軸
+: mpg-selecting! ( axis -- )
+  mpg-selecting !
+  ; 
+
+\ 設定手輪倍率
+: mpg-rate!     ( F: rate -- )
+  mpg-rate f!
+  ; 
+
+\ 設定模擬手輪編碼器的輸出值
+: simu-mpg-encoder! ( count -- ) 
+  simu-mpg-encoder !
+  ;
+
+\ 模擬的手輪編碼器輸出
+: simu-mpg-encoder@ ( -- count )
+  simu-mpg-encoder @
+  ;
+
+\ 設定手輪編碼器令牌
+: 'mpg-encoder! ( addr -- ) 
+  'mpg-encoder !
+  ;    
+  
+\ 預設 'mpg-encoder
+' simu-mpg-encoder@ 'mpg-encoder !
+
+\ MPG Idle Step  
+: mpg-idle
+  0 mpg-selected !
+  ;
+
+\ 前置準備
+: mpg-prepare-action
+  \ 設定選用的運動軸
+  mpg-selecting @ mpg-selected ! 
+  \ 依據最大運動速度，設定插值器速度
+  mpg-selected @ dup axis-vmax@ interpolator-v!
+  \ 啟動運動軸插值器
+  mpg-selected @ +interpolator
+  \ 初始化編碼器值
+  'mpg-encoder @ execute old-mpg-encoder !
+  ;
+
+\ MPG forth step  
+: mpg-forth
+    \ 計算手輪編碼器的脈衝數的變量，根據倍率計算出運動距離，設定新的目標位置
+    'mpg-encoder @ execute dup
+    old-mpg-encoder @ - 
+    s>f mpg-rate f@ f* mpg-selected @ dup axis-cmd-p@ f+ axis-cmd-p!
+    old-mpg-encoder ! 
+;
+
+\ 離開後的設定
+: mpg-post-action
+  mpg-selected @ -interpolator
+;
+
+\ 有選擇軸就開始運作
+: mpg-accepting? ( -- t)
+  mpg-selecting @ 0 > if
+    mpg-selecting @ interpolator-reached?
+  else
+    false
+  then
+;
+
+: mpg-enter? ( -- t)
+  true
+  ;
+
+: mpg-exit? ( -- t)
+  mpg-selected @ interpolator-reached?
+  ;
+
+\ 選擇的軸不一樣或是插值器被關閉就離開
+: mpg-stopping? ( -- t)
+   mpg-selected @ interpolator? not
+   mpg-selecting @ mpg-selected @ <> or 
+;
+
+\ 輸出 MPG SFC 資訊
+: .mpg
+   ." mpg_selected|" mpg-selected @ 0 .r
+   ." |mpg_encoder|" 'mpg-encoder @ execute 0 .r   
+   ." |mpg_rate|" mpg-rate f@ 0 8 f.r
+   cr
+   ;
+
+\ 宣告 SFC Step    
+step mpg-idle
+step mpg-prepare-action
+step mpg-forth
+step mpg-post-action
+   
+\ 宣告 SFC Transition
+transition mpg-accepting?
+transition mpg-enter?
+transition mpg-stopping?
+transition mpg-exit?
+    
+\ 連結 SFC
+' mpg-idle            ' mpg-accepting?     -->
+' mpg-accepting?      ' mpg-prepare-action -->
+' mpg-prepare-action  ' mpg-enter?         -->            
+' mpg-enter?          ' mpg-forth          -->
+' mpg-forth           ' mpg-stopping?      -->
+' mpg-stopping?       ' mpg-post-action    -->
+' mpg-post-action     ' mpg-exit?          -->
+' mpg-exit?           ' mpg-idle           --> 
+
+\ 啟動 SFC
+' mpg-idle +step
