@@ -90,7 +90,6 @@ variable 'mpg-encoder
 \ 離開後的設定
 : mpg-post-action
   mpg-selected @ -interpolator
-  0 mpg-selecting !  
 ;
 
 \ 有選擇軸就開始運作
