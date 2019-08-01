@@ -123,9 +123,8 @@ namespace IAI_RCON_SYSTEM
                     // 要留意載入順序
                     bot.LoadSFC(@"..\..\rcon-system.fs");
                     bot.LoadSFC(@"..\..\plc.fs");
-                    // 等待 SFC 設置完成
-                    Thread.Sleep(500);
-                    bot.EvaluateScript("reset-overrun");
+                    // SFC 設置完成後下個週期 reset overrun
+                    bot.EvaluateScript("1 ms reset-overrun");
                     break;
                 default:
                     break;
