@@ -94,6 +94,7 @@ namespace IAI_RCON_SYSTEM
         private static HandleMessage onWSOpen = new HandleMessage(onWSOpenCB);
         private static void onWSOpenCB(IntPtr ptr, string data)
         {
+            bot.EvaluateScript(".user-para");
             WS_ready = true;
         }
 
@@ -299,7 +300,6 @@ namespace IAI_RCON_SYSTEM
 
             bot.Connect();
             Thread.Sleep(500);
-            bot.EvaluateScript(".user-para");
 
             timer1.Interval = 50;
             timer1.Enabled = true;
