@@ -2,7 +2,8 @@ variable sfc-ready
 variable rcon-ready
 variable plc-enabled
 
-: config-slave ( slave alias -- ) ( input buff: name )
+\ config-slave <name>
+: config-slave ( slave alias -- )
     dup ec-alias?               \ 若 alias 存在
     if
         swap drop ec-a>n            \ 由該 alias 取得對應的 slave NO.
