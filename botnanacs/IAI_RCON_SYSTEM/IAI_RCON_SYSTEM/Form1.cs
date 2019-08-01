@@ -16,90 +16,90 @@ namespace IAI_RCON_SYSTEM
 {
     public partial class Form1 : Form
     {
-        private static Botnana bot;
-
-        private static Boolean sfcLoaded = false;
-        private static Boolean wsReady = false;
-        private static Boolean sfcReady = false;
-        private static Boolean rconReady = false;
-        private static Boolean plcEnabled = false;
-        private static int currAxis = 5;
+        private Botnana bot;
+        private Boolean sfcLoaded = false;
+        private Boolean wsReady = false;
+        private Boolean sfcReady = false;
+        private Boolean rconReady = false;
+        private Boolean plcEnabled = false;
+        private int currAxis = 5;
 
         // gateway control signal
-        private static Boolean gwMON = false;
+        private Boolean gwMON = false;
 
         // gateway status signal
-        private static Byte gwALMC = 0;
-        private static Boolean gwSEMG = false;
-        private static Boolean gwALML = false;
-        private static Boolean gwALMH = false;
-        private static Boolean gwMOD = false;
-        private static Boolean gwERRT = false;
-        private static Boolean gwLERC = false;
-        private static Boolean gwRUN = false;
-        private static UInt16 gwLNK = 0;
+        private Byte gwALMC = 0;
+        private Boolean gwSEMG = false;
+        private Boolean gwALML = false;
+        private Boolean gwALMH = false;
+        private Boolean gwMOD = false;
+        private Boolean gwERRT = false;
+        private Boolean gwLERC = false;
+        private Boolean gwRUN = false;
+        private UInt16 gwLNK = 0;
 
         // axis control signal
-        private static Boolean axCSTR = false;
-        private static Boolean axHOME = false;
-        private static Boolean axSTP = false;
-        private static Boolean axRES = false;
-        private static Boolean axSON = false;
-        private static Boolean axJISL = false;
-        private static Boolean axJVEL = false;
-        private static Boolean axJOGN = false;
-        private static Boolean axJOGP = false;
-        private static Boolean axPUSH = false;
-        private static Boolean axDIR = false;
-        private static Boolean axINC = false;
-        private static Boolean axBKRL = false;
+        private Boolean axCSTR = false;
+        private Boolean axHOME = false;
+        private Boolean axSTP = false;
+        private Boolean axRES = false;
+        private Boolean axSON = false;
+        private Boolean axJISL = false;
+        private Boolean axJVEL = false;
+        private Boolean axJOGN = false;
+        private Boolean axJOGP = false;
+        private Boolean axPUSH = false;
+        private Boolean axDIR = false;
+        private Boolean axINC = false;
+        private Boolean axBKRL = false;
 
         // axis control parameter
-        private static Int32 axPSD = 0;
-        private static Int32 axPW = 0;
-        private static UInt16 axSPD = 0;
-        private static UInt16 axACDEC = 0;
-        private static UInt16 axPCLV = 0;
+        private Int32 axPSD = 0;
+        private Int32 axPW = 0;
+        private UInt16 axSPD = 0;
+        private UInt16 axACDEC = 0;
+        private UInt16 axPCLV = 0;
 
-        private static Boolean axPSDFocus = false;
-        private static Boolean axPWFocus = false;
-        private static Boolean axSPDFocus = false;
-        private static Boolean axACDECFocus = false;
-        private static Boolean axPCLVFocus = false;
+        // axis control parameter textbox on focus
+        private Boolean axPSDFocus = false;
+        private Boolean axPWFocus = false;
+        private Boolean axSPDFocus = false;
+        private Boolean axACDECFocus = false;
+        private Boolean axPCLVFocus = false;
 
         // axis status signal
-        private static Boolean axPEND = false;
-        private static Boolean axHEND = false;
-        private static Boolean axMOVE = false;
-        private static Boolean axALM = false;
-        private static Boolean axSV = false;
-        private static Boolean axPSFL = false;
-        private static Boolean axLOAD = false;
-        private static Boolean axALML = false;
-        private static Boolean axMEND = false;
-        private static Boolean axWEND = false;
-        private static Boolean axMODES = false;
-        private static Boolean axPZONE = false;
-        private static Boolean axZONE1 = false;
-        private static Boolean axZONE2 = false;
-        private static Boolean axCRDY = false;
-        private static Boolean axEMGS = false;
+        private Boolean axPEND = false;
+        private Boolean axHEND = false;
+        private Boolean axMOVE = false;
+        private Boolean axALM = false;
+        private Boolean axSV = false;
+        private Boolean axPSFL = false;
+        private Boolean axLOAD = false;
+        private Boolean axALML = false;
+        private Boolean axMEND = false;
+        private Boolean axWEND = false;
+        private Boolean axMODES = false;
+        private Boolean axPZONE = false;
+        private Boolean axZONE1 = false;
+        private Boolean axZONE2 = false;
+        private Boolean axCRDY = false;
+        private Boolean axEMGS = false;
 
         // axis status parameter
-        private static Int32 axPPD = 0;
-        private static Int32 axMCCV = 0;
-        private static Int16 axPSPD = 0;
-        private static UInt16 axALMC = 0;
+        private Int32 axPPD = 0;
+        private Int32 axMCCV = 0;
+        private Int16 axPSPD = 0;
+        private UInt16 axALMC = 0;
 
-        private static HandleMessage onWSOpen = new HandleMessage(OnWSOpenCB);
-        private static void OnWSOpenCB(IntPtr ptr, string data)
+        private HandleMessage onWSOpen;
+        private void OnWSOpenCB(IntPtr ptr, string data)
         {
             bot.EvaluateScript(".user-para");
             wsReady = true;
         }
 
-        private static HandleMessage onWSError = new HandleMessage(OnWSErrorCB);
-        private static void OnWSErrorCB(IntPtr ptr, string data)
+        private HandleMessage onWSError;
+        private void OnWSErrorCB(IntPtr ptr, string data)
         {
             wsReady = false;
             sfcReady = false;
@@ -107,8 +107,8 @@ namespace IAI_RCON_SYSTEM
             new Thread(() => System.Windows.Forms.MessageBox.Show("WS error : " + data)).Start();
         }
 
-        private static HandleMessage onUserParameter = new HandleMessage(OnUserParameterCB);
-        private static void OnUserParameterCB(IntPtr ptr, string str)
+        private HandleMessage onUserParameter;
+        private void OnUserParameterCB(IntPtr ptr, string str)
         {
             int para = Int32.Parse(str);
             switch (para)
@@ -132,33 +132,33 @@ namespace IAI_RCON_SYSTEM
             sfcLoaded = true;
         }
 
-        private static HandleMessage onSFCReady = new HandleMessage(OnSFCReadyCB);
-        private static void OnSFCReadyCB(IntPtr ptr, string str)
+        private HandleMessage onSFCReady;
+        private void OnSFCReadyCB(IntPtr ptr, string str)
         {
             if (Int32.Parse(str) == -1) { sfcReady = true; } else { sfcReady = false; rconReady = false; }
         }
 
-        private static HandleMessage onRCONReady = new HandleMessage(OnRCONReadyCB);
-        private static void OnRCONReadyCB(IntPtr ptr, string str)
+        private HandleMessage onRCONReady;
+        private void OnRCONReadyCB(IntPtr ptr, string str)
         {
             if (Int32.Parse(str) == -1) { rconReady = true; } else { rconReady = false; }
         }
 
-        private static HandleMessage onPLCEnabled = new HandleMessage(OnPLCEnabledCB);
-        private static void OnPLCEnabledCB (IntPtr ptr, string str)
+        private HandleMessage onPLCEnabled;
+        private void OnPLCEnabledCB(IntPtr ptr, string str)
         {
             if (Int32.Parse(str) == -1) { plcEnabled = true; } else { plcEnabled = false; }
         }
 
-        private static HandleMessage onGWControl = new HandleMessage(OnGWControlCB);
-        private static void OnGWControlCB(IntPtr ptr, string str)
+        private HandleMessage onGWControl;
+        private void OnGWControlCB(IntPtr ptr, string str)
         {
             int control = int.Parse(str);
             gwMON = (control & 0x8000) != 0;
         }
 
-        private static HandleMessage onGWStatus = new HandleMessage(OnGWStatusCB);
-        private static void OnGWStatusCB(IntPtr ptr, string str)
+        private HandleMessage onGWStatus;
+        private void OnGWStatusCB(IntPtr ptr, string str)
         {
             int status = int.Parse(str);
             gwALMC = (Byte)(status & 0xff);
@@ -172,8 +172,8 @@ namespace IAI_RCON_SYSTEM
             gwLNK = (UInt16)((status & 0xffff0000) >> 16);
         }
 
-        private static HandleMessage onAXControl = new HandleMessage(OnAXControlCB);
-        private static void OnAXControlCB(IntPtr ptr, string str)
+        private HandleMessage onAXControl;
+        private void OnAXControlCB(IntPtr ptr, string str)
         {
             int control = int.Parse(str);
             axCSTR = (control & 0x1) != 0;
@@ -191,38 +191,38 @@ namespace IAI_RCON_SYSTEM
             axBKRL = (control & 0x8000) != 0;
         }
 
-        private static HandleMessage onAXPSD = new HandleMessage(OnAXPSDCB);
-        private static void OnAXPSDCB(IntPtr ptr, string str)
+        private HandleMessage onAXPSD;
+        private void OnAXPSDCB(IntPtr ptr, string str)
         {
             axPSD = Int32.Parse(str);
         }
 
-        private static HandleMessage onAXPW = new HandleMessage(OnAXPWCB);
-        private static void OnAXPWCB(IntPtr ptr, string str)
+        private HandleMessage onAXPW;
+        private void OnAXPWCB(IntPtr ptr, string str)
         {
             axPW = Int32.Parse(str);
         }
 
-        private static HandleMessage onAXSPD = new HandleMessage(OnAXSPDCB);
-        private static void OnAXSPDCB(IntPtr ptr, string str)
+        private HandleMessage onAXSPD;
+        private void OnAXSPDCB(IntPtr ptr, string str)
         {
             axSPD = UInt16.Parse(str);
         }
 
-        private static HandleMessage onAXACDEC = new HandleMessage(OnAXACDECCB);
-        private static void OnAXACDECCB(IntPtr ptr, string str)
+        private HandleMessage onAXACDEC;
+        private void OnAXACDECCB(IntPtr ptr, string str)
         {
             axACDEC = UInt16.Parse(str);
         }
 
-        private static HandleMessage onAXPCLV = new HandleMessage(OnAXPCLVCB);
-        private static void OnAXPCLVCB(IntPtr ptr, string str)
+        private HandleMessage onAXPCLV;
+        private void OnAXPCLVCB(IntPtr ptr, string str)
         {
             axPCLV = UInt16.Parse(str);
         }
 
-        private static HandleMessage onAXStatus = new HandleMessage(OnAXStatusCB);
-        private static void OnAXStatusCB(IntPtr ptr, string str)
+        private HandleMessage onAXStatus;
+        private void OnAXStatusCB(IntPtr ptr, string str)
         {
             int status = int.Parse(str);
             axPEND = (status & 0x1) != 0;
@@ -243,26 +243,26 @@ namespace IAI_RCON_SYSTEM
             axEMGS = (status & 0x8000) != 0;
         }
 
-        private static HandleMessage onAXPPD = new HandleMessage(OnAXPPDCB);
-        private static void OnAXPPDCB(IntPtr ptr, string str)
+        private HandleMessage onAXPPD;
+        private void OnAXPPDCB(IntPtr ptr, string str)
         {
             axPPD = Int32.Parse(str);
         }
 
-        private static HandleMessage onAXMCCV = new HandleMessage(OnAXMCCVCB);
-        private static void OnAXMCCVCB(IntPtr ptr, string str)
+        private HandleMessage onAXMCCV;
+        private void OnAXMCCVCB(IntPtr ptr, string str)
         {
             axMCCV = Int32.Parse(str);
         }
 
-        private static HandleMessage onAXPSPD = new HandleMessage(OnAXPSPDCB);
-        private static void OnAXPSPDCB(IntPtr ptr, string str)
+        private HandleMessage onAXPSPD;
+        private void OnAXPSPDCB(IntPtr ptr, string str)
         {
             axPSPD = (Int16)Int32.Parse(str);
         }
 
-        private static HandleMessage onAXALMC = new HandleMessage(OnAXALMCCB);
-        private static void OnAXALMCCB(IntPtr ptr, string str)
+        private HandleMessage onAXALMC;
+        private void OnAXALMCCB(IntPtr ptr, string str)
         {
             axALMC = UInt16.Parse(str);
         }
@@ -271,24 +271,62 @@ namespace IAI_RCON_SYSTEM
         {
             InitializeComponent();
             bot = new Botnana("192.168.7.2");
+
+            onWSOpen = new HandleMessage(OnWSOpenCB);
             bot.SetOnOpenCB(IntPtr.Zero, onWSOpen);
+
+            onWSError = new HandleMessage(OnWSErrorCB);
             bot.SetOnErrorCB(IntPtr.Zero, onWSError);
+
+            onUserParameter = new HandleMessage(OnUserParameterCB);
             bot.SetTagCB("user_parameter", 0, IntPtr.Zero, onUserParameter);
-            bot.SetTagCB("RCON_ready", 0, IntPtr.Zero, onRCONReady);
+
+            onSFCReady = new HandleMessage(OnSFCReadyCB);
             bot.SetTagCB("SFC_ready", 0, IntPtr.Zero, onSFCReady);
+
+            onRCONReady = new HandleMessage(OnRCONReadyCB);
+            bot.SetTagCB("RCON_ready", 0, IntPtr.Zero, onRCONReady);
+
+            onPLCEnabled = new HandleMessage(OnPLCEnabledCB);
             bot.SetTagCB("PLC_enabled", 0, IntPtr.Zero, onPLCEnabled);
+            
+            onGWControl = new HandleMessage(OnGWControlCB);
             bot.SetTagCB("GW_control", 0, IntPtr.Zero, onGWControl);
+            
+            onGWStatus = new HandleMessage(OnGWStatusCB);
             bot.SetTagCB("GW_status", 0, IntPtr.Zero, onGWStatus);
+            
+            onAXControl = new HandleMessage(OnAXControlCB);
             bot.SetTagCB("AX_control", 0, IntPtr.Zero, onAXControl);
+            
+            onAXPSD = new HandleMessage(OnAXPSDCB);
             bot.SetTagCB("AX_PSD", 0, IntPtr.Zero, onAXPSD);
+            
+            onAXPW = new HandleMessage(OnAXPWCB);
             bot.SetTagCB("AX_PW", 0, IntPtr.Zero, onAXPW);
+            
+            onAXSPD = new HandleMessage(OnAXSPDCB);
             bot.SetTagCB("AX_SPD", 0, IntPtr.Zero, onAXSPD);
+            
+            onAXACDEC = new HandleMessage(OnAXACDECCB);
             bot.SetTagCB("AX_ACDEC", 0, IntPtr.Zero, onAXACDEC);
+            
+            onAXPCLV = new HandleMessage(OnAXPCLVCB);
             bot.SetTagCB("AX_PCLV", 0, IntPtr.Zero, onAXPCLV);
+            
+            onAXStatus = new HandleMessage(OnAXStatusCB);
             bot.SetTagCB("AX_status", 0, IntPtr.Zero, onAXStatus);
+            
+            onAXPPD = new HandleMessage(OnAXPPDCB);
             bot.SetTagCB("AX_PPD", 0, IntPtr.Zero, onAXPPD);
+            
+            onAXMCCV = new HandleMessage(OnAXMCCVCB);
             bot.SetTagCB("AX_MCCV", 0, IntPtr.Zero, onAXMCCV);
+            
+            onAXPSPD = new HandleMessage(OnAXPSPDCB);
             bot.SetTagCB("AX_PSPD", 0, IntPtr.Zero, onAXPSPD);
+            
+            onAXALMC = new HandleMessage(OnAXALMCCB);
             bot.SetTagCB("AX_ALMC", 0, IntPtr.Zero, onAXALMC);
         }
 
@@ -326,15 +364,18 @@ namespace IAI_RCON_SYSTEM
             {
                 labelAPPState.Text = "Connection Not Ready";
                 labelAPPState.BackColor = Color.Red;
-            } else if (!sfcReady)
+            }
+            else if (!sfcReady)
             {
                 labelAPPState.Text = "SFC Not Ready";
                 labelAPPState.BackColor = Color.Red;
-            } else if (!rconReady)
+            }
+            else if (!rconReady)
             {
                 labelAPPState.Text = "RCON Not Ready";
                 labelAPPState.BackColor = Color.Red;
-            } else
+            }
+            else
             {
                 labelAPPState.Text = "RCON Ready";
                 labelAPPState.BackColor = Color.Green;
