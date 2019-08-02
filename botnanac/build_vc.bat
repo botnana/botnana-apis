@@ -12,6 +12,7 @@ implib -a lib\BotnanaApiBCB_x86_64.lib lib\BotnanaApi_x86_64.dll
 copy lib\BotnanaApi.dll ..\botnanacs\AIO\AIO\BotnanaApi.dll
 copy lib\BotnanaApi.dll ..\botnanacs\AxisGroup\AxisGroup\BotnanaApi.dll
 copy lib\BotnanaApi.dll ..\botnanacs\DIO\DIO\BotnanaApi.dll
+copy lib\BotnanaApi.dll ..\botnanacs\IAI_RCON_SYSTEM\IAI_RCON_SYSTEM\BotnanaApi.dll
 copy lib\BotnanaApi.dll ..\botnanacs\ManualPulseGenerator\ManualPulseGenerator\BotnanaApi.dll
 copy lib\BotnanaApi.dll ..\botnanacs\PositionComparsionPanaA6B\PositionComparsionPanaA6B\BotnanaApi.dll
 copy lib\BotnanaApi.dll ..\botnanacs\SingleDrive\SingleDrive\BotnanaApi.dll
