@@ -359,7 +359,7 @@ namespace IAI_RCON_SYSTEM
 
         private void timer1_Tick(object sender, EventArgs e)
         {
-            // 更新 labelAPPState 顯式
+            // 更新 labelAPPState 顯示
             if (!wsReady)
             {
                 labelAPPState.Text = "Connection Not Ready";
@@ -381,7 +381,7 @@ namespace IAI_RCON_SYSTEM
                 labelAPPState.BackColor = Color.Green;
             }
 
-            // 更新 buttonWSControl 顯式
+            // 更新 buttonWSControl 顯示
             if (wsReady) { buttonWSControl.Text = "Disconnect"; } else { buttonWSControl.Text = "Connect"; }
 
             // 更新 buttonPLCEnable 顯示
