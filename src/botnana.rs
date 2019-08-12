@@ -506,9 +506,10 @@ impl Botnana {
                             let mut data_pool =
                                 self.data_pool.lock().expect("self.internal_handles.lock()");
                             let mut tag_index: [usize; 2] = [0; 2];
-                            for i in 1..tag.len().min(3) {
+                            let len = tag.len().min(3);
+                            for i in 1..len {
                                 if let Ok(x) = tag[i].parse::<usize>() {
-                                    tag_index[2 - i] = x;
+                                    tag_index[len-i-1] = x;
                                 }
                             }
                             handler(&mut data_pool, tag_index[0], tag_index[1], e);
@@ -519,9 +520,10 @@ impl Botnana {
                             // tag_index[0]: position
                             // tag_index[1]: channel
                             let mut tag_index: [u32; 2] = [0; 2];
-                            for i in 1..tag.len().min(3) {
+                            let len = tag.len().min(3);
+                            for i in 1..len {
                                 if let Ok(x) = tag[i].parse::<u32>() {
-                                    tag_index[2 - i] = x;
+                                    tag_index[len-i-1] = x;
                                 }
                             }
                             // 轉換字串型態
