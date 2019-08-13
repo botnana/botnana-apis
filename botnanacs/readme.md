@@ -1,6 +1,9 @@
 # 前言
 
-botnanacs 為 C# 的範例程式，開發工具式採用 Microsoft Visual Studio Community 2017。
+botnanacs 為 C# 的範例程式，開發工具版本:
+
+* Microsoft Visual Studio Community 2013 Version 12.0.40629.00 Update 5。
+* Microsoft .NET Framework Version 4.5
 
 # 目錄結構
 

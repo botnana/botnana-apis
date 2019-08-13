@@ -365,73 +365,73 @@ namespace TorqueScope
             bot.SetOnMessageCB(IntPtr.Zero, onMessage);
 
             onUserParameter = new HandleMessage(OnUserParameterCallback);
-            bot.SetTagCB($"user_parameter", 0, IntPtr.Zero, onUserParameter);
+            bot.SetTagCB(@"user_parameter", 0, IntPtr.Zero, onUserParameter);
             onRTRealTorque = new HandleMessage(OnRTRealTorqueCallback);
-            bot.SetTagCB($"rt_real_torque", 0, IntPtr.Zero, onRTRealTorque);
+            bot.SetTagCB(@"rt_real_torque", 0, IntPtr.Zero, onRTRealTorque);
             onSlavesResponding = new HandleMessage(OnSlavesRespondingCallback);
-            bot.SetTagCB($"slaves_responding", 0, IntPtr.Zero, onSlavesResponding);
+            bot.SetTagCB(@"slaves_responding", 0, IntPtr.Zero, onSlavesResponding);
             onSlavesState = new HandleMessage(OnSlavesStateCallback);
-            bot.SetTagCB($"al_states", 0, IntPtr.Zero, onSlavesState);
+            bot.SetTagCB(@"al_states", 0, IntPtr.Zero, onSlavesState);
             onWaitingSDOs = new HandleMessage(OnWaitingSDOsCallback);
-            bot.SetTagCB($"waiting_sdos_len", 0, IntPtr.Zero, onWaitingSDOs);
+            bot.SetTagCB(@"waiting_sdos_len", 0, IntPtr.Zero, onWaitingSDOs);
             onPDSState = new HandleMessage(OnPDSStateCallback);
-            bot.SetTagCB($"pds_state.1.1", 0, IntPtr.Zero, onPDSState);
+            bot.SetTagCB(@"pds_state.1.1", 0, IntPtr.Zero, onPDSState);
             onDriveStatus = new HandleMessage(OnDriveStatusCallback);
-            bot.SetTagCB($"status_word.1.1", 0, IntPtr.Zero, onDriveStatus);
+            bot.SetTagCB(@"status_word.1.1", 0, IntPtr.Zero, onDriveStatus);
             onOperationMode = new HandleMessage(OnOperationModeCallback);
-            bot.SetTagCB($"operation_mode.1.1", 0, IntPtr.Zero, onOperationMode);
+            bot.SetTagCB(@"operation_mode.1.1", 0, IntPtr.Zero, onOperationMode);
             onHomingMethod = new HandleMessage(OnHomingMethodCallback);
-            bot.SetTagCB($"homing_method.1.1", 0, IntPtr.Zero, onHomingMethod);
+            bot.SetTagCB(@"homing_method.1.1", 0, IntPtr.Zero, onHomingMethod);
             onHomingSpeed1 = new HandleMessage(OnHomingSpeed1Callback);
-            bot.SetTagCB($"homing_speed_1.1.1", 0, IntPtr.Zero, onHomingSpeed1);
+            bot.SetTagCB(@"homing_speed_1.1.1", 0, IntPtr.Zero, onHomingSpeed1);
             onHomingSpeed2 = new HandleMessage(OnHomingSpeed2Callback);
-            bot.SetTagCB($"homing_speed_2.1.1", 0, IntPtr.Zero, onHomingSpeed2);
+            bot.SetTagCB(@"homing_speed_2.1.1", 0, IntPtr.Zero, onHomingSpeed2);
             onHomingAcc = new HandleMessage(OnHomingAccCallback);
-            bot.SetTagCB($"homing_acceleration.1.1", 0, IntPtr.Zero, onHomingAcc);
+            bot.SetTagCB(@"homing_acceleration.1.1", 0, IntPtr.Zero, onHomingAcc);
             onProfileVelocity = new HandleMessage(OnProfileVelocityCallback);
-            bot.SetTagCB($"profile_velocity.1.1", 0, IntPtr.Zero, onProfileVelocity);
+            bot.SetTagCB(@"profile_velocity.1.1", 0, IntPtr.Zero, onProfileVelocity);
             onProfileAcc = new HandleMessage(OnProfileAccCallback);
-            bot.SetTagCB($"profile_acceleration.1.1", 0, IntPtr.Zero, onProfileAcc);
+            bot.SetTagCB(@"profile_acceleration.1.1", 0, IntPtr.Zero, onProfileAcc);
             onRealPosition = new HandleMessage(OnRealPositionCallback);
-            bot.SetTagCB($"real_position.1.1", 0, IntPtr.Zero, onRealPosition);
+            bot.SetTagCB(@"real_position.1.1", 0, IntPtr.Zero, onRealPosition);
             onRealTorque = new HandleMessage(OnRealTorqueCallback);
-            bot.SetTagCB($"real_torque.1.1", 0, IntPtr.Zero, onRealTorque);
+            bot.SetTagCB(@"real_torque.1.1", 0, IntPtr.Zero, onRealTorque);
             onDigitalInputs = new HandleMessage(OnDigitalInputsCallback);
             bot.SetTagCB("digital_inputs.1.1", 0, IntPtr.Zero, onDigitalInputs);
             onTargetPosition = new HandleMessage(OnTargetPositionCallback);
-            bot.SetTagCB($"target_position.1.1", 0, IntPtr.Zero, onTargetPosition);
+            bot.SetTagCB(@"target_position.1.1", 0, IntPtr.Zero, onTargetPosition);
             onErrorMessage = new HandleMessage(OnErrorMessageCallback);
-            bot.SetTagCB($"error", 0, IntPtr.Zero, onErrorMessage);
+            bot.SetTagCB(@"error", 0, IntPtr.Zero, onErrorMessage);
             onAxisPosition = new HandleMessage(OnAxisPositionCallback);
-            bot.SetTagCB($"axis_demand_position.1", 0, IntPtr.Zero, onAxisPosition);
+            bot.SetTagCB(@"axis_demand_position.1", 0, IntPtr.Zero, onAxisPosition);
             onFeedbackPosition = new HandleMessage(OnFeedbackPositionCallback);
-            bot.SetTagCB($"feedback_position.1", 0, IntPtr.Zero, onFeedbackPosition);
+            bot.SetTagCB(@"feedback_position.1", 0, IntPtr.Zero, onFeedbackPosition);
             onEncoderLengthUnit = new HandleMessage(OnEncoderLengthUnitCallback);
-            bot.SetTagCB($"encoder_length_unit.1", 0, IntPtr.Zero, onEncoderLengthUnit);
+            bot.SetTagCB(@"encoder_length_unit.1", 0, IntPtr.Zero, onEncoderLengthUnit);
             onEncoderPPU = new HandleMessage(OnEncoderPPUCallback);
-            bot.SetTagCB($"encoder_ppu.1", 0, IntPtr.Zero, onEncoderPPU);
+            bot.SetTagCB(@"encoder_ppu.1", 0, IntPtr.Zero, onEncoderPPU);
             onDriveAlias = new HandleMessage(OnDriveAliasCallback);
-            bot.SetTagCB($"drive_alias.1", 0, IntPtr.Zero, onDriveAlias);
+            bot.SetTagCB(@"drive_alias.1", 0, IntPtr.Zero, onDriveAlias);
             onDriveSlavePosition = new HandleMessage(OnDriveSlavePositionCallback);
-            bot.SetTagCB($"drive_slave_position.1", 0, IntPtr.Zero, onDriveSlavePosition);
+            bot.SetTagCB(@"drive_slave_position.1", 0, IntPtr.Zero, onDriveSlavePosition);
             onDriveChannel = new HandleMessage(OnDriveChannelCallback);
-            bot.SetTagCB($"drive_channel.1", 0, IntPtr.Zero, onDriveChannel);
+            bot.SetTagCB(@"drive_channel.1", 0, IntPtr.Zero, onDriveChannel);
             onAxisVmax = new HandleMessage(OnAxisVmaxCallback);
-            bot.SetTagCB($"axis_vmax.1", 0, IntPtr.Zero, onAxisVmax);
+            bot.SetTagCB(@"axis_vmax.1", 0, IntPtr.Zero, onAxisVmax);
             onAxisAmax = new HandleMessage(OnAxisAmaxCallback);
-            bot.SetTagCB($"axis_amax.1", 0, IntPtr.Zero, onAxisAmax);
+            bot.SetTagCB(@"axis_amax.1", 0, IntPtr.Zero, onAxisAmax);
             onGroupType = new HandleMessage(OnGroupTypeCallback);
-            bot.SetTagCB($"group_type.1", 0, IntPtr.Zero, onGroupType);
+            bot.SetTagCB(@"group_type.1", 0, IntPtr.Zero, onGroupType);
             onGroupMapping = new HandleMessage(OnGroupMappingCallback);
-            bot.SetTagCB($"group_mapping.1", 0, IntPtr.Zero, onGroupMapping);
+            bot.SetTagCB(@"group_mapping.1", 0, IntPtr.Zero, onGroupMapping);
             onGroupVmax = new HandleMessage(OnGroupVmaxCallback);
-            bot.SetTagCB($"group_vmax.1", 0, IntPtr.Zero, onGroupVmax);
+            bot.SetTagCB(@"group_vmax.1", 0, IntPtr.Zero, onGroupVmax);
             onGroupAmax = new HandleMessage(OnGroupAmaxCallback);
-            bot.SetTagCB($"group_amax.1", 0, IntPtr.Zero, onGroupAmax);
+            bot.SetTagCB(@"group_amax.1", 0, IntPtr.Zero, onGroupAmax);
             onGroupJmax = new HandleMessage(OnGroupJmaxCallback);
-            bot.SetTagCB($"group_jmax.1", 0, IntPtr.Zero, onGroupJmax);
+            bot.SetTagCB(@"group_jmax.1", 0, IntPtr.Zero, onGroupJmax);
             onTravelTime = new HandleMessage(OnTravelTimeCallback);
-            bot.SetTagCB($"travel_time", 0, IntPtr.Zero, onTravelTime);
+            bot.SetTagCB(@"travel_time", 0, IntPtr.Zero, onTravelTime);
 
             bot.Connect();
             wsState = 1;
@@ -608,7 +608,7 @@ namespace TorqueScope
             // 切換驅動器到 CSP Mode, 避免切換時跳異警，檢查或後誤差是否太大
             if (Math.Abs(FollowingError()) < 0.05)
             {
-                bot.EvaluateScript($"csp 1 1 op-mode!");
+                bot.EvaluateScript(@"csp 1 1 op-mode!");
             }
             else
             {
@@ -619,18 +619,18 @@ namespace TorqueScope
         private void button3_Click(object sender, EventArgs e)
         {
             // 切換驅動器到 HM Mode,
-            bot.EvaluateScript($"hm 1 1 op-mode!");
+            bot.EvaluateScript(@"hm 1 1 op-mode!");
         }
 
         private void button6_Click(object sender, EventArgs e)
         {
-            bot.EvaluateScript($"pp 1 1 op-mode!");
+            bot.EvaluateScript(@"pp 1 1 op-mode!");
         }
 
         private void button5_Click(object sender, EventArgs e)
         {
             // 驅動器在 HM Mode 下, 如果要開始回 Home 要下 go 命令
-            bot.EvaluateScript($"1 1 go");
+            bot.EvaluateScript(@"1 1 go");
         }
 
         private void button7_Click(object sender, EventArgs e)
@@ -638,7 +638,7 @@ namespace TorqueScope
             // 驅動器 Drive On 前檢查 following error
             if (Math.Abs(FollowingError()) < 0.05)
             {
-                bot.EvaluateScript($"1 1 drive-on");
+                bot.EvaluateScript(@"1 1 drive-on");
             }
             else
             {
@@ -649,13 +649,13 @@ namespace TorqueScope
         private void button9_Click(object sender, EventArgs e)
         {
             // 命令驅動器暫停
-            bot.EvaluateScript($"1 1 +drive-halt");
+            bot.EvaluateScript(@"1 1 +drive-halt");
         }
 
         private void button10_Click(object sender, EventArgs e)
         {
             // 命令驅動器繼續運作
-            bot.EvaluateScript($"1 1 -drive-halt");
+            bot.EvaluateScript(@"1 1 -drive-halt");
         }
 
         private void buttonPull_Click(object sender, EventArgs e)
@@ -681,7 +681,7 @@ namespace TorqueScope
             // 如果不送到 NC Background task 執行，則此 user task 會沒有回應。
             if (pass)
             {
-                bot.EvaluateScript("deploy " + textReleaseP.Text + $"e mm " + textReleaseV.Text + $"e mm/min release-go ;deploy");
+                bot.EvaluateScript("deploy " + textReleaseP.Text + @"e mm " + textReleaseV.Text + @"e mm/min release-go ;deploy");
             }
         }
 
@@ -753,7 +753,7 @@ namespace TorqueScope
             if (pass)
             {
                 string cmd = textTorqueThreshold.Text + " tq-threshold ! " + textSpeedChangeDistance.Text + "e mm speed-change-distance f!";
-                cmd += " deploy " + textPushP1.Text + $"e mm " + textPushP2.Text + $"e mm " + textPushV1.Text + $"e mm/min " + textPushV2.Text + $"e mm/min press-go ;deploy";
+                cmd += " deploy " + textPushP1.Text + @"e mm " + textPushP2.Text + @"e mm " + textPushV1.Text + @"e mm/min " + textPushV2.Text + @"e mm/min press-go ;deploy";
                 bot.EvaluateScript(cmd);
             }
         }
@@ -761,7 +761,7 @@ namespace TorqueScope
         private void button11_Click(object sender, EventArgs e)
         {
             // 停止軸組運動指令
-            bot.EvaluateScript($"stop-job");
+            bot.EvaluateScript(@"stop-job");
         }
 
         private void button12_Click(object sender, EventArgs e)
@@ -770,7 +770,7 @@ namespace TorqueScope
             // drive-off 將驅動器 drive-off
             // kill-nc   移除 background task 內的工作
             // resume    resume background task
-            bot.EvaluateScript($"ems-job 1 1 drive-off kill-nc 1 resume");
+            bot.EvaluateScript(@"ems-job 1 1 drive-off kill-nc 1 resume");
         }
 
         private void timer2_Tick(object sender, EventArgs e)
@@ -901,7 +901,7 @@ namespace TorqueScope
         private void button15_Click(object sender, EventArgs e)
         {
             // 停止軸組運動
-            bot.EvaluateScript($"stop-job");
+            bot.EvaluateScript(@"stop-job");
         }
 
         private void buttonWSState_Click(object sender, EventArgs e)
