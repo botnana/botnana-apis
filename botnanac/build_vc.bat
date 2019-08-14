@@ -10,6 +10,7 @@ implib -a lib\BotnanaApiBCB.lib lib\BotnanaApi.dll
 implib -a lib\BotnanaApiBCB_x86_64.lib lib\BotnanaApi_x86_64.dll
 
 copy lib\BotnanaApi.dll ..\botnanacs\AIO\AIO\BotnanaApi.dll
+copy lib\BotnanaApi.dll ..\botnanacs\AxesMove\AxesMove\BotnanaApi.dll
 copy lib\BotnanaApi.dll ..\botnanacs\AxisGroup\AxisGroup\BotnanaApi.dll
 copy lib\BotnanaApi.dll ..\botnanacs\DIO\DIO\BotnanaApi.dll
 copy lib\BotnanaApi.dll ..\botnanacs\IAI_RCON_SYSTEM\IAI_RCON_SYSTEM\BotnanaApi.dll

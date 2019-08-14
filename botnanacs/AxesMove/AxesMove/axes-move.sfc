@@ -1,0 +1,357 @@
+﻿\ Interface:
+\     
+\ axis1-p!  ( index -- )( F: pos -- )  \ 設定第一軸區段位置設定
+\ axis1-p@  ( index -- )( F: -- pos )  \ 取得第一軸區段位置設定
+\ axis1-v!  ( index -- )( F: vel -- )  \ 設定第一軸區段速度設定
+\ axis1-v@  ( index -- )( F: -- vel )  \ 取得第一軸區段速度設定    
+\ .axis1-sections                      \ 顯示第一軸區段設定
+\ start-axis1 ( len -- )               \ 啟動第一軸的多段運動
+\ stop-axis1 ( -- )                    \ 停止第一軸的多段運動
+\ .axis1-status ( -- )                 \ 回傳第一軸的多段運動狀態
+\ axis2-p!  ( index -- )( F: pos -- )  \ 設定第二軸區段位置設定
+\ axis2-p@  ( index -- )( F: -- pos )  \ 取得第二軸區段位置設定
+\ axis2-v!  ( index -- )( F: vel -- )  \ 設定第二軸區段速度設定
+\ axis2-v@  ( index -- )( F: -- vel )  \ 取得第二軸區段速度設定       
+\ .axis2-sections                      \ 顯示第二軸區段設定
+\ start-axis2 ( len -- )               \ 啟動第二軸的多段運動
+\ stop-axis2 ( -- )                    \ 停止第二軸的多段運動
+\ .axis2-status ( -- )                 \ 回傳第二軸的多段運動狀態
+\
+
+\ 取得浮點陣列內的值
+: fparam@ ( index addr -- )( F: -- f )
+    faligned swap floats + f@
+    ;
+
+\ 設定浮點陣列內的值
+: fparam! ( index addr -- )( F: f --  )
+    faligned swap floats + f!
+    ;    
+
+\ 假設有每一軸有 5 段預設的位置與速度 
+5 constant sections-len
+
+\ 第一軸預設的位置，Index 0 不使用 
+create axis1-ps falign 0e f,
+                        50.0e mm f,
+                        100.0e mm f,
+                        200.0e mm f,
+                        300.0e mm f,
+                        400.0e mm f, 
+
+\ 第一軸預設與速度
+create axis1-vs falign  0e f, 
+                        100.0e mm/min f,
+                        200.0e mm/min f,
+                        300.0e mm/min f,
+                        400.0e mm/min f,
+                        500.0e mm/min f, 
+
+\ 取得第一軸區段位置設定
+: axis1-p@  ( index -- )( F: -- pos )
+     axis1-ps fparam@
+     ;
+
+\ 設定第一軸區段位置設定     
+: axis1-p!  ( index -- )( F: pos -- )
+     axis1-ps fparam!
+     ;     
+
+\ 取得第一軸區段速度設定    
+: axis1-v@  ( index -- )( F: -- vel )
+     axis1-vs fparam@
+     ;
+
+\ 設定第一軸區段速度設定      
+: axis1-v!  ( index -- )( F: vel -- )
+     axis1-vs fparam!
+     ;     
+
+\ 顯示第一軸區段設定      
+: .axis1-sections
+     sections-len 1+ 1 ?do
+     ." axis_section_p." i 0 .r ." .1|" i axis1-p@ 0 6 f.r
+     ." |axis_section_v." i 0 .r ." .1|" i axis1-v@ 0 8 f.r cr     
+     loop 
+   ;    
+
+\ 目前運行到第幾段設定   
+variable axis1-current-s 1 axis1-current-s !
+\ 第一軸要運行幾段設定
+variable axis1-sections-len 0 axis1-sections-len !
+\ 第一軸的多段目標點 SFC 是否運行中?
+variable axis1-running
+
+\ 啟動第一軸的多段運動
+: start-axis1 ( len -- )
+  coordinator?
+  axis1-running @ not and
+  if
+    1 axis1-current-s ! axis1-sections-len !
+  then
+  ;
+
+\ 停止第一軸的多段運動
+: stop-axis1 ( -- )
+  1 -interpolator
+  axis1-sections-len @ 1+ axis1-current-s ! 
+  ;  
+
+\ 回傳第一軸的多段運動狀態  
+: .axis1-status
+  ." axis_current_s.1|" axis1-current-s @ 0 .r
+  ." |axis_section_len.1|" axis1-sections-len @ 0 .r
+  ." |axis_running.1|" axis1-running @ 0 .r
+  cr
+  ;
+
+\  多段運動 SFC
+\    
+\  +---> IDLE  ( axis1-idle )
+\  |       |
+\  |      -+- 是否要執行?  ( axis1-accepted? )
+\  |       |
+\  |       V                                            
+\  |    Preparation ( axis1-preparation ) <------------+
+\  |    1. 開啟插值器                                  |
+\  |    2. 設定速度                                    |
+\  |    3. 設定目標點                                  | 
+\  |       |                                           |
+\  |      -+- True ( axis1-to-waiting? )               |
+\  |       |                                           |
+\  |       V                                           |
+\  |     Wait  ( axis1-wait )                          |
+\  |       |                                           |
+\  |      -+- 是否到達目標點? ( axis1-reached? )       |  
+\  |       |                                           |
+\  |       V                                           |
+\  |    Post Action   ( axis1-post )                   |
+\  |    1. 開啟插值器                                  |
+\  |    2. 切換到下一段的設定                          |
+\  |       |                                           |
+\  |      -+- 完成所有區段? N  ( axis1-resume? ) ------+
+\  |       | Y ( axis1-to-idle? )
+\  +-------+ 
+
+\  Axis 1 IDLE 
+: axis1-idle 
+    axis1-running off
+    ;
+    
+\ 宣告 axis1-idle 為 SFC Step     
+step axis1-idle
+
+\ Axis 1 Preparation
+: axis1-preparation
+    1 +interpolator
+    axis1-current-s @ axis1-v@ 1 interpolator-v!
+    axis1-current-s @ axis1-p@ 1 axis-cmd-p!
+    axis1-running on
+    ;
+    
+\ 宣告 axis1-preparation 為 SFC Step    
+step axis1-preparation
+
+\ Axis 1 Wait
+: axis1-wait
+    ;
+
+\ 宣告 axis1-wait 為 SFC Step    
+step axis1-wait
+
+\ Axis 1 Post Action
+: axis1-post
+    1 -interpolator
+    axis1-current-s @ 1+ axis1-current-s !
+    ;
+    
+\ 宣告 axis1-post 為 SFC Step 
+step axis1-post
+
+\ 進入多段運動檢查條件
+: axis1-accepted? ( -- t )     
+  axis1-current-s @ axis1-sections-len @ <=
+  coordinator? and
+  ; 
+
+\ 宣告 axis1-accepted? 為 SFC transition  
+transition  axis1-accepted?
+
+\ 進到 Wait Step 的條件 (永遠為真)
+: axis1-to-waiting? ( -- t )     
+  true
+  ; 
+
+\ 宣告 axis1-to-waiting? 為 SFC transition    
+transition axis1-to-waiting?
+
+\ 是否到達當下區段的目標位置
+: axis1-reached? ( -- t )     
+  1 interpolator-reached?
+  ; 
+
+\ 宣告 axis1-reached? 為 SFC transition  
+transition axis1-reached?
+
+\ 繼續多段運動的條件
+: axis1-resume? ( -- t )     
+  axis1-current-s @ axis1-sections-len @ <=
+  ; 
+
+\ 宣告 axis1-resume? 為 SFC transition    
+transition axis1-resume?
+
+\ 結束多段運動的條件
+: axis1-to-idle? ( -- t )     
+  axis1-current-s @ axis1-sections-len @ >
+  ; 
+
+\ 宣告 axis1-to-idle? 為 SFC transition    
+transition axis1-to-idle?
+
+\ 連結 SFC
+' axis1-idle        ' axis1-accepted?   -->
+' axis1-accepted?   ' axis1-preparation -->  
+' axis1-preparation ' axis1-to-waiting? -->
+' axis1-to-waiting? ' axis1-wait        -->
+' axis1-wait        ' axis1-reached?    -->
+' axis1-reached?    ' axis1-post        --> 
+' axis1-post        ' axis1-resume?     -->
+' axis1-resume?     ' axis1-preparation -->
+' axis1-post        ' axis1-to-idle?    -->
+' axis1-to-idle?    ' axis1-idle        -->
+
+\ 啟動第一軸 SFC
+' axis1-idle +step
+
+\ 第二軸設定/SFC與第一軸相同    
+create axis2-ps falign 0e f,
+                        50.0e mm f,
+                        100.0e mm f,
+                        200.0e mm f,
+                        300.0e mm f,
+                        400.0e mm f, 
+
+create axis2-vs falign  0e f, 
+                        100.0e mm/min f,
+                        200.0e mm/min f,
+                        300.0e mm/min f,
+                        400.0e mm/min f,
+                        500.0e mm/min f, 
+
+: axis2-p@  ( index -- )( F: -- pos )
+     axis2-ps fparam@
+     ;
+
+: axis2-p!  ( index -- )( F: pos -- )
+     axis2-ps fparam!
+     ;     
+
+: axis2-v@  ( index -- )( F: -- vel )
+     axis2-vs fparam@
+     ;
+
+: axis2-v!  ( index -- )( F: vel -- )
+     axis2-vs fparam!
+     ;     
+
+: .axis2-sections
+     sections-len 1+ 1 ?do
+     ." axis_section_p." i 0 .r ." .2|" i axis2-p@ 0 6 f.r
+     ." |axis_section_v." i 0 .r ." .2|" i axis2-v@ 0 8 f.r cr     
+     loop 
+   ;    
+
+variable axis2-current-s 1 axis2-current-s !
+variable axis2-sections-len 0 axis2-sections-len !
+variable axis2-running
+
+: start-axis2 ( len -- )
+  coordinator?
+  axis1-running @ not and
+  if
+    1 axis2-current-s ! axis2-sections-len !
+  then
+  ;
+
+: stop-axis2 ( -- )
+  2 -interpolator
+  axis2-sections-len @ 1+ axis2-current-s ! 
+  ;  
+
+: .axis2-status
+  ." axis_current_s.2|" axis2-current-s @ 0 .r
+  ." |axis_section_len.2|" axis2-sections-len @ 0 .r
+  ." |axis_running.2|" axis2-running @ 0 .r
+  cr
+  ;
+  
+: axis2-idle 
+    axis2-running off
+    ;
+step axis2-idle
+
+: axis2-preparation
+    2 +interpolator
+    axis2-current-s @ axis2-v@ 2 interpolator-v!
+    axis2-current-s @ axis2-p@ 2 axis-cmd-p!
+    axis2-running on
+    ;
+step axis2-preparation
+
+: axis2-wait
+    ;
+
+step axis2-wait
+
+: axis2-post
+     2 -interpolator
+    axis2-current-s @ 1+ axis2-current-s !
+    ;
+
+step axis2-post
+
+: axis2-accepted? ( -- t )     
+  axis2-current-s @ axis2-sections-len @ <=
+  coordinator? and
+  ; 
+
+transition  axis2-accepted?
+
+: axis2-to-waiting? ( -- t )     
+  true
+  ; 
+
+transition axis2-to-waiting?
+
+: axis2-reached? ( -- t )     
+  2 interpolator-reached?
+  ; 
+
+transition axis2-reached?
+
+: axis2-resume? ( -- t )     
+  axis2-current-s @ axis2-sections-len @ <=
+  ; 
+
+transition axis2-resume?
+
+: axis2-to-idle? ( -- t )     
+  axis2-current-s @ axis2-sections-len @ >
+  ; 
+
+transition axis2-to-idle?
+
+\ 連結 SFC
+' axis2-idle        ' axis2-accepted?   -->
+' axis2-accepted?   ' axis2-preparation -->  
+' axis2-preparation ' axis2-to-waiting? -->
+' axis2-to-waiting? ' axis2-wait        -->
+' axis2-wait        ' axis2-reached?    -->
+' axis2-reached?    ' axis2-post        --> 
+' axis2-post        ' axis2-resume?     -->
+' axis2-resume?     ' axis2-preparation -->
+' axis2-post        ' axis2-to-idle?    -->
+' axis2-to-idle?    ' axis2-idle        -->
+
+' axis2-idle +step
