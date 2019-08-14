@@ -257,68 +257,68 @@ namespace PositionComparsionPanaA6B
             bot.SetOnMessageCB(IntPtr.Zero, onMessage);
 
             onUserParameter = new HandleMessage(OnUserParameterCallback);
-            bot.SetTagCB($"user_parameter", 0, IntPtr.Zero, onUserParameter);
+            bot.SetTagCB(@"user_parameter", 0, IntPtr.Zero, onUserParameter);
 
             onError = new HandleMessage(OnErrorCallback);
-            bot.SetTagCB("error", 0, IntPtr.Zero, onError);
+            bot.SetTagCB(@"error", 0, IntPtr.Zero, onError);
             onPr3411 = new HandleMessage(OnPr3411Callback);
-            bot.SetTagCB("pr3411 ", 0, IntPtr.Zero, onPr3411);
+            bot.SetTagCB(@"pr3411 ", 0, IntPtr.Zero, onPr3411);
             onPr3444 = new HandleMessage(OnPr3444Callback);
-            bot.SetTagCB("pr3444 ", 0, IntPtr.Zero, onPr3444);
+            bot.SetTagCB(@"pr3444 ", 0, IntPtr.Zero, onPr3444);
             onPr3445 = new HandleMessage(OnPr3445Callback);
-            bot.SetTagCB("pr3445 ", 0, IntPtr.Zero, onPr3445);
+            bot.SetTagCB(@"pr3445 ", 0, IntPtr.Zero, onPr3445);
             onPr3447 = new HandleMessage(OnPr3447Callback);
-            bot.SetTagCB("pr3447 ", 0, IntPtr.Zero, onPr3447);
+            bot.SetTagCB(@"pr3447 ", 0, IntPtr.Zero, onPr3447);
             onPr3448 = new HandleMessage(OnPr3448Callback);
-            bot.SetTagCB("pr3448 ", 0, IntPtr.Zero, onPr3448);
+            bot.SetTagCB(@"pr3448 ", 0, IntPtr.Zero, onPr3448);
             onPr3449 = new HandleMessage(OnPr3449Callback);
-            bot.SetTagCB("pr3449 ", 0, IntPtr.Zero, onPr3449);
+            bot.SetTagCB(@"pr3449 ", 0, IntPtr.Zero, onPr3449);
             onPr3450 = new HandleMessage(OnPr3450Callback);
-            bot.SetTagCB("pr3450 ", 0, IntPtr.Zero, onPr3450);
+            bot.SetTagCB(@"pr3450 ", 0, IntPtr.Zero, onPr3450);
             onPr3451 = new HandleMessage(OnPr3451Callback);
-            bot.SetTagCB("pr3451 ", 0, IntPtr.Zero, onPr3451);
+            bot.SetTagCB(@"pr3451 ", 0, IntPtr.Zero, onPr3451);
             onPr3452 = new HandleMessage(OnPr3452Callback);
-            bot.SetTagCB("pr3452 ", 0, IntPtr.Zero, onPr3452);
+            bot.SetTagCB(@"pr3452 ", 0, IntPtr.Zero, onPr3452);
             onPr3453 = new HandleMessage(OnPr3453Callback);
-            bot.SetTagCB("pr3453 ", 0, IntPtr.Zero, onPr3453);
+            bot.SetTagCB(@"pr3453 ", 0, IntPtr.Zero, onPr3453);
             onPr3454 = new HandleMessage(OnPr3454Callback);
-            bot.SetTagCB("pr3454 ", 0, IntPtr.Zero, onPr3454);
+            bot.SetTagCB(@"pr3454 ", 0, IntPtr.Zero, onPr3454);
             onPr3455 = new HandleMessage(OnPr3455Callback);
-            bot.SetTagCB("pr3455 ", 0, IntPtr.Zero, onPr3455);
+            bot.SetTagCB(@"pr3455 ", 0, IntPtr.Zero, onPr3455);
             onPr3456 = new HandleMessage(OnPr3456Callback);
-            bot.SetTagCB("pr3456 ", 0, IntPtr.Zero, onPr3456);
+            bot.SetTagCB(@"pr3456 ", 0, IntPtr.Zero, onPr3456);
             onPr3457 = new HandleMessage(OnPr3457Callback);
-            bot.SetTagCB("pr3457 ", 0, IntPtr.Zero, onPr3457);
+            bot.SetTagCB(@"pr3457 ", 0, IntPtr.Zero, onPr3457);
 
             onSlavesResponding = new HandleMessage(OnSlavesRespondingCallback);
-            bot.SetTagCB($"slaves_responding", 0, IntPtr.Zero, onSlavesResponding);
+            bot.SetTagCB(@"slaves_responding", 0, IntPtr.Zero, onSlavesResponding);
 
             onWaitingSDOs = new HandleMessage(OnWaitingSDOsCallback);
-            bot.SetTagCB($"waiting_sdos_len", 0, IntPtr.Zero, onWaitingSDOs);
+            bot.SetTagCB(@"waiting_sdos_len", 0, IntPtr.Zero, onWaitingSDOs);
 
             onOperationMode = new HandleMessage(OnOperationModeCallback);
-            bot.SetTagCB($"operation_mode.1.1", 0, IntPtr.Zero, onOperationMode);
+            bot.SetTagCB(@"operation_mode.1.1", 0, IntPtr.Zero, onOperationMode);
 
             onHomingMethod = new HandleMessage(OnHomingMethodCallback);
-            bot.SetTagCB($"homing_method.1.1", 0, IntPtr.Zero, onHomingMethod);
+            bot.SetTagCB(@"homing_method.1.1", 0, IntPtr.Zero, onHomingMethod);
 
             onHomingSpeed2 = new HandleMessage(OnHomingSpeed2Callback);
-            bot.SetTagCB($"homing_speed_2.1.1", 0, IntPtr.Zero, onHomingSpeed2);
+            bot.SetTagCB(@"homing_speed_2.1.1", 0, IntPtr.Zero, onHomingSpeed2);
 
             onProfileVelocity = new HandleMessage(OnProfileVelocityCallback);
-            bot.SetTagCB($"profile_velocity.1.1", 0, IntPtr.Zero, onProfileVelocity);
+            bot.SetTagCB(@"profile_velocity.1.1", 0, IntPtr.Zero, onProfileVelocity);
 
             onProfileAcc = new HandleMessage(OnProfileAccCallback);
-            bot.SetTagCB($"profile_acceleration.1.1", 0, IntPtr.Zero, onProfileAcc);
+            bot.SetTagCB(@"profile_acceleration.1.1", 0, IntPtr.Zero, onProfileAcc);
 
             onRealPosition = new HandleMessage(OnRealPositionCallback);
-            bot.SetTagCB($"real_position.1.1", 0, IntPtr.Zero, onRealPosition);
+            bot.SetTagCB(@"real_position.1.1", 0, IntPtr.Zero, onRealPosition);
 
             onTargetPosition = new HandleMessage(OnTargetPositionCallback);
-            bot.SetTagCB($"target_position.1.1", 0, IntPtr.Zero, onTargetPosition);
+            bot.SetTagCB(@"target_position.1.1", 0, IntPtr.Zero, onTargetPosition);
 
             onPDSState = new HandleMessage(OnPDSStateCallback);
-            bot.SetTagCB($"pds_state.1.1", 0, IntPtr.Zero, onPDSState);
+            bot.SetTagCB(@"pds_state.1.1", 0, IntPtr.Zero, onPDSState);
 
             bot.Connect();
 
@@ -336,88 +336,88 @@ namespace PositionComparsionPanaA6B
             {
                 if (has_slave_info)
                 {
-                    bot.EvaluateScript("1 .slave-diff");
+                    bot.EvaluateScript(@"1 .slave-diff");
                 }
                 else
                 {
-                    bot.EvaluateScript("1 .slave");
+                    bot.EvaluateScript(@"1 .slave");
                 }
             }
 
             if (!has_updated)
             {
                 // 要求  Botnana Control 送出 user parameter 訊息
-                bot.EvaluateScript(".user-para");
+                bot.EvaluateScript(@".user-para");
             }
         }
 
         private void button1_Click(object sender, EventArgs e)
         {
-            bot.EvaluateScript("send-param-request");
+            bot.EvaluateScript(@"send-param-request");
         }
 
         private void btnServoOn_Click(object sender, EventArgs e)
         {
-            bot.EvaluateScript("1 1 drive-on");
+            bot.EvaluateScript(@"1 1 drive-on");
         }
 
         private void btnServoOFF_Click(object sender, EventArgs e)
         {
-            bot.EvaluateScript("1 1 drive-off");
+            bot.EvaluateScript(@"1 1 drive-off");
         }
 
         private void btnResetFault_Click(object sender, EventArgs e)
         {
-            bot.EvaluateScript("1 1 reset-fault");
+            bot.EvaluateScript(@"1 1 reset-fault");
         }
 
         private void btnGo_Click(object sender, EventArgs e)
         {
-            bot.EvaluateScript("1 1 go");
+            bot.EvaluateScript(@"1 1 go");
         }
 
         private void btnHM_Click(object sender, EventArgs e)
         {
-            bot.EvaluateScript("hm 1 1 op-mode!");
+            bot.EvaluateScript(@"hm 1 1 op-mode!");
         }
 
         private void btnPP_Click(object sender, EventArgs e)
         {
-            bot.EvaluateScript("pp 1 1 op-mode!");
+            bot.EvaluateScript(@"pp 1 1 op-mode!");
         }
 
         private void timer2_Tick(object sender, EventArgs e)
         {
-            bot.EvaluateScript(".ec-links");
+            bot.EvaluateScript(@".ec-links");
         }
 
         private void button8_Click(object sender, EventArgs e)
         {
-            bot.EvaluateScript(textTargetPositionCMD.Text + " 1 1 target-p!");
+            bot.EvaluateScript(textTargetPositionCMD.Text + @" 1 1 target-p!");
             textTargetPositionCMD.Text = "";
         }
 
         private void button13_Click(object sender, EventArgs e)
         {
-            bot.EvaluateScript(textHomingMethodCMD.Text + " 1 1 homing-method!");
+            bot.EvaluateScript(textHomingMethodCMD.Text + @" 1 1 homing-method!");
             textHomingMethodCMD.Text = "";
         }
 
         private void button14_Click(object sender, EventArgs e)
         {
-            bot.EvaluateScript(textHomingSpeed2CMD.Text + " 1 1 homing-v2!");
+            bot.EvaluateScript(textHomingSpeed2CMD.Text + @" 1 1 homing-v2!");
             textHomingSpeed2CMD.Text = "";
         }
 
         private void button15_Click(object sender, EventArgs e)
         {
-            bot.EvaluateScript(textProfileVelocityCMD.Text + " 1 1 profile-v!");
+            bot.EvaluateScript(textProfileVelocityCMD.Text + @" 1 1 profile-v!");
             textProfileVelocityCMD.Text = "";
         }
 
         private void button16_Click(object sender, EventArgs e)
         {
-            bot.EvaluateScript(textProfileAccCMD.Text + " dup 1 1 profile-a1! 1 1 profile-a2!");
+            bot.EvaluateScript(textProfileAccCMD.Text + @" dup 1 1 profile-a1! 1 1 profile-a2!");
             textProfileAccCMD.Text = "";
         }
 
@@ -427,7 +427,7 @@ namespace PositionComparsionPanaA6B
             if (e.KeyCode == Keys.Enter)
             {
                 old_pr3411 = textPr3411.Text;
-                bot.EvaluateScript($"$" + textPr3411.Text + $" 0 $3411 1 sdo-download-u32");
+                bot.EvaluateScript(@"$" + textPr3411.Text + @" 0 $3411 1 sdo-download-u32");
             }
         }
 
@@ -452,7 +452,7 @@ namespace PositionComparsionPanaA6B
                     if (number <= 32767)
                     {
                         old_pr3444 = textPr3444.Text;
-                        bot.EvaluateScript(textPr3444.Text + $" 0 $3444 1 sdo-download-u16");
+                        bot.EvaluateScript(textPr3444.Text + @" 0 $3444 1 sdo-download-u16");
                     }
                     else
                     {
@@ -487,7 +487,7 @@ namespace PositionComparsionPanaA6B
                     if (number <= 7)
                     {
                         old_pr3445 = textPr3445.Text;
-                        bot.EvaluateScript(textPr3445.Text + $" 0 $3445 1 sdo-download-u16");
+                        bot.EvaluateScript(textPr3445.Text + @" 0 $3445 1 sdo-download-u16");
                     }
                     else
                     {
@@ -513,7 +513,7 @@ namespace PositionComparsionPanaA6B
 
         private void button2_Click(object sender, EventArgs e)
         {
-            bot.EvaluateScript($"1 ec-save");
+            bot.EvaluateScript(@"1 ec-save");
         }
 
         private string old_pr3447;
@@ -527,7 +527,7 @@ namespace PositionComparsionPanaA6B
                     if (number <= 1)
                     {
                         old_pr3447 = textPr3447.Text;
-                        bot.EvaluateScript(textPr3447.Text + $" 0 $3447 1 sdo-download-u16");
+                        bot.EvaluateScript(textPr3447.Text + @" 0 $3447 1 sdo-download-u16");
                     }
                     else
                     {
@@ -560,7 +560,7 @@ namespace PositionComparsionPanaA6B
                 if (Int32.TryParse(textPr3448.Text, out number))
                 {
                     old_pr3448 = textPr3448.Text;
-                    bot.EvaluateScript(textPr3448.Text + $" 0 $3448 1 sdo-download-i32");
+                    bot.EvaluateScript(textPr3448.Text + @" 0 $3448 1 sdo-download-i32");
                 }
                 else
                 {
@@ -588,7 +588,7 @@ namespace PositionComparsionPanaA6B
                 if (Int32.TryParse(textPr3449.Text, out number))
                 {
                     old_pr3449 = textPr3449.Text;
-                    bot.EvaluateScript(textPr3449.Text + $" 0 $3449 1 sdo-download-i32");
+                    bot.EvaluateScript(textPr3449.Text + @" 0 $3449 1 sdo-download-i32");
                 }
                 else
                 {
@@ -616,7 +616,7 @@ namespace PositionComparsionPanaA6B
                 if (Int32.TryParse(textPr3450.Text, out number))
                 {
                     old_pr3450 = textPr3450.Text;
-                    bot.EvaluateScript(textPr3450.Text + $" 0 $3450 1 sdo-download-i32");
+                    bot.EvaluateScript(textPr3450.Text + @" 0 $3450 1 sdo-download-i32");
                 }
                 else
                 {
@@ -644,7 +644,7 @@ namespace PositionComparsionPanaA6B
                 if (Int32.TryParse(textPr3451.Text, out number))
                 {
                     old_pr3451 = textPr3451.Text;
-                    bot.EvaluateScript(textPr3451.Text + $" 0 $3451 1 sdo-download-i32");
+                    bot.EvaluateScript(textPr3451.Text + @" 0 $3451 1 sdo-download-i32");
                 }
                 else
                 {
@@ -672,7 +672,7 @@ namespace PositionComparsionPanaA6B
                 if (Int32.TryParse(textPr3452.Text, out number))
                 {
                     old_pr3452 = textPr3452.Text;
-                    bot.EvaluateScript(textPr3452.Text + $" 0 $3452 1 sdo-download-i32");
+                    bot.EvaluateScript(textPr3452.Text + @" 0 $3452 1 sdo-download-i32");
                 }
                 else
                 {
@@ -700,7 +700,7 @@ namespace PositionComparsionPanaA6B
                 if (Int32.TryParse(textPr3453.Text, out number))
                 {
                     old_pr3453 = textPr3453.Text;
-                    bot.EvaluateScript(textPr3453.Text + $" 0 $3453 1 sdo-download-i32");
+                    bot.EvaluateScript(textPr3453.Text + @" 0 $3453 1 sdo-download-i32");
                 }
                 else
                 {
@@ -728,7 +728,7 @@ namespace PositionComparsionPanaA6B
                 if (Int32.TryParse(textPr3454.Text, out number))
                 {
                     old_pr3454 = textPr3454.Text;
-                    bot.EvaluateScript(textPr3454.Text + $" 0 $3454 1 sdo-download-i32");
+                    bot.EvaluateScript(textPr3454.Text + @" 0 $3454 1 sdo-download-i32");
                 }
                 else
                 {
@@ -756,7 +756,7 @@ namespace PositionComparsionPanaA6B
                 if (Int32.TryParse(textPr3455.Text, out number))
                 {
                     old_pr3455 = textPr3455.Text;
-                    bot.EvaluateScript(textPr3455.Text + $" 0 $3455 1 sdo-download-i32");
+                    bot.EvaluateScript(textPr3455.Text + @" 0 $3455 1 sdo-download-i32");
                 }
                 else
                 {
@@ -784,7 +784,7 @@ namespace PositionComparsionPanaA6B
                 if (Int16.TryParse(textPr3456.Text, out number))
                 {
                     old_pr3456 = textPr3456.Text;
-                    bot.EvaluateScript(textPr3456.Text + $" 0 $3456 1 sdo-download-i16");
+                    bot.EvaluateScript(textPr3456.Text + @" 0 $3456 1 sdo-download-i16");
                 }
                 else
                 {
@@ -812,7 +812,7 @@ namespace PositionComparsionPanaA6B
                 if (UInt32.TryParse(textPr3457.Text, NumberStyles.AllowHexSpecifier, CultureInfo.InvariantCulture, out number))
                 {
                     old_pr3457 = textPr3457.Text;
-                    bot.EvaluateScript($"$" + textPr3457.Text + $" 0 $3457 1 sdo-download-u32");
+                    bot.EvaluateScript(@"$" + textPr3457.Text + @" 0 $3457 1 sdo-download-u32");
                 }
                 else
                 {

@@ -103,10 +103,10 @@ namespace DIO
             bot.SetTagCB("dout_wd.1.2", 0, IntPtr.Zero, onDoWord);
 
             onSlavesResponding = new HandleMessage(OnSlavesRespondingCallback);
-            bot.SetTagCB($"slaves_responding", 0, IntPtr.Zero, onSlavesResponding);
+            bot.SetTagCB(@"slaves_responding", 0, IntPtr.Zero, onSlavesResponding);
 
             onSlavesState = new HandleMessage(OnSlavesStateCallback);
-            bot.SetTagCB($"al_states", 0, IntPtr.Zero, onSlavesState);
+            bot.SetTagCB(@"al_states", 0, IntPtr.Zero, onSlavesState);
 
             bot.Connect();
 
@@ -272,7 +272,7 @@ namespace DIO
             Int32 number;
             if (Int32.TryParse(textDoWord.Text, NumberStyles.HexNumber, CultureInfo.InvariantCulture, out number))
             {
-                bot.EvaluateScript(number + $" 1 2 ec-wdout!");
+                bot.EvaluateScript(number + @" 1 2 ec-wdout!");
             }
             textDoWord.Text = "";
         }
