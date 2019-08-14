@@ -30,7 +30,6 @@ namespace IAI_RCON_SYSTEM
         // gateway status signal
         private Byte gwALMC = 0;
         private Boolean gwSEMG = false;
-        private Boolean gwALML = false;
         private Boolean gwALMH = false;
         private Boolean gwMOD = false;
         private Boolean gwERRT = false;

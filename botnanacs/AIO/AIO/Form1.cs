@@ -267,75 +267,75 @@ namespace AIO
 
             // 收到 tag = slaves_responding 就呼叫 OnSlavesRespondingCallback
             onSlavesResponding = new HandleMessage(OnSlavesRespondingCallback);
-            bot.SetTagCB($"slaves_responding", 0, IntPtr.Zero, onSlavesResponding);
+            bot.SetTagCB(@"slaves_responding", 0, IntPtr.Zero, onSlavesResponding);
 
             // 收到 tag = al_states 就呼叫 OnSlavesStateCallback
             onSlavesState = new HandleMessage(OnSlavesStateCallback);
-            bot.SetTagCB($"al_states", 0, IntPtr.Zero, onSlavesState);
+            bot.SetTagCB(@"al_states", 0, IntPtr.Zero, onSlavesState);
 
             // 收到 tag = error 就呼叫 OnErrorMessageCallback
             onErrorMessage = new HandleMessage(OnErrorMessageCallback);
-            bot.SetTagCB($"error", 0, IntPtr.Zero, onErrorMessage);
+            bot.SetTagCB(@"error", 0, IntPtr.Zero, onErrorMessage);
 
             // 收到 tag = ain.1.4 就呼叫 OnAin1Callback
             // ain.1.4 表示第 4 個從站第 1 管道的 AIN
             onAins[1] = new HandleMessage(OnAin1Callback);
-            bot.SetTagCB($"ain.1." + DeltaAinSlavePosStr, 0, IntPtr.Zero, onAins[1]);
+            bot.SetTagCB(@"ain.1." + DeltaAinSlavePosStr, 0, IntPtr.Zero, onAins[1]);
             onAins[2] = new HandleMessage(OnAin2Callback);
-            bot.SetTagCB($"ain.2." + DeltaAinSlavePosStr, 0, IntPtr.Zero, onAins[2]);
+            bot.SetTagCB(@"ain.2." + DeltaAinSlavePosStr, 0, IntPtr.Zero, onAins[2]);
             onAins[3] = new HandleMessage(OnAin3Callback);
-            bot.SetTagCB($"ain.3." + DeltaAinSlavePosStr, 0, IntPtr.Zero, onAins[3]);
+            bot.SetTagCB(@"ain.3." + DeltaAinSlavePosStr, 0, IntPtr.Zero, onAins[3]);
             onAins[4] = new HandleMessage(OnAin4Callback);
-            bot.SetTagCB($"ain.4." + DeltaAinSlavePosStr, 0, IntPtr.Zero, onAins[4]);
+            bot.SetTagCB(@"ain.4." + DeltaAinSlavePosStr, 0, IntPtr.Zero, onAins[4]);
 
             // 收到 tag = aout.1.4 就呼叫 OnAout1Callback
             // aout.1.5 表示第 5 個從站第 1 管道的 Aout
             onAouts[1] = new HandleMessage(OnAout1Callback);
-            bot.SetTagCB($"aout.1." + DeltaAoutSlavePosStr, 0, IntPtr.Zero, onAouts[1]);
+            bot.SetTagCB(@"aout.1." + DeltaAoutSlavePosStr, 0, IntPtr.Zero, onAouts[1]);
             onAouts[2] = new HandleMessage(OnAout2Callback);
-            bot.SetTagCB($"aout.2." + DeltaAoutSlavePosStr, 0, IntPtr.Zero, onAouts[2]);
+            bot.SetTagCB(@"aout.2." + DeltaAoutSlavePosStr, 0, IntPtr.Zero, onAouts[2]);
             onAouts[3] = new HandleMessage(OnAout3Callback);
-            bot.SetTagCB($"aout.3." + DeltaAoutSlavePosStr, 0, IntPtr.Zero, onAouts[3]);
+            bot.SetTagCB(@"aout.3." + DeltaAoutSlavePosStr, 0, IntPtr.Zero, onAouts[3]);
             onAouts[4] = new HandleMessage(OnAout4Callback);
-            bot.SetTagCB($"aout.4." + DeltaAoutSlavePosStr, 0, IntPtr.Zero, onAouts[4]);
+            bot.SetTagCB(@"aout.4." + DeltaAoutSlavePosStr, 0, IntPtr.Zero, onAouts[4]);
 
             // 收到 tag = ain_enabled.1.4 就呼叫 OnAin1EnabledCallback
             // ain_enabled.1.4 表示第 4 個從站第 1 管道的 AIN Enabled
             onAinsEnabled[1] = new HandleMessage(OnAin1EnabledCallback);
-            bot.SetTagCB($"ain_enabled.1." + DeltaAinSlavePosStr, 0, IntPtr.Zero, onAinsEnabled[1]);
+            bot.SetTagCB(@"ain_enabled.1." + DeltaAinSlavePosStr, 0, IntPtr.Zero, onAinsEnabled[1]);
             onAinsEnabled[2] = new HandleMessage(OnAin2EnabledCallback);
-            bot.SetTagCB($"ain_enabled.2." + DeltaAinSlavePosStr, 0, IntPtr.Zero, onAinsEnabled[2]);
+            bot.SetTagCB(@"ain_enabled.2." + DeltaAinSlavePosStr, 0, IntPtr.Zero, onAinsEnabled[2]);
             onAinsEnabled[3] = new HandleMessage(OnAin3EnabledCallback);
-            bot.SetTagCB($"ain_enabled.3." + DeltaAinSlavePosStr, 0, IntPtr.Zero, onAinsEnabled[3]);
+            bot.SetTagCB(@"ain_enabled.3." + DeltaAinSlavePosStr, 0, IntPtr.Zero, onAinsEnabled[3]);
             onAinsEnabled[4] = new HandleMessage(OnAin4EnabledCallback);
-            bot.SetTagCB($"ain_enabled.4." + DeltaAinSlavePosStr, 0, IntPtr.Zero, onAinsEnabled[4]);
+            bot.SetTagCB(@"ain_enabled.4." + DeltaAinSlavePosStr, 0, IntPtr.Zero, onAinsEnabled[4]);
 
             // 收到 tag = aout_enabled.1.5 就呼叫 OnAout1EnabledCallback
             // aout_enabled.1.5 表示第 5 個從站第 1 管道的 AOUT Enabled
             onAoutsEnabled[1] = new HandleMessage(OnAout1EnabledCallback);
-            bot.SetTagCB($"aout_enabled.1." + DeltaAoutSlavePosStr, 0, IntPtr.Zero, onAoutsEnabled[1]);
+            bot.SetTagCB(@"aout_enabled.1." + DeltaAoutSlavePosStr, 0, IntPtr.Zero, onAoutsEnabled[1]);
             onAoutsEnabled[2] = new HandleMessage(OnAout2EnabledCallback);
-            bot.SetTagCB($"aout_enabled.2." + DeltaAoutSlavePosStr, 0, IntPtr.Zero, onAoutsEnabled[2]);
+            bot.SetTagCB(@"aout_enabled.2." + DeltaAoutSlavePosStr, 0, IntPtr.Zero, onAoutsEnabled[2]);
             onAoutsEnabled[3] = new HandleMessage(OnAout3EnabledCallback);
-            bot.SetTagCB($"aout_enabled.3." + DeltaAoutSlavePosStr, 0, IntPtr.Zero, onAoutsEnabled[3]);
+            bot.SetTagCB(@"aout_enabled.3." + DeltaAoutSlavePosStr, 0, IntPtr.Zero, onAoutsEnabled[3]);
             onAoutsEnabled[4] = new HandleMessage(OnAout4EnabledCallback);
-            bot.SetTagCB($"aout_enabled.4." + DeltaAoutSlavePosStr, 0, IntPtr.Zero, onAoutsEnabled[4]);
+            bot.SetTagCB(@"aout_enabled.4." + DeltaAoutSlavePosStr, 0, IntPtr.Zero, onAoutsEnabled[4]);
 
             // 收到 tag = aout1_mode 就呼叫 OnAout1ModeCallback
             onAoutsMode[1] = new HandleMessage(OnAout1ModeCallback);
-            bot.SetTagCB($"aout1_mode", 0, IntPtr.Zero, onAoutsMode[1]);
+            bot.SetTagCB(@"aout1_mode", 0, IntPtr.Zero, onAoutsMode[1]);
             onAoutsMode[2] = new HandleMessage(OnAout2ModeCallback);
-            bot.SetTagCB($"aout2_mode", 0, IntPtr.Zero, onAoutsMode[2]);
+            bot.SetTagCB(@"aout2_mode", 0, IntPtr.Zero, onAoutsMode[2]);
             onAoutsMode[3] = new HandleMessage(OnAout3ModeCallback);
-            bot.SetTagCB($"aout3_mode", 0, IntPtr.Zero, onAoutsMode[3]);
+            bot.SetTagCB(@"aout3_mode", 0, IntPtr.Zero, onAoutsMode[3]);
             onAoutsMode[4] = new HandleMessage(OnAout4ModeCallback);
-            bot.SetTagCB($"aout4_mode", 0, IntPtr.Zero, onAoutsMode[4]);
+            bot.SetTagCB(@"aout4_mode", 0, IntPtr.Zero, onAoutsMode[4]);
             onAinMode = new HandleMessage(OnAinModeCallback);
-            bot.SetTagCB($"ain_mode", 0, IntPtr.Zero, onAinMode);
+            bot.SetTagCB(@"ain_mode", 0, IntPtr.Zero, onAinMode);
 
             // 收到 tag = user_parameter 就呼叫 OnUserParameterCallback
             onUserParameter = new HandleMessage(OnUserParameterCallback);
-            bot.SetTagCB($"user_parameter", 0, IntPtr.Zero, onUserParameter);
+            bot.SetTagCB(@"user_parameter", 0, IntPtr.Zero, onUserParameter);
 
             // 進行連線
             wsState = 1;

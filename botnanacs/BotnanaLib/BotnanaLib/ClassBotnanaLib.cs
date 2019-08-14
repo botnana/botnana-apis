@@ -169,7 +169,7 @@ namespace BotnanaLib
         // 清除 SFC
         public void ClearSFC()
         {
-            script_evaluate_dll(innerBotnana, $"0sfc");
+            script_evaluate_dll(innerBotnana, @"0sfc");
         }
 
         // JSON-API: version.get
