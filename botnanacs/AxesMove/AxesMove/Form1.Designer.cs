@@ -215,7 +215,7 @@
             this.textAxis1V1.TextAlign = System.Windows.Forms.HorizontalAlignment.Right;
             this.textAxis1V1.Enter += new System.EventHandler(this.textAxis1V1_Enter);
             this.textAxis1V1.KeyDown += new System.Windows.Forms.KeyEventHandler(this.textAxis1V1_KeyDown);
-            this.textAxis1V1.Leave += new System.EventHandler(this.textAxis2V1_Leave);
+            this.textAxis1V1.Leave += new System.EventHandler(this.textAxis1V1_Leave);
             // 
             // textAxis1V2
             // 
