@@ -268,7 +268,7 @@ variable axis2-running
 
 : start-axis2 ( len -- )
   coordinator?
-  axis1-running @ not and
+  axis2-running @ not and
   if
     1 axis2-current-s ! axis2-sections-len !
   then
