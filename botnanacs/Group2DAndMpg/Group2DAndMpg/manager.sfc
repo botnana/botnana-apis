@@ -1,0 +1,134 @@
+\ 宣告數位訊號正反器的編號與型態
+
+\ MPG 手輪 OFF 訊號
+1 constant mpg-off
+
+\ MPG 手輪 X 訊號
+2 constant mpg-x
+
+\ MPG 手輪 Y 訊號
+3 constant mpg-y
+
+\ MPG 手輪 X1 訊號
+4 constant mpg-x1
+
+\ MPG 手輪 X10 訊號
+5 constant mpg-x10
+
+\ MPG 手輪 X100 訊號
+6 constant mpg-x100
+
+\ Low level trigger, hold time = 10000 us
+2 mpg-off ff-type!   10000 mpg-off   ff-hold!
+
+\ High level trigger, hold time = 10000 us
+1 mpg-x ff-type!   10000 mpg-x   ff-hold!
+
+\ High level trigger, hold time = 10000 us
+1 mpg-y ff-type!  10000 mpg-y  ff-hold!
+
+\ High level trigger, hold time = 10000 us
+1 mpg-x1   ff-type! 10000 mpg-x1   ff-hold!
+
+\ High level trigger, hold time = 10000 us
+1 mpg-x10  ff-type! 10000 mpg-x10  ff-hold!
+
+\ High level trigger, hold time = 10000 us
+1 mpg-x100 ff-type! 10000 mpg-x100 ff-hold!  
+
+\ MPG 手輪的編碼器輸入
+: mpg-encoder@ ( -- count )
+    1 6 real-p@
+    ;
+
+\ 將 MPG SFC 的 'mpg-encoder 令牌設定為  mpg-encoder@
+' mpg-encoder@ 'mpg-encoder!  
+
+
+\      cyclic-prepare
+\            |
+\          --+-- 檢查硬體周邊  
+\            |
+\      cyclic-forth
+\            |
+\          --+-- False 
+\
+
+\ 前置的預備動作
+: cyclic-prepare
+  ;
+
+\ 依據訊號設定 MPG SFC 
+: cyclic-forth
+    
+   \ 依據手輪數位輸入訊號，設定數位訊號正反器   
+   \ 1 1 drive-on? if
+       \ 當驅動器 Drive On 才依據手輪的數位輸入訊號決定是否要啟動 MPG SFC
+   \    1 4 ec-din@     
+   \ else
+   \    false
+   \ then
+   
+   coordinator? if
+		1 7 ec-din@ 2 7 ec-din@ or mpg-off ff-forth-uc
+		1 7 ec-din@ mpg-x    ff-forth-uc
+		2 7 ec-din@ mpg-y    ff-forth-uc
+   else
+		false mpg-off ff-forth-uc
+		false mpg-x   ff-forth-uc
+		false mpg-y   ff-forth-uc
+   then	
+   3 7 ec-din@ mpg-x1   ff-forth-uc
+   4 7 ec-din@ mpg-x10  ff-forth-uc
+   5 7 ec-din@ mpg-x100 ff-forth-uc
+   
+   \ 啟動或是關閉
+   mpg-off ff-triggered-uc? if 0 mpg-selecting! then
+   mpg-x ff-triggered-uc? if 3 mpg-selecting! then
+   mpg-y ff-triggered-uc? if 4 mpg-selecting! then
+   \ 倍率選擇 
+   mpg-x1 ff-triggered-uc? if 0.5e um mpg-rate! then
+   mpg-x10 ff-triggered-uc? if 5.0e um mpg-rate! then
+   mpg-x100 ff-triggered-uc? if 50.0e um mpg-rate! then
+   ;
+
+\ 是否硬體周邊
+: condition-ok?
+    \ EtherCAT 通訊正常
+    ec-ready? 
+    \ 手輪編碼器輸入, 使用台達電 5621 模組，所以會是一個驅動器模組
+    1 6 ec-drive? and
+    \ 選擇運動軸
+    1 7 ec-din? and
+    2 7 ec-din? and
+    \ 倍率 X1
+    3 7 ec-din? and
+    4 7 ec-din? and
+    5 7 ec-din? and
+    ;
+
+: cyclic-forth-stop?
+    false
+;
+
+\ 輸出 sfc manager 狀態
+: .sfc-manager
+   ." condition_ok|" condition-ok? 0 .r 
+   cr
+  ;
+
+\ 宣告 SFC Step  
+step cyclic-prepare
+step cyclic-forth
+
+\ 宣告 SFC transition
+transition condition-ok?
+transition cyclic-forth-stop?
+
+\ 連結 SFC
+' cyclic-prepare ' condition-ok?  -->
+' condition-ok? ' cyclic-forth -->
+' cyclic-forth ' cyclic-forth-stop? -->
+
+\ 啟動 SFC
+' cyclic-prepare +step

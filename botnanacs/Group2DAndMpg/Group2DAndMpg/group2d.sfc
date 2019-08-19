@@ -1,0 +1,59 @@
+﻿1 group! 1200.0e mm/min vcmd!
+
+: group-idle
+ ;
+step group-idle 
+ 
+: group-prepare
+  1 group! 
+  +group 
+  start-job
+  0path
+  mcs
+  2500e mm/min feedrate!
+  25e mm 0e mm line2d
+  25e mm -50e mm line2d
+  75e mm -50e mm line2d
+  100e mm -50e mm line2d
+  1 100e mm 0e mm 150e mm 0e mm arc2d
+  1 100e mm 0e mm 100e mm 50e mm arc2d
+  75e mm 50e mm line2d
+  800e mm/min feedrate!
+  25e mm 50e mm line2d
+  2500e mm/min feedrate!
+  25e mm 0e mm line2d
+  0e mm 0e mm line2d
+  ;
+
+step group-prepare  
+
+: group-loop
+    ." group_next_v|" 1 group! next-v@ 0 8 f.r cr
+    ;
+  
+step group-loop
+
+: group-enter?
+   coordinator?
+  ;
+transition group-enter?
+
+: group-to-loop?
+   true
+  ;
+transition group-to-loop?
+ 
+: group-exit?
+   ['] group-loop elapsed 50 >
+  1 group! gend? and
+  ;
+
+transition group-exit?
+
+' group-idle     ' group-enter? -->
+' group-enter?   ' group-prepare -->
+' group-prepare  ' group-to-loop? -->
+' group-to-loop? ' group-loop -->
+' group-loop     ' group-exit? -->
+' group-exit?    ' group-idle -->
+' group-idle +step     
