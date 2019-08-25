@@ -9,6 +9,7 @@ botnanacs 為 C# 的範例程式，開發工具版本:
 
     botnanacs
     |-----> AIO
+    |-----> AxesMove
     |-----> AxisGroup
     |-----> BotnanaApi
     |-----> BotnanaLib
@@ -20,6 +21,7 @@ botnanacs 為 C# 的範例程式，開發工具版本:
     |-----> TouchProbe
 
 * AIO: 類比輸入與輸出模組範例。
+* AxesMove: 兩個運動軸獨立運動的 SFC 範例，也以不需要接馬達驅動器，以虛擬軸即可執此範例。
 * AxisGroup: 此範例結合 SFC 與 3D 運動軸組，可以作為 3 軸運動平台的基礎，包含回歸機械原點，軸移動，NC 程式運作。
 * BotnanaApi: 將 C 語言函式庫 `botnana.lib` 轉換為 C# 使用的動態連結檔 `BotnanaApi.dll` 。
 * BotnanaLib: 將 BotnanaApi 包裝成 C# class libraray。
