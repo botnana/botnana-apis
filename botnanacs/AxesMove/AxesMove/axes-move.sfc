@@ -1,4 +1,4 @@
-﻿\ Interface:
+﻿﻿\ Interface:
 \     
 \ axis1-p!  ( index -- )( F: pos -- )  \ 設定第一軸區段位置設定
 \ axis1-p@  ( index -- )( F: -- pos )  \ 取得第一軸區段位置設定
@@ -126,7 +126,7 @@ variable axis1-running
 \  |       |                                           |
 \  |       V                                           |
 \  |    Post Action   ( axis1-post )                   |
-\  |    1. 開啟插值器                                  |
+\  |    1. 關閉插值器                                  |
 \  |    2. 切換到下一段的設定                          |
 \  |       |                                           |
 \  |      -+- 完成所有區段? N  ( axis1-resume? ) ------+
