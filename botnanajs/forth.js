@@ -63,15 +63,12 @@ function start(address) {
     })
 
     rl.on('line', (input) => {
-        if (input.match('.exit')) {
+        if (input === ".exit") {
             rl.close()
             ws.close()
             clearInterval(interval)
-            // botnana.close()
             return;
         }
-        // console.log(input)
-        // botnana.motion.evaluate(input)
 
         evaluate(input)
     })
