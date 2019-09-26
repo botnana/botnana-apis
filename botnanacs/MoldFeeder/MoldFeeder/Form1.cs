@@ -55,9 +55,9 @@ namespace MoldFeeder
                     // 清除SFC 邏輯，載入 SFC 時會造成 real time cycle overrun，所以要暫時 ignore-overrun
                     //  載入後再執行 `reset-overrun`
                     bot.EvaluateScript(@"0sfc ignore-overrun -work marker -work");
-                    bot.LoadSFC(@"sfc.fs");
-                    bot.LoadSFC(@"sdo_upload.fs");
-                    bot.LoadSFC(@"manager.fs");
+                    bot.LoadSFC(@"../../sfc.fs");
+                    bot.LoadSFC(@"../../sdo_upload.fs");
+                    bot.LoadSFC(@"../../manager.fs");
                     bot.EvaluateScript(@"marker -feeder .user-para");
                     //new Thread(() => System.Windows.Forms.MessageBox.Show("OnUserParameterCallback 0")).Start();
                     break;
