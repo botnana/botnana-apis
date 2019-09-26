@@ -149,4 +149,4 @@ transition upload-not-finished?
 ' upload-not-finished? ' send-upload-command  -->
 
 \ 啟動 SFC
-\ ' param-proc-idle +step
+' param-proc-idle +step

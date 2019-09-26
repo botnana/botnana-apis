@@ -42,10 +42,10 @@ variable feeder-start-time
 variable feeder-prepare-time
 
 \ 設定旋轉盤用來尋找模具平邊的旋轉距離 [pulse]
-variable feeder-rotation-distance 10000 feeder-rotation-distance ! 
+variable feeder-rotation-distance 20000 feeder-rotation-distance ! 
 
 \ 設定旋轉盤用來尋找模具平邊的旋轉速度 [pulse/s]
-variable feeder-rotation-speed 10000 feeder-rotation-speed ! 
+variable feeder-rotation-speed 1000000 feeder-rotation-speed ! 
 
 \ 用來判斷是否有偵測到平邊的資訊
 variable tp1-detected
@@ -240,7 +240,7 @@ transition feeder-mold-detected?
      tp1-detected @ and
      tp2-detected @ and
      if
-        tp2-detected-position @ tp2-detected-position @ + 2 / s>f axis-index @ axis-cmd-p! 
+        tp1-detected-position @ tp2-detected-position @ + 2 / s>f axis-index @ axis-cmd-p! 
         move-to-center-once on
      else
         tp1-detected @ tp2-detected @ and not if
@@ -364,5 +364,5 @@ transition  feeder-completed?
 ' feeder-completed?     ' feeder-idle           -->
 
 \ 啟動 Step feeder-idle
-\ ' feeder-init +step
+' feeder-init +step
     
