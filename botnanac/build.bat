@@ -1,4 +1,5 @@
 echo "build botnana.lib"
+set CARGO_HTTP_CHECK_REVOKE=false
 rd /s /q lib
 md lib
 cargo build --release --target=i686-pc-windows-msvc
