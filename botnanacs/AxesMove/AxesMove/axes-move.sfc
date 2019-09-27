@@ -1,4 +1,4 @@
-﻿﻿\ Interface:
+﻿\ Interface:
 \     
 \ axis1-p!  ( index -- )( F: pos -- )  \ 設定第一軸區段位置設定
 \ axis1-p@  ( index -- )( F: -- pos )  \ 取得第一軸區段位置設定
