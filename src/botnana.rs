@@ -354,10 +354,13 @@ impl Botnana {
                     + &x.to_string()
                     + r#"}}"#;
                 self.execute_on_send_cb(&msg);
+                let mut error_info = Ok(());
                 if let Some(ref sender) = *self.user_sender.lock().expect("evaluate") {
-                    sender
-                        .send(Message::Text(msg.to_string()))
-                        .expect("send_message");
+                    error_info = sender.send(Message::Text(msg.to_string()));
+                }
+
+                if let Err(e) = error_info {
+                    self.execute_on_error_cb(&format!("Send Message Error: {}\n", e));
                 }
             }
         }
@@ -509,7 +512,7 @@ impl Botnana {
                             let len = tag.len().min(3);
                             for i in 1..len {
                                 if let Ok(x) = tag[i].parse::<usize>() {
-                                    tag_index[len-i-1] = x;
+                                    tag_index[len - i - 1] = x;
                                 }
                             }
                             handler(&mut data_pool, tag_index[0], tag_index[1], e);
@@ -523,7 +526,7 @@ impl Botnana {
                             let len = tag.len().min(3);
                             for i in 1..len {
                                 if let Ok(x) = tag[i].parse::<u32>() {
-                                    tag_index[len-i-1] = x;
+                                    tag_index[len - i - 1] = x;
                                 }
                             }
                             // 轉換字串型態
