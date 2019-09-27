@@ -51,8 +51,7 @@ namespace AxesMove
                     bot.EvaluateScript(@"marker -axes .user-para");                
                     break;
                 case 16:
-                    hasSFC = true;
-                    bot.EvaluateScript(@"reset-overrun 32 user-para!");
+                    bot.EvaluateScript(@"reset-overrun 32 user-para!  .user-para");
                     break;
                 case 32:
                     hasSFC = true;
