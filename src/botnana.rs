@@ -669,7 +669,7 @@ impl Botnana {
     /// Execute on_open callback
     fn execute_on_open_cb(&self) {
         if let Some(ref cb) = *self.on_open_cb.lock().expect("execute_on_open_cb") {
-            let mut temp_msg = String::from("Connect to ".to_owned() + &self.url()).into_bytes();
+            let mut temp_msg = String::from("Connect to ".to_owned() + &self.url() + " (" + VERSION+ ")").into_bytes();
             temp_msg.push(0);
             let msg = CStr::from_bytes_with_nul(temp_msg.as_slice())
                 .expect("toCstr")
