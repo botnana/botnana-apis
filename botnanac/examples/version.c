@@ -47,8 +47,8 @@ int main()
     botnana_set_on_message_cb(botnana, (void *) & message_count, on_message_cb);
     botnana_set_tag_cb(botnana, "version", 12, (void *) &version_count, handle_version);
 
-    printf("*** Rust library version = %s \n***", rust_library_version());
-    printf("*** library version = %s \n***", library_version());
+    printf("*** Rust library version = %s ***\n", rust_library_version());
+    printf("*** library version = %s ***\n", library_version());
 
     while (1)
     {
