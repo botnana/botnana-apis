@@ -30,7 +30,7 @@
 \  +------+           +----------+
 
 
-\ 宣告要處理的暫存器資訊，總計有 14 個  
+\ 宣告要處理的暫存器資訊，總計有 1 個  
 1 constant params-len
 variable param-index 
 create params-once params-len cells allot
@@ -51,7 +51,7 @@ create 'params-request ' sdo-upload-u16 ,
 
 \ 回傳暫存器的位址資訊
 variable temp-index
-: object-address  ( index -- subindex index slave )
+: object-address@ ( index -- subindex index slave )
     temp-index !
     temp-index @ object-subindex  param@
     temp-index @ object-index     param@
@@ -69,7 +69,7 @@ variable param-request-allowed
   ;
     
 \ 是否收到更新的命令    
-: wait-param-request? 
+: wait-param-request? ( -- bool )
 	param-request-allowed @
     ;
 
@@ -80,30 +80,30 @@ variable param-request-allowed
     ;    
 
 \ To command loop    
-: to-command-loop?
+: to-command-loop? ( -- true )
     true
     ;
 
 \ 以 param-index 判斷是否完成所有的參數 
-: upload-finished?
+: upload-finished? ( -- bool )
     param-index @ params-len >=
     ;
 
-\ 以 param-index 判斷是否完成所有的參數 
-: upload-not-finished?
+\ 以 param-index 判斷是否未完成所有的參數 
+: upload-not-finished? ( -- bool )
     upload-finished? not
     ;    
 
 \ 依據目前的 param index 送出 SDO Requst    
 : send-upload-command
     param-index @ params-once param@ not if
-        param-index @ object-address param-index @ 'params-request param@ execute
+        param-index @ object-address@ param-index @ 'params-request param@ execute
         true param-index @ params-once param!
     then
     ;
 
 \ 等待從站回應 SDO Request
-: wait-sdo-data? 
+: wait-sdo-data? ( -- bool )
     waiting-requests? not
     ;    
     
