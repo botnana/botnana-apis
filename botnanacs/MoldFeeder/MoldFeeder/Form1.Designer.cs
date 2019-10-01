@@ -51,9 +51,9 @@
             this.radioDriveDin2 = new System.Windows.Forms.RadioButton();
             this.radioDriveDin1 = new System.Windows.Forms.RadioButton();
             this.radioDriveDin0 = new System.Windows.Forms.RadioButton();
-            this.textTP1LatchPosition = new System.Windows.Forms.TextBox();
+            this.textTPLatchPosition1 = new System.Windows.Forms.TextBox();
             this.label5 = new System.Windows.Forms.Label();
-            this.textTP2LatchPosition = new System.Windows.Forms.TextBox();
+            this.textTPLatchPosition2 = new System.Windows.Forms.TextBox();
             this.label4 = new System.Windows.Forms.Label();
             this.radioTP2Enabled = new System.Windows.Forms.RadioButton();
             this.radioDriveExt2 = new System.Windows.Forms.RadioButton();
@@ -110,11 +110,11 @@
             this.textCylinderOnMs = new System.Windows.Forms.TextBox();
             this.groupBox6 = new System.Windows.Forms.GroupBox();
             this.label19 = new System.Windows.Forms.Label();
-            this.textTP2DetectedPosition = new System.Windows.Forms.TextBox();
+            this.textTPDetectedPosition2 = new System.Windows.Forms.TextBox();
             this.label18 = new System.Windows.Forms.Label();
-            this.textTP1DetectedPosition = new System.Windows.Forms.TextBox();
-            this.radioTP2Detected = new System.Windows.Forms.RadioButton();
-            this.radioTP1Detected = new System.Windows.Forms.RadioButton();
+            this.textTPDetectedPosition1 = new System.Windows.Forms.TextBox();
+            this.radioTPDetected2 = new System.Windows.Forms.RadioButton();
+            this.radioTPDetected1 = new System.Windows.Forms.RadioButton();
             this.radioFeederEMS = new System.Windows.Forms.RadioButton();
             this.radioFeederRunning = new System.Windows.Forms.RadioButton();
             this.label12 = new System.Windows.Forms.Label();
@@ -213,9 +213,9 @@
             this.groupBox3.Controls.Add(this.radioDriveDin2);
             this.groupBox3.Controls.Add(this.radioDriveDin1);
             this.groupBox3.Controls.Add(this.radioDriveDin0);
-            this.groupBox3.Controls.Add(this.textTP1LatchPosition);
+            this.groupBox3.Controls.Add(this.textTPLatchPosition1);
             this.groupBox3.Controls.Add(this.label5);
-            this.groupBox3.Controls.Add(this.textTP2LatchPosition);
+            this.groupBox3.Controls.Add(this.textTPLatchPosition2);
             this.groupBox3.Controls.Add(this.label4);
             this.groupBox3.Controls.Add(this.radioTP2Enabled);
             this.groupBox3.Controls.Add(this.radioDriveExt2);
@@ -241,7 +241,7 @@
             // 
             this.radioTP2DownEdgeAction.AutoCheck = false;
             this.radioTP2DownEdgeAction.AutoSize = true;
-            this.radioTP2DownEdgeAction.Location = new System.Drawing.Point(282, 197);
+            this.radioTP2DownEdgeAction.Location = new System.Drawing.Point(282, 188);
             this.radioTP2DownEdgeAction.Name = "radioTP2DownEdgeAction";
             this.radioTP2DownEdgeAction.RightToLeft = System.Windows.Forms.RightToLeft.Yes;
             this.radioTP2DownEdgeAction.Size = new System.Drawing.Size(179, 20);
@@ -254,7 +254,7 @@
             // 
             this.radioTP1DownEdgeAction.AutoCheck = false;
             this.radioTP1DownEdgeAction.AutoSize = true;
-            this.radioTP1DownEdgeAction.Location = new System.Drawing.Point(44, 195);
+            this.radioTP1DownEdgeAction.Location = new System.Drawing.Point(44, 186);
             this.radioTP1DownEdgeAction.Name = "radioTP1DownEdgeAction";
             this.radioTP1DownEdgeAction.RightToLeft = System.Windows.Forms.RightToLeft.Yes;
             this.radioTP1DownEdgeAction.Size = new System.Drawing.Size(179, 20);
@@ -267,7 +267,7 @@
             // 
             this.radioTP2UpEdgeAction.AutoCheck = false;
             this.radioTP2UpEdgeAction.AutoSize = true;
-            this.radioTP2UpEdgeAction.Location = new System.Drawing.Point(301, 170);
+            this.radioTP2UpEdgeAction.Location = new System.Drawing.Point(301, 161);
             this.radioTP2UpEdgeAction.Name = "radioTP2UpEdgeAction";
             this.radioTP2UpEdgeAction.RightToLeft = System.Windows.Forms.RightToLeft.Yes;
             this.radioTP2UpEdgeAction.Size = new System.Drawing.Size(160, 20);
@@ -280,7 +280,7 @@
             // 
             this.radioTP1UpEdgeAction.AutoCheck = false;
             this.radioTP1UpEdgeAction.AutoSize = true;
-            this.radioTP1UpEdgeAction.Location = new System.Drawing.Point(63, 168);
+            this.radioTP1UpEdgeAction.Location = new System.Drawing.Point(63, 159);
             this.radioTP1UpEdgeAction.Name = "radioTP1UpEdgeAction";
             this.radioTP1UpEdgeAction.RightToLeft = System.Windows.Forms.RightToLeft.Yes;
             this.radioTP1UpEdgeAction.Size = new System.Drawing.Size(160, 20);
@@ -293,7 +293,7 @@
             // 
             this.radioTP2TriggerSelection.AutoCheck = false;
             this.radioTP2TriggerSelection.AutoSize = true;
-            this.radioTP2TriggerSelection.Location = new System.Drawing.Point(295, 143);
+            this.radioTP2TriggerSelection.Location = new System.Drawing.Point(295, 134);
             this.radioTP2TriggerSelection.Name = "radioTP2TriggerSelection";
             this.radioTP2TriggerSelection.RightToLeft = System.Windows.Forms.RightToLeft.Yes;
             this.radioTP2TriggerSelection.Size = new System.Drawing.Size(166, 20);
@@ -306,7 +306,7 @@
             // 
             this.radioTP1TriggerSelection.AutoCheck = false;
             this.radioTP1TriggerSelection.AutoSize = true;
-            this.radioTP1TriggerSelection.Location = new System.Drawing.Point(57, 141);
+            this.radioTP1TriggerSelection.Location = new System.Drawing.Point(57, 132);
             this.radioTP1TriggerSelection.Name = "radioTP1TriggerSelection";
             this.radioTP1TriggerSelection.RightToLeft = System.Windows.Forms.RightToLeft.Yes;
             this.radioTP1TriggerSelection.Size = new System.Drawing.Size(166, 20);
@@ -319,7 +319,7 @@
             // 
             this.radioTP2TriggerAction.AutoCheck = false;
             this.radioTP2TriggerAction.AutoSize = true;
-            this.radioTP2TriggerAction.Location = new System.Drawing.Point(310, 116);
+            this.radioTP2TriggerAction.Location = new System.Drawing.Point(310, 107);
             this.radioTP2TriggerAction.Name = "radioTP2TriggerAction";
             this.radioTP2TriggerAction.RightToLeft = System.Windows.Forms.RightToLeft.Yes;
             this.radioTP2TriggerAction.Size = new System.Drawing.Size(151, 20);
@@ -332,7 +332,7 @@
             // 
             this.radioTP1TriggerAction.AutoCheck = false;
             this.radioTP1TriggerAction.AutoSize = true;
-            this.radioTP1TriggerAction.Location = new System.Drawing.Point(72, 114);
+            this.radioTP1TriggerAction.Location = new System.Drawing.Point(72, 105);
             this.radioTP1TriggerAction.Name = "radioTP1TriggerAction";
             this.radioTP1TriggerAction.RightToLeft = System.Windows.Forms.RightToLeft.Yes;
             this.radioTP1TriggerAction.Size = new System.Drawing.Size(151, 20);
@@ -345,7 +345,7 @@
             // 
             this.radioEnableTP2.AutoCheck = false;
             this.radioEnableTP2.AutoSize = true;
-            this.radioEnableTP2.Location = new System.Drawing.Point(359, 89);
+            this.radioEnableTP2.Location = new System.Drawing.Point(359, 80);
             this.radioEnableTP2.Name = "radioEnableTP2";
             this.radioEnableTP2.RightToLeft = System.Windows.Forms.RightToLeft.Yes;
             this.radioEnableTP2.Size = new System.Drawing.Size(102, 20);
@@ -358,7 +358,7 @@
             // 
             this.radioEnableTP1.AutoCheck = false;
             this.radioEnableTP1.AutoSize = true;
-            this.radioEnableTP1.Location = new System.Drawing.Point(121, 87);
+            this.radioEnableTP1.Location = new System.Drawing.Point(121, 78);
             this.radioEnableTP1.Name = "radioEnableTP1";
             this.radioEnableTP1.RightToLeft = System.Windows.Forms.RightToLeft.Yes;
             this.radioEnableTP1.Size = new System.Drawing.Size(102, 20);
@@ -419,47 +419,47 @@
             this.radioDriveDin0.Text = "DIN0";
             this.radioDriveDin0.UseVisualStyleBackColor = true;
             // 
-            // textTP1LatchPosition
+            // textTPLatchPosition1
             // 
-            this.textTP1LatchPosition.Location = new System.Drawing.Point(134, 265);
-            this.textTP1LatchPosition.Name = "textTP1LatchPosition";
-            this.textTP1LatchPosition.ReadOnly = true;
-            this.textTP1LatchPosition.Size = new System.Drawing.Size(89, 27);
-            this.textTP1LatchPosition.TabIndex = 19;
-            this.textTP1LatchPosition.TextAlign = System.Windows.Forms.HorizontalAlignment.Right;
+            this.textTPLatchPosition1.Location = new System.Drawing.Point(244, 338);
+            this.textTPLatchPosition1.Name = "textTPLatchPosition1";
+            this.textTPLatchPosition1.ReadOnly = true;
+            this.textTPLatchPosition1.Size = new System.Drawing.Size(100, 27);
+            this.textTPLatchPosition1.TabIndex = 19;
+            this.textTPLatchPosition1.TextAlign = System.Windows.Forms.HorizontalAlignment.Right;
             // 
             // label5
             // 
             this.label5.AutoSize = true;
-            this.label5.Location = new System.Drawing.Point(3, 270);
+            this.label5.Location = new System.Drawing.Point(99, 343);
             this.label5.Name = "label5";
-            this.label5.Size = new System.Drawing.Size(126, 16);
+            this.label5.Size = new System.Drawing.Size(130, 16);
             this.label5.TabIndex = 18;
-            this.label5.Text = "TP1 Latch Position";
+            this.label5.Text = "TP Latch Position 1";
             // 
-            // textTP2LatchPosition
+            // textTPLatchPosition2
             // 
-            this.textTP2LatchPosition.Location = new System.Drawing.Point(372, 265);
-            this.textTP2LatchPosition.Name = "textTP2LatchPosition";
-            this.textTP2LatchPosition.ReadOnly = true;
-            this.textTP2LatchPosition.Size = new System.Drawing.Size(89, 27);
-            this.textTP2LatchPosition.TabIndex = 17;
-            this.textTP2LatchPosition.TextAlign = System.Windows.Forms.HorizontalAlignment.Right;
+            this.textTPLatchPosition2.Location = new System.Drawing.Point(244, 368);
+            this.textTPLatchPosition2.Name = "textTPLatchPosition2";
+            this.textTPLatchPosition2.ReadOnly = true;
+            this.textTPLatchPosition2.Size = new System.Drawing.Size(100, 27);
+            this.textTPLatchPosition2.TabIndex = 17;
+            this.textTPLatchPosition2.TextAlign = System.Windows.Forms.HorizontalAlignment.Right;
             // 
             // label4
             // 
             this.label4.AutoSize = true;
-            this.label4.Location = new System.Drawing.Point(237, 270);
+            this.label4.Location = new System.Drawing.Point(99, 373);
             this.label4.Name = "label4";
-            this.label4.Size = new System.Drawing.Size(126, 16);
+            this.label4.Size = new System.Drawing.Size(130, 16);
             this.label4.TabIndex = 16;
-            this.label4.Text = "TP2 Latch Position";
+            this.label4.Text = "TP Latch Position 2";
             // 
             // radioTP2Enabled
             // 
             this.radioTP2Enabled.AutoCheck = false;
             this.radioTP2Enabled.AutoSize = true;
-            this.radioTP2Enabled.Location = new System.Drawing.Point(351, 224);
+            this.radioTP2Enabled.Location = new System.Drawing.Point(351, 215);
             this.radioTP2Enabled.Name = "radioTP2Enabled";
             this.radioTP2Enabled.RightToLeft = System.Windows.Forms.RightToLeft.Yes;
             this.radioTP2Enabled.Size = new System.Drawing.Size(110, 20);
@@ -485,7 +485,7 @@
             // 
             this.radioTP1Enabled.AutoCheck = false;
             this.radioTP1Enabled.AutoSize = true;
-            this.radioTP1Enabled.Location = new System.Drawing.Point(113, 222);
+            this.radioTP1Enabled.Location = new System.Drawing.Point(113, 213);
             this.radioTP1Enabled.Name = "radioTP1Enabled";
             this.radioTP1Enabled.RightToLeft = System.Windows.Forms.RightToLeft.Yes;
             this.radioTP1Enabled.Size = new System.Drawing.Size(110, 20);
@@ -535,7 +535,7 @@
             // 
             // textTargetPosition
             // 
-            this.textTargetPosition.Location = new System.Drawing.Point(237, 368);
+            this.textTargetPosition.Location = new System.Drawing.Point(244, 308);
             this.textTargetPosition.Name = "textTargetPosition";
             this.textTargetPosition.ReadOnly = true;
             this.textTargetPosition.Size = new System.Drawing.Size(100, 27);
@@ -545,7 +545,7 @@
             // label3
             // 
             this.label3.AutoSize = true;
-            this.label3.Location = new System.Drawing.Point(121, 373);
+            this.label3.Location = new System.Drawing.Point(128, 313);
             this.label3.Name = "label3";
             this.label3.Size = new System.Drawing.Size(102, 16);
             this.label3.TabIndex = 4;
@@ -553,7 +553,7 @@
             // 
             // textEncoderPosition
             // 
-            this.textEncoderPosition.Location = new System.Drawing.Point(237, 339);
+            this.textEncoderPosition.Location = new System.Drawing.Point(244, 279);
             this.textEncoderPosition.Name = "textEncoderPosition";
             this.textEncoderPosition.ReadOnly = true;
             this.textEncoderPosition.Size = new System.Drawing.Size(100, 27);
@@ -563,7 +563,7 @@
             // label2
             // 
             this.label2.AutoSize = true;
-            this.label2.Location = new System.Drawing.Point(109, 344);
+            this.label2.Location = new System.Drawing.Point(116, 284);
             this.label2.Name = "label2";
             this.label2.Size = new System.Drawing.Size(114, 16);
             this.label2.TabIndex = 2;
@@ -571,7 +571,7 @@
             // 
             // textOperationMode
             // 
-            this.textOperationMode.Location = new System.Drawing.Point(237, 310);
+            this.textOperationMode.Location = new System.Drawing.Point(244, 250);
             this.textOperationMode.Name = "textOperationMode";
             this.textOperationMode.ReadOnly = true;
             this.textOperationMode.Size = new System.Drawing.Size(100, 27);
@@ -581,7 +581,7 @@
             // label1
             // 
             this.label1.AutoSize = true;
-            this.label1.Location = new System.Drawing.Point(113, 315);
+            this.label1.Location = new System.Drawing.Point(120, 255);
             this.label1.Name = "label1";
             this.label1.Size = new System.Drawing.Size(110, 16);
             this.label1.TabIndex = 0;
@@ -1043,11 +1043,11 @@
             // groupBox6
             // 
             this.groupBox6.Controls.Add(this.label19);
-            this.groupBox6.Controls.Add(this.textTP2DetectedPosition);
+            this.groupBox6.Controls.Add(this.textTPDetectedPosition2);
             this.groupBox6.Controls.Add(this.label18);
-            this.groupBox6.Controls.Add(this.textTP1DetectedPosition);
-            this.groupBox6.Controls.Add(this.radioTP2Detected);
-            this.groupBox6.Controls.Add(this.radioTP1Detected);
+            this.groupBox6.Controls.Add(this.textTPDetectedPosition1);
+            this.groupBox6.Controls.Add(this.radioTPDetected2);
+            this.groupBox6.Controls.Add(this.radioTPDetected1);
             this.groupBox6.Controls.Add(this.radioFeederEMS);
             this.groupBox6.Controls.Add(this.radioFeederRunning);
             this.groupBox6.Controls.Add(this.label12);
@@ -1065,73 +1065,73 @@
             // 
             this.label19.AutoSize = true;
             this.label19.Font = new System.Drawing.Font("新細明體", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(136)));
-            this.label19.Location = new System.Drawing.Point(16, 119);
+            this.label19.Location = new System.Drawing.Point(13, 119);
             this.label19.Name = "label19";
-            this.label19.Size = new System.Drawing.Size(146, 16);
+            this.label19.Size = new System.Drawing.Size(150, 16);
             this.label19.TabIndex = 23;
-            this.label19.Text = "TP2 Detected Position";
+            this.label19.Text = "TP Detected Position 2";
             // 
-            // textTP2DetectedPosition
+            // textTPDetectedPosition2
             // 
-            this.textTP2DetectedPosition.Font = new System.Drawing.Font("新細明體", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(136)));
-            this.textTP2DetectedPosition.Location = new System.Drawing.Point(170, 114);
-            this.textTP2DetectedPosition.Name = "textTP2DetectedPosition";
-            this.textTP2DetectedPosition.ReadOnly = true;
-            this.textTP2DetectedPosition.Size = new System.Drawing.Size(90, 27);
-            this.textTP2DetectedPosition.TabIndex = 22;
-            this.textTP2DetectedPosition.TextAlign = System.Windows.Forms.HorizontalAlignment.Right;
+            this.textTPDetectedPosition2.Font = new System.Drawing.Font("新細明體", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(136)));
+            this.textTPDetectedPosition2.Location = new System.Drawing.Point(170, 114);
+            this.textTPDetectedPosition2.Name = "textTPDetectedPosition2";
+            this.textTPDetectedPosition2.ReadOnly = true;
+            this.textTPDetectedPosition2.Size = new System.Drawing.Size(90, 27);
+            this.textTPDetectedPosition2.TabIndex = 22;
+            this.textTPDetectedPosition2.TextAlign = System.Windows.Forms.HorizontalAlignment.Right;
             // 
             // label18
             // 
             this.label18.AutoSize = true;
             this.label18.Font = new System.Drawing.Font("新細明體", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(136)));
-            this.label18.Location = new System.Drawing.Point(16, 86);
+            this.label18.Location = new System.Drawing.Point(13, 86);
             this.label18.Name = "label18";
-            this.label18.Size = new System.Drawing.Size(146, 16);
+            this.label18.Size = new System.Drawing.Size(150, 16);
             this.label18.TabIndex = 21;
-            this.label18.Text = "TP1 Detected Position";
+            this.label18.Text = "TP Detected Position 1";
             // 
-            // textTP1DetectedPosition
+            // textTPDetectedPosition1
             // 
-            this.textTP1DetectedPosition.Font = new System.Drawing.Font("新細明體", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(136)));
-            this.textTP1DetectedPosition.Location = new System.Drawing.Point(170, 81);
-            this.textTP1DetectedPosition.Name = "textTP1DetectedPosition";
-            this.textTP1DetectedPosition.ReadOnly = true;
-            this.textTP1DetectedPosition.Size = new System.Drawing.Size(90, 27);
-            this.textTP1DetectedPosition.TabIndex = 20;
-            this.textTP1DetectedPosition.TextAlign = System.Windows.Forms.HorizontalAlignment.Right;
+            this.textTPDetectedPosition1.Font = new System.Drawing.Font("新細明體", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(136)));
+            this.textTPDetectedPosition1.Location = new System.Drawing.Point(170, 81);
+            this.textTPDetectedPosition1.Name = "textTPDetectedPosition1";
+            this.textTPDetectedPosition1.ReadOnly = true;
+            this.textTPDetectedPosition1.Size = new System.Drawing.Size(90, 27);
+            this.textTPDetectedPosition1.TabIndex = 20;
+            this.textTPDetectedPosition1.TextAlign = System.Windows.Forms.HorizontalAlignment.Right;
             // 
-            // radioTP2Detected
+            // radioTPDetected2
             // 
-            this.radioTP2Detected.AutoCheck = false;
-            this.radioTP2Detected.AutoSize = true;
-            this.radioTP2Detected.Location = new System.Drawing.Point(133, 57);
-            this.radioTP2Detected.Name = "radioTP2Detected";
-            this.radioTP2Detected.RightToLeft = System.Windows.Forms.RightToLeft.Yes;
-            this.radioTP2Detected.Size = new System.Drawing.Size(110, 20);
-            this.radioTP2Detected.TabIndex = 19;
-            this.radioTP2Detected.TabStop = true;
-            this.radioTP2Detected.Text = "TP2 Detected";
-            this.radioTP2Detected.UseVisualStyleBackColor = true;
+            this.radioTPDetected2.AutoCheck = false;
+            this.radioTPDetected2.AutoSize = true;
+            this.radioTPDetected2.Location = new System.Drawing.Point(163, 57);
+            this.radioTPDetected2.Name = "radioTPDetected2";
+            this.radioTPDetected2.RightToLeft = System.Windows.Forms.RightToLeft.Yes;
+            this.radioTPDetected2.Size = new System.Drawing.Size(114, 20);
+            this.radioTPDetected2.TabIndex = 19;
+            this.radioTPDetected2.TabStop = true;
+            this.radioTPDetected2.Text = "TP Detected 2";
+            this.radioTPDetected2.UseVisualStyleBackColor = true;
             // 
-            // radioTP1Detected
+            // radioTPDetected1
             // 
-            this.radioTP1Detected.AutoCheck = false;
-            this.radioTP1Detected.AutoSize = true;
-            this.radioTP1Detected.Location = new System.Drawing.Point(16, 57);
-            this.radioTP1Detected.Name = "radioTP1Detected";
-            this.radioTP1Detected.RightToLeft = System.Windows.Forms.RightToLeft.Yes;
-            this.radioTP1Detected.Size = new System.Drawing.Size(110, 20);
-            this.radioTP1Detected.TabIndex = 18;
-            this.radioTP1Detected.TabStop = true;
-            this.radioTP1Detected.Text = "TP1 Detected";
-            this.radioTP1Detected.UseVisualStyleBackColor = true;
+            this.radioTPDetected1.AutoCheck = false;
+            this.radioTPDetected1.AutoSize = true;
+            this.radioTPDetected1.Location = new System.Drawing.Point(24, 57);
+            this.radioTPDetected1.Name = "radioTPDetected1";
+            this.radioTPDetected1.RightToLeft = System.Windows.Forms.RightToLeft.Yes;
+            this.radioTPDetected1.Size = new System.Drawing.Size(114, 20);
+            this.radioTPDetected1.TabIndex = 18;
+            this.radioTPDetected1.TabStop = true;
+            this.radioTPDetected1.Text = "TP Detected 1";
+            this.radioTPDetected1.UseVisualStyleBackColor = true;
             // 
             // radioFeederEMS
             // 
             this.radioFeederEMS.AutoCheck = false;
             this.radioFeederEMS.AutoSize = true;
-            this.radioFeederEMS.Location = new System.Drawing.Point(187, 31);
+            this.radioFeederEMS.Location = new System.Drawing.Point(220, 31);
             this.radioFeederEMS.Name = "radioFeederEMS";
             this.radioFeederEMS.RightToLeft = System.Windows.Forms.RightToLeft.Yes;
             this.radioFeederEMS.Size = new System.Drawing.Size(56, 20);
@@ -1144,7 +1144,7 @@
             // 
             this.radioFeederRunning.AutoCheck = false;
             this.radioFeederRunning.AutoSize = true;
-            this.radioFeederRunning.Location = new System.Drawing.Point(45, 31);
+            this.radioFeederRunning.Location = new System.Drawing.Point(58, 31);
             this.radioFeederRunning.Name = "radioFeederRunning";
             this.radioFeederRunning.RightToLeft = System.Windows.Forms.RightToLeft.Yes;
             this.radioFeederRunning.Size = new System.Drawing.Size(80, 20);
@@ -1249,9 +1249,9 @@
         private System.Windows.Forms.Label label2;
         private System.Windows.Forms.TextBox textOperationMode;
         private System.Windows.Forms.Label label1;
-        private System.Windows.Forms.TextBox textTP1LatchPosition;
+        private System.Windows.Forms.TextBox textTPLatchPosition1;
         private System.Windows.Forms.Label label5;
-        private System.Windows.Forms.TextBox textTP2LatchPosition;
+        private System.Windows.Forms.TextBox textTPLatchPosition2;
         private System.Windows.Forms.Label label4;
         private System.Windows.Forms.RadioButton radioTP2Enabled;
         private System.Windows.Forms.RadioButton radioDriveExt2;
@@ -1317,12 +1317,12 @@
         private System.Windows.Forms.GroupBox groupBox2;
         private System.Windows.Forms.Timer timer1s;
         private System.Windows.Forms.Button buttonSdoRequest;
-        private System.Windows.Forms.RadioButton radioTP2Detected;
-        private System.Windows.Forms.RadioButton radioTP1Detected;
+        private System.Windows.Forms.RadioButton radioTPDetected2;
+        private System.Windows.Forms.RadioButton radioTPDetected1;
         private System.Windows.Forms.Label label19;
-        private System.Windows.Forms.TextBox textTP2DetectedPosition;
+        private System.Windows.Forms.TextBox textTPDetectedPosition2;
         private System.Windows.Forms.Label label18;
-        private System.Windows.Forms.TextBox textTP1DetectedPosition;
+        private System.Windows.Forms.TextBox textTPDetectedPosition1;
         private System.Windows.Forms.Label label20;
         private System.Windows.Forms.Label label21;
         private System.Windows.Forms.TextBox textBoxSettlingDurationMs;

@@ -212,23 +212,23 @@ namespace MoldFeeder
             }
         }
 
-        private HandleTagNameMessage onTP1LatchPosition;
-        private int tp1LatchPosition = 123;
-        private void OnTP1LatchPosition(IntPtr dataPtr, UInt32 slv, UInt32 ch, string str)
+        private HandleTagNameMessage onTPLatchPosition1;
+        private int tpLatchPosition1 = 123;
+        private void OnTPLatchPosition1(IntPtr dataPtr, UInt32 slv, UInt32 ch, string str)
         {
             if (slv == driveDeviceSlave && ch == driveDeviceChannel)
             {
-                tp1LatchPosition = int.Parse(str);
+                tpLatchPosition1 = int.Parse(str);
             }
         }
 
-        private HandleTagNameMessage onTP2LatchPosition;
-        private int tp2LatchPosition = 123;
-        private void OnTP2LatchPosition(IntPtr dataPtr, UInt32 slv, UInt32 ch, string str)
+        private HandleTagNameMessage onTPLatchPosition2;
+        private int tpLatchPosition2 = 123;
+        private void OnTPLatchPosition2(IntPtr dataPtr, UInt32 slv, UInt32 ch, string str)
         {
             if (slv == driveDeviceSlave && ch == driveDeviceChannel)
             {
-                tp2LatchPosition = int.Parse(str);
+                tpLatchPosition2 = int.Parse(str);
             }
         }
 
@@ -347,32 +347,32 @@ namespace MoldFeeder
             }
         }
 
-        private HandleMessage onTP1Detected;
-        private Boolean tp1Detected = false;
-        private void OnTP1Detected(IntPtr dataPtr, string str)
+        private HandleMessage onTPDetected1;
+        private Boolean tpDetected1 = false;
+        private void OnTPDetected1(IntPtr dataPtr, string str)
         {
-            tp1Detected = (int.Parse(str) != 0);
+            tpDetected1 = (int.Parse(str) != 0);
         }
 
-        private HandleMessage onTP2Detected;
-        private Boolean tp2Detected = false;
-        private void OnTP2Detected(IntPtr dataPtr, string str)
+        private HandleMessage onTPDetected2;
+        private Boolean tpDetected2 = false;
+        private void OnTPDetected2(IntPtr dataPtr, string str)
         {
-            tp2Detected = (int.Parse(str) != 0);
+            tpDetected2 = (int.Parse(str) != 0);
         }
 
-        private HandleMessage onTP1DetectedPosition;
-        private int tp1DetectedPosition = 0;
-        private void OnTP1DetectedPosition(IntPtr dataPtr, string str)
+        private HandleMessage onTPDetectedPosition1;
+        private int tpDetectedPosition1 = 0;
+        private void OnTPDetectedPosition1(IntPtr dataPtr, string str)
         {
-            tp1DetectedPosition = int.Parse(str);
+            tpDetectedPosition1 = int.Parse(str);
         }
 
-        private HandleMessage onTP2DetectedPosition;
-        private int tp2DetectedPosition = 0;
-        private void OnTP2DetectedPosition(IntPtr dataPtr, string str)
+        private HandleMessage onTPDetectedPosition2;
+        private int tpDetectedPosition2 = 0;
+        private void OnTPDetectedPosition2(IntPtr dataPtr, string str)
         {
-            tp2DetectedPosition = int.Parse(str);
+            tpDetectedPosition2 = int.Parse(str);
         }
 
 
@@ -428,11 +428,11 @@ namespace MoldFeeder
             onCylinder = new HandleTagNameMessage(OnCylinder);
             bot.SetTagNameCB(@"dout", 0, IntPtr.Zero, onCylinder);
 
-            onTP1LatchPosition = new HandleTagNameMessage(OnTP1LatchPosition);
-            bot.SetTagNameCB(@"tp1_positive_value", 0, IntPtr.Zero, onTP1LatchPosition);
+            onTPLatchPosition1 = new HandleTagNameMessage(OnTPLatchPosition1);
+            bot.SetTagNameCB(@"tp_position_value_1", 0, IntPtr.Zero, onTPLatchPosition1);
             
-            onTP2LatchPosition = new HandleTagNameMessage(OnTP2LatchPosition);
-            bot.SetTagNameCB(@"tp2_negative_value", 0, IntPtr.Zero, onTP2LatchPosition);
+            onTPLatchPosition2 = new HandleTagNameMessage(OnTPLatchPosition2);
+            bot.SetTagNameCB(@"tp_position_value_2", 0, IntPtr.Zero, onTPLatchPosition2);
 
             onCylinderOnMs = new HandleMessage(OnCylinderOnMs);
             bot.SetTagCB(@"cylinder_on_duration", 0, IntPtr.Zero, onCylinderOnMs);
@@ -476,17 +476,17 @@ namespace MoldFeeder
             onTPStatus = new HandleTagNameMessage(OnTPStatus);
             bot.SetTagNameCB(@"sdo_0_24761", 0, IntPtr.Zero, onTPStatus);
 
-            onTP1Detected = new HandleMessage(OnTP1Detected);
-            bot.SetTagCB(@"tp1_detected", 0, IntPtr.Zero, onTP1Detected);
+            onTPDetected1 = new HandleMessage(OnTPDetected1);
+            bot.SetTagCB(@"tp_detected_1", 0, IntPtr.Zero, onTPDetected1);
 
-            onTP2Detected = new HandleMessage(OnTP2Detected);
-            bot.SetTagCB(@"tp2_detected", 0, IntPtr.Zero, onTP2Detected);
+            onTPDetected2 = new HandleMessage(OnTPDetected2);
+            bot.SetTagCB(@"tp_detected_2", 0, IntPtr.Zero, onTPDetected2);
 
-            onTP1DetectedPosition = new HandleMessage(OnTP1DetectedPosition);
-            bot.SetTagCB(@"tp1_detected_position", 0, IntPtr.Zero, onTP1DetectedPosition);
+            onTPDetectedPosition1 = new HandleMessage(OnTPDetectedPosition1);
+            bot.SetTagCB(@"tp_detected_position_1", 0, IntPtr.Zero, onTPDetectedPosition1);
 
-            onTP2DetectedPosition = new HandleMessage(OnTP2DetectedPosition);
-            bot.SetTagCB(@"tp2_detected_position", 0, IntPtr.Zero, onTP2DetectedPosition);
+            onTPDetectedPosition2 = new HandleMessage(OnTPDetectedPosition2);
+            bot.SetTagCB(@"tp_detected_position_2", 0, IntPtr.Zero, onTPDetectedPosition2);
 
             timerSlow.Enabled = true;
             timerPoll.Enabled = true;
@@ -554,25 +554,6 @@ namespace MoldFeeder
         private void timerPoll_Tick(object sender, EventArgs e)
         {
             string cmd = null;
-            //if (slavesLen > 0)
-            //{
-                
-            //    if (hasSlaves)
-            //    {
-            //        for (int i = 1; i <= slavesLen; i++)
-            //        {
-            //            cmd += (i.ToString() + @" .slave-diff ");
-            //        }
-            //    }
-            //    else
-            //    {
-            //        for (int i = 1; i <= slavesLen; i++)
-            //        {
-            //            cmd += (i.ToString() + @" .slave ");
-            //        }
-            //        hasSlaves = true;
-            //    }
-            //}
 
             for (int i = 1; i <= slavesLen; i++)
             {
@@ -589,8 +570,8 @@ namespace MoldFeeder
             radioDriveOn.Checked = isDriveOn;
             radioDriveFault.Checked = isDriveFault;
             textOperationMode.Text = operationMode.ToString();
-            textTP1LatchPosition.Text = tp1LatchPosition.ToString();
-            textTP2LatchPosition.Text = tp2LatchPosition.ToString();
+            textTPLatchPosition1.Text = tpLatchPosition1.ToString();
+            textTPLatchPosition2.Text = tpLatchPosition2.ToString();
 
 
             radioDriveDin0.Checked = driveDin0;
@@ -612,10 +593,10 @@ namespace MoldFeeder
             radioTP2DownEdgeAction.Checked = tp2DownEdgeAction;
             radioTP1Enabled.Checked = tp1Enabled;
             radioTP2Enabled.Checked = tp2Enabled;
-            radioTP1Detected.Checked = tp1Detected;
-            radioTP2Detected.Checked = tp2Detected;
-            textTP1DetectedPosition.Text = tp1DetectedPosition.ToString();
-            textTP2DetectedPosition.Text = tp2DetectedPosition.ToString();
+            radioTPDetected1.Checked = tpDetected1;
+            radioTPDetected2.Checked = tpDetected2;
+            textTPDetectedPosition1.Text = tpDetectedPosition1.ToString();
+            textTPDetectedPosition2.Text = tpDetectedPosition2.ToString();
 
             if (hasCylinderOnMs)
             {

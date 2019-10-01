@@ -81,6 +81,9 @@ variable feeder-retry-count-max
 \ 定義供給機是否在做動中
 variable feeder-running
 
+\ 定義供給機是否 ready
+variable feeder-ready
+
 \ 供給機流程開始旗標
 variable feeder-accepted
 
@@ -88,12 +91,12 @@ variable feeder-accepted
 variable feeder-start-time
 
 \ 用來判斷是否有偵測到平邊的資訊
-variable tp1-detected
-variable tp2-detected
-variable tp1-detected-position
-variable tp2-detected-position
-variable tp1-prev-position
-variable tp2-prev-position
+variable tp-detected-1
+variable tp-detected-2
+variable tp-detected-position-1
+variable tp-detected-position-2
+variable tp-prev-position-1
+variable tp-prev-position-2
 
 \ 讓供給機 SFC 緊急停止的旗標 
 variable feeder-ems-flag
@@ -118,7 +121,8 @@ variable feeder-ems-flag
     system-ready?                   \ system ready
     drive-device 2@ drive-on? and   \ 且轉盤馬達驅動器已 drive on
     feeder-ems-flag? not and        \ 且不是 EMS 中
-    feeder-running @ not and        \ 且 feeder 閒置中
+    feeder-ready @ and              \ 且 feeder SFC ready
+    feeder-running @ not and        \ 且 feeder SFC 閒置中
     if
         feeder-accepted on              \ 開始 feeder 流程
         mtime feeder-start-time !       \ 紀錄開始時間
@@ -132,6 +136,9 @@ variable feeder-ems-flag
         feeder-ems-flag? if
             ." error|In EMS!!" cr
         then
+        feeder-ready @ not if
+            ." error|Feeder SFC Not Ready!!" cr
+        then
         feeder-running @ if
             ." error|Feeder Running!!" cr
         then
@@ -140,7 +147,9 @@ variable feeder-ems-flag
 
 \ 轉盤移動命令
 : feeder-jog ( F: position speed -- )
-    drive-device 2@ drive-on? if 
+    drive-device 2@ drive-on?       \ 轉盤馬達驅動器 servo on 中
+    feeder-running @ not and        \ 且 feeder SFC 閒置中
+    if 
         axis-index @ +interpolator
         axis-index @ interpolator-reached? if
             axis-index @ interpolator-v!
@@ -149,7 +158,13 @@ variable feeder-ems-flag
         then
         axis-index @ axis-cmd-p!
     else
-        ." error|Not Drive ON!!" cr
+        drive-device 2@ drive-on? not if
+            ." error|Not Drive ON!!" cr
+        then
+        feeder-running @ if
+            ." error|Feeder Running!!" cr
+        then
+        fdrop fdrop
     then
 ;
 
@@ -172,10 +187,10 @@ variable feeder-ems-flag
 : .feeder ( -- )
     ." feeder_running|" feeder-running @ 0 .r
     ." |feeder_ems|" feeder-ems-flag @ 0 .r
-    ." |tp1_detected|" tp1-detected @ 0 .r
-    ." |tp2_detected|" tp2-detected @ 0 .r
-    ." |tp1_detected_position|" tp1-detected-position @ 0 .r
-    ." |tp2_detected_position|" tp2-detected-position @ 0 .r
+    ." |tp_detected_1|" tp-detected-1 @ 0 .r
+    ." |tp_detected_2|" tp-detected-2 @ 0 .r
+    ." |tp_detected_position_1|" tp-detected-position-1 @ 0 .r
+    ." |tp_detected_position_2|" tp-detected-position-2 @ 0 .r
     cr  
 ;
 
@@ -249,6 +264,7 @@ step feeder-init
 
 \ 閒置中
 : feeder-idle ( -- )
+    feeder-ready on
     feeder-running off
     feeder-error off
     0 feeder-forth-step !
@@ -321,10 +337,10 @@ step feeder-idle
             \ 旋轉模具
             \ 假如目前位置大於 0, 就往負向運動。反之就往正方向運動 (避免位置運算時溢位問題)
             6 of
-                tp1-detected off
-                tp2-detected off
-                drive-device 2@ drive-rpdo1@ tp1-prev-position !
-                drive-device 2@ drive-rpdo2@ tp2-prev-position !
+                tp-detected-1 off
+                tp-detected-2 off
+                drive-device 2@ drive-rpdo1@ tp-prev-position-1 !
+                drive-device 2@ drive-rpdo2@ tp-prev-position-2 !
                 axis-index @ +interpolator
                 axis-index @ feeder-rotation-speed @ s>f interpolator-v!
                 axis-index @ axis-cmd-p@ fdup 0e f> if -1.0e else 1.0e then
@@ -337,17 +353,17 @@ step feeder-idle
             \ 所以偵測平邊一定是先 OFF -> ON -> OFF
             \ 因為每次旋轉都會跟前一次的位置區間不同，所以直接比對 latched position, 如果不一樣表示有新的 latched position
             7 of
-                tp1-detected @ not if                                       \ tp1 未完成
-                    drive-device 2@ drive-rpdo1@ dup tp1-detected-position ! 
-                    tp1-prev-position @ <> tp1-detected !                       \ 若位置有變化表示有觸發
+                tp-detected-1 @ not if                                      \ tp1 未完成
+                    drive-device 2@ drive-rpdo1@ dup tp-detected-position-1 ! 
+                    tp-prev-position-1 @ <> tp-detected-1 !                      \ 若位置有變化表示有觸發
                 then
     
-                tp1-detected @ tp2-detected @ not and  if                   \ tp1 完成且 tp2 未完成
-                    drive-device 2@ drive-rpdo2@ dup tp2-detected-position !  
-                    tp2-prev-position @ <> tp2-detected !                       \ 若位置有變化表示有觸發
+                tp-detected-1 @ tp-detected-2 @ not and if                  \ tp1 完成且 tp2 未完成
+                    drive-device 2@ drive-rpdo2@ dup tp-detected-position-2 !  
+                    tp-prev-position-2 @ <> tp-detected-2 !                      \ 若位置有變化表示有觸發
                 then
 
-                tp1-detected @ tp2-detected @ and                           \ 若 tp1 和 tp2 皆已觸發
+                tp-detected-1 @ tp-detected-2 @ and                          \ 若 tp1 和 tp2 皆已觸發
                 if
                     1 feeder-forth-step +!                                      \ 切換至下一步
                 else
@@ -366,7 +382,7 @@ step feeder-idle
             \ 定位至平邊
             8 of
                 axis-index @ +interpolator
-                tp1-detected-position @ tp2-detected-position @ + 2 / s>f axis-index @ axis-cmd-p!
+                tp-detected-position-1 @ tp-detected-position-2 @ + 2 / s>f axis-index @ axis-cmd-p!
                 1 feeder-forth-step +!                                      \ 切換至下一步
             endof
 
@@ -390,6 +406,7 @@ step feeder-idle
         endcase
     else
         axis-index @ -interpolator      \ 關閉插植器
+        0 cylinder-device 2@ ec-dout!   \ 收回氣壓缸
         feeder-error on                 \ 放棄流程, 離開 feeder-forth
     then
 ;
