@@ -13,16 +13,12 @@ using BotnanaLib;
 namespace MoldFeeder
 {
     public partial class Form1 : Form
-    {
-        const string DriveChannelSlave = @" 1 1 ";
-        const string DriveTag = @".1.1";
-        const string DriveSlaveTag = @".1";
-        const string CylinderChannelSlave = @" 1 3 ";
-        const string CylinderTag = @".1.3";
-        const string AxisIndex = @" 1 ";
-        
+    {        
         private Botnana bot;
-
+        private int driveDeviceSlave = 0;
+        private int driveDeviceChannel = 0;
+        private int cylinderDeviceSlave = 0;
+        private int cylinderDeviceChannel = 0;
 
         // 處理 WS Error or close 時的事件
         private int wsState = 0;
@@ -38,7 +34,8 @@ namespace MoldFeeder
         {
             wsState = 2;
             // 送出 .user-para 命令，讓為回傳的訊息去觸發 OnUserParameterCallback
-            bot.EvaluateScript(".user-para");
+            // 若重複執行從 32 開始，因為需要 .devices-info 取得周邊裝置的資訊
+            bot.EvaluateScript("user-para@ 32 min user-para! .user-para");
         }
 
         private HandleMessage onUserParameter;
@@ -55,7 +52,7 @@ namespace MoldFeeder
                     // 清除SFC 邏輯，載入 SFC 時會造成 real time cycle overrun，所以要暫時 ignore-overrun
                     //  載入後再執行 `reset-overrun`
                     bot.EvaluateScript(@"0sfc ignore-overrun -work marker -work");
-                    bot.LoadSFC(@"../../sfc.fs");
+                    bot.LoadSFC(@"../../feeder.fs");
                     bot.LoadSFC(@"../../sdo_upload.fs");
                     bot.LoadSFC(@"../../manager.fs");
                     bot.EvaluateScript(@"marker -feeder .user-para");
@@ -66,15 +63,25 @@ namespace MoldFeeder
                     //new Thread(() => System.Windows.Forms.MessageBox.Show("OnUserParameterCallback 16")).Start();
                     break;
                 case 32:
-                    // Thread(() => System.Windows.Forms.MessageBox.Show("OnUserParameterCallback 32")).Start();
-                    bot.EvaluateScript(@".feeder-para");
+                    //new Thread(() => System.Windows.Forms.MessageBox.Show("OnUserParameterCallback 32")).Start();
+                    bot.EvaluateScript(@".devices-info 64 user-para! .user-para");
+                    break;
+                case 64:
+                    //new Thread(() => System.Windows.Forms.MessageBox.Show("OnUserParameterCallback 64")).Start();
+                    string cmd = null;
+                    for (int i = 1; i <= slavesLen; i++)
+                    {
+                        cmd += (i.ToString() + @" .slave ");
+                    }
+                    cmd += @".feeder-para ";
+                    bot.EvaluateScript(cmd);
                     hasSFC = true;
                     break;
                 default:
                     break;
             }
         }
-        
+
         // 收到 Error 的 tag 時的處置
         private HandleMessage onErrorMessage;
         private int errorsLen = 0;
@@ -100,36 +107,48 @@ namespace MoldFeeder
         {
             ecReady = (int.Parse(str) != 0);
         }
-
-        private HandleMessage onEncoderPosition;
+        
+        private HandleTagNameMessage onEncoderPosition;
         private int encoderPosition = 0;
-        private void OnEncoderPosition(IntPtr dataPtr, string str)
+        private void OnEncoderPosition(IntPtr dataPtr, UInt32 slv, UInt32 ch, String str)
         {
-            encoderPosition = int.Parse(str);
+            if (slv == driveDeviceSlave && ch == driveDeviceChannel)
+            {
+                encoderPosition = int.Parse(str);
+            }
         }
         
-        private HandleMessage onTargetPosition;
+        private HandleTagNameMessage onTargetPosition;
         private int targetPosition = 0;
-        private void OnTargetPosition(IntPtr dataPtr, string str)
+        private void OnTargetPosition(IntPtr dataPtr, UInt32 slv, UInt32 ch, string str)
         {
-            targetPosition = int.Parse(str);
+            if (slv == driveDeviceSlave && ch == driveDeviceChannel)
+            {
+                targetPosition = int.Parse(str);
+            }
         }
 
         private Boolean isDriveOn = false;
         private Boolean isDriveFault = true;
-        private HandleMessage onDriveStatus;
-        private void OnDriveStatus(IntPtr dataPtr, string str)
+        private HandleTagNameMessage onDriveStatus;
+        private void OnDriveStatus(IntPtr dataPtr, UInt32 slv, UInt32 ch, string str)
         {
-            int code = Convert.ToInt32(str, 16);
-            isDriveFault = (code & 0x48) == 8;
-            isDriveOn = (code & 0x6F) == 0x27;
+            if (slv == driveDeviceSlave && ch == driveDeviceChannel)
+            {
+                int code = Convert.ToInt32(str, 16);
+                isDriveFault = (code & 0x48) == 8;
+                isDriveOn = (code & 0x6F) == 0x27;
+            }
         }
 
         private int operationMode = 0;
-        private HandleMessage onOperationMode;
-        private void OnOperationMode(IntPtr dataPtr, string str)
+        private HandleTagNameMessage onOperationMode;
+        private void OnOperationMode(IntPtr dataPtr, UInt32 slv, UInt32 ch, string str)
         {
-            operationMode = int.Parse(str);
+            if (slv == driveDeviceSlave && ch == driveDeviceChannel)
+            {
+                operationMode = int.Parse(str);
+            }
         }
 
         private Boolean driveExt1 = false;
@@ -138,27 +157,33 @@ namespace MoldFeeder
         private Boolean driveDin1 = false;
         private Boolean driveDin2 = false;
         private Boolean driveDin3 = false;
-        private HandleMessage onDriveDigitalInputs;
-        private void OnDriveDigitalInputs(IntPtr dataPtr, string str)
+        private HandleTagNameMessage onDriveDigitalInputs;
+        private void OnDriveDigitalInputs(IntPtr dataPtr, UInt32 slv, UInt32 ch, string str)
         {
-            int code = Convert.ToInt32(str, 16);
-            driveExt1 = (code & 0x10000) != 0;
-            driveExt2 = (code & 0x20000) != 0;
-            driveDin0 = (code & 0x1000000) != 0;
-            driveDin1 = (code & 0x2000000) != 0;
-            driveDin2 = (code & 0x4000000) != 0;
-            driveDin3 = (code & 0x8000000) != 0;
+            if (slv == driveDeviceSlave && ch == driveDeviceChannel)
+            {
+                int code = Convert.ToInt32(str, 16);
+                driveExt1 = (code & 0x10000) != 0;
+                driveExt2 = (code & 0x20000) != 0;
+                driveDin0 = (code & 0x1000000) != 0;
+                driveDin1 = (code & 0x2000000) != 0;
+                driveDin2 = (code & 0x4000000) != 0;
+                driveDin3 = (code & 0x8000000) != 0;
+            }
         }
 
-        private HandleMessage onCylinder;
+        private HandleTagNameMessage onCylinder;
         private Boolean cylinderOn = false;
-        private void OnCylinder(IntPtr dataPtr, string str)
+        private void OnCylinder(IntPtr dataPtr, UInt32 pos, UInt32 ch, string str)
         {
-            cylinderOn = int.Parse(str)!= 0;
+            if (pos == cylinderDeviceSlave && ch == cylinderDeviceChannel)
+            {
+                cylinderOn = int.Parse(str) != 0;
+            }
         }
 
         
-        private HandleMessage onTouchProbe;
+        private HandleTagNameMessage onTouchProbe;
         private Boolean enableTP1 = false;
         private Boolean enableTP2 = false;
         private Boolean tp1TriggerAction = false;
@@ -169,33 +194,42 @@ namespace MoldFeeder
         private Boolean tp2UpEdgeAction = false;
         private Boolean tp1DownEdgeAction = false;
         private Boolean tp2DownEdgeAction = false;
-        private void OnTouchProbe(IntPtr dataPtr, string str)
+        private void OnTouchProbe(IntPtr dataPtr, UInt32 slv, UInt32 ch, string str)
         {
-            int tmp = int.Parse(str);
-            enableTP1 = (tmp & 1) != 0;
-            enableTP2 = (tmp & 0x100) != 0;
-            tp1TriggerAction = (tmp & 0x2) != 0;
-            tp2TriggerAction = (tmp & 0x200) != 0;
-            tp1TriggerSelection = (tmp & 0x4) != 0;
-            tp2TriggerSelection = (tmp & 0x400) != 0;
-            tp1UpEdgeAction = (tmp & 0x10) != 0;
-            tp2UpEdgeAction = (tmp & 0x1000) != 0;
-            tp1DownEdgeAction = (tmp & 0x20) != 0;
-            tp2DownEdgeAction = (tmp & 0x2000) != 0;
+            if (slv == driveDeviceSlave && ch == driveDeviceChannel)
+            {
+                int tmp = int.Parse(str);
+                enableTP1 = (tmp & 1) != 0;
+                enableTP2 = (tmp & 0x100) != 0;
+                tp1TriggerAction = (tmp & 0x2) != 0;
+                tp2TriggerAction = (tmp & 0x200) != 0;
+                tp1TriggerSelection = (tmp & 0x4) != 0;
+                tp2TriggerSelection = (tmp & 0x400) != 0;
+                tp1UpEdgeAction = (tmp & 0x10) != 0;
+                tp2UpEdgeAction = (tmp & 0x1000) != 0;
+                tp1DownEdgeAction = (tmp & 0x20) != 0;
+                tp2DownEdgeAction = (tmp & 0x2000) != 0;
+            }
         }
 
-        private HandleMessage onTP1LatchPosition;
+        private HandleTagNameMessage onTP1LatchPosition;
         private int tp1LatchPosition = 123;
-        private void OnTP1LatchPosition(IntPtr dataPtr, string str)
+        private void OnTP1LatchPosition(IntPtr dataPtr, UInt32 slv, UInt32 ch, string str)
         {
-            tp1LatchPosition = int.Parse(str);
+            if (slv == driveDeviceSlave && ch == driveDeviceChannel)
+            {
+                tp1LatchPosition = int.Parse(str);
+            }
         }
 
-        private HandleMessage onTP2LatchPosition;
+        private HandleTagNameMessage onTP2LatchPosition;
         private int tp2LatchPosition = 123;
-        private void OnTP2LatchPosition(IntPtr dataPtr, string str)
+        private void OnTP2LatchPosition(IntPtr dataPtr, UInt32 slv, UInt32 ch, string str)
         {
-            tp2LatchPosition = int.Parse(str);
+            if (slv == driveDeviceSlave && ch == driveDeviceChannel)
+            {
+                tp2LatchPosition = int.Parse(str);
+            }
         }
 
         private HandleMessage onCylinderOnMs;
@@ -255,16 +289,61 @@ namespace MoldFeeder
             hasRotationSpeed = true;
         }
 
-        private HandleMessage onTPStatus;
+        private HandleMessage onSettlingDuration;
+        private int settlingDuration = 0;
+        private Boolean hasSettlingDuration = false;
+        private void OnSettlingDuration(IntPtr dataPtr, string str)
+        {
+            settlingDuration = int.Parse(str);
+            hasSettlingDuration = true;
+        }
+
+        private HandleMessage onRetryCountMax;
+        private int retryCountMax = 0;
+        private Boolean hasRetryCountMax = false;
+        private void OnRetryCountMax(IntPtr dataPtr, string str)
+        {
+            retryCountMax = int.Parse(str);
+            hasRetryCountMax = true;
+        }
+
+        private HandleMessage onDriveDeviceSlave;
+        private void OnDriveDeviceSlave(IntPtr dataPtr, string str)
+        {
+            driveDeviceSlave = int.Parse(str);
+        }
+
+        private HandleMessage onDriveDeviceChannel;
+        private void OnDriveDeviceChannel(IntPtr dataPtr, string str)
+        {
+            driveDeviceChannel= int.Parse(str);
+        }
+
+        private HandleMessage onCylinderDeviceSlave;
+        private void OnCylinderDeviceSlave(IntPtr dataPtr, string str)
+        {
+            cylinderDeviceSlave = int.Parse(str);
+        }
+
+        private HandleMessage onCylinderDeviceChannel;
+        private void OnCylinderDeviceChannel(IntPtr dataPtr, string str)
+        {
+            cylinderDeviceChannel = int.Parse(str);
+        }
+
+        private HandleTagNameMessage onTPStatus;
         private Boolean tp1Enabled = false;
         private Boolean tp2Enabled = false;
-        private void OnTPStatus(IntPtr dataPtr, string str)
+        private void OnTPStatus(IntPtr dataPtr, UInt32 slv, UInt32 ch, string str)
         {
-            int code;
-            if (Int32.TryParse(str, out code))
+            if (slv == driveDeviceSlave)
             {
-                tp1Enabled = (code & 0x1) != 0;
-                tp2Enabled = (code & 0x100) != 0;
+                int code;
+                if (Int32.TryParse(str, out code))
+                {
+                    tp1Enabled = (code & 0x1) != 0;
+                    tp2Enabled = (code & 0x100) != 0;
+                }
             }
         }
 
@@ -327,33 +406,33 @@ namespace MoldFeeder
 
             onEcReady = new HandleMessage(OnEcReady);
             bot.SetTagCB(@"ec_ready", 0, IntPtr.Zero, onEcReady);
-
-            onEncoderPosition = new HandleMessage(OnEncoderPosition);
-            bot.SetTagCB(@"real_position"+DriveTag, 0, IntPtr.Zero, onEncoderPosition);
-
-            onTargetPosition = new HandleMessage(OnTargetPosition);
-            bot.SetTagCB(@"target_position" + DriveTag, 0, IntPtr.Zero, onTargetPosition);
-
-            onDriveStatus = new HandleMessage(OnDriveStatus);
-            bot.SetTagCB(@"status_word" + DriveTag, 0, IntPtr.Zero, onDriveStatus);
-
-            onOperationMode = new HandleMessage(OnOperationMode);
-            bot.SetTagCB(@"operation_mode" + DriveTag, 0, IntPtr.Zero, onOperationMode);
-
-            onDriveDigitalInputs = new HandleMessage(OnDriveDigitalInputs);
-            bot.SetTagCB(@"digital_inputs" + DriveTag, 0, IntPtr.Zero, onDriveDigitalInputs);
-
-            onTouchProbe = new HandleMessage(OnTouchProbe);
-            bot.SetTagCB(@"touch_probe_function" + DriveTag, 0, IntPtr.Zero, onTouchProbe);
-
-            onCylinder = new HandleMessage(OnCylinder);
-            bot.SetTagCB(@"dout"+CylinderTag, 0, IntPtr.Zero, onCylinder);
-
-            onTP1LatchPosition = new HandleMessage(OnTP1LatchPosition);
-            bot.SetTagCB(@"tp1_positive_value" + DriveTag, 0, IntPtr.Zero, onTP1LatchPosition);
             
-            onTP2LatchPosition = new HandleMessage(OnTP2LatchPosition);
-            bot.SetTagCB(@"tp2_negative_value" + DriveTag, 0, IntPtr.Zero, onTP2LatchPosition);
+            onEncoderPosition = new HandleTagNameMessage(OnEncoderPosition);
+            bot.SetTagNameCB(@"real_position", 0, IntPtr.Zero, onEncoderPosition);
+
+            onTargetPosition = new HandleTagNameMessage(OnTargetPosition);
+            bot.SetTagNameCB(@"target_position", 0, IntPtr.Zero, onTargetPosition);
+
+            onDriveStatus = new HandleTagNameMessage(OnDriveStatus);
+            bot.SetTagNameCB(@"status_word", 0, IntPtr.Zero, onDriveStatus);
+
+            onOperationMode = new HandleTagNameMessage(OnOperationMode);
+            bot.SetTagNameCB(@"operation_mode", 0, IntPtr.Zero, onOperationMode);
+
+            onDriveDigitalInputs = new HandleTagNameMessage(OnDriveDigitalInputs);
+            bot.SetTagNameCB(@"digital_inputs", 0, IntPtr.Zero, onDriveDigitalInputs);
+
+            onTouchProbe = new HandleTagNameMessage(OnTouchProbe);
+            bot.SetTagNameCB(@"touch_probe_function", 0, IntPtr.Zero, onTouchProbe);
+
+            onCylinder = new HandleTagNameMessage(OnCylinder);
+            bot.SetTagNameCB(@"dout", 0, IntPtr.Zero, onCylinder);
+
+            onTP1LatchPosition = new HandleTagNameMessage(OnTP1LatchPosition);
+            bot.SetTagNameCB(@"tp1_positive_value", 0, IntPtr.Zero, onTP1LatchPosition);
+            
+            onTP2LatchPosition = new HandleTagNameMessage(OnTP2LatchPosition);
+            bot.SetTagNameCB(@"tp2_negative_value", 0, IntPtr.Zero, onTP2LatchPosition);
 
             onCylinderOnMs = new HandleMessage(OnCylinderOnMs);
             bot.SetTagCB(@"cylinder_on_duration", 0, IntPtr.Zero, onCylinderOnMs);
@@ -367,6 +446,24 @@ namespace MoldFeeder
             onRotationSpeed = new HandleMessage(OnRotationSpeed);
             bot.SetTagCB(@"feeder_rotation_speed", 0, IntPtr.Zero, onRotationSpeed);
 
+            onSettlingDuration = new HandleMessage(OnSettlingDuration);
+            bot.SetTagCB(@"feeder_settling_duration", 0, IntPtr.Zero, onSettlingDuration);
+
+            onRetryCountMax = new HandleMessage(OnRetryCountMax);
+            bot.SetTagCB(@"feeder_retry_count_max", 0, IntPtr.Zero, onRetryCountMax);
+
+            onDriveDeviceSlave = new HandleMessage(OnDriveDeviceSlave);
+            bot.SetTagCB(@"drive_device_slave", 1, IntPtr.Zero, onDriveDeviceSlave);
+
+            onDriveDeviceChannel = new HandleMessage(OnDriveDeviceChannel);
+            bot.SetTagCB(@"drive_device_channel", 1, IntPtr.Zero, onDriveDeviceChannel);
+
+            onCylinderDeviceSlave = new HandleMessage(OnCylinderDeviceSlave);
+            bot.SetTagCB(@"cylinder_device_slave", 1, IntPtr.Zero, onCylinderDeviceSlave);
+
+            onCylinderDeviceChannel = new HandleMessage(OnCylinderDeviceChannel);
+            bot.SetTagCB(@"cylinder_device_channel", 1, IntPtr.Zero, onCylinderDeviceChannel);
+
             onFeederRunning = new HandleMessage(OnFeederRunning);
             bot.SetTagCB(@"feeder_running", 0, IntPtr.Zero, onFeederRunning);
 
@@ -376,8 +473,8 @@ namespace MoldFeeder
             onFeederOperationMs = new HandleMessage(OnFeederOperationMs);
             bot.SetTagCB(@"feeder_operation_ms", 0, IntPtr.Zero, onFeederOperationMs);
 
-            onTPStatus = new HandleMessage(OnTPStatus);
-            bot.SetTagCB(@"sdo.0.24761"+ DriveSlaveTag, 0, IntPtr.Zero, onTPStatus);
+            onTPStatus = new HandleTagNameMessage(OnTPStatus);
+            bot.SetTagNameCB(@"sdo_0_24761", 0, IntPtr.Zero, onTPStatus);
 
             onTP1Detected = new HandleMessage(OnTP1Detected);
             bot.SetTagCB(@"tp1_detected", 0, IntPtr.Zero, onTP1Detected);
@@ -390,6 +487,10 @@ namespace MoldFeeder
 
             onTP2DetectedPosition = new HandleMessage(OnTP2DetectedPosition);
             bot.SetTagCB(@"tp2_detected_position", 0, IntPtr.Zero, onTP2DetectedPosition);
+
+            timerSlow.Enabled = true;
+            timerPoll.Enabled = true;
+            timer1s.Enabled = true;
         }
 
         private void timerSlow_Tick(object sender, EventArgs e)
@@ -433,8 +534,7 @@ namespace MoldFeeder
                 buttonError.BackColor = Color.IndianRed;
                 buttonError.Text = "Error";
             }
-
-            // 當有錯誤發生時，需要 Acked 才會顯示下一個錯誤訊息
+            
             if (hasSFC)
             {
                 buttonHasSFC.BackColor = Color.SpringGreen;
@@ -450,40 +550,38 @@ namespace MoldFeeder
             errorsLen = 0;
         }
 
-        private void groupBox3_Enter(object sender, EventArgs e)
-        {
-
-        }
-
-        private void textEncoderPosition_TextChanged(object sender, EventArgs e)
-        {
-
-        }
-
         private Boolean hasSlaves = false;
         private void timerPoll_Tick(object sender, EventArgs e)
         {
             string cmd = null;
-            if (slavesLen > 0)
-            {
+            //if (slavesLen > 0)
+            //{
                 
-                if (hasSlaves)
-                {
-                    for (int i = 1; i <= slavesLen; i++)
-                    {
-                        cmd += (i.ToString() + @" .slave-diff ");
-                    }
-                }
-                else
-                {
-                    for (int i = 1; i <= slavesLen; i++)
-                    {
-                        cmd += (i.ToString() + @" .slave ");
-                    }
-                    hasSlaves = true;
-                }
+            //    if (hasSlaves)
+            //    {
+            //        for (int i = 1; i <= slavesLen; i++)
+            //        {
+            //            cmd += (i.ToString() + @" .slave-diff ");
+            //        }
+            //    }
+            //    else
+            //    {
+            //        for (int i = 1; i <= slavesLen; i++)
+            //        {
+            //            cmd += (i.ToString() + @" .slave ");
+            //        }
+            //        hasSlaves = true;
+            //    }
+            //}
+
+            for (int i = 1; i <= slavesLen; i++)
+            {
+                cmd += (i.ToString() + @" .slave-diff ");
             }
-            cmd += @" .feeder .ec-links";
+
+            if (hasSFC) { cmd += @" .feeder "; }
+
+            cmd += @" .ec-links";
             bot.EvaluateScript(cmd);
 
             textEncoderPosition.Text = encoderPosition.ToString();
@@ -543,6 +641,17 @@ namespace MoldFeeder
                 hasRotationSpeed = false;
             }
 
+            if (hasSettlingDuration)
+            {
+                textBoxSettlingDurationMs.Text = settlingDuration.ToString();
+                hasSettlingDuration = false;
+            }
+
+            if (hasRetryCountMax)
+            {
+                textBoxRetryCountMax.Text = retryCountMax.ToString();
+                hasRetryCountMax = false;
+            }
 
             radioFeederRunning.Checked = feederRunning;
             radioFeederEMS.Checked = feederEMS;
@@ -554,17 +663,17 @@ namespace MoldFeeder
 
         private void button1_Click(object sender, EventArgs e)
         {
-            bot.EvaluateScript(@"+coordinator 1 0axis-ferr" + DriveChannelSlave + @"real-p@" + DriveChannelSlave + @"target-p! csp" + DriveChannelSlave + @"op-mode!" + DriveChannelSlave + @"drive-on");
+            bot.EvaluateScript(@"+coordinator 1 0axis-ferr drive-device 2@ real-p@ drive-device 2@ target-p! csp drive-device 2@ op-mode! drive-device 2@ drive-on");
         }
 
         private void button2_Click(object sender, EventArgs e)
         {
-            bot.EvaluateScript(DriveChannelSlave + @"drive-off");
+            bot.EvaluateScript(@"drive-device 2@ drive-off");
         }
 
         private void button3_Click(object sender, EventArgs e)
         {
-            bot.EvaluateScript(DriveChannelSlave + @"reset-fault");
+            bot.EvaluateScript(@"drive-device 2@ reset-fault");
         }
 
         private void button4_Click(object sender, EventArgs e)
@@ -600,12 +709,12 @@ namespace MoldFeeder
 
         private void buttonCylinderOn_Click(object sender, EventArgs e)
         {
-            bot.EvaluateScript(@"1" + CylinderChannelSlave + @"ec-dout!");
+            bot.EvaluateScript(@"1 cylinder-device 2@ ec-dout!");
         }
 
         private void buttonCylinderOff_Click(object sender, EventArgs e)
         {
-            bot.EvaluateScript(@"0" + CylinderChannelSlave + @"ec-dout!");
+            bot.EvaluateScript(@"0 cylinder-device 2@ ec-dout!");
         }
 
         private void buttonEvaluate_Click(object sender, EventArgs e)
@@ -672,6 +781,32 @@ namespace MoldFeeder
             bot.EvaluateScript(textRotationSpeed.Text + @" feeder-rotation-speed! .feeder-para");
         }
 
+        private void textBoxSettlingDurationMs_KeyDown(object sender, KeyEventArgs e)
+        {
+            if (e.KeyCode == Keys.Enter)
+            {
+                bot.EvaluateScript(((TextBox)sender).Text + @" feeder-settling-duration! .feeder-para");
+            }
+        }
+
+        private void textBoxSettlingDurationMs_Leave(object sender, EventArgs e)
+        {
+            bot.EvaluateScript(((TextBox)sender).Text + @" feeder-settling-duration! .feeder-para");
+        }
+
+        private void textBoxRetryCountMax_KeyDown(object sender, KeyEventArgs e)
+        {
+            if (e.KeyCode == Keys.Enter)
+            {
+                bot.EvaluateScript(((TextBox)sender).Text + @" feeder-retry-count-max ! .feeder-para");
+            }
+        }
+
+        private void textBoxRetryCountMax_Leave(object sender, EventArgs e)
+        {
+            bot.EvaluateScript(((TextBox)sender).Text + @" feeder-retry-count-max ! .feeder-para");
+        }
+
         private void buttonFeederEMS_Click(object sender, EventArgs e)
         {
             bot.EvaluateScript(@"ems-feeder");
@@ -719,12 +854,5 @@ namespace MoldFeeder
                 buttonSdoRequest.Text = @"SDO Resume";
             }
         }
-
-       
-
-       
-       
-
-       
     }
 }

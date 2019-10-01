@@ -110,8 +110,8 @@ variable param-request-allowed
 \ 收到資料後，送出訊息給 user task，將 param-index +1
 : post-upload-command     
     false param-index @ params-once param!
-     ." sdo."  param-index @ object-subindex param@ 0 .r
-     ." ."     param-index @ object-index    param@ 0 .r 
+     ." sdo_"  param-index @ object-subindex param@ 0 .r
+     ." _"     param-index @ object-index    param@ 0 .r 
      ." ."     param-index @ object-slave    param@ 0 .r
      param-index @ object-slave param@ sdo-error? if   
           ." |--" cr   
@@ -147,6 +147,3 @@ transition upload-not-finished?
 ' post-upload-command  ' upload-not-finished? -->
 ' upload-finished?     ' param-proc-idle -->
 ' upload-not-finished? ' send-upload-command  -->
-
-\ 啟動 SFC
-' param-proc-idle +step

@@ -87,6 +87,11 @@
             this.buttonEvaluate = new System.Windows.Forms.Button();
             this.textEvaluate = new System.Windows.Forms.TextBox();
             this.groupSFC = new System.Windows.Forms.GroupBox();
+            this.label23 = new System.Windows.Forms.Label();
+            this.textBoxRetryCountMax = new System.Windows.Forms.TextBox();
+            this.label20 = new System.Windows.Forms.Label();
+            this.label21 = new System.Windows.Forms.Label();
+            this.textBoxSettlingDurationMs = new System.Windows.Forms.TextBox();
             this.buttonSdoRequest = new System.Windows.Forms.Button();
             this.buttonReleaseFeeder = new System.Windows.Forms.Button();
             this.buttonFeederEMS = new System.Windows.Forms.Button();
@@ -129,7 +134,6 @@
             // 
             // timerSlow
             // 
-            this.timerSlow.Enabled = true;
             this.timerSlow.Interval = 500;
             this.timerSlow.Tick += new System.EventHandler(this.timerSlow_Tick);
             // 
@@ -139,7 +143,7 @@
             this.groupBox1.Controls.Add(this.buttonEtherCAT);
             this.groupBox1.Controls.Add(this.buttonWs);
             this.groupBox1.Controls.Add(this.buttonHasSFC);
-            this.groupBox1.Font = new System.Drawing.Font("PMingLiU", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(136)));
+            this.groupBox1.Font = new System.Drawing.Font("新細明體", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(136)));
             this.groupBox1.Location = new System.Drawing.Point(12, 12);
             this.groupBox1.Name = "groupBox1";
             this.groupBox1.Size = new System.Drawing.Size(481, 57);
@@ -185,7 +189,7 @@
             // 
             // buttonErrorAck
             // 
-            this.buttonErrorAck.Location = new System.Drawing.Point(11, 25);
+            this.buttonErrorAck.Location = new System.Drawing.Point(14, 37);
             this.buttonErrorAck.Name = "buttonErrorAck";
             this.buttonErrorAck.Size = new System.Drawing.Size(91, 30);
             this.buttonErrorAck.TabIndex = 0;
@@ -225,20 +229,19 @@
             this.groupBox3.Controls.Add(this.label2);
             this.groupBox3.Controls.Add(this.textOperationMode);
             this.groupBox3.Controls.Add(this.label1);
-            this.groupBox3.Font = new System.Drawing.Font("PMingLiU", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(136)));
+            this.groupBox3.Font = new System.Drawing.Font("新細明體", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(136)));
             this.groupBox3.Location = new System.Drawing.Point(12, 79);
             this.groupBox3.Name = "groupBox3";
-            this.groupBox3.Size = new System.Drawing.Size(481, 371);
+            this.groupBox3.Size = new System.Drawing.Size(481, 411);
             this.groupBox3.TabIndex = 2;
             this.groupBox3.TabStop = false;
             this.groupBox3.Text = "Drive Status";
-            this.groupBox3.Enter += new System.EventHandler(this.groupBox3_Enter);
             // 
             // radioTP2DownEdgeAction
             // 
             this.radioTP2DownEdgeAction.AutoCheck = false;
             this.radioTP2DownEdgeAction.AutoSize = true;
-            this.radioTP2DownEdgeAction.Location = new System.Drawing.Point(282, 190);
+            this.radioTP2DownEdgeAction.Location = new System.Drawing.Point(282, 197);
             this.radioTP2DownEdgeAction.Name = "radioTP2DownEdgeAction";
             this.radioTP2DownEdgeAction.RightToLeft = System.Windows.Forms.RightToLeft.Yes;
             this.radioTP2DownEdgeAction.Size = new System.Drawing.Size(179, 20);
@@ -251,7 +254,7 @@
             // 
             this.radioTP1DownEdgeAction.AutoCheck = false;
             this.radioTP1DownEdgeAction.AutoSize = true;
-            this.radioTP1DownEdgeAction.Location = new System.Drawing.Point(44, 188);
+            this.radioTP1DownEdgeAction.Location = new System.Drawing.Point(44, 195);
             this.radioTP1DownEdgeAction.Name = "radioTP1DownEdgeAction";
             this.radioTP1DownEdgeAction.RightToLeft = System.Windows.Forms.RightToLeft.Yes;
             this.radioTP1DownEdgeAction.Size = new System.Drawing.Size(179, 20);
@@ -264,7 +267,7 @@
             // 
             this.radioTP2UpEdgeAction.AutoCheck = false;
             this.radioTP2UpEdgeAction.AutoSize = true;
-            this.radioTP2UpEdgeAction.Location = new System.Drawing.Point(301, 163);
+            this.radioTP2UpEdgeAction.Location = new System.Drawing.Point(301, 170);
             this.radioTP2UpEdgeAction.Name = "radioTP2UpEdgeAction";
             this.radioTP2UpEdgeAction.RightToLeft = System.Windows.Forms.RightToLeft.Yes;
             this.radioTP2UpEdgeAction.Size = new System.Drawing.Size(160, 20);
@@ -277,7 +280,7 @@
             // 
             this.radioTP1UpEdgeAction.AutoCheck = false;
             this.radioTP1UpEdgeAction.AutoSize = true;
-            this.radioTP1UpEdgeAction.Location = new System.Drawing.Point(63, 161);
+            this.radioTP1UpEdgeAction.Location = new System.Drawing.Point(63, 168);
             this.radioTP1UpEdgeAction.Name = "radioTP1UpEdgeAction";
             this.radioTP1UpEdgeAction.RightToLeft = System.Windows.Forms.RightToLeft.Yes;
             this.radioTP1UpEdgeAction.Size = new System.Drawing.Size(160, 20);
@@ -290,7 +293,7 @@
             // 
             this.radioTP2TriggerSelection.AutoCheck = false;
             this.radioTP2TriggerSelection.AutoSize = true;
-            this.radioTP2TriggerSelection.Location = new System.Drawing.Point(295, 136);
+            this.radioTP2TriggerSelection.Location = new System.Drawing.Point(295, 143);
             this.radioTP2TriggerSelection.Name = "radioTP2TriggerSelection";
             this.radioTP2TriggerSelection.RightToLeft = System.Windows.Forms.RightToLeft.Yes;
             this.radioTP2TriggerSelection.Size = new System.Drawing.Size(166, 20);
@@ -303,7 +306,7 @@
             // 
             this.radioTP1TriggerSelection.AutoCheck = false;
             this.radioTP1TriggerSelection.AutoSize = true;
-            this.radioTP1TriggerSelection.Location = new System.Drawing.Point(57, 134);
+            this.radioTP1TriggerSelection.Location = new System.Drawing.Point(57, 141);
             this.radioTP1TriggerSelection.Name = "radioTP1TriggerSelection";
             this.radioTP1TriggerSelection.RightToLeft = System.Windows.Forms.RightToLeft.Yes;
             this.radioTP1TriggerSelection.Size = new System.Drawing.Size(166, 20);
@@ -316,7 +319,7 @@
             // 
             this.radioTP2TriggerAction.AutoCheck = false;
             this.radioTP2TriggerAction.AutoSize = true;
-            this.radioTP2TriggerAction.Location = new System.Drawing.Point(310, 109);
+            this.radioTP2TriggerAction.Location = new System.Drawing.Point(310, 116);
             this.radioTP2TriggerAction.Name = "radioTP2TriggerAction";
             this.radioTP2TriggerAction.RightToLeft = System.Windows.Forms.RightToLeft.Yes;
             this.radioTP2TriggerAction.Size = new System.Drawing.Size(151, 20);
@@ -329,7 +332,7 @@
             // 
             this.radioTP1TriggerAction.AutoCheck = false;
             this.radioTP1TriggerAction.AutoSize = true;
-            this.radioTP1TriggerAction.Location = new System.Drawing.Point(72, 107);
+            this.radioTP1TriggerAction.Location = new System.Drawing.Point(72, 114);
             this.radioTP1TriggerAction.Name = "radioTP1TriggerAction";
             this.radioTP1TriggerAction.RightToLeft = System.Windows.Forms.RightToLeft.Yes;
             this.radioTP1TriggerAction.Size = new System.Drawing.Size(151, 20);
@@ -342,7 +345,7 @@
             // 
             this.radioEnableTP2.AutoCheck = false;
             this.radioEnableTP2.AutoSize = true;
-            this.radioEnableTP2.Location = new System.Drawing.Point(359, 82);
+            this.radioEnableTP2.Location = new System.Drawing.Point(359, 89);
             this.radioEnableTP2.Name = "radioEnableTP2";
             this.radioEnableTP2.RightToLeft = System.Windows.Forms.RightToLeft.Yes;
             this.radioEnableTP2.Size = new System.Drawing.Size(102, 20);
@@ -355,7 +358,7 @@
             // 
             this.radioEnableTP1.AutoCheck = false;
             this.radioEnableTP1.AutoSize = true;
-            this.radioEnableTP1.Location = new System.Drawing.Point(121, 80);
+            this.radioEnableTP1.Location = new System.Drawing.Point(121, 87);
             this.radioEnableTP1.Name = "radioEnableTP1";
             this.radioEnableTP1.RightToLeft = System.Windows.Forms.RightToLeft.Yes;
             this.radioEnableTP1.Size = new System.Drawing.Size(102, 20);
@@ -418,7 +421,7 @@
             // 
             // textTP1LatchPosition
             // 
-            this.textTP1LatchPosition.Location = new System.Drawing.Point(134, 239);
+            this.textTP1LatchPosition.Location = new System.Drawing.Point(134, 265);
             this.textTP1LatchPosition.Name = "textTP1LatchPosition";
             this.textTP1LatchPosition.ReadOnly = true;
             this.textTP1LatchPosition.Size = new System.Drawing.Size(89, 27);
@@ -428,7 +431,7 @@
             // label5
             // 
             this.label5.AutoSize = true;
-            this.label5.Location = new System.Drawing.Point(3, 244);
+            this.label5.Location = new System.Drawing.Point(3, 270);
             this.label5.Name = "label5";
             this.label5.Size = new System.Drawing.Size(126, 16);
             this.label5.TabIndex = 18;
@@ -436,7 +439,7 @@
             // 
             // textTP2LatchPosition
             // 
-            this.textTP2LatchPosition.Location = new System.Drawing.Point(372, 239);
+            this.textTP2LatchPosition.Location = new System.Drawing.Point(372, 265);
             this.textTP2LatchPosition.Name = "textTP2LatchPosition";
             this.textTP2LatchPosition.ReadOnly = true;
             this.textTP2LatchPosition.Size = new System.Drawing.Size(89, 27);
@@ -446,7 +449,7 @@
             // label4
             // 
             this.label4.AutoSize = true;
-            this.label4.Location = new System.Drawing.Point(237, 244);
+            this.label4.Location = new System.Drawing.Point(237, 270);
             this.label4.Name = "label4";
             this.label4.Size = new System.Drawing.Size(126, 16);
             this.label4.TabIndex = 16;
@@ -456,7 +459,7 @@
             // 
             this.radioTP2Enabled.AutoCheck = false;
             this.radioTP2Enabled.AutoSize = true;
-            this.radioTP2Enabled.Location = new System.Drawing.Point(351, 217);
+            this.radioTP2Enabled.Location = new System.Drawing.Point(351, 224);
             this.radioTP2Enabled.Name = "radioTP2Enabled";
             this.radioTP2Enabled.RightToLeft = System.Windows.Forms.RightToLeft.Yes;
             this.radioTP2Enabled.Size = new System.Drawing.Size(110, 20);
@@ -482,7 +485,7 @@
             // 
             this.radioTP1Enabled.AutoCheck = false;
             this.radioTP1Enabled.AutoSize = true;
-            this.radioTP1Enabled.Location = new System.Drawing.Point(113, 215);
+            this.radioTP1Enabled.Location = new System.Drawing.Point(113, 222);
             this.radioTP1Enabled.Name = "radioTP1Enabled";
             this.radioTP1Enabled.RightToLeft = System.Windows.Forms.RightToLeft.Yes;
             this.radioTP1Enabled.Size = new System.Drawing.Size(110, 20);
@@ -532,7 +535,7 @@
             // 
             // textTargetPosition
             // 
-            this.textTargetPosition.Location = new System.Drawing.Point(237, 334);
+            this.textTargetPosition.Location = new System.Drawing.Point(237, 368);
             this.textTargetPosition.Name = "textTargetPosition";
             this.textTargetPosition.ReadOnly = true;
             this.textTargetPosition.Size = new System.Drawing.Size(100, 27);
@@ -542,7 +545,7 @@
             // label3
             // 
             this.label3.AutoSize = true;
-            this.label3.Location = new System.Drawing.Point(121, 339);
+            this.label3.Location = new System.Drawing.Point(121, 373);
             this.label3.Name = "label3";
             this.label3.Size = new System.Drawing.Size(102, 16);
             this.label3.TabIndex = 4;
@@ -550,18 +553,17 @@
             // 
             // textEncoderPosition
             // 
-            this.textEncoderPosition.Location = new System.Drawing.Point(237, 305);
+            this.textEncoderPosition.Location = new System.Drawing.Point(237, 339);
             this.textEncoderPosition.Name = "textEncoderPosition";
             this.textEncoderPosition.ReadOnly = true;
             this.textEncoderPosition.Size = new System.Drawing.Size(100, 27);
             this.textEncoderPosition.TabIndex = 3;
             this.textEncoderPosition.TextAlign = System.Windows.Forms.HorizontalAlignment.Right;
-            this.textEncoderPosition.TextChanged += new System.EventHandler(this.textEncoderPosition_TextChanged);
             // 
             // label2
             // 
             this.label2.AutoSize = true;
-            this.label2.Location = new System.Drawing.Point(109, 310);
+            this.label2.Location = new System.Drawing.Point(109, 344);
             this.label2.Name = "label2";
             this.label2.Size = new System.Drawing.Size(114, 16);
             this.label2.TabIndex = 2;
@@ -569,7 +571,7 @@
             // 
             // textOperationMode
             // 
-            this.textOperationMode.Location = new System.Drawing.Point(237, 276);
+            this.textOperationMode.Location = new System.Drawing.Point(237, 310);
             this.textOperationMode.Name = "textOperationMode";
             this.textOperationMode.ReadOnly = true;
             this.textOperationMode.Size = new System.Drawing.Size(100, 27);
@@ -579,7 +581,7 @@
             // label1
             // 
             this.label1.AutoSize = true;
-            this.label1.Location = new System.Drawing.Point(113, 281);
+            this.label1.Location = new System.Drawing.Point(113, 315);
             this.label1.Name = "label1";
             this.label1.Size = new System.Drawing.Size(110, 16);
             this.label1.TabIndex = 0;
@@ -587,7 +589,6 @@
             // 
             // timerPoll
             // 
-            this.timerPoll.Enabled = true;
             this.timerPoll.Interval = 50;
             this.timerPoll.Tick += new System.EventHandler(this.timerPoll_Tick);
             // 
@@ -601,10 +602,10 @@
             this.groupBox4.Controls.Add(this.button3);
             this.groupBox4.Controls.Add(this.button2);
             this.groupBox4.Controls.Add(this.button1);
-            this.groupBox4.Font = new System.Drawing.Font("PMingLiU", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(136)));
+            this.groupBox4.Font = new System.Drawing.Font("新細明體", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(136)));
             this.groupBox4.Location = new System.Drawing.Point(499, 157);
             this.groupBox4.Name = "groupBox4";
-            this.groupBox4.Size = new System.Drawing.Size(314, 149);
+            this.groupBox4.Size = new System.Drawing.Size(314, 179);
             this.groupBox4.TabIndex = 3;
             this.groupBox4.TabStop = false;
             this.groupBox4.Text = "Drive Control";
@@ -612,7 +613,7 @@
             // label7
             // 
             this.label7.AutoSize = true;
-            this.label7.Location = new System.Drawing.Point(224, 114);
+            this.label7.Location = new System.Drawing.Point(224, 136);
             this.label7.Name = "label7";
             this.label7.Size = new System.Drawing.Size(51, 16);
             this.label7.TabIndex = 9;
@@ -621,7 +622,7 @@
             // label6
             // 
             this.label6.AutoSize = true;
-            this.label6.Location = new System.Drawing.Point(38, 114);
+            this.label6.Location = new System.Drawing.Point(38, 136);
             this.label6.Name = "label6";
             this.label6.Size = new System.Drawing.Size(72, 16);
             this.label6.TabIndex = 8;
@@ -629,16 +630,16 @@
             // 
             // textJogSpeed
             // 
-            this.textJogSpeed.Location = new System.Drawing.Point(116, 109);
+            this.textJogSpeed.Location = new System.Drawing.Point(116, 131);
             this.textJogSpeed.Name = "textJogSpeed";
             this.textJogSpeed.Size = new System.Drawing.Size(91, 27);
             this.textJogSpeed.TabIndex = 7;
-            this.textJogSpeed.Text = "100000";
+            this.textJogSpeed.Text = "10000";
             this.textJogSpeed.TextAlign = System.Windows.Forms.HorizontalAlignment.Right;
             // 
             // buttonJogNegative
             // 
-            this.buttonJogNegative.Location = new System.Drawing.Point(116, 66);
+            this.buttonJogNegative.Location = new System.Drawing.Point(116, 79);
             this.buttonJogNegative.Name = "buttonJogNegative";
             this.buttonJogNegative.Size = new System.Drawing.Size(91, 30);
             this.buttonJogNegative.TabIndex = 6;
@@ -649,7 +650,7 @@
             // 
             // buttonJogPositive
             // 
-            this.buttonJogPositive.Location = new System.Drawing.Point(19, 66);
+            this.buttonJogPositive.Location = new System.Drawing.Point(19, 79);
             this.buttonJogPositive.Name = "buttonJogPositive";
             this.buttonJogPositive.Size = new System.Drawing.Size(91, 30);
             this.buttonJogPositive.TabIndex = 5;
@@ -691,8 +692,8 @@
             // 
             // button5
             // 
-            this.button5.Font = new System.Drawing.Font("PMingLiU", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(136)));
-            this.button5.Location = new System.Drawing.Point(116, 25);
+            this.button5.Font = new System.Drawing.Font("新細明體", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(136)));
+            this.button5.Location = new System.Drawing.Point(116, 37);
             this.button5.Name = "button5";
             this.button5.Size = new System.Drawing.Size(91, 30);
             this.button5.TabIndex = 4;
@@ -702,7 +703,7 @@
             // 
             // button4
             // 
-            this.button4.Location = new System.Drawing.Point(213, 25);
+            this.button4.Location = new System.Drawing.Point(213, 37);
             this.button4.Name = "button4";
             this.button4.Size = new System.Drawing.Size(91, 30);
             this.button4.TabIndex = 3;
@@ -714,7 +715,7 @@
             // 
             this.groupBox5.Controls.Add(this.buttonCylinderOff);
             this.groupBox5.Controls.Add(this.buttonCylinderOn);
-            this.groupBox5.Font = new System.Drawing.Font("PMingLiU", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(136)));
+            this.groupBox5.Font = new System.Drawing.Font("新細明體", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(136)));
             this.groupBox5.Location = new System.Drawing.Point(499, 81);
             this.groupBox5.Name = "groupBox5";
             this.groupBox5.Size = new System.Drawing.Size(314, 70);
@@ -762,17 +763,17 @@
             this.groupSystem.Controls.Add(this.textEvaluate);
             this.groupSystem.Controls.Add(this.button4);
             this.groupSystem.Controls.Add(this.button5);
-            this.groupSystem.Font = new System.Drawing.Font("PMingLiU", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(136)));
-            this.groupSystem.Location = new System.Drawing.Point(499, 312);
+            this.groupSystem.Font = new System.Drawing.Font("新細明體", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(136)));
+            this.groupSystem.Location = new System.Drawing.Point(499, 344);
             this.groupSystem.Name = "groupSystem";
-            this.groupSystem.Size = new System.Drawing.Size(314, 138);
+            this.groupSystem.Size = new System.Drawing.Size(314, 146);
             this.groupSystem.TabIndex = 10;
             this.groupSystem.TabStop = false;
             this.groupSystem.Text = "System";
             // 
             // buttonEvaluate
             // 
-            this.buttonEvaluate.Location = new System.Drawing.Point(213, 65);
+            this.buttonEvaluate.Location = new System.Drawing.Point(213, 84);
             this.buttonEvaluate.Name = "buttonEvaluate";
             this.buttonEvaluate.Size = new System.Drawing.Size(91, 30);
             this.buttonEvaluate.TabIndex = 6;
@@ -782,13 +783,18 @@
             // 
             // textEvaluate
             // 
-            this.textEvaluate.Location = new System.Drawing.Point(12, 65);
+            this.textEvaluate.Location = new System.Drawing.Point(12, 86);
             this.textEvaluate.Name = "textEvaluate";
             this.textEvaluate.Size = new System.Drawing.Size(195, 27);
             this.textEvaluate.TabIndex = 5;
             // 
             // groupSFC
             // 
+            this.groupSFC.Controls.Add(this.label23);
+            this.groupSFC.Controls.Add(this.textBoxRetryCountMax);
+            this.groupSFC.Controls.Add(this.label20);
+            this.groupSFC.Controls.Add(this.label21);
+            this.groupSFC.Controls.Add(this.textBoxSettlingDurationMs);
             this.groupSFC.Controls.Add(this.buttonSdoRequest);
             this.groupSFC.Controls.Add(this.buttonReleaseFeeder);
             this.groupSFC.Controls.Add(this.buttonFeederEMS);
@@ -805,18 +811,70 @@
             this.groupSFC.Controls.Add(this.label8);
             this.groupSFC.Controls.Add(this.label9);
             this.groupSFC.Controls.Add(this.textCylinderOnMs);
-            this.groupSFC.Font = new System.Drawing.Font("PMingLiU", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(136)));
+            this.groupSFC.Font = new System.Drawing.Font("新細明體", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(136)));
             this.groupSFC.Location = new System.Drawing.Point(824, 203);
             this.groupSFC.Name = "groupSFC";
-            this.groupSFC.Size = new System.Drawing.Size(308, 247);
+            this.groupSFC.Size = new System.Drawing.Size(308, 287);
             this.groupSFC.TabIndex = 11;
             this.groupSFC.TabStop = false;
             this.groupSFC.Text = "SFC Control";
             // 
+            // label23
+            // 
+            this.label23.AutoSize = true;
+            this.label23.Font = new System.Drawing.Font("新細明體", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(136)));
+            this.label23.Location = new System.Drawing.Point(11, 175);
+            this.label23.Name = "label23";
+            this.label23.Size = new System.Drawing.Size(116, 16);
+            this.label23.TabIndex = 30;
+            this.label23.Text = "Max Retry Count";
+            // 
+            // textBoxRetryCountMax
+            // 
+            this.textBoxRetryCountMax.Font = new System.Drawing.Font("新細明體", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(136)));
+            this.textBoxRetryCountMax.Location = new System.Drawing.Point(133, 170);
+            this.textBoxRetryCountMax.Name = "textBoxRetryCountMax";
+            this.textBoxRetryCountMax.Size = new System.Drawing.Size(103, 27);
+            this.textBoxRetryCountMax.TabIndex = 29;
+            this.textBoxRetryCountMax.TextAlign = System.Windows.Forms.HorizontalAlignment.Right;
+            this.textBoxRetryCountMax.KeyDown += new System.Windows.Forms.KeyEventHandler(this.textBoxRetryCountMax_KeyDown);
+            this.textBoxRetryCountMax.Leave += new System.EventHandler(this.textBoxRetryCountMax_Leave);
+            // 
+            // label20
+            // 
+            this.label20.AutoSize = true;
+            this.label20.Font = new System.Drawing.Font("新細明體", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(136)));
+            this.label20.Location = new System.Drawing.Point(243, 87);
+            this.label20.Name = "label20";
+            this.label20.Size = new System.Drawing.Size(26, 16);
+            this.label20.TabIndex = 28;
+            this.label20.Text = "ms";
+            // 
+            // label21
+            // 
+            this.label21.AutoSize = true;
+            this.label21.Font = new System.Drawing.Font("新細明體", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(136)));
+            this.label21.Location = new System.Drawing.Point(40, 87);
+            this.label21.Name = "label21";
+            this.label21.Size = new System.Drawing.Size(91, 16);
+            this.label21.TabIndex = 27;
+            this.label21.Text = "Settling Time";
+            // 
+            // textBoxSettlingDurationMs
+            // 
+            this.textBoxSettlingDurationMs.Font = new System.Drawing.Font("新細明體", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(136)));
+            this.textBoxSettlingDurationMs.Location = new System.Drawing.Point(133, 82);
+            this.textBoxSettlingDurationMs.Name = "textBoxSettlingDurationMs";
+            this.textBoxSettlingDurationMs.Size = new System.Drawing.Size(103, 27);
+            this.textBoxSettlingDurationMs.TabIndex = 26;
+            this.textBoxSettlingDurationMs.TextAlign = System.Windows.Forms.HorizontalAlignment.Right;
+            this.textBoxSettlingDurationMs.KeyDown += new System.Windows.Forms.KeyEventHandler(this.textBoxSettlingDurationMs_KeyDown);
+            this.textBoxSettlingDurationMs.Leave += new System.EventHandler(this.textBoxSettlingDurationMs_Leave);
+            // 
             // buttonSdoRequest
             // 
-            this.buttonSdoRequest.Font = new System.Drawing.Font("PMingLiU", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(136)));
-            this.buttonSdoRequest.Location = new System.Drawing.Point(154, 187);
+            this.buttonSdoRequest.Font = new System.Drawing.Font("新細明體", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(136)));
+            this.buttonSdoRequest.Location = new System.Drawing.Point(17, 249);
             this.buttonSdoRequest.Name = "buttonSdoRequest";
             this.buttonSdoRequest.Size = new System.Drawing.Size(130, 31);
             this.buttonSdoRequest.TabIndex = 25;
@@ -826,8 +884,8 @@
             // 
             // buttonReleaseFeeder
             // 
-            this.buttonReleaseFeeder.Font = new System.Drawing.Font("PMingLiU", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(136)));
-            this.buttonReleaseFeeder.Location = new System.Drawing.Point(17, 187);
+            this.buttonReleaseFeeder.Font = new System.Drawing.Font("新細明體", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(136)));
+            this.buttonReleaseFeeder.Location = new System.Drawing.Point(153, 249);
             this.buttonReleaseFeeder.Name = "buttonReleaseFeeder";
             this.buttonReleaseFeeder.Size = new System.Drawing.Size(130, 31);
             this.buttonReleaseFeeder.TabIndex = 24;
@@ -837,8 +895,8 @@
             // 
             // buttonFeederEMS
             // 
-            this.buttonFeederEMS.Font = new System.Drawing.Font("PMingLiU", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(136)));
-            this.buttonFeederEMS.Location = new System.Drawing.Point(153, 150);
+            this.buttonFeederEMS.Font = new System.Drawing.Font("新細明體", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(136)));
+            this.buttonFeederEMS.Location = new System.Drawing.Point(153, 208);
             this.buttonFeederEMS.Name = "buttonFeederEMS";
             this.buttonFeederEMS.Size = new System.Drawing.Size(130, 31);
             this.buttonFeederEMS.TabIndex = 23;
@@ -849,8 +907,8 @@
             // label14
             // 
             this.label14.AutoSize = true;
-            this.label14.Font = new System.Drawing.Font("PMingLiU", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(136)));
-            this.label14.Location = new System.Drawing.Point(243, 116);
+            this.label14.Font = new System.Drawing.Font("新細明體", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(136)));
+            this.label14.Location = new System.Drawing.Point(243, 146);
             this.label14.Name = "label14";
             this.label14.Size = new System.Drawing.Size(51, 16);
             this.label14.TabIndex = 22;
@@ -859,8 +917,8 @@
             // label15
             // 
             this.label15.AutoSize = true;
-            this.label15.Font = new System.Drawing.Font("PMingLiU", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(136)));
-            this.label15.Location = new System.Drawing.Point(24, 116);
+            this.label15.Font = new System.Drawing.Font("新細明體", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(136)));
+            this.label15.Location = new System.Drawing.Point(24, 146);
             this.label15.Name = "label15";
             this.label15.Size = new System.Drawing.Size(103, 16);
             this.label15.TabIndex = 21;
@@ -869,8 +927,8 @@
             // 
             // textRotationSpeed
             // 
-            this.textRotationSpeed.Font = new System.Drawing.Font("PMingLiU", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(136)));
-            this.textRotationSpeed.Location = new System.Drawing.Point(133, 111);
+            this.textRotationSpeed.Font = new System.Drawing.Font("新細明體", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(136)));
+            this.textRotationSpeed.Location = new System.Drawing.Point(133, 141);
             this.textRotationSpeed.Name = "textRotationSpeed";
             this.textRotationSpeed.Size = new System.Drawing.Size(103, 27);
             this.textRotationSpeed.TabIndex = 20;
@@ -881,8 +939,8 @@
             // label16
             // 
             this.label16.AutoSize = true;
-            this.label16.Font = new System.Drawing.Font("PMingLiU", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(136)));
-            this.label16.Location = new System.Drawing.Point(243, 87);
+            this.label16.Font = new System.Drawing.Font("新細明體", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(136)));
+            this.label16.Location = new System.Drawing.Point(243, 117);
             this.label16.Name = "label16";
             this.label16.Size = new System.Drawing.Size(41, 16);
             this.label16.TabIndex = 19;
@@ -891,8 +949,8 @@
             // label17
             // 
             this.label17.AutoSize = true;
-            this.label17.Font = new System.Drawing.Font("PMingLiU", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(136)));
-            this.label17.Location = new System.Drawing.Point(8, 87);
+            this.label17.Font = new System.Drawing.Font("新細明體", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(136)));
+            this.label17.Location = new System.Drawing.Point(8, 117);
             this.label17.Name = "label17";
             this.label17.Size = new System.Drawing.Size(119, 16);
             this.label17.TabIndex = 18;
@@ -900,8 +958,8 @@
             // 
             // textRotationDistance
             // 
-            this.textRotationDistance.Font = new System.Drawing.Font("PMingLiU", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(136)));
-            this.textRotationDistance.Location = new System.Drawing.Point(134, 82);
+            this.textRotationDistance.Font = new System.Drawing.Font("新細明體", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(136)));
+            this.textRotationDistance.Location = new System.Drawing.Point(134, 112);
             this.textRotationDistance.Name = "textRotationDistance";
             this.textRotationDistance.Size = new System.Drawing.Size(103, 27);
             this.textRotationDistance.TabIndex = 17;
@@ -911,8 +969,8 @@
             // 
             // buttonStartFeeder
             // 
-            this.buttonStartFeeder.Font = new System.Drawing.Font("PMingLiU", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(136)));
-            this.buttonStartFeeder.Location = new System.Drawing.Point(17, 150);
+            this.buttonStartFeeder.Font = new System.Drawing.Font("新細明體", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(136)));
+            this.buttonStartFeeder.Location = new System.Drawing.Point(17, 208);
             this.buttonStartFeeder.Name = "buttonStartFeeder";
             this.buttonStartFeeder.Size = new System.Drawing.Size(130, 31);
             this.buttonStartFeeder.TabIndex = 16;
@@ -923,7 +981,7 @@
             // label10
             // 
             this.label10.AutoSize = true;
-            this.label10.Font = new System.Drawing.Font("PMingLiU", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(136)));
+            this.label10.Font = new System.Drawing.Font("新細明體", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(136)));
             this.label10.Location = new System.Drawing.Point(243, 58);
             this.label10.Name = "label10";
             this.label10.Size = new System.Drawing.Size(26, 16);
@@ -933,7 +991,7 @@
             // label11
             // 
             this.label11.AutoSize = true;
-            this.label11.Font = new System.Drawing.Font("PMingLiU", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(136)));
+            this.label11.Font = new System.Drawing.Font("新細明體", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(136)));
             this.label11.Location = new System.Drawing.Point(40, 58);
             this.label11.Name = "label11";
             this.label11.Size = new System.Drawing.Size(87, 16);
@@ -942,7 +1000,7 @@
             // 
             // textCylinderOffMs
             // 
-            this.textCylinderOffMs.Font = new System.Drawing.Font("PMingLiU", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(136)));
+            this.textCylinderOffMs.Font = new System.Drawing.Font("新細明體", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(136)));
             this.textCylinderOffMs.Location = new System.Drawing.Point(133, 53);
             this.textCylinderOffMs.Name = "textCylinderOffMs";
             this.textCylinderOffMs.Size = new System.Drawing.Size(103, 27);
@@ -954,7 +1012,7 @@
             // label8
             // 
             this.label8.AutoSize = true;
-            this.label8.Font = new System.Drawing.Font("PMingLiU", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(136)));
+            this.label8.Font = new System.Drawing.Font("新細明體", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(136)));
             this.label8.Location = new System.Drawing.Point(243, 29);
             this.label8.Name = "label8";
             this.label8.Size = new System.Drawing.Size(26, 16);
@@ -964,7 +1022,7 @@
             // label9
             // 
             this.label9.AutoSize = true;
-            this.label9.Font = new System.Drawing.Font("PMingLiU", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(136)));
+            this.label9.Font = new System.Drawing.Font("新細明體", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(136)));
             this.label9.Location = new System.Drawing.Point(42, 29);
             this.label9.Name = "label9";
             this.label9.Size = new System.Drawing.Size(85, 16);
@@ -973,7 +1031,7 @@
             // 
             // textCylinderOnMs
             // 
-            this.textCylinderOnMs.Font = new System.Drawing.Font("PMingLiU", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(136)));
+            this.textCylinderOnMs.Font = new System.Drawing.Font("新細明體", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(136)));
             this.textCylinderOnMs.Location = new System.Drawing.Point(134, 24);
             this.textCylinderOnMs.Name = "textCylinderOnMs";
             this.textCylinderOnMs.Size = new System.Drawing.Size(103, 27);
@@ -995,7 +1053,7 @@
             this.groupBox6.Controls.Add(this.label12);
             this.groupBox6.Controls.Add(this.label13);
             this.groupBox6.Controls.Add(this.textFeederOperationTime);
-            this.groupBox6.Font = new System.Drawing.Font("PMingLiU", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(136)));
+            this.groupBox6.Font = new System.Drawing.Font("新細明體", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(136)));
             this.groupBox6.Location = new System.Drawing.Point(824, 12);
             this.groupBox6.Name = "groupBox6";
             this.groupBox6.Size = new System.Drawing.Size(308, 185);
@@ -1006,7 +1064,7 @@
             // label19
             // 
             this.label19.AutoSize = true;
-            this.label19.Font = new System.Drawing.Font("PMingLiU", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(136)));
+            this.label19.Font = new System.Drawing.Font("新細明體", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(136)));
             this.label19.Location = new System.Drawing.Point(16, 119);
             this.label19.Name = "label19";
             this.label19.Size = new System.Drawing.Size(146, 16);
@@ -1015,7 +1073,7 @@
             // 
             // textTP2DetectedPosition
             // 
-            this.textTP2DetectedPosition.Font = new System.Drawing.Font("PMingLiU", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(136)));
+            this.textTP2DetectedPosition.Font = new System.Drawing.Font("新細明體", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(136)));
             this.textTP2DetectedPosition.Location = new System.Drawing.Point(170, 114);
             this.textTP2DetectedPosition.Name = "textTP2DetectedPosition";
             this.textTP2DetectedPosition.ReadOnly = true;
@@ -1026,7 +1084,7 @@
             // label18
             // 
             this.label18.AutoSize = true;
-            this.label18.Font = new System.Drawing.Font("PMingLiU", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(136)));
+            this.label18.Font = new System.Drawing.Font("新細明體", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(136)));
             this.label18.Location = new System.Drawing.Point(16, 86);
             this.label18.Name = "label18";
             this.label18.Size = new System.Drawing.Size(146, 16);
@@ -1035,7 +1093,7 @@
             // 
             // textTP1DetectedPosition
             // 
-            this.textTP1DetectedPosition.Font = new System.Drawing.Font("PMingLiU", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(136)));
+            this.textTP1DetectedPosition.Font = new System.Drawing.Font("新細明體", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(136)));
             this.textTP1DetectedPosition.Location = new System.Drawing.Point(170, 81);
             this.textTP1DetectedPosition.Name = "textTP1DetectedPosition";
             this.textTP1DetectedPosition.ReadOnly = true;
@@ -1098,7 +1156,7 @@
             // label12
             // 
             this.label12.AutoSize = true;
-            this.label12.Font = new System.Drawing.Font("PMingLiU", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(136)));
+            this.label12.Font = new System.Drawing.Font("新細明體", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(136)));
             this.label12.Location = new System.Drawing.Point(266, 151);
             this.label12.Name = "label12";
             this.label12.Size = new System.Drawing.Size(26, 16);
@@ -1108,7 +1166,7 @@
             // label13
             // 
             this.label13.AutoSize = true;
-            this.label13.Font = new System.Drawing.Font("PMingLiU", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(136)));
+            this.label13.Font = new System.Drawing.Font("新細明體", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(136)));
             this.label13.Location = new System.Drawing.Point(56, 151);
             this.label13.Name = "label13";
             this.label13.Size = new System.Drawing.Size(106, 16);
@@ -1117,7 +1175,7 @@
             // 
             // textFeederOperationTime
             // 
-            this.textFeederOperationTime.Font = new System.Drawing.Font("PMingLiU", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(136)));
+            this.textFeederOperationTime.Font = new System.Drawing.Font("新細明體", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(136)));
             this.textFeederOperationTime.Location = new System.Drawing.Point(170, 146);
             this.textFeederOperationTime.Name = "textFeederOperationTime";
             this.textFeederOperationTime.ReadOnly = true;
@@ -1128,7 +1186,7 @@
             // groupBox2
             // 
             this.groupBox2.Controls.Add(this.radioCylinder);
-            this.groupBox2.Font = new System.Drawing.Font("PMingLiU", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(136)));
+            this.groupBox2.Font = new System.Drawing.Font("新細明體", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(136)));
             this.groupBox2.Location = new System.Drawing.Point(499, 12);
             this.groupBox2.Name = "groupBox2";
             this.groupBox2.Size = new System.Drawing.Size(314, 57);
@@ -1138,7 +1196,6 @@
             // 
             // timer1s
             // 
-            this.timer1s.Enabled = true;
             this.timer1s.Interval = 1000;
             this.timer1s.Tick += new System.EventHandler(this.timer1s_Tick);
             // 
@@ -1146,7 +1203,7 @@
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 12F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(1139, 485);
+            this.ClientSize = new System.Drawing.Size(1139, 497);
             this.Controls.Add(this.groupBox2);
             this.Controls.Add(this.groupBox6);
             this.Controls.Add(this.groupSFC);
@@ -1266,6 +1323,11 @@
         private System.Windows.Forms.TextBox textTP2DetectedPosition;
         private System.Windows.Forms.Label label18;
         private System.Windows.Forms.TextBox textTP1DetectedPosition;
+        private System.Windows.Forms.Label label20;
+        private System.Windows.Forms.Label label21;
+        private System.Windows.Forms.TextBox textBoxSettlingDurationMs;
+        private System.Windows.Forms.Label label23;
+        private System.Windows.Forms.TextBox textBoxRetryCountMax;
     }
 }
 

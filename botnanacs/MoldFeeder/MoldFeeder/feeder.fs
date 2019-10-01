@@ -14,7 +14,7 @@ variable device-config-ok device-config-ok on
 2variable drive-device drive-device 1 101 config-device
 
 \ 指定控制氣壓缸的數位輸出的 channel 和 alias
-2variable cylinder-device cylinder-device 3 201 config-device
+2variable cylinder-device cylinder-device 1 201 config-device
 
 \ 定義運動軸的編號
 variable axis-index 1 axis-index !
@@ -22,16 +22,10 @@ variable axis-index 1 axis-index !
 \ 定義 Touch Probe function
 variable tp-func $0033 tp-func !
 
-\ System Ready 旗標
-variable system-ready
-: system-ready? ( -- flag )
-    system-ready @
-;
-
 \ 宣告計時器
 1 constant cylinder-on-timer                    \ 氣壓缸 ON 持續時間
 2 constant cylinder-off-timer                   \ 氣壓缸 OFF 持續時間
-3 constant feeder-stable-timer                  \ 轉盤馬達穩定時間
+3 constant feeder-settling-timer                \ 轉盤馬達穩定時間
 
 \ 設定氣壓缸 ON 的時間 [ms]
 variable cylinder-on-duration
@@ -48,11 +42,20 @@ variable cylinder-off-duration
 1000 cylinder-off-duration!
 
 \ 設定轉盤馬達穩定時間 [ms]
-variable feeder-stable-duration
-: feeder-stable-duration! ( ms -- )
-    dup feeder-stable-timer timer-dur-ms! feeder-stable-duration !
+variable feeder-settling-duration
+: feeder-settling-duration! ( ms -- )
+    dup feeder-settling-timer timer-dur-ms! feeder-settling-duration !
 ;
-500 feeder-stable-duration!
+500 feeder-settling-duration!
+
+\ 宣告正反器
+1 constant ff-system-ready-hl   1 ff-system-ready-hl ff-type!       \ system ready high-level trigger flip-flop
+    5000000 ff-system-ready-hl ff-hold!
+
+\ System Ready?
+: system-ready? ( -- bool )
+    ff-system-ready-hl ff-triggered-uc?         \ system ready high-level trigger flip-flop 是否觸發?
+;
 
 \ 設定旋轉盤用來尋找模具平邊的旋轉距離 [pulse] 保證能使平邊能被偵測的距離
 variable feeder-rotation-distance
@@ -182,8 +185,21 @@ variable feeder-ems-flag
     ." |cylinder_off_duration|" cylinder-off-duration @ 0 .r
     ." |feeder_rotation_distance|" feeder-rotation-distance @ 0 .r
     ." |feeder_rotation_speed|" feeder-rotation-speed @ 0 .r
+    ." |feeder_settling_duration|" feeder-settling-duration @ 0 .r
+    ." |feeder_retry_count_max|" feeder-retry-count-max @ 0 .r
     cr  
-; 
+;
+
+\ 取得周邊裝置的站號和管道資訊
+: .devices-info ( -- )
+    drive-device 2@
+    ." drive_device_slave|" 0 .r
+    ." |drive_device_channel|" 0 .r
+    cylinder-device 2@
+    ." |cylinder_device_slave|" 0 .r
+    ." |cylinder_device_channel|" 0 .r
+    cr  
+;
 
 
 
@@ -222,8 +238,10 @@ variable feeder-retry-count
 \ -------------------- steps --------------------
 \ 初始化
 : feeder-init ( -- )
-    feeder-init-done @ not if
-        tp-func drive-device 2@ drive-tp!       \ 設定轉盤馬達驅動器的 touch prob function
+    feeder-init-done @ not
+    system-ready? and
+    if
+        tp-func @ drive-device 2@ drive-tp!     \ 設定轉盤馬達驅動器的 touch prob function
         feeder-init-done on
     then
 ;
@@ -357,14 +375,14 @@ step feeder-idle
                 axis-index @ interpolator-reached?                          \ 若已到目標
                 if
                     axis-index @ -interpolator                                  \ 關閉插植器
-                    feeder-stable-timer 0timer                                  \ 重置 timer
+                    feeder-settling-timer 0timer                                \ 重置 timer
                     1 feeder-forth-step +!                                      \ 切換至下一步
                 then
             endof
 
             \ 等待馬達實際位置穩定
             10 of
-                feeder-stable-timer timer-expired?                          \ 等待馬達實際位置穩定完成
+                feeder-settling-timer timer-expired?                        \ 等待馬達實際位置穩定完成
                 if
                     -1 feeder-forth-step !                                      \ feeder-forth 完成
                 then
