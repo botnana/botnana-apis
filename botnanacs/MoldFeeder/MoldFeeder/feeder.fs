@@ -185,7 +185,9 @@ variable feeder-ems-flag
 
 \ 取得供給機 SFC 的執行狀態
 : .feeder ( -- )
-    ." feeder_running|" feeder-running @ 0 .r
+    ." system_ready|" system-ready? 0 .r
+    ." |feeder_ready|" feeder-ready @ 0 .r
+    ." |feeder_running|" feeder-running @ 0 .r
     ." |feeder_ems|" feeder-ems-flag @ 0 .r
     ." |tp_detected_1|" tp-detected-1 @ 0 .r
     ." |tp_detected_2|" tp-detected-2 @ 0 .r

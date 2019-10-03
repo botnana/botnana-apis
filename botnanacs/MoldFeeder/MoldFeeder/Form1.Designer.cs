@@ -34,7 +34,7 @@
             this.buttonError = new System.Windows.Forms.Button();
             this.buttonEtherCAT = new System.Windows.Forms.Button();
             this.buttonWs = new System.Windows.Forms.Button();
-            this.buttonHasSFC = new System.Windows.Forms.Button();
+            this.buttonSystemReady = new System.Windows.Forms.Button();
             this.buttonErrorAck = new System.Windows.Forms.Button();
             this.groupBox3 = new System.Windows.Forms.GroupBox();
             this.radioTP2DownEdgeAction = new System.Windows.Forms.RadioButton();
@@ -122,6 +122,7 @@
             this.textFeederOperationTime = new System.Windows.Forms.TextBox();
             this.groupBox2 = new System.Windows.Forms.GroupBox();
             this.timer1s = new System.Windows.Forms.Timer(this.components);
+            this.radioFeederReady = new System.Windows.Forms.RadioButton();
             this.groupBox1.SuspendLayout();
             this.groupBox3.SuspendLayout();
             this.groupBox4.SuspendLayout();
@@ -142,7 +143,7 @@
             this.groupBox1.Controls.Add(this.buttonError);
             this.groupBox1.Controls.Add(this.buttonEtherCAT);
             this.groupBox1.Controls.Add(this.buttonWs);
-            this.groupBox1.Controls.Add(this.buttonHasSFC);
+            this.groupBox1.Controls.Add(this.buttonSystemReady);
             this.groupBox1.Font = new System.Drawing.Font("新細明體", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(136)));
             this.groupBox1.Location = new System.Drawing.Point(12, 12);
             this.groupBox1.Name = "groupBox1";
@@ -178,14 +179,14 @@
             this.buttonWs.Text = "WebSocket";
             this.buttonWs.UseVisualStyleBackColor = true;
             // 
-            // buttonHasSFC
+            // buttonSystemReady
             // 
-            this.buttonHasSFC.Location = new System.Drawing.Point(252, 21);
-            this.buttonHasSFC.Name = "buttonHasSFC";
-            this.buttonHasSFC.Size = new System.Drawing.Size(91, 30);
-            this.buttonHasSFC.TabIndex = 1;
-            this.buttonHasSFC.Text = "SFC";
-            this.buttonHasSFC.UseVisualStyleBackColor = true;
+            this.buttonSystemReady.Location = new System.Drawing.Point(252, 21);
+            this.buttonSystemReady.Name = "buttonSystemReady";
+            this.buttonSystemReady.Size = new System.Drawing.Size(91, 30);
+            this.buttonSystemReady.TabIndex = 1;
+            this.buttonSystemReady.Text = "System";
+            this.buttonSystemReady.UseVisualStyleBackColor = true;
             // 
             // buttonErrorAck
             // 
@@ -1042,6 +1043,7 @@
             // 
             // groupBox6
             // 
+            this.groupBox6.Controls.Add(this.radioFeederReady);
             this.groupBox6.Controls.Add(this.label19);
             this.groupBox6.Controls.Add(this.textTPDetectedPosition2);
             this.groupBox6.Controls.Add(this.label18);
@@ -1105,7 +1107,7 @@
             // 
             this.radioTPDetected2.AutoCheck = false;
             this.radioTPDetected2.AutoSize = true;
-            this.radioTPDetected2.Location = new System.Drawing.Point(163, 57);
+            this.radioTPDetected2.Location = new System.Drawing.Point(162, 51);
             this.radioTPDetected2.Name = "radioTPDetected2";
             this.radioTPDetected2.RightToLeft = System.Windows.Forms.RightToLeft.Yes;
             this.radioTPDetected2.Size = new System.Drawing.Size(114, 20);
@@ -1118,7 +1120,7 @@
             // 
             this.radioTPDetected1.AutoCheck = false;
             this.radioTPDetected1.AutoSize = true;
-            this.radioTPDetected1.Location = new System.Drawing.Point(24, 57);
+            this.radioTPDetected1.Location = new System.Drawing.Point(11, 51);
             this.radioTPDetected1.Name = "radioTPDetected1";
             this.radioTPDetected1.RightToLeft = System.Windows.Forms.RightToLeft.Yes;
             this.radioTPDetected1.Size = new System.Drawing.Size(114, 20);
@@ -1131,7 +1133,7 @@
             // 
             this.radioFeederEMS.AutoCheck = false;
             this.radioFeederEMS.AutoSize = true;
-            this.radioFeederEMS.Location = new System.Drawing.Point(220, 31);
+            this.radioFeederEMS.Location = new System.Drawing.Point(220, 25);
             this.radioFeederEMS.Name = "radioFeederEMS";
             this.radioFeederEMS.RightToLeft = System.Windows.Forms.RightToLeft.Yes;
             this.radioFeederEMS.Size = new System.Drawing.Size(56, 20);
@@ -1144,7 +1146,7 @@
             // 
             this.radioFeederRunning.AutoCheck = false;
             this.radioFeederRunning.AutoSize = true;
-            this.radioFeederRunning.Location = new System.Drawing.Point(58, 31);
+            this.radioFeederRunning.Location = new System.Drawing.Point(111, 25);
             this.radioFeederRunning.Name = "radioFeederRunning";
             this.radioFeederRunning.RightToLeft = System.Windows.Forms.RightToLeft.Yes;
             this.radioFeederRunning.Size = new System.Drawing.Size(80, 20);
@@ -1198,6 +1200,19 @@
             // 
             this.timer1s.Interval = 1000;
             this.timer1s.Tick += new System.EventHandler(this.timer1s_Tick);
+            // 
+            // radioFeederReady
+            // 
+            this.radioFeederReady.AutoCheck = false;
+            this.radioFeederReady.AutoSize = true;
+            this.radioFeederReady.Location = new System.Drawing.Point(11, 25);
+            this.radioFeederReady.Name = "radioFeederReady";
+            this.radioFeederReady.RightToLeft = System.Windows.Forms.RightToLeft.Yes;
+            this.radioFeederReady.Size = new System.Drawing.Size(66, 20);
+            this.radioFeederReady.TabIndex = 24;
+            this.radioFeederReady.TabStop = true;
+            this.radioFeederReady.Text = "Ready";
+            this.radioFeederReady.UseVisualStyleBackColor = true;
             // 
             // Form1
             // 
@@ -1267,7 +1282,7 @@
         private System.Windows.Forms.RadioButton radioDriveDin1;
         private System.Windows.Forms.RadioButton radioDriveDin0;
         private System.Windows.Forms.Button button5;
-        private System.Windows.Forms.Button buttonHasSFC;
+        private System.Windows.Forms.Button buttonSystemReady;
         private System.Windows.Forms.Button buttonJogNegative;
         private System.Windows.Forms.Button buttonJogPositive;
         private System.Windows.Forms.Label label7;
@@ -1328,6 +1343,7 @@
         private System.Windows.Forms.TextBox textBoxSettlingDurationMs;
         private System.Windows.Forms.Label label23;
         private System.Windows.Forms.TextBox textBoxRetryCountMax;
+        private System.Windows.Forms.RadioButton radioFeederReady;
     }
 }
 

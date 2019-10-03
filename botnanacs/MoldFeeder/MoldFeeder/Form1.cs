@@ -64,7 +64,7 @@ namespace MoldFeeder
                     break;
                 case 32:
                     //new Thread(() => System.Windows.Forms.MessageBox.Show("OnUserParameterCallback 32")).Start();
-                    bot.EvaluateScript(@".devices-info 64 user-para! .user-para");
+                    bot.EvaluateScript(@".devices-info .feeder-para .ec-links 64 user-para! .user-para");
                     break;
                 case 64:
                     //new Thread(() => System.Windows.Forms.MessageBox.Show("OnUserParameterCallback 64")).Start();
@@ -73,7 +73,6 @@ namespace MoldFeeder
                     {
                         cmd += (i.ToString() + @" .slave ");
                     }
-                    cmd += @".feeder-para ";
                     bot.EvaluateScript(cmd);
                     hasSFC = true;
                     break;
@@ -250,6 +249,20 @@ namespace MoldFeeder
             hasCylinderOffMs = true;
         }
 
+        private HandleMessage onSystemReady;
+        private Boolean systemReady = false;
+        private void OnSystemReady(IntPtr dataPtr, string str)
+        {
+            systemReady = (int.Parse(str) != 0);
+        }
+
+        private HandleMessage onFeederReady;
+        private Boolean feederReady = false;
+        private void OnFeederReady(IntPtr dataPtr, string str)
+        {
+            feederReady = (int.Parse(str) != 0);
+        }
+
         private HandleMessage onFeederRunning;
         private Boolean feederRunning = false;
         private void OnFeederRunning(IntPtr dataPtr, string str)
@@ -406,7 +419,13 @@ namespace MoldFeeder
 
             onEcReady = new HandleMessage(OnEcReady);
             bot.SetTagCB(@"ec_ready", 0, IntPtr.Zero, onEcReady);
-            
+
+            onSystemReady = new HandleMessage(OnSystemReady);
+            bot.SetTagCB(@"system_ready", 0, IntPtr.Zero, onSystemReady);
+
+            onFeederReady = new HandleMessage(OnFeederReady);
+            bot.SetTagCB(@"feeder_ready", 0, IntPtr.Zero, onFeederReady);
+
             onEncoderPosition = new HandleTagNameMessage(OnEncoderPosition);
             bot.SetTagNameCB(@"real_position", 0, IntPtr.Zero, onEncoderPosition);
 
@@ -535,13 +554,13 @@ namespace MoldFeeder
                 buttonError.Text = "Error";
             }
             
-            if (hasSFC)
+            if (systemReady)
             {
-                buttonHasSFC.BackColor = Color.SpringGreen;
+                buttonSystemReady.BackColor = Color.SpringGreen;
             }
             else
             {
-                buttonHasSFC.BackColor = Color.IndianRed;
+                buttonSystemReady.BackColor = Color.IndianRed;
             }
         }
 
@@ -634,12 +653,11 @@ namespace MoldFeeder
                 hasRetryCountMax = false;
             }
 
+            radioFeederReady.Checked = feederReady;
             radioFeederRunning.Checked = feederRunning;
             radioFeederEMS.Checked = feederEMS;
 
-
             textFeederOperationTime.Text = feederOperationMs.ToString();
-           
         }
 
         private void button1_Click(object sender, EventArgs e)
