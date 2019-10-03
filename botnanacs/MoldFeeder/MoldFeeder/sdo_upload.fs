@@ -69,7 +69,7 @@ variable param-request-allowed
   ;
     
 \ 是否收到更新的命令    
-: wait-param-request? ( -- bool )
+: wait-param-request? ( -- t )
 	param-request-allowed @
     ;
 
@@ -85,12 +85,12 @@ variable param-request-allowed
     ;
 
 \ 以 param-index 判斷是否完成所有的參數 
-: upload-finished? ( -- bool )
+: upload-finished? ( -- t )
     param-index @ params-len >=
     ;
 
 \ 以 param-index 判斷是否未完成所有的參數 
-: upload-not-finished? ( -- bool )
+: upload-not-finished? ( -- t )
     upload-finished? not
     ;    
 
@@ -103,7 +103,7 @@ variable param-request-allowed
     ;
 
 \ 等待從站回應 SDO Request
-: wait-sdo-data? ( -- bool )
+: wait-sdo-data? ( -- t )
     waiting-requests? not
     ;    
     

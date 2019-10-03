@@ -53,7 +53,7 @@ variable feeder-settling-duration
     5000000 ff-system-ready-hl ff-hold!
 
 \ System Ready?
-: system-ready? ( -- bool )
+: system-ready? ( -- t )
     ff-system-ready-hl ff-triggered-uc?         \ system ready high-level trigger flip-flop 是否觸發?
 ;
 
@@ -100,7 +100,7 @@ variable tp-prev-position-2
 
 \ 讓供給機 SFC 緊急停止的旗標 
 variable feeder-ems-flag
-: feeder-ems-flag? ( -- bool )
+: feeder-ems-flag? ( -- t )
     feeder-ems-flag @
 ;
 
@@ -468,26 +468,26 @@ step feeder-end
 
 \ -------------------- transitions --------------------
 \ 初始化是否完成?
-: feeder-init-done? ( -- bool )
+: feeder-init-done? ( -- t )
     drive-device 2@ drive-tp@ tp-func @ =           \ 檢查 touch prob function 正確
 ;
 transition feeder-init-done?
 
 \ 是否開始流程?
-: feeder-accepted? ( -- bool )
+: feeder-accepted? ( -- t )
     feeder-accepted @
 ;
 transition feeder-accepted?
 
 \ 流程是否結束?
-: feeder-forth-done? ( -- bool )
+: feeder-forth-done? ( -- t )
     feeder-error @                                  \ 發生 error
     feeder-forth-step @ -1 = or                     \ 或 feeder-forth 完成
 ;
 transition feeder-forth-done?
 
 \ 輸出結果完成?
-: feeder-end-done? ( -- bool )
+: feeder-end-done? ( -- t )
     true
 ;
 transition feeder-end-done?
