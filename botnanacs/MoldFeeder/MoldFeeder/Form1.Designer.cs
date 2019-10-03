@@ -817,7 +817,7 @@
             this.groupSFC.Size = new System.Drawing.Size(308, 287);
             this.groupSFC.TabIndex = 11;
             this.groupSFC.TabStop = false;
-            this.groupSFC.Text = "SFC Control";
+            this.groupSFC.Text = "Feeder SFC Control";
             // 
             // label23
             // 
@@ -1059,7 +1059,7 @@
             this.groupBox6.Size = new System.Drawing.Size(308, 185);
             this.groupBox6.TabIndex = 12;
             this.groupBox6.TabStop = false;
-            this.groupBox6.Text = "SFC Status";
+            this.groupBox6.Text = "Feeder SFC Status";
             // 
             // label19
             // 

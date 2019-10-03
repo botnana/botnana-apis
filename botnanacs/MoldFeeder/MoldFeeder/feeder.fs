@@ -11,13 +11,13 @@ variable device-config-ok device-config-ok on
 ;
 
 \ 指定轉盤馬達驅動器的 channel 和 alias
-2variable drive-device drive-device 1 101 config-device
+2variable drive-device drive-device 1 102 config-device
 
 \ 指定控制氣壓缸的數位輸出的 channel 和 alias
-2variable cylinder-device cylinder-device 1 201 config-device
+2variable cylinder-device cylinder-device 13 301 config-device
 
 \ 定義運動軸的編號
-variable axis-index 1 axis-index !
+variable axis-index 2 axis-index !
 
 \ 定義 Touch Probe function
 variable tp-func $0033 tp-func !
@@ -62,7 +62,7 @@ variable feeder-rotation-distance
 : feeder-rotation-distance! ( d -- )
     feeder-rotation-distance !
 ;
-20000 feeder-rotation-distance!
+72000 feeder-rotation-distance!
 
 \ 設定旋轉盤用來尋找模具平邊的旋轉速度 [pulse/s] 除馬達的最高速度限制還要滿足觸發訊號維持 2 ms
 variable feeder-rotation-speed
@@ -334,25 +334,57 @@ step feeder-idle
                 then
             endof
 
+            \ 檢查是不是已經在平邊
+            6 of
+                axis-index @ feeder-rotation-speed @ s>f interpolator-v!
+                
+                drive-device 2@ drive-dins@ $1000000 and 0=     \ 在平邊上
+                if
+                    axis-index @ +interpolator
+                    axis-index @ axis-demand-p@ fdup 0e f> if -1.0e else 1.0e then
+                    feeder-rotation-distance @ s>f f* f+ axis-index @ axis-cmd-p!
+                    1 feeder-forth-step +!          \ 切換至下一步
+                else
+                    8 feeder-forth-step !           \ 切換至旋轉模具
+                then
+            endof
+
+            \ 等待離開平邊
+            7 of
+                drive-device 2@ drive-dins@ $1000000 and 0<>    \ 離開平邊了
+                if
+                    1 feeder-forth-step +!          \ 切換至下一步
+                else
+                    axis-index @ interpolator-reached?                          \ 若已到目標
+                    if
+                        feeder-retry-count @ feeder-retry-count-max @ <             \ 若 retry 次數未到
+                        if
+                            0 feeder-forth-step !                                       \ 重新嘗試
+                        else
+                            feeder-error on                                             \ 偵測失敗, 離開 feeder-forth
+                        then
+                    then
+                then
+            endof
+
             \ 旋轉模具
             \ 假如目前位置大於 0, 就往負向運動。反之就往正方向運動 (避免位置運算時溢位問題)
-            6 of
+            8 of
                 tp-detected-1 off
                 tp-detected-2 off
                 drive-device 2@ drive-rpdo1@ tp-prev-position-1 !
                 drive-device 2@ drive-rpdo2@ tp-prev-position-2 !
                 axis-index @ +interpolator
-                axis-index @ feeder-rotation-speed @ s>f interpolator-v!
-                axis-index @ axis-cmd-p@ fdup 0e f> if -1.0e else 1.0e then
+                axis-index @ axis-demand-p@ fdup 0e f> if -1.0e else 1.0e then
                 feeder-rotation-distance @ s>f f* f+ axis-index @ axis-cmd-p!
                 1 feeder-forth-step +!              \ 切換至下一步
             endof
 
             \ 偵測模具平邊
-            \ 以雷射光偵測，如果是平邊沒有遮擋到雷射光，就當做 ON
-            \ 所以偵測平邊一定是先 OFF -> ON -> OFF
+            \ 以雷射光偵測，如果是平邊沒有遮擋到雷射光，DIN 訊號會是 OFF
+            \ 所以偵測平邊一定是先 ON -> OFF -> ON
             \ 因為每次旋轉都會跟前一次的位置區間不同，所以直接比對 latched position, 如果不一樣表示有新的 latched position
-            7 of
+            9 of
                 tp-detected-1 @ not if                                      \ tp1 未完成
                     drive-device 2@ drive-rpdo1@ dup tp-detected-position-1 ! 
                     tp-prev-position-1 @ <> tp-detected-1 !                      \ 若位置有變化表示有觸發
@@ -380,14 +412,14 @@ step feeder-idle
             endof
 
             \ 定位至平邊
-            8 of
+            10 of
                 axis-index @ +interpolator
                 tp-detected-position-1 @ tp-detected-position-2 @ + 2 / s>f axis-index @ axis-cmd-p!
                 1 feeder-forth-step +!                                      \ 切換至下一步
             endof
 
             \ 等待定位至平邊
-            9 of
+            11 of
                 axis-index @ interpolator-reached?                          \ 若已到目標
                 if
                     axis-index @ -interpolator                                  \ 關閉插植器
@@ -397,7 +429,7 @@ step feeder-idle
             endof
 
             \ 等待馬達實際位置穩定
-            10 of
+            12 of
                 feeder-settling-timer timer-expired?                        \ 等待馬達實際位置穩定完成
                 if
                     -1 feeder-forth-step !                                      \ feeder-forth 完成
