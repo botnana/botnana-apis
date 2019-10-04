@@ -853,5 +853,15 @@ namespace MoldFeeder
                 buttonSdoRequest.Text = @"SDO Resume";
             }
         }
+
+        private void buttonJog_Click(object sender, EventArgs e)
+        {
+            bot.EvaluateScript(textJogTarget.Text + @"e " + textJogSpeed.Text + @"e feeder-jog");
+        }
+
+        private void buttonJogStop_Click(object sender, EventArgs e)
+        {
+            bot.EvaluateScript(@"feeder-jog-stop");
+        }
     }
 }

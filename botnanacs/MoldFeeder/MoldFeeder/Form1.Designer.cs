@@ -109,6 +109,7 @@
             this.label9 = new System.Windows.Forms.Label();
             this.textCylinderOnMs = new System.Windows.Forms.TextBox();
             this.groupBox6 = new System.Windows.Forms.GroupBox();
+            this.radioFeederReady = new System.Windows.Forms.RadioButton();
             this.label19 = new System.Windows.Forms.Label();
             this.textTPDetectedPosition2 = new System.Windows.Forms.TextBox();
             this.label18 = new System.Windows.Forms.Label();
@@ -122,7 +123,11 @@
             this.textFeederOperationTime = new System.Windows.Forms.TextBox();
             this.groupBox2 = new System.Windows.Forms.GroupBox();
             this.timer1s = new System.Windows.Forms.Timer(this.components);
-            this.radioFeederReady = new System.Windows.Forms.RadioButton();
+            this.label22 = new System.Windows.Forms.Label();
+            this.label24 = new System.Windows.Forms.Label();
+            this.textJogTarget = new System.Windows.Forms.TextBox();
+            this.buttonJog = new System.Windows.Forms.Button();
+            this.buttonJogStop = new System.Windows.Forms.Button();
             this.groupBox1.SuspendLayout();
             this.groupBox3.SuspendLayout();
             this.groupBox4.SuspendLayout();
@@ -190,7 +195,7 @@
             // 
             // buttonErrorAck
             // 
-            this.buttonErrorAck.Location = new System.Drawing.Point(14, 37);
+            this.buttonErrorAck.Location = new System.Drawing.Point(14, 24);
             this.buttonErrorAck.Name = "buttonErrorAck";
             this.buttonErrorAck.Size = new System.Drawing.Size(91, 30);
             this.buttonErrorAck.TabIndex = 0;
@@ -595,6 +600,11 @@
             // 
             // groupBox4
             // 
+            this.groupBox4.Controls.Add(this.buttonJogStop);
+            this.groupBox4.Controls.Add(this.buttonJog);
+            this.groupBox4.Controls.Add(this.label22);
+            this.groupBox4.Controls.Add(this.label24);
+            this.groupBox4.Controls.Add(this.textJogTarget);
             this.groupBox4.Controls.Add(this.label7);
             this.groupBox4.Controls.Add(this.label6);
             this.groupBox4.Controls.Add(this.textJogSpeed);
@@ -606,7 +616,7 @@
             this.groupBox4.Font = new System.Drawing.Font("新細明體", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(136)));
             this.groupBox4.Location = new System.Drawing.Point(499, 157);
             this.groupBox4.Name = "groupBox4";
-            this.groupBox4.Size = new System.Drawing.Size(314, 179);
+            this.groupBox4.Size = new System.Drawing.Size(314, 224);
             this.groupBox4.TabIndex = 3;
             this.groupBox4.TabStop = false;
             this.groupBox4.Text = "Drive Control";
@@ -614,7 +624,7 @@
             // label7
             // 
             this.label7.AutoSize = true;
-            this.label7.Location = new System.Drawing.Point(224, 136);
+            this.label7.Location = new System.Drawing.Point(224, 158);
             this.label7.Name = "label7";
             this.label7.Size = new System.Drawing.Size(51, 16);
             this.label7.TabIndex = 9;
@@ -623,7 +633,7 @@
             // label6
             // 
             this.label6.AutoSize = true;
-            this.label6.Location = new System.Drawing.Point(38, 136);
+            this.label6.Location = new System.Drawing.Point(38, 158);
             this.label6.Name = "label6";
             this.label6.Size = new System.Drawing.Size(72, 16);
             this.label6.TabIndex = 8;
@@ -631,7 +641,7 @@
             // 
             // textJogSpeed
             // 
-            this.textJogSpeed.Location = new System.Drawing.Point(116, 131);
+            this.textJogSpeed.Location = new System.Drawing.Point(116, 153);
             this.textJogSpeed.Name = "textJogSpeed";
             this.textJogSpeed.Size = new System.Drawing.Size(91, 27);
             this.textJogSpeed.TabIndex = 7;
@@ -640,7 +650,7 @@
             // 
             // buttonJogNegative
             // 
-            this.buttonJogNegative.Location = new System.Drawing.Point(116, 79);
+            this.buttonJogNegative.Location = new System.Drawing.Point(178, 110);
             this.buttonJogNegative.Name = "buttonJogNegative";
             this.buttonJogNegative.Size = new System.Drawing.Size(91, 30);
             this.buttonJogNegative.TabIndex = 6;
@@ -651,7 +661,7 @@
             // 
             // buttonJogPositive
             // 
-            this.buttonJogPositive.Location = new System.Drawing.Point(19, 79);
+            this.buttonJogPositive.Location = new System.Drawing.Point(178, 74);
             this.buttonJogPositive.Name = "buttonJogPositive";
             this.buttonJogPositive.Size = new System.Drawing.Size(91, 30);
             this.buttonJogPositive.TabIndex = 5;
@@ -694,7 +704,7 @@
             // button5
             // 
             this.button5.Font = new System.Drawing.Font("新細明體", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(136)));
-            this.button5.Location = new System.Drawing.Point(116, 37);
+            this.button5.Location = new System.Drawing.Point(116, 24);
             this.button5.Name = "button5";
             this.button5.Size = new System.Drawing.Size(91, 30);
             this.button5.TabIndex = 4;
@@ -704,7 +714,7 @@
             // 
             // button4
             // 
-            this.button4.Location = new System.Drawing.Point(213, 37);
+            this.button4.Location = new System.Drawing.Point(213, 24);
             this.button4.Name = "button4";
             this.button4.Size = new System.Drawing.Size(91, 30);
             this.button4.TabIndex = 3;
@@ -765,16 +775,16 @@
             this.groupSystem.Controls.Add(this.button4);
             this.groupSystem.Controls.Add(this.button5);
             this.groupSystem.Font = new System.Drawing.Font("新細明體", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(136)));
-            this.groupSystem.Location = new System.Drawing.Point(499, 344);
+            this.groupSystem.Location = new System.Drawing.Point(499, 387);
             this.groupSystem.Name = "groupSystem";
-            this.groupSystem.Size = new System.Drawing.Size(314, 146);
+            this.groupSystem.Size = new System.Drawing.Size(314, 103);
             this.groupSystem.TabIndex = 10;
             this.groupSystem.TabStop = false;
             this.groupSystem.Text = "System";
             // 
             // buttonEvaluate
             // 
-            this.buttonEvaluate.Location = new System.Drawing.Point(213, 84);
+            this.buttonEvaluate.Location = new System.Drawing.Point(213, 64);
             this.buttonEvaluate.Name = "buttonEvaluate";
             this.buttonEvaluate.Size = new System.Drawing.Size(91, 30);
             this.buttonEvaluate.TabIndex = 6;
@@ -784,7 +794,7 @@
             // 
             // textEvaluate
             // 
-            this.textEvaluate.Location = new System.Drawing.Point(12, 86);
+            this.textEvaluate.Location = new System.Drawing.Point(12, 66);
             this.textEvaluate.Name = "textEvaluate";
             this.textEvaluate.Size = new System.Drawing.Size(195, 27);
             this.textEvaluate.TabIndex = 5;
@@ -1063,6 +1073,19 @@
             this.groupBox6.TabStop = false;
             this.groupBox6.Text = "Feeder SFC Status";
             // 
+            // radioFeederReady
+            // 
+            this.radioFeederReady.AutoCheck = false;
+            this.radioFeederReady.AutoSize = true;
+            this.radioFeederReady.Location = new System.Drawing.Point(11, 25);
+            this.radioFeederReady.Name = "radioFeederReady";
+            this.radioFeederReady.RightToLeft = System.Windows.Forms.RightToLeft.Yes;
+            this.radioFeederReady.Size = new System.Drawing.Size(66, 20);
+            this.radioFeederReady.TabIndex = 24;
+            this.radioFeederReady.TabStop = true;
+            this.radioFeederReady.Text = "Ready";
+            this.radioFeederReady.UseVisualStyleBackColor = true;
+            // 
             // label19
             // 
             this.label19.AutoSize = true;
@@ -1201,18 +1224,52 @@
             this.timer1s.Interval = 1000;
             this.timer1s.Tick += new System.EventHandler(this.timer1s_Tick);
             // 
-            // radioFeederReady
+            // label22
             // 
-            this.radioFeederReady.AutoCheck = false;
-            this.radioFeederReady.AutoSize = true;
-            this.radioFeederReady.Location = new System.Drawing.Point(11, 25);
-            this.radioFeederReady.Name = "radioFeederReady";
-            this.radioFeederReady.RightToLeft = System.Windows.Forms.RightToLeft.Yes;
-            this.radioFeederReady.Size = new System.Drawing.Size(66, 20);
-            this.radioFeederReady.TabIndex = 24;
-            this.radioFeederReady.TabStop = true;
-            this.radioFeederReady.Text = "Ready";
-            this.radioFeederReady.UseVisualStyleBackColor = true;
+            this.label22.AutoSize = true;
+            this.label22.Location = new System.Drawing.Point(229, 191);
+            this.label22.Name = "label22";
+            this.label22.Size = new System.Drawing.Size(41, 16);
+            this.label22.TabIndex = 12;
+            this.label22.Text = "pulse";
+            // 
+            // label24
+            // 
+            this.label24.AutoSize = true;
+            this.label24.Location = new System.Drawing.Point(35, 191);
+            this.label24.Name = "label24";
+            this.label24.Size = new System.Drawing.Size(74, 16);
+            this.label24.TabIndex = 11;
+            this.label24.Text = "Jog Target";
+            // 
+            // textJogTarget
+            // 
+            this.textJogTarget.Location = new System.Drawing.Point(116, 186);
+            this.textJogTarget.Name = "textJogTarget";
+            this.textJogTarget.Size = new System.Drawing.Size(91, 27);
+            this.textJogTarget.TabIndex = 10;
+            this.textJogTarget.Text = "0";
+            this.textJogTarget.TextAlign = System.Windows.Forms.HorizontalAlignment.Right;
+            // 
+            // buttonJog
+            // 
+            this.buttonJog.Location = new System.Drawing.Point(50, 74);
+            this.buttonJog.Name = "buttonJog";
+            this.buttonJog.Size = new System.Drawing.Size(91, 30);
+            this.buttonJog.TabIndex = 13;
+            this.buttonJog.Text = "JOG";
+            this.buttonJog.UseVisualStyleBackColor = true;
+            this.buttonJog.Click += new System.EventHandler(this.buttonJog_Click);
+            // 
+            // buttonJogStop
+            // 
+            this.buttonJogStop.Location = new System.Drawing.Point(50, 110);
+            this.buttonJogStop.Name = "buttonJogStop";
+            this.buttonJogStop.Size = new System.Drawing.Size(91, 30);
+            this.buttonJogStop.TabIndex = 14;
+            this.buttonJogStop.Text = "Stop";
+            this.buttonJogStop.UseVisualStyleBackColor = true;
+            this.buttonJogStop.Click += new System.EventHandler(this.buttonJogStop_Click);
             // 
             // Form1
             // 
@@ -1344,6 +1401,11 @@
         private System.Windows.Forms.Label label23;
         private System.Windows.Forms.TextBox textBoxRetryCountMax;
         private System.Windows.Forms.RadioButton radioFeederReady;
+        private System.Windows.Forms.Button buttonJog;
+        private System.Windows.Forms.Label label22;
+        private System.Windows.Forms.Label label24;
+        private System.Windows.Forms.TextBox textJogTarget;
+        private System.Windows.Forms.Button buttonJogStop;
     }
 }
 
