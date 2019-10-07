@@ -19,6 +19,10 @@ namespace TorqueScope
     public partial class Form1 : Form
     {
         private Botnana bot;
+        private int torqueDriveSlave = 0;
+        private int torqueDriveChannel = 0;
+        private int torqueAxisNumber = 0;
+        private int torqueGroupNumber = 0;
 
         private const int QueueCapacity = 2000;
         private Queue<int> torqueQueue = new Queue<int>(QueueCapacity);
@@ -39,9 +43,12 @@ namespace TorqueScope
         private void OnWSOpenCallback(IntPtr dataPtr, string data)
         {
             wsState = 2;
+            // 送出 .user-para 命令，讓為回傳的訊息去觸發 OnUserParameterCallback
+            // 若重複執行從 32 開始，因為需要 .device-infos 取得周邊裝置的資訊
+            // .user-para 回應的訊息範例如下:
+            // user_parameter|0
+            bot.EvaluateScript(@"user-para@ 32 min user-para! .user-para");
         }
-
-        private bool hasUpdated = false;
 
         private int messageCount = 0;
         private HandleMessage onMessage;
@@ -74,138 +81,237 @@ namespace TorqueScope
             }
         }
 
-        private HandleMessage onRealTorque;
+        private HandleTagNameMessage onRealTorque;
         private Int32 realTorque;
-        private void OnRealTorqueCallback(IntPtr dataPtr, string str)
+        private void OnRealTorqueCallback(IntPtr dataPtr, UInt32 slv, UInt32 ch, string str)
         {
-            realTorque = Int32.Parse(str);
+            if (slv == torqueDriveSlave && ch == torqueDriveChannel)
+            {
+                realTorque = Int32.Parse(str);
+            }
         }
 
         // 取得 userParameter
         private HandleMessage onUserParameter;
+        private bool hasSFC = false;
         private void OnUserParameterCallback(IntPtr dataPtr, string str)
         {
             int para = Int32.Parse(str);
             switch (para)
             {
                 case 0:
-                    // 設定 user parameter 為 0x10
-                    // 如果此範例重新執行不會在載入以下 SFC
-                    //EvaluateScript("$10 user-para!");
+                    // 設定 user parameter 為 16
+                    // 如果此範例重新執行不會再載入以下 SFC
+                    bot.EvaluateScript("16 user-para!");
                     // 清除SFC 邏輯，載入 SFC 時會造成 real time cycle overrun，所以要暫時 ignore-overrun
-                    // 載入後再執行 `reset-overrun`
-                    bot.EvaluateScript("0sfc ignore-overrun");
-                    bot.EvaluateScript("-work marker -work");
-
-                    bot.LoadSFC(@"torque.sfc");
-                    bot.LoadSFC(@"demo.sfc");
-                    bot.EvaluateScript("marker -work");
-                    hasUpdated = true;
-                    // 等待 SFC 設置完成
-                    Thread.Sleep(100);
-                    bot.EvaluateScript("reset-overrun");
+                    //  載入後再執行 `reset-overrun`
+                    bot.EvaluateScript(@"0sfc ignore-overrun -work marker -work");
+                    bot.LoadSFC(@"config.fs");
+                    bot.LoadSFC(@"demo.fs");
+                    bot.LoadSFC(@"torque.fs");
+                    bot.LoadSFC(@"manager.fs");
+                    bot.EvaluateScript(@"marker -torque .user-para");
+                    //new Thread(() => System.Windows.Forms.MessageBox.Show("OnUserParameterCallback 0")).Start();
+                    break;
+                case 16:
+                    bot.EvaluateScript(@"reset-overrun 32 user-para! .user-para");
+                    //new Thread(() => System.Windows.Forms.MessageBox.Show("OnUserParameterCallback 16")).Start();
+                    break;
+                case 32:
+                    //new Thread(() => System.Windows.Forms.MessageBox.Show("OnUserParameterCallback 32")).Start();
+                    bot.EvaluateScript(@".device-infos .ec-links 64 user-para! .user-para");
+                    break;
+                case 64:
+                    //new Thread(() => System.Windows.Forms.MessageBox.Show("OnUserParameterCallback 64")).Start();
+                    string cmd = null;
+                    // +coordinator : 啟動軸組控制的功能
+                    cmd += @"+coordinator ";
+                    if (torqueDriveSlave != 0)
+                    {
+                        // 1 .slave 回應的訊息範例如下:
+                        // vendor.1|0x000001DD|product.1|0x10305070|description.1||ec_alias.1|0|slave_state.1|0x23
+                        // |device_type.1|0x04020192|profile_deceleration.1.1|100000|profile_acceleration.1.1|100000
+                        // |profile_velocity.1.1|50000|operation_mode.1.1|6|home_offset.1.1|0|homing_method.1.1|35
+                        // |homing_speed_1.1.1|10000|homing_speed_2.1.1|1000|homing_acceleration.1.1|50000
+                        // |supported_drive_mode.1.1|0x000003ED|target_velocity.1.1|0|drive_polarity.1.1|0x00
+                        // |min_position_limit.1.1|-2147483648|max_position_limit.1.1|2147483647|target_torque.1.1|0
+                        // |torque_slope.1.1|200|max_motor_speed.1.1|5000|drive_homed.1.1|0|drive_douts.1.1|0
+                        // |drive_douts_mask.1.1|0|control_word.1.1|0x0000|target_position.1.1|0|status_word.1.1|0x0250
+                        // |real_position.1.1|0|digital_inputs.1.1|0x00000004|real_torque.1.1|0|pds_state.1.1|Switch On Disabled
+                        // |pds_goal.1.1|Switch On Disabled
+                        cmd += torqueDriveSlave.ToString() + @" .slave ";
+                    }
+                    if (torqueAxisNumber != 0)
+                    {
+                        // "1 .axiscfg" 回應的訊息範例如下:
+                        //  axis_name.1|A2|axis_home_offset.1|0.0000000|encoder_length_unit.1|Meter
+                        // |encoder_ppu.1|1000000.00000|encoder_direction.1|1|ext_encoder_ppu.1|60000.00000
+                        // |ext_encoder_direction.1|-1|closed_loop_filter.1|15.0|max_position_deviation.1|0.001000
+                        // |drive_alias.1 |0|drive_slave_position.1|1|drive_channel.1|1|ext_encoder_alias.1|0
+                        // |ext_encoder_slave_position.1|0|ext_encoder_channel.1|0|axis_amax.1|5.00000
+                        // |axis_vmax.1|0.10000|axis_vff.1|0.00|axis_vfactor.1|1.00000|axis_aff.1|0.00
+                        // |axis_afactor.1|1.00000
+                        // 其中 encoder_length_unit 是設定 Encoder 解析度的單位距離
+                        //      encoder_ppu 是設定 Encoder 單位距離有幾個脈波數
+                        //      axis_vmax 是運動軸的最大速度 [m/s]
+                        //      axis_amax 是運動軸的最大加速度 [m/s^2]
+                        //      drive_alias, drive_slave_position, drive_channel 用來指定對應的驅動器，
+                        //      如果 drive_alias > 0 就採用  drive_alias 與 drive_channel，
+                        //      如果 drive_alias == 0 就採用 drive_slave_position 與 drive_channel，
+                        //      如果沒有對應的驅動器，該運動軸及為虛擬軸
+                        cmd += torqueAxisNumber.ToString() + @" .axiscfg ";
+                    }
+                    if (torqueGroupNumber != 0)
+                    {
+                        // "1 .grpcfg" 回應的訊息範例如下:
+                        // group_name.1|G1X|group_type.1|1D|group_mapping.1|1|group_vmax.1|0.05000
+                        // |group_amax.1|2.00000|group_jmax.1|40.00000
+                        // 其中 group_type 是設定軸組型態
+                        //      group_mapping 是設定軸組會使用哪幾個運動軸
+                        //      group_vmax 是運動軸的最加速度 [m/s]
+                        //      group_amax 是運動軸的最大加速度 [m/s^2]
+                        //      group_jmax 是運動軸的最大加加速度 [m/s^3]
+                        cmd += torqueGroupNumber.ToString() + @" .grpcfg ";
+                    }
+                    bot.EvaluateScript(cmd);
+                    hasSFC = true;
                     break;
                 default:
                     break;
             }
-
         }
 
-        private HandleMessage onRealPosition;
+        private HandleTagNameMessage onRealPosition;
         private int realPosition;
-        private void OnRealPositionCallback(IntPtr dataPtr, string str)
+        private void OnRealPositionCallback(IntPtr dataPtr, UInt32 slv, UInt32 ch, string str)
         {
-            realPosition = int.Parse(str);
-        }
-
-        private HandleMessage onDigitalInputs;
-        private int digitalInputs;
-        private void OnDigitalInputsCallback(IntPtr dataPtr, string str)
-        {
-            digitalInputs = Convert.ToInt32(str, 16);
-        }
-
-        private HandleMessage onTargetPosition;
-        private int targetPosition;
-        private void OnTargetPositionCallback(IntPtr dataPtr, string str)
-        {
-            targetPosition = int.Parse(str);
-        }
-
-        private HandleMessage onPDSState;
-        private string pdsState = "--";
-        private void OnPDSStateCallback(IntPtr dataPtr, string str)
-        {
-            pdsState = str;
-        }
-
-        private HandleMessage onDriveStatus;
-        private string driveStatus = "--";
-        private void OnDriveStatusCallback(IntPtr dataPtr, string str)
-        {
-            driveStatus = str;
-        }
-
-        private HandleMessage onOperationMode;
-        private string operationMode = "--";
-        private void OnOperationModeCallback(IntPtr dataPtr, string str)
-        {
-            switch (str)
+            if (slv == torqueDriveSlave && ch == torqueDriveChannel)
             {
-                case "1":
-                    operationMode = "PP";
-                    break;
-                case "6":
-                    operationMode = "HM";
-                    break;
-                case "8":
-                    operationMode = "CSP";
-                    break;
-                default:
-                    break;
+                realPosition = int.Parse(str);
             }
         }
 
-        private HandleMessage onHomingMethod;
+        private HandleTagNameMessage onDigitalInputs;
+        private int digitalInputs;
+        private void OnDigitalInputsCallback(IntPtr dataPtr, UInt32 slv, UInt32 ch, string str)
+        {
+            if (slv == torqueDriveSlave && ch == torqueDriveChannel)
+            {
+                digitalInputs = Convert.ToInt32(str, 16);
+            }
+        }
+
+        private HandleTagNameMessage onTargetPosition;
+        private int targetPosition;
+        private void OnTargetPositionCallback(IntPtr dataPtr, UInt32 slv, UInt32 ch, string str)
+        {
+            if (slv == torqueDriveSlave && ch == torqueDriveChannel)
+            {
+                targetPosition = int.Parse(str);
+            }
+        }
+
+        private HandleTagNameMessage onPDSState;
+        private string pdsState = "--";
+        private void OnPDSStateCallback(IntPtr dataPtr, UInt32 slv, UInt32 ch, string str)
+        {
+            if (slv == torqueDriveSlave && ch == torqueDriveChannel)
+            {
+                pdsState = str;
+            }
+        }
+
+        private HandleTagNameMessage onDriveStatus;
+        private string driveStatus = "--";
+        private void OnDriveStatusCallback(IntPtr dataPtr, UInt32 slv, UInt32 ch, string str)
+        {
+            if (slv == torqueDriveSlave && ch == torqueDriveChannel)
+            {
+                driveStatus = str;
+            }
+        }
+
+        private HandleTagNameMessage onOperationMode;
+        private string operationMode = "--";
+        private void OnOperationModeCallback(IntPtr dataPtr, UInt32 slv, UInt32 ch, string str)
+        {
+            if (slv == torqueDriveSlave && ch == torqueDriveChannel)
+            {
+                switch (str)
+                {
+                    case "1":
+                        operationMode = "PP";
+                        break;
+                    case "6":
+                        operationMode = "HM";
+                        break;
+                    case "8":
+                        operationMode = "CSP";
+                        break;
+                    default:
+                        break;
+                }
+            }
+        }
+
+        private HandleTagNameMessage onHomingMethod;
         private int homingMethod = 0;
-        private void OnHomingMethodCallback(IntPtr dataPtr, string str)
+        private void OnHomingMethodCallback(IntPtr dataPtr, UInt32 slv, UInt32 ch, string str)
         {
-            homingMethod = int.Parse(str);
+            if (slv == torqueDriveSlave && ch == torqueDriveChannel)
+            {
+                homingMethod = int.Parse(str);
+            }
         }
 
-        private HandleMessage onHomingSpeed1;
+        private HandleTagNameMessage onHomingSpeed1;
         private int homingSpeed1;
-        private void OnHomingSpeed1Callback(IntPtr dataPtr, string str)
+        private void OnHomingSpeed1Callback(IntPtr dataPtr, UInt32 slv, UInt32 ch, string str)
         {
-            homingSpeed1 = int.Parse(str);
+            if (slv == torqueDriveSlave && ch == torqueDriveChannel)
+            {
+                homingSpeed1 = int.Parse(str);
+            }
         }
 
-        private HandleMessage onHomingSpeed2;
+        private HandleTagNameMessage onHomingSpeed2;
         private int homingSpeed2;
-        private void OnHomingSpeed2Callback(IntPtr dataPtr, string str)
+        private void OnHomingSpeed2Callback(IntPtr dataPtr, UInt32 slv, UInt32 ch, string str)
         {
-            homingSpeed2 = int.Parse(str);
+            if (slv == torqueDriveSlave && ch == torqueDriveChannel)
+            {
+                homingSpeed2 = int.Parse(str);
+            }
         }
 
-        private HandleMessage onHomingAcc;
+        private HandleTagNameMessage onHomingAcc;
         private int homingAcc;
-        private void OnHomingAccCallback(IntPtr dataPtr, string str)
+        private void OnHomingAccCallback(IntPtr dataPtr, UInt32 slv, UInt32 ch, string str)
         {
-            homingAcc = int.Parse(str);
+            if (slv == torqueDriveSlave && ch == torqueDriveChannel)
+            {
+                homingAcc = int.Parse(str);
+            }
         }
 
-        private HandleMessage onProfileVelocity;
+        private HandleTagNameMessage onProfileVelocity;
         private int profileVelocity;
-        private void OnProfileVelocityCallback(IntPtr dataPtr, string str)
+        private void OnProfileVelocityCallback(IntPtr dataPtr, UInt32 slv, UInt32 ch, string str)
         {
-            profileVelocity = int.Parse(str);
+            if (slv == torqueDriveSlave && ch == torqueDriveChannel)
+            {
+                profileVelocity = int.Parse(str);
+            }
         }
 
-        private HandleMessage onProfileAcc;
+        private HandleTagNameMessage onProfileAcc;
         private int profileAcc;
-        private void OnProfileAccCallback(IntPtr dataPtr, string str)
+        private void OnProfileAccCallback(IntPtr dataPtr, UInt32 slv, UInt32 ch, string str)
         {
-            profileAcc = int.Parse(str);
+            if (slv == torqueDriveSlave && ch == torqueDriveChannel)
+            {
+                profileAcc = int.Parse(str);
+            }
         }
 
         private int slavesCount = 0;
@@ -230,23 +336,29 @@ namespace TorqueScope
         }
 
         private HandleMessage onErrorMessage;
-        public void OnErrorMessageCallback(IntPtr dataPtr, string data)
+        private void OnErrorMessageCallback(IntPtr dataPtr, string data)
         {
             new Thread(() => System.Windows.Forms.MessageBox.Show("Error|" + data)).Start();
         }
 
-        private HandleMessage onAxisPosition;
+        private HandleTagNameMessage onAxisPosition;
         private double axisPosition;
-        public void OnAxisPositionCallback(IntPtr dataPtr, string str)
+        private void OnAxisPositionCallback(IntPtr dataPtr, UInt32 n, UInt32 _, string str)
         {
-            axisPosition = double.Parse(str) * 1000.0;
+            if (n == torqueAxisNumber)
+            {
+                axisPosition = double.Parse(str) * 1000.0;
+            }
         }
 
-        private HandleMessage onFeedbackPosition;
+        private HandleTagNameMessage onFeedbackPosition;
         private double feedbackPosition;
-        private void OnFeedbackPositionCallback(IntPtr dataPtr, string str)
+        private void OnFeedbackPositionCallback(IntPtr dataPtr, UInt32 n, UInt32 _, string str)
         {
-            feedbackPosition = double.Parse(str) * 1000.0;
+            if (n == torqueAxisNumber)
+            {
+                feedbackPosition = double.Parse(str) * 1000.0;
+            }
         }
 
         private double FollowingError()
@@ -254,95 +366,148 @@ namespace TorqueScope
             return axisPosition - feedbackPosition;
         }
 
-        private HandleMessage onEncoderLengthUnit;
+        private HandleTagNameMessage onEncoderLengthUnit;
         private string encoderLengthUnit = "m";
-        public void OnEncoderLengthUnitCallback(IntPtr dataPtr, string str)
+        private void OnEncoderLengthUnitCallback(IntPtr dataPtr, UInt32 n, UInt32 _, string str)
         {
-            encoderLengthUnit = str;
+            if (n == torqueAxisNumber)
+            {
+                encoderLengthUnit = str;
+            }
         }
 
-        private HandleMessage onEncoderPPU;
+        private HandleTagNameMessage onEncoderPPU;
         private double encoderPPU = 0.0;
-        public void OnEncoderPPUCallback(IntPtr dataPtr, string str)
+        private void OnEncoderPPUCallback(IntPtr dataPtr, UInt32 n, UInt32 _, string str)
         {
-            encoderPPU = double.Parse(str);
+            if (n == torqueAxisNumber)
+            {
+                encoderPPU = double.Parse(str);
+            }
         }
 
-        private HandleMessage onDriveAlias;
+        private HandleTagNameMessage onDriveAlias;
         private int driveAlias;
-        public void OnDriveAliasCallback(IntPtr dataPtr, string str)
+        private void OnDriveAliasCallback(IntPtr dataPtr, UInt32 n, UInt32 _, string str)
         {
-            driveAlias = int.Parse(str);
+            if (n == torqueAxisNumber)
+            {
+                driveAlias = int.Parse(str);
+            }
         }
 
-        private HandleMessage onDriveSlavePosition;
+        private HandleTagNameMessage onDriveSlavePosition;
         private int driveSlavePosition;
-        public void OnDriveSlavePositionCallback(IntPtr dataPtr, string str)
+        private void OnDriveSlavePositionCallback(IntPtr dataPtr, UInt32 n, UInt32 _, string str)
         {
-            driveSlavePosition = int.Parse(str);
+            if (n == torqueAxisNumber)
+            {
+                driveSlavePosition = int.Parse(str);
+            }
         }
 
-        private HandleMessage onDriveChannel;
+        private HandleTagNameMessage onDriveChannel;
         private int driveChannel;
-        public void OnDriveChannelCallback(IntPtr dataPtr, string str)
+        private void OnDriveChannelCallback(IntPtr dataPtr, UInt32 n, UInt32 _, string str)
         {
-            driveChannel = int.Parse(str);
+            if (n == torqueAxisNumber)
+            {
+                driveChannel = int.Parse(str);
+            }
         }
 
-        private HandleMessage onAxisVmax;
+        private HandleTagNameMessage onAxisVmax;
         private double axisVmax = 0.0;
-        public void OnAxisVmaxCallback(IntPtr dataPtr, string str)
+        private void OnAxisVmaxCallback(IntPtr dataPtr, UInt32 n, UInt32 _, string str)
         {
-            axisVmax = double.Parse(str) * 1000.0 * 60.0;
+            if (n == torqueAxisNumber)
+            {
+                axisVmax = double.Parse(str) * 1000.0 * 60.0;
+            }
         }
 
-        private HandleMessage onAxisAmax;
+        private HandleTagNameMessage onAxisAmax;
         private double axisAmax = 0.0;
-        public void OnAxisAmaxCallback(IntPtr dataPtr, string str)
+        private void OnAxisAmaxCallback(IntPtr dataPtr, UInt32 n, UInt32 _, string str)
         {
-            axisAmax = double.Parse(str);
+            if (n == torqueAxisNumber)
+            {
+                axisAmax = double.Parse(str);
+            }
         }
 
-        private HandleMessage onGroupType;
+        private HandleTagNameMessage onGroupType;
         private string groupType = "--";
-        public void OnGroupTypeCallback(IntPtr dataPtr, string str)
+        private void OnGroupTypeCallback(IntPtr dataPtr, UInt32 n, UInt32 _, string str)
         {
-            groupType = str;
+            if (n == torqueGroupNumber)
+            {
+                groupType = str;
+            }
         }
 
-        private HandleMessage onGroupMapping;
+        private HandleTagNameMessage onGroupMapping;
         private string groupMapping = "--";
-        public void OnGroupMappingCallback(IntPtr dataPtr, string str)
+        private void OnGroupMappingCallback(IntPtr dataPtr, UInt32 n, UInt32 _, string str)
         {
-            groupMapping = str;
+            if (n == torqueGroupNumber)
+            {
+                groupMapping = str;
+            }
         }
 
 
-        private HandleMessage onGroupVmax;
+        private HandleTagNameMessage onGroupVmax;
         private double groupVmax = 0.0;
-        public void OnGroupVmaxCallback(IntPtr dataPtr, string str)
+        private void OnGroupVmaxCallback(IntPtr dataPtr, UInt32 n, UInt32 _, string str)
         {
-            groupVmax = double.Parse(str) * 1000.0 * 60.0;
+            if (n == torqueGroupNumber)
+            {
+                groupVmax = double.Parse(str) * 1000.0 * 60.0;
+            }
         }
 
-        private HandleMessage onGroupAmax;
+        private HandleTagNameMessage onGroupAmax;
         private double groupAmax = 0.0;
-        public void OnGroupAmaxCallback(IntPtr dataPtr, string str)
+        private void OnGroupAmaxCallback(IntPtr dataPtr, UInt32 n, UInt32 _, string str)
         {
-            groupAmax = double.Parse(str);
+            if (n == torqueGroupNumber)
+            {
+                groupAmax = double.Parse(str);
+            }
         }
 
-        private HandleMessage onGroupJmax;
+        private HandleTagNameMessage onGroupJmax;
         private double groupJmax = 0.0;
-        public void OnGroupJmaxCallback(IntPtr dataPtr, string str)
+        private void OnGroupJmaxCallback(IntPtr dataPtr, UInt32 n, UInt32 _, string str)
         {
-            groupJmax = double.Parse(str);
+            if (n == torqueGroupNumber)
+            {
+                groupJmax = double.Parse(str);
+            }
         }
 
         private HandleMessage onTravelTime;
-        public void OnTravelTimeCallback(IntPtr dataPtr, string str)
+        private void OnTravelTimeCallback(IntPtr dataPtr, string str)
         {
             new Thread(() => System.Windows.Forms.MessageBox.Show("TravelTime|" + str)).Start();
+        }
+
+        private HandleMessage onDeviceInfos;
+        private void OnDeviceInfos(IntPtr dataPtr, string str)
+        {
+            string[] values = str.Split('.');
+            torqueDriveSlave = int.Parse(values[0]);
+            torqueDriveChannel = int.Parse(values[1]);
+            torqueAxisNumber = int.Parse(values[2]);
+            torqueGroupNumber = int.Parse(values[3]);
+        }
+
+        private HandleMessage onSystemReady;
+        private Boolean systemReady = false;
+        private void OnSystemReady(IntPtr dataPtr, string str)
+        {
+            systemReady = (int.Parse(str) != 0);
         }
 
         public Form1()
@@ -374,67 +539,68 @@ namespace TorqueScope
             bot.SetTagCB(@"al_states", 0, IntPtr.Zero, onSlavesState);
             onWaitingSDOs = new HandleMessage(OnWaitingSDOsCallback);
             bot.SetTagCB(@"waiting_sdos_len", 0, IntPtr.Zero, onWaitingSDOs);
-            onPDSState = new HandleMessage(OnPDSStateCallback);
-            bot.SetTagCB(@"pds_state.1.1", 0, IntPtr.Zero, onPDSState);
-            onDriveStatus = new HandleMessage(OnDriveStatusCallback);
-            bot.SetTagCB(@"status_word.1.1", 0, IntPtr.Zero, onDriveStatus);
-            onOperationMode = new HandleMessage(OnOperationModeCallback);
-            bot.SetTagCB(@"operation_mode.1.1", 0, IntPtr.Zero, onOperationMode);
-            onHomingMethod = new HandleMessage(OnHomingMethodCallback);
-            bot.SetTagCB(@"homing_method.1.1", 0, IntPtr.Zero, onHomingMethod);
-            onHomingSpeed1 = new HandleMessage(OnHomingSpeed1Callback);
-            bot.SetTagCB(@"homing_speed_1.1.1", 0, IntPtr.Zero, onHomingSpeed1);
-            onHomingSpeed2 = new HandleMessage(OnHomingSpeed2Callback);
-            bot.SetTagCB(@"homing_speed_2.1.1", 0, IntPtr.Zero, onHomingSpeed2);
-            onHomingAcc = new HandleMessage(OnHomingAccCallback);
-            bot.SetTagCB(@"homing_acceleration.1.1", 0, IntPtr.Zero, onHomingAcc);
-            onProfileVelocity = new HandleMessage(OnProfileVelocityCallback);
-            bot.SetTagCB(@"profile_velocity.1.1", 0, IntPtr.Zero, onProfileVelocity);
-            onProfileAcc = new HandleMessage(OnProfileAccCallback);
-            bot.SetTagCB(@"profile_acceleration.1.1", 0, IntPtr.Zero, onProfileAcc);
-            onRealPosition = new HandleMessage(OnRealPositionCallback);
-            bot.SetTagCB(@"real_position.1.1", 0, IntPtr.Zero, onRealPosition);
-            onRealTorque = new HandleMessage(OnRealTorqueCallback);
-            bot.SetTagCB(@"real_torque.1.1", 0, IntPtr.Zero, onRealTorque);
-            onDigitalInputs = new HandleMessage(OnDigitalInputsCallback);
-            bot.SetTagCB("digital_inputs.1.1", 0, IntPtr.Zero, onDigitalInputs);
-            onTargetPosition = new HandleMessage(OnTargetPositionCallback);
-            bot.SetTagCB(@"target_position.1.1", 0, IntPtr.Zero, onTargetPosition);
+            onPDSState = new HandleTagNameMessage(OnPDSStateCallback);
+            bot.SetTagNameCB(@"pds_state", 0, IntPtr.Zero, onPDSState);
+            onDriveStatus = new HandleTagNameMessage(OnDriveStatusCallback);
+            bot.SetTagNameCB(@"status_word", 0, IntPtr.Zero, onDriveStatus);
+            onOperationMode = new HandleTagNameMessage(OnOperationModeCallback);
+            bot.SetTagNameCB(@"operation_mode", 0, IntPtr.Zero, onOperationMode);
+            onHomingMethod = new HandleTagNameMessage(OnHomingMethodCallback);
+            bot.SetTagNameCB(@"homing_method", 0, IntPtr.Zero, onHomingMethod);
+            onHomingSpeed1 = new HandleTagNameMessage(OnHomingSpeed1Callback);
+            bot.SetTagNameCB(@"homing_speed_1", 0, IntPtr.Zero, onHomingSpeed1);
+            onHomingSpeed2 = new HandleTagNameMessage(OnHomingSpeed2Callback);
+            bot.SetTagNameCB(@"homing_speed_2", 0, IntPtr.Zero, onHomingSpeed2);
+            onHomingAcc = new HandleTagNameMessage(OnHomingAccCallback);
+            bot.SetTagNameCB(@"homing_acceleration", 0, IntPtr.Zero, onHomingAcc);
+            onProfileVelocity = new HandleTagNameMessage(OnProfileVelocityCallback);
+            bot.SetTagNameCB(@"profile_velocity", 0, IntPtr.Zero, onProfileVelocity);
+            onProfileAcc = new HandleTagNameMessage(OnProfileAccCallback);
+            bot.SetTagNameCB(@"profile_acceleration", 0, IntPtr.Zero, onProfileAcc);
+            onRealPosition = new HandleTagNameMessage(OnRealPositionCallback);
+            bot.SetTagNameCB(@"real_position", 0, IntPtr.Zero, onRealPosition);
+            onRealTorque = new HandleTagNameMessage(OnRealTorqueCallback);
+            bot.SetTagNameCB(@"real_torque", 0, IntPtr.Zero, onRealTorque);
+            onDigitalInputs = new HandleTagNameMessage(OnDigitalInputsCallback);
+            bot.SetTagNameCB("digital_inputs", 0, IntPtr.Zero, onDigitalInputs);
+            onTargetPosition = new HandleTagNameMessage(OnTargetPositionCallback);
+            bot.SetTagNameCB(@"target_position", 0, IntPtr.Zero, onTargetPosition);
             onErrorMessage = new HandleMessage(OnErrorMessageCallback);
             bot.SetTagCB(@"error", 0, IntPtr.Zero, onErrorMessage);
-            onAxisPosition = new HandleMessage(OnAxisPositionCallback);
-            bot.SetTagCB(@"axis_demand_position.1", 0, IntPtr.Zero, onAxisPosition);
-            onFeedbackPosition = new HandleMessage(OnFeedbackPositionCallback);
-            bot.SetTagCB(@"feedback_position.1", 0, IntPtr.Zero, onFeedbackPosition);
-            onEncoderLengthUnit = new HandleMessage(OnEncoderLengthUnitCallback);
-            bot.SetTagCB(@"encoder_length_unit.1", 0, IntPtr.Zero, onEncoderLengthUnit);
-            onEncoderPPU = new HandleMessage(OnEncoderPPUCallback);
-            bot.SetTagCB(@"encoder_ppu.1", 0, IntPtr.Zero, onEncoderPPU);
-            onDriveAlias = new HandleMessage(OnDriveAliasCallback);
-            bot.SetTagCB(@"drive_alias.1", 0, IntPtr.Zero, onDriveAlias);
-            onDriveSlavePosition = new HandleMessage(OnDriveSlavePositionCallback);
-            bot.SetTagCB(@"drive_slave_position.1", 0, IntPtr.Zero, onDriveSlavePosition);
-            onDriveChannel = new HandleMessage(OnDriveChannelCallback);
-            bot.SetTagCB(@"drive_channel.1", 0, IntPtr.Zero, onDriveChannel);
-            onAxisVmax = new HandleMessage(OnAxisVmaxCallback);
-            bot.SetTagCB(@"axis_vmax.1", 0, IntPtr.Zero, onAxisVmax);
-            onAxisAmax = new HandleMessage(OnAxisAmaxCallback);
-            bot.SetTagCB(@"axis_amax.1", 0, IntPtr.Zero, onAxisAmax);
-            onGroupType = new HandleMessage(OnGroupTypeCallback);
-            bot.SetTagCB(@"group_type.1", 0, IntPtr.Zero, onGroupType);
-            onGroupMapping = new HandleMessage(OnGroupMappingCallback);
-            bot.SetTagCB(@"group_mapping.1", 0, IntPtr.Zero, onGroupMapping);
-            onGroupVmax = new HandleMessage(OnGroupVmaxCallback);
-            bot.SetTagCB(@"group_vmax.1", 0, IntPtr.Zero, onGroupVmax);
-            onGroupAmax = new HandleMessage(OnGroupAmaxCallback);
-            bot.SetTagCB(@"group_amax.1", 0, IntPtr.Zero, onGroupAmax);
-            onGroupJmax = new HandleMessage(OnGroupJmaxCallback);
-            bot.SetTagCB(@"group_jmax.1", 0, IntPtr.Zero, onGroupJmax);
+            onAxisPosition = new HandleTagNameMessage(OnAxisPositionCallback);
+            bot.SetTagNameCB(@"axis_demand_position", 0, IntPtr.Zero, onAxisPosition);
+            onFeedbackPosition = new HandleTagNameMessage(OnFeedbackPositionCallback);
+            bot.SetTagNameCB(@"feedback_position", 0, IntPtr.Zero, onFeedbackPosition);
+            onEncoderLengthUnit = new HandleTagNameMessage(OnEncoderLengthUnitCallback);
+            bot.SetTagNameCB(@"encoder_length_unit", 0, IntPtr.Zero, onEncoderLengthUnit);
+            onEncoderPPU = new HandleTagNameMessage(OnEncoderPPUCallback);
+            bot.SetTagNameCB(@"encoder_ppu", 0, IntPtr.Zero, onEncoderPPU);
+            onDriveAlias = new HandleTagNameMessage(OnDriveAliasCallback);
+            bot.SetTagNameCB(@"drive_alias", 0, IntPtr.Zero, onDriveAlias);
+            onDriveSlavePosition = new HandleTagNameMessage(OnDriveSlavePositionCallback);
+            bot.SetTagNameCB(@"drive_slave_position", 0, IntPtr.Zero, onDriveSlavePosition);
+            onDriveChannel = new HandleTagNameMessage(OnDriveChannelCallback);
+            bot.SetTagNameCB(@"drive_channel", 0, IntPtr.Zero, onDriveChannel);
+            onAxisVmax = new HandleTagNameMessage(OnAxisVmaxCallback);
+            bot.SetTagNameCB(@"axis_vmax", 0, IntPtr.Zero, onAxisVmax);
+            onAxisAmax = new HandleTagNameMessage(OnAxisAmaxCallback);
+            bot.SetTagNameCB(@"axis_amax", 0, IntPtr.Zero, onAxisAmax);
+            onGroupType = new HandleTagNameMessage(OnGroupTypeCallback);
+            bot.SetTagNameCB(@"group_type", 0, IntPtr.Zero, onGroupType);
+            onGroupMapping = new HandleTagNameMessage(OnGroupMappingCallback);
+            bot.SetTagNameCB(@"group_mapping", 0, IntPtr.Zero, onGroupMapping);
+            onGroupVmax = new HandleTagNameMessage(OnGroupVmaxCallback);
+            bot.SetTagNameCB(@"group_vmax", 0, IntPtr.Zero, onGroupVmax);
+            onGroupAmax = new HandleTagNameMessage(OnGroupAmaxCallback);
+            bot.SetTagNameCB(@"group_amax", 0, IntPtr.Zero, onGroupAmax);
+            onGroupJmax = new HandleTagNameMessage(OnGroupJmaxCallback);
+            bot.SetTagNameCB(@"group_jmax", 0, IntPtr.Zero, onGroupJmax);
             onTravelTime = new HandleMessage(OnTravelTimeCallback);
             bot.SetTagCB(@"travel_time", 0, IntPtr.Zero, onTravelTime);
-
-            bot.Connect();
-            wsState = 1;
+            onDeviceInfos = new HandleMessage(OnDeviceInfos);
+            bot.SetTagCB(@"device_infos", 1, IntPtr.Zero, onDeviceInfos);
+            onSystemReady = new HandleMessage(OnSystemReady);
+            bot.SetTagCB(@"system_ready", 0, IntPtr.Zero, onSystemReady);
 
             chartTorque.ChartAreas[0].AxisX.Minimum = 0;
             chartTorque.ChartAreas[0].AxisX.Maximum = QueueCapacity;
@@ -448,8 +614,6 @@ namespace TorqueScope
             torqueThread.IsBackground = true;
             torqueThread.Start();
         }
-
-        private bool has_slave_info = false;
 
         private void timer1_Tick(object sender, EventArgs e)
         {
@@ -477,73 +641,22 @@ namespace TorqueScope
             {
                 textFollowingError.ForeColor = Color.Red;
             }
-
-            if (slavesCount > 0 && slavesState == 8)
+            if (torqueDriveSlave != 0)
             {
-                if (has_slave_info)
-                {
-                    bot.EvaluateScript("1 .slave-diff");
-                }
-                else
-                {
-                    // 1 .slave 回應的訊息範例如下:
-                    // vendor.1|0x000001DD|product.1|0x10305070|description.1||ec_alias.1|0|slave_state.1|0x23
-                    // |device_type.1|0x04020192|profile_deceleration.1.1|100000|profile_acceleration.1.1|100000
-                    // |profile_velocity.1.1|50000|operation_mode.1.1|6|home_offset.1.1|0|homing_method.1.1|35
-                    // |homing_speed_1.1.1|10000|homing_speed_2.1.1|1000|homing_acceleration.1.1|50000
-                    // |supported_drive_mode.1.1|0x000003ED|target_velocity.1.1|0|drive_polarity.1.1|0x00
-                    // |min_position_limit.1.1|-2147483648|max_position_limit.1.1|2147483647|target_torque.1.1|0
-                    // |torque_slope.1.1|200|max_motor_speed.1.1|5000|drive_homed.1.1|0|drive_douts.1.1|0
-                    // |drive_douts_mask.1.1|0|control_word.1.1|0x0000|target_position.1.1|0|status_word.1.1|0x0250
-                    // |real_position.1.1|0|digital_inputs.1.1|0x00000004|real_torque.1.1|0|pds_state.1.1|Switch On Disabled
-                    // |pds_goal.1.1|Switch On Disabled
-                    bot.EvaluateScript("1 .slave");
-                    has_slave_info = true;
-                }
+                // 回傳有差異的參數
+                bot.EvaluateScript(torqueDriveSlave.ToString() + @" .slave-diff");
             }
-            if (!hasUpdated)
+            if (torqueAxisNumber != 0)
             {
-                // .user-para 回應的訊息範例如下:
-                // user_parameter|0
-                //
-                // "1 .axiscfg" 回應的訊息範例如下:
-                //  axis_name.1|A2|axis_home_offset.1|0.0000000|encoder_length_unit.1|Meter
-                // |encoder_ppu.1|1000000.00000|encoder_direction.1|1|ext_encoder_ppu.1|60000.00000
-                // |ext_encoder_direction.1|-1|closed_loop_filter.1|15.0|max_position_deviation.1|0.001000
-                // |drive_alias.1 |0|drive_slave_position.1|1|drive_channel.1|1|ext_encoder_alias.1|0
-                // |ext_encoder_slave_position.1|0|ext_encoder_channel.1|0|axis_amax.1|5.00000
-                // |axis_vmax.1|0.10000|axis_vff.1|0.00|axis_vfactor.1|1.00000|axis_aff.1|0.00
-                // |axis_afactor.1|1.00000
-                // 其中 encoder_length_unit 是設定 Encoder 解析度的單位距離
-                //      encoder_ppu 是設定 Encoder 單位距離有幾個脈波數
-                //      axis_vmax 是運動軸的最大速度 [m/s]
-                //      axis_amax 是運動軸的最大加速度 [m/s^2]
-                //      drive_alias, drive_slave_position, drive_channel 用來指定對應的驅動器，
-                //      如果 drive_alias > 0 就採用  drive_alias 與 drive_channel，
-                //      如果 drive_alias == 0 就採用 drive_slave_position 與 drive_channel，
-                //      如果沒有對應的驅動器，該運動軸及為虛擬軸
-                //
-                // "1 .grpcfg" 回應的訊息範例如下:
-                // group_name.1|G1X|group_type.1|1D|group_mapping.1|1|group_vmax.1|0.05000
-                // |group_amax.1|2.00000|group_jmax.1|40.00000
-                // 其中 group_type 是設定軸組型態
-                //      group_mapping 是設定軸組會使用哪幾個運動軸
-                //      group_vmax 是運動軸的最加速度 [m/s]
-                //      group_amax 是運動軸的最大加速度 [m/s^2]
-                //      group_jmax 是運動軸的最大加加速度 [m/s^3]
-                //
-                // +coordinator : 啟動軸組控制的功能
-
-                bot.EvaluateScript(".user-para  1 .axiscfg 1 .grpcfg +coordinator");
+                // "1 .axis" 回應的訊息範例如下:
+                // axis_command_position.1|0.0000000|axis_demand_position.1|0.0000000|axis_corrected_position.1|0.0000000
+                // |encoder_position.1|0.0000000|external_encoder_position.1|0.0000000|feedback_position.1|0.0000000
+                // |position_correction.1|0.0000000|following_error.1|0.0000000|axis_interpolator_enabled.1|0|axis_homed.1
+                // |0|axis_velocity.1|0.000000|axis_acceleration.1|0.000000
+                // 其中 axis_command_position 是運動的目標位置
+                //      axis_demand_position 是依加減速機制算出來當下應該要走到的位置
+                bot.EvaluateScript(torqueAxisNumber.ToString() + @" .axis");
             }
-            // "1 .axis" 回應的訊息範例如下:
-            // axis_command_position.1|0.0000000|axis_demand_position.1|0.0000000|axis_corrected_position.1|0.0000000
-            // |encoder_position.1|0.0000000|external_encoder_position.1|0.0000000|feedback_position.1|0.0000000
-            // |position_correction.1|0.0000000|following_error.1|0.0000000|axis_interpolator_enabled.1|0|axis_homed.1
-            // |0|axis_velocity.1|0.000000|axis_acceleration.1|0.000000
-            // 其中 axis_command_position 是運動的目標位置
-            //      axis_demand_position 是依加減速機制算出來當下應該要走到的位置
-            bot.EvaluateScript("1 .axis");
         }
 
         private void UpdateTorqueChart()
@@ -608,7 +721,7 @@ namespace TorqueScope
             // 切換驅動器到 CSP Mode, 避免切換時跳異警，檢查或後誤差是否太大
             if (Math.Abs(FollowingError()) < 0.05)
             {
-                bot.EvaluateScript(@"csp 1 1 op-mode!");
+                bot.EvaluateScript(@"csp " + torqueDriveChannel.ToString() + @" " + torqueDriveChannel.ToString() + @" op-mode!");
             }
             else
             {
@@ -619,18 +732,18 @@ namespace TorqueScope
         private void button3_Click(object sender, EventArgs e)
         {
             // 切換驅動器到 HM Mode,
-            bot.EvaluateScript(@"hm 1 1 op-mode!");
+            bot.EvaluateScript(@"hm " + torqueDriveChannel.ToString() + @" " + torqueDriveChannel.ToString() + @" op-mode!");
         }
 
         private void button6_Click(object sender, EventArgs e)
         {
-            bot.EvaluateScript(@"pp 1 1 op-mode!");
+            bot.EvaluateScript(@"pp " + torqueDriveChannel.ToString() + @" " + torqueDriveChannel.ToString() + @" op-mode!");
         }
 
         private void button5_Click(object sender, EventArgs e)
         {
             // 驅動器在 HM Mode 下, 如果要開始回 Home 要下 go 命令
-            bot.EvaluateScript(@"1 1 go");
+            bot.EvaluateScript(torqueDriveChannel.ToString() + @" " + torqueDriveChannel.ToString() + @" go");
         }
 
         private void button7_Click(object sender, EventArgs e)
@@ -638,7 +751,7 @@ namespace TorqueScope
             // 驅動器 Drive On 前檢查 following error
             if (Math.Abs(FollowingError()) < 0.05)
             {
-                bot.EvaluateScript(@"1 1 drive-on");
+                bot.EvaluateScript(torqueDriveChannel.ToString() + @" " + torqueDriveChannel.ToString() + @" drive-on");
             }
             else
             {
@@ -649,13 +762,13 @@ namespace TorqueScope
         private void button9_Click(object sender, EventArgs e)
         {
             // 命令驅動器暫停
-            bot.EvaluateScript(@"1 1 +drive-halt");
+            bot.EvaluateScript(torqueDriveChannel.ToString() + @" " + torqueDriveChannel.ToString() + @" +drive-halt");
         }
 
         private void button10_Click(object sender, EventArgs e)
         {
             // 命令驅動器繼續運作
-            bot.EvaluateScript(@"1 1 -drive-halt");
+            bot.EvaluateScript(torqueDriveChannel.ToString() + @" " + torqueDriveChannel.ToString() + @" -drive-halt");
         }
 
         private void buttonPull_Click(object sender, EventArgs e)
@@ -770,18 +883,23 @@ namespace TorqueScope
             // drive-off 將驅動器 drive-off
             // kill-nc   移除 background task 內的工作
             // resume    resume background task
-            bot.EvaluateScript(@"ems-job 1 1 drive-off kill-nc 1 resume");
+            bot.EvaluateScript(@"ems-job " + torqueDriveChannel.ToString() + @" " + torqueDriveChannel.ToString() + @" drive-off kill-nc");
         }
 
         private void timer2_Tick(object sender, EventArgs e)
         {
+            string cmd = null;
+            if (hasSFC) { cmd += @" poll"; }
+
             // ".ec-links" 此命令會只回傳 EtherCAT 的連線狀態
             // slaves_responding|5|al_states|8|link_up|1|input_wc|2|output_wc|2|input_wc_state|1
             // |output_wc_state|1|input_wc_error|179|output_wc_error|213|waiting_sdos_len|0
             // 
             // slaves_responding 表示有多少從站連線
             // al_states: 8 表示所有從站都是在 Operation 狀態 
-            bot.EvaluateScript(".ec-links");
+            cmd += @" .ec-links";
+
+            bot.EvaluateScript(cmd);
 
             if (!homingMethodAccessed)
             {
@@ -846,6 +964,8 @@ namespace TorqueScope
             {
                 textGroupJmax.Text = groupJmax.ToString("F1");
             }
+
+            // 處理 WebSocket 的連線狀態
             if (wsState == 2)
             {
                 buttonWSState.BackColor = Color.LightGreen;
@@ -856,7 +976,19 @@ namespace TorqueScope
             }
             else
             {
+                // 自動連線
+                bot.Connect();
+                wsState = 1;
                 buttonWSState.BackColor = Color.IndianRed;
+            }
+
+            // 處理 System Ready 狀態顯示
+            if (systemReady)
+            {
+                buttonSystemState.BackColor = Color.LightGreen;
+            } else
+            {
+                buttonSystemState.BackColor = Color.IndianRed;
             }
 
             switch (pdsState)
@@ -883,39 +1015,25 @@ namespace TorqueScope
         private void button13_Click(object sender, EventArgs e)
         {
             // 清除軸組落後誤差 (以實際位置修正目標位置)
-            bot.EvaluateScript("1 0axis-ferr");
+            bot.EvaluateScript(torqueGroupNumber.ToString() + @" 0axis-ferr");
         }
 
         private void button8_Click(object sender, EventArgs e)
         {
             // 驅動器 OFF
-            bot.EvaluateScript("1  1 drive-off");
+            bot.EvaluateScript(torqueDriveChannel.ToString() + @" " + torqueDriveChannel.ToString() + @" drive-off");
         }
 
         private void button14_Click(object sender, EventArgs e)
         {
             // 當驅動器發生異警時，要先清除異警
-            bot.EvaluateScript("1  1 reset-fault");
+            bot.EvaluateScript(torqueDriveChannel.ToString() + @" " + torqueDriveChannel.ToString() + @" reset-fault");
         }
 
         private void button15_Click(object sender, EventArgs e)
         {
             // 停止軸組運動
             bot.EvaluateScript(@"stop-job");
-        }
-
-        private void buttonWSState_Click(object sender, EventArgs e)
-        {
-            // WebSocket Connect/Disconnect
-            if (wsState == 2)
-            {
-                bot.Disconnect();
-            }
-            else if (wsState == 0)
-            {
-                bot.Connect();
-            }
-            wsState = 1;
         }
 
         private bool homingMethodAccessed = false;
@@ -929,7 +1047,7 @@ namespace TorqueScope
             // 設定回 Home 模式
             // textHomingMethod.Text = 1 : 往負方向運動，碰到極限開關後，反轉找第一個 pulse index
             // textHomingMethod.Text = 2 : 往正方向運動，碰到極限開關後，反轉找第一個 pulse index
-            bot.EvaluateScript(textHomingMethod.Text + " 1 1 homing-method! 1 .slave");
+            bot.EvaluateScript(textHomingMethod.Text + @" " + torqueDriveChannel.ToString() + @" " + torqueDriveChannel.ToString() + @" homing-method!");
             homingMethodAccessed = false;
         }
 
@@ -937,7 +1055,7 @@ namespace TorqueScope
         private void textHomingSpeed1_Leave(object sender, EventArgs e)
         {
             // 設定回 Home 模式中找極限開關的速度，單位通常是 pulse/s，不同廠牌驅動器可能會不同
-            bot.EvaluateScript(textHomingSpeed1.Text + " 1 1 homing-v1! 1 .slave");
+            bot.EvaluateScript(textHomingSpeed1.Text + @" " + torqueDriveChannel.ToString() + @" " + torqueDriveChannel.ToString() + @" homing-v1!");
             homingSpeed1Accessed = false;
         }
 
@@ -950,7 +1068,7 @@ namespace TorqueScope
         private void textHomingSpeed2_Leave(object sender, EventArgs e)
         {
             // 設定回 Home 模式中找 pulse index 的速度，單位通常是 pulse/s，不同廠牌驅動器可能會不同
-            bot.EvaluateScript(textHomingSpeed2.Text + " 1 1 homing-v2! 1 .slave");
+            bot.EvaluateScript(textHomingSpeed2.Text + @" " + torqueDriveChannel.ToString() + @" " + torqueDriveChannel.ToString() + @" homing-v2!");
             homingSpeed2Accessed = false;
         }
 
@@ -963,7 +1081,7 @@ namespace TorqueScope
         private void textHomingAcc_Leave(object sender, EventArgs e)
         {
             // 設定回 Home 模式中的加速度，單位通常是 pulse/s^2，不同廠牌驅動器可能會不同
-            bot.EvaluateScript(textHomingAcc.Text + " 1 1 homing-a! 1 .slave");
+            bot.EvaluateScript(textHomingAcc.Text + @" " + torqueDriveChannel.ToString() + @" " + torqueDriveChannel.ToString() + @" homing-a!");
             homingAccAccessed = false;
         }
 
@@ -976,7 +1094,7 @@ namespace TorqueScope
         private void textEncoderPPU_Leave(object sender, EventArgs e)
         {
             // 設定單位距離有幾個 encoder pulse 數量
-            bot.EvaluateScript(textEncoderPPU.Text + "e 1 enc-ppu! 1 .axiscfg");
+            bot.EvaluateScript(textEncoderPPU.Text + @"e " + torqueAxisNumber.ToString() + @" enc-ppu! " + torqueAxisNumber.ToString() + @" .axiscfg");
             encoderPPUAccessed = false;
         }
 
@@ -989,8 +1107,8 @@ namespace TorqueScope
         private void textAxisVmax_Leave(object sender, EventArgs e)
         {
             // 設定運動軸的最大速度 (主站使用的是 SI 單位，線性軸是 m/s)，設定完成後取回軸設定參數 (.axiscfg)，
-            // 用來看參數是否設定正確  
-            bot.EvaluateScript(textAxisVmax.Text + "e mm/min 1 axis-vmax! 1 .axiscfg");
+            // 用來看參數是否設定正確
+            bot.EvaluateScript(textAxisVmax.Text + @"e mm/min " + torqueAxisNumber.ToString() + @" axis-vmax! " + torqueAxisNumber.ToString() + @" .axiscfg");
             axisVmaxAccessed = false;
         }
 
@@ -1004,7 +1122,7 @@ namespace TorqueScope
         {
             // 設定運動軸的最大加速度 (主站使用的是 SI 單位，線性軸是 m/s^2)，設定完成後取回軸設定參數 (.axiscfg)，
             // 用來看參數是否設定正確  
-            bot.EvaluateScript(textAxisAmax.Text + "e 1 axis-amax! 1 .axiscfg");
+            bot.EvaluateScript(textAxisAmax.Text + @"e " + torqueAxisNumber.ToString() + @" axis-amax! " + torqueAxisNumber.ToString() + @" .axiscfg");
             axisAmaxAccessed = false;
         }
 
@@ -1018,7 +1136,7 @@ namespace TorqueScope
         {
             // 設定運動軸的對應的驅動器 alias，如果設定為 0，表示依 slave position，如果沒有對應的驅動器，則是虛擬運動軸。
             // 設定完成後取回軸設定參數 (.axiscfg)，用來看參數是否設定正確
-            bot.EvaluateScript(textDriveAlias.Text + " 1 drv-alias! 1 .axiscfg");
+            bot.EvaluateScript(textDriveAlias.Text + @" " + torqueAxisNumber.ToString() + @" drv-alias! " + torqueAxisNumber.ToString() + @" .axiscfg");
             driveAliasAccessed = false;
         }
 
@@ -1032,7 +1150,7 @@ namespace TorqueScope
         {
             // 設定運動軸的對應的驅動器 slave position，如果沒有對應的驅動器，則是虛擬運動軸。
             // 設定完成後取回軸設定參數 (.axiscfg)，用來看參數是否設定正確
-            bot.EvaluateScript(textDriveSlavePosition.Text + " 1 drv-slave! 1 .axiscfg");
+            bot.EvaluateScript(textDriveSlavePosition.Text + @" " + torqueAxisNumber.ToString() + @" drv-slave! " + torqueAxisNumber.ToString() + @" .axiscfg");
             driveSlavePositionAccessed = false;
         }
 
@@ -1046,7 +1164,7 @@ namespace TorqueScope
         {
             // 設定運動軸的對應的驅動器的 Channel，如果沒有對應的驅動器，則是虛擬運動軸。
             // 設定完成後取回軸設定參數 (.axiscfg)，用來看參數是否設定正確
-            bot.EvaluateScript(textDriveChannel.Text + " 1 drv-channel! 1 .axiscfg");
+            bot.EvaluateScript(textDriveChannel.Text + @" " + torqueAxisNumber.ToString() + @" drv-channel! " + torqueAxisNumber.ToString() + @" .axiscfg");
             driveChannelAccessed = false;
         }
 
@@ -1059,7 +1177,7 @@ namespace TorqueScope
         private void textGroupMapping_Leave(object sender, EventArgs e)
         {
             // 設定軸組對應的運動軸，設定完成後取回軸組設定參數 (.grpcfg)，用來看參數是否設定正確
-            bot.EvaluateScript(textGroupMapping.Text + " 1 gmap! 1 .grpcfg");
+            bot.EvaluateScript(textGroupMapping.Text + @" " + torqueGroupNumber.ToString() + @" gmap! " + torqueGroupNumber.ToString() + @" .grpcfg");
             groupMappingAccessed = false;
         }
 
@@ -1072,7 +1190,7 @@ namespace TorqueScope
         private void textGroupVmax_Leave(object sender, EventArgs e)
         {
             // 設定軸組對應的運動軸的最大速度，設定完成後取回軸組設定參數 (.grpcfg)，用來看參數是否設定正確
-            bot.EvaluateScript(textGroupVmax.Text + "e mm/min 1 gvmax! 1 .grpcfg");
+            bot.EvaluateScript(textGroupVmax.Text + @"e mm/min " + torqueGroupNumber.ToString() + @" gvmax! " + torqueGroupNumber.ToString() + @" .grpcfg");
             groupVmaxAccessed = false;
         }
 
@@ -1085,7 +1203,7 @@ namespace TorqueScope
         private void textGroupAmax_Leave(object sender, EventArgs e)
         {
             // 設定軸組對應的運動軸的最大加速度，設定完成後取回軸組設定參數 (.grpcfg)，用來看參數是否設定正確
-            bot.EvaluateScript(textGroupAmax.Text + "e 1 gamax! 1 .grpcfg");
+            bot.EvaluateScript(textGroupAmax.Text + @"e " + torqueGroupNumber.ToString() + @" gamax! " + torqueGroupNumber.ToString() + @" .grpcfg");
             groupAmaxAccessed = false;
         }
 
@@ -1098,7 +1216,7 @@ namespace TorqueScope
         private void textGroupJmax_Leave(object sender, EventArgs e)
         {
             // 設定軸組對應的運動軸的最大加加速度，設定完成後取回軸組設定參數 (.grpcfg)，用來看參數是否設定正確
-            bot.EvaluateScript(textGroupJmax.Text + "e 1 gjmax! 1 .grpcfg");
+            bot.EvaluateScript(textGroupJmax.Text + @"e " + torqueGroupNumber.ToString() + @" gjmax! " + torqueGroupNumber.ToString() + @" .grpcfg");
             groupJmaxAccessed = false;
         }
 
@@ -1145,6 +1263,13 @@ namespace TorqueScope
         private void textReleaseV_Leave(object sender, EventArgs e)
         {
             textReleaseV.ForeColor = Color.Black;
+        }
+
+        private void buttonReloadSFC_Click(object sender, EventArgs e)
+        {
+            bot.EvaluateScript(@"0sfc 0 user-para! .user-para");
+            hasSFC = false;
+            systemReady = false;
         }
     }
 }

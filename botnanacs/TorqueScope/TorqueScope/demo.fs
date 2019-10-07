@@ -1,5 +1,3 @@
-1 1 2constant drive-ch-slv
-
 variable tq-threshold 100 tq-threshold !
 fvariable speed-change-distance 0.25e mm speed-change-distance f!
 variable stopping
@@ -26,14 +24,14 @@ fvariable release-v
 ;
 
 : press-go ( F: p1 p2 v1 v2 -- )
-    mtime clock-start !    \ 紀錄起始時間 [ms]
+    mtime clock-start !                 \ 紀錄起始時間 [ms]
 
-	press-params!          \ 將  p1 p2 v1 v2 存到變數      
+	press-params!                       \ 將  p1 p2 v1 v2 存到變數      
 
-    +coordinator           \ 啟動軸組控制
-	1 group! 0path +group  \ 將第一個軸組設定為當前軸組，清除軸組路徑，啟動軸組
+    +coordinator                        \ 啟動軸組控制
+	group-no @ group! 0path +group      \ 將第一個軸組設定為當前軸組，清除軸組路徑，啟動軸組
 
-    mcs                    \ 以目前機械座標為運動起點
+    mcs                                 \ 以目前機械座標為運動起點
 
     1 path-id!                                       \ 設定 path id
     press-v1 f@ feedrate!                            \ 設定 path feedrate V1
@@ -53,32 +51,32 @@ fvariable release-v
 	                                                 \ 兩個周期不做事，讓加減速啟動進入運動狀態
 
     begin
-        job-stop? not                                    \ 檢查是否運動中      
+        job-stop? not                                       \ 檢查是否運動中      
     while
-        1 group! next-path-id@ 2 =                       \ path id = 2
-        drive-ch-slv real-tq@ tq-threshold @ < and       \ 且 real torque 的絕對值小於門檻值
-        stopping @ not and                               \ 且 stopping = false
+        group-no @ group! next-path-id@ 2 =                 \ path id = 2
+        torque-drive 2@ real-tq@ tq-threshold @ < and       \ 且 real torque 的絕對值小於門檻值
+        stopping @ not and                                  \ 且 stopping = false
         if
-            stop-job                                     \ 命令運動停止，依加減速停止 (停止後關閉軸組加減速)
+            stop-job                                        \ 命令運動停止，依加減速停止 (停止後關閉軸組加減速)
             true stopping !
         then
-		pause                                            \ 將控制權交出等待下一個周期
+		pause                                               \ 將控制權交出等待下一個周期
     repeat
 
-    stop-job                                             \ 關閉軸組加減速                                             
-    reset-job											 \ 清除路經資訊
-    1 group! -group                                      \ 關閉軸組運動
+    stop-job                                                \ 關閉軸組加減速                                             
+    reset-job											    \ 清除路經資訊
+    group-no @ group! -group                                \ 關閉軸組運動
     false stopping !
-	." travel_time|" mtime clock-start @ - . ." ms" cr \ 計算經過時間，並送出資訊
-    ;
+	." travel_time|" mtime clock-start @ - . ." ms" cr      \ 計算經過時間，並送出資訊
+;
 
 : release-go ( F: p v -- )
-    release-params!                    \ 將  p, v 存到變數      
+    release-params!                             \ 將  p, v 存到變數      
 
-    +coordinator                       \ 啟動軸組控制
-    release-v f@ 1 interpolator-v!     \ 設定插值器速度
-	1 +interpolator                    \ 開啟插值器
-    release-p f@ 1 axis-cmd-p!         \ 軸移動
+    +coordinator                                \ 啟動軸組控制
+    release-v f@ axis-no @ interpolator-v!      \ 設定插值器速度
+	axis-no @ +interpolator                     \ 開啟插值器
+    release-p f@ axis-no @ axis-cmd-p!          \ 軸移動
 
 	pause pause
 
@@ -89,4 +87,4 @@ fvariable release-v
     repeat
 
     stop-job                           \ 停止後關閉插值器
-   ;
+;
