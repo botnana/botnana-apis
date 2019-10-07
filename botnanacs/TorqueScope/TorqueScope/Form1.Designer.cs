@@ -29,8 +29,8 @@
         private void InitializeComponent()
         {
             this.components = new System.ComponentModel.Container();
-            System.Windows.Forms.DataVisualization.Charting.ChartArea chartArea1 = new System.Windows.Forms.DataVisualization.Charting.ChartArea();
-            System.Windows.Forms.DataVisualization.Charting.Series series1 = new System.Windows.Forms.DataVisualization.Charting.Series();
+            System.Windows.Forms.DataVisualization.Charting.ChartArea chartArea3 = new System.Windows.Forms.DataVisualization.Charting.ChartArea();
+            System.Windows.Forms.DataVisualization.Charting.Series series3 = new System.Windows.Forms.DataVisualization.Charting.Series();
             this.timer1 = new System.Windows.Forms.Timer(this.components);
             this.labMessageCount = new System.Windows.Forms.Label();
             this.button1 = new System.Windows.Forms.Button();
@@ -152,8 +152,9 @@
             this.label46 = new System.Windows.Forms.Label();
             this.label45 = new System.Windows.Forms.Label();
             this.label21 = new System.Windows.Forms.Label();
-            this.groupBox10 = new System.Windows.Forms.GroupBox();
             this.buttonWSState = new System.Windows.Forms.Button();
+            this.buttonSystemState = new System.Windows.Forms.Button();
+            this.buttonReloadSFC = new System.Windows.Forms.Button();
             ((System.ComponentModel.ISupportInitialize)(this.chartTorque)).BeginInit();
             this.groupBox1.SuspendLayout();
             this.groupBox2.SuspendLayout();
@@ -164,7 +165,6 @@
             this.groupBox7.SuspendLayout();
             this.groupBox8.SuspendLayout();
             this.groupBox9.SuspendLayout();
-            this.groupBox10.SuspendLayout();
             this.SuspendLayout();
             // 
             // timer1
@@ -206,22 +206,21 @@
             // 
             // chartTorque
             // 
-            chartArea1.Name = "ChartArea1";
-            this.chartTorque.ChartAreas.Add(chartArea1);
+            chartArea3.Name = "ChartArea1";
+            this.chartTorque.ChartAreas.Add(chartArea3);
             this.chartTorque.Location = new System.Drawing.Point(17, 28);
             this.chartTorque.Margin = new System.Windows.Forms.Padding(4);
             this.chartTorque.Name = "chartTorque";
-            series1.ChartArea = "ChartArea1";
-            series1.ChartType = System.Windows.Forms.DataVisualization.Charting.SeriesChartType.Line;
-            series1.IsVisibleInLegend = false;
-            series1.Name = "Series1";
-            series1.XValueType = System.Windows.Forms.DataVisualization.Charting.ChartValueType.Int32;
-            series1.YValueType = System.Windows.Forms.DataVisualization.Charting.ChartValueType.Int32;
-            this.chartTorque.Series.Add(series1);
+            series3.ChartArea = "ChartArea1";
+            series3.ChartType = System.Windows.Forms.DataVisualization.Charting.SeriesChartType.Line;
+            series3.IsVisibleInLegend = false;
+            series3.Name = "Series1";
+            series3.XValueType = System.Windows.Forms.DataVisualization.Charting.ChartValueType.Int32;
+            series3.YValueType = System.Windows.Forms.DataVisualization.Charting.ChartValueType.Int32;
+            this.chartTorque.Series.Add(series3);
             this.chartTorque.Size = new System.Drawing.Size(514, 266);
             this.chartTorque.TabIndex = 6;
             this.chartTorque.Text = "chart1";
-            
             // 
             // groupBox1
             // 
@@ -269,11 +268,11 @@
             this.groupBox2.Controls.Add(this.textOperationMode);
             this.groupBox2.Controls.Add(this.textPDSState);
             this.groupBox2.Font = new System.Drawing.Font("新細明體", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(136)));
-            this.groupBox2.Location = new System.Drawing.Point(9, 109);
+            this.groupBox2.Location = new System.Drawing.Point(9, 194);
             this.groupBox2.Margin = new System.Windows.Forms.Padding(4);
             this.groupBox2.Name = "groupBox2";
             this.groupBox2.Padding = new System.Windows.Forms.Padding(4);
-            this.groupBox2.Size = new System.Drawing.Size(316, 469);
+            this.groupBox2.Size = new System.Drawing.Size(316, 384);
             this.groupBox2.TabIndex = 14;
             this.groupBox2.TabStop = false;
             this.groupBox2.Text = "Drive Status";
@@ -399,7 +398,6 @@
             this.label4.Size = new System.Drawing.Size(113, 16);
             this.label4.TabIndex = 34;
             this.label4.Text = "Homing Speed 1";
-            
             // 
             // textDigitalInputs
             // 
@@ -1023,7 +1021,7 @@
             this.groupBox5.Controls.Add(this.label24);
             this.groupBox5.Controls.Add(this.textSlavesCount);
             this.groupBox5.Font = new System.Drawing.Font("新細明體", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(136)));
-            this.groupBox5.Location = new System.Drawing.Point(9, 7);
+            this.groupBox5.Location = new System.Drawing.Point(9, 85);
             this.groupBox5.Margin = new System.Windows.Forms.Padding(4);
             this.groupBox5.Name = "groupBox5";
             this.groupBox5.Padding = new System.Windows.Forms.Padding(4);
@@ -1549,33 +1547,50 @@
             this.label21.TabIndex = 60;
             this.label21.Text = "mm/min";
             // 
-            // groupBox10
-            // 
-            this.groupBox10.Controls.Add(this.buttonWSState);
-            this.groupBox10.Location = new System.Drawing.Point(332, 10);
-            this.groupBox10.Name = "groupBox10";
-            this.groupBox10.Size = new System.Drawing.Size(269, 57);
-            this.groupBox10.TabIndex = 22;
-            this.groupBox10.TabStop = false;
-            this.groupBox10.Text = "WebSocket State";
-            // 
             // buttonWSState
             // 
+            this.buttonWSState.BackColor = System.Drawing.Color.IndianRed;
             this.buttonWSState.Font = new System.Drawing.Font("新細明體", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.buttonWSState.Location = new System.Drawing.Point(10, 22);
+            this.buttonWSState.Location = new System.Drawing.Point(49, 21);
             this.buttonWSState.Margin = new System.Windows.Forms.Padding(4);
             this.buttonWSState.Name = "buttonWSState";
-            this.buttonWSState.Size = new System.Drawing.Size(61, 31);
+            this.buttonWSState.Size = new System.Drawing.Size(104, 31);
             this.buttonWSState.TabIndex = 3;
-            this.buttonWSState.UseVisualStyleBackColor = true;
-            this.buttonWSState.Click += new System.EventHandler(this.buttonWSState_Click);
+            this.buttonWSState.Text = "WebSocket";
+            this.buttonWSState.UseVisualStyleBackColor = false;
+            // 
+            // buttonSystemState
+            // 
+            this.buttonSystemState.BackColor = System.Drawing.Color.IndianRed;
+            this.buttonSystemState.Font = new System.Drawing.Font("新細明體", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.buttonSystemState.Location = new System.Drawing.Point(189, 21);
+            this.buttonSystemState.Margin = new System.Windows.Forms.Padding(4);
+            this.buttonSystemState.Name = "buttonSystemState";
+            this.buttonSystemState.Size = new System.Drawing.Size(104, 31);
+            this.buttonSystemState.TabIndex = 22;
+            this.buttonSystemState.Text = "System";
+            this.buttonSystemState.UseVisualStyleBackColor = false;
+            // 
+            // buttonReloadSFC
+            // 
+            this.buttonReloadSFC.Font = new System.Drawing.Font("新細明體", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.buttonReloadSFC.Location = new System.Drawing.Point(415, 22);
+            this.buttonReloadSFC.Margin = new System.Windows.Forms.Padding(4);
+            this.buttonReloadSFC.Name = "buttonReloadSFC";
+            this.buttonReloadSFC.Size = new System.Drawing.Size(104, 31);
+            this.buttonReloadSFC.TabIndex = 23;
+            this.buttonReloadSFC.Text = "Reload SFC";
+            this.buttonReloadSFC.UseVisualStyleBackColor = true;
+            this.buttonReloadSFC.Click += new System.EventHandler(this.buttonReloadSFC_Click);
             // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(9F, 16F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(1434, 593);
-            this.Controls.Add(this.groupBox10);
+            this.Controls.Add(this.buttonReloadSFC);
+            this.Controls.Add(this.buttonSystemState);
+            this.Controls.Add(this.buttonWSState);
             this.Controls.Add(this.groupBox9);
             this.Controls.Add(this.groupBox8);
             this.Controls.Add(this.groupBox7);
@@ -1609,7 +1624,6 @@
             this.groupBox8.ResumeLayout(false);
             this.groupBox9.ResumeLayout(false);
             this.groupBox9.PerformLayout();
-            this.groupBox10.ResumeLayout(false);
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -1735,11 +1749,12 @@
         private System.Windows.Forms.TextBox textSpeedChangeDistance;
         private System.Windows.Forms.Label label56;
         private System.Windows.Forms.Button button15;
-        private System.Windows.Forms.GroupBox groupBox10;
         private System.Windows.Forms.Button buttonWSState;
         private System.Windows.Forms.Label label59;
         private System.Windows.Forms.TextBox textHomingAcc;
         private System.Windows.Forms.Label label58;
+        private System.Windows.Forms.Button buttonSystemState;
+        private System.Windows.Forms.Button buttonReloadSFC;
     }
 }
 
