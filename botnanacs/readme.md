@@ -14,7 +14,10 @@ botnanacs 為 C# 的範例程式，開發工具版本:
     |-----> BotnanaApi
     |-----> BotnanaLib
     |-----> DIO
+    |-----> Group2DAndMpg
     |-----> IAI_RCON_SYSTEM
+    |-----> ManualPulseGenerator
+    |-----> MoldFeeder
     |-----> PositionComparsionPanaA6B
     |-----> SingleDrive
     |-----> TorqueScope
@@ -26,7 +29,10 @@ botnanacs 為 C# 的範例程式，開發工具版本:
 * BotnanaApi: 將 C 語言函式庫 `botnana.lib` 轉換為 C# 使用的動態連結檔 `BotnanaApi.dll` 。
 * BotnanaLib: 將 BotnanaApi 包裝成 C# class libraray。
 * DIO: 數位輸入與輸出範例。
+* Group2DAndMpg: 2D 軸組與手輪範例。
 * IAI_RCON_SYSTEM: IAI RCON-GW-EC + RCON-PC/AC 多軸致動器控制與操作範例。
+* ManualPulseGenerator: 手輪範例。
+* MoldFeeder: 單軸移動利用驅動器 Position Latch 功能定位模具範例。
 * PositionComparsionPanaA6B: Panasonic A6B 驅動器的到位觸發功能。
 * SingleDrive: 一個單軸馬達驅動器的測試範例。
 * TorqueScope: 即時監看馬扭力的應用範例。
