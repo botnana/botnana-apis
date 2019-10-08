@@ -721,7 +721,7 @@ namespace TorqueScope
             // 切換驅動器到 CSP Mode, 避免切換時跳異警，檢查或後誤差是否太大
             if (Math.Abs(FollowingError()) < 0.05)
             {
-                bot.EvaluateScript(@"csp " + torqueDriveChannel.ToString() + @" " + torqueDriveChannel.ToString() + @" op-mode!");
+                bot.EvaluateScript(@"csp " + torqueDriveChannel.ToString() + @" " + torqueDriveSlave.ToString() + @" op-mode!");
             }
             else
             {
@@ -732,18 +732,18 @@ namespace TorqueScope
         private void button3_Click(object sender, EventArgs e)
         {
             // 切換驅動器到 HM Mode,
-            bot.EvaluateScript(@"hm " + torqueDriveChannel.ToString() + @" " + torqueDriveChannel.ToString() + @" op-mode!");
+            bot.EvaluateScript(@"hm " + torqueDriveChannel.ToString() + @" " + torqueDriveSlave.ToString() + @" op-mode!");
         }
 
         private void button6_Click(object sender, EventArgs e)
         {
-            bot.EvaluateScript(@"pp " + torqueDriveChannel.ToString() + @" " + torqueDriveChannel.ToString() + @" op-mode!");
+            bot.EvaluateScript(@"pp " + torqueDriveChannel.ToString() + @" " + torqueDriveSlave.ToString() + @" op-mode!");
         }
 
         private void button5_Click(object sender, EventArgs e)
         {
             // 驅動器在 HM Mode 下, 如果要開始回 Home 要下 go 命令
-            bot.EvaluateScript(torqueDriveChannel.ToString() + @" " + torqueDriveChannel.ToString() + @" go");
+            bot.EvaluateScript(torqueDriveChannel.ToString() + @" " + torqueDriveSlave.ToString() + @" go");
         }
 
         private void button7_Click(object sender, EventArgs e)
@@ -751,7 +751,7 @@ namespace TorqueScope
             // 驅動器 Drive On 前檢查 following error
             if (Math.Abs(FollowingError()) < 0.05)
             {
-                bot.EvaluateScript(torqueDriveChannel.ToString() + @" " + torqueDriveChannel.ToString() + @" drive-on");
+                bot.EvaluateScript(torqueDriveChannel.ToString() + @" " + torqueDriveSlave.ToString() + @" drive-on");
             }
             else
             {
@@ -762,13 +762,13 @@ namespace TorqueScope
         private void button9_Click(object sender, EventArgs e)
         {
             // 命令驅動器暫停
-            bot.EvaluateScript(torqueDriveChannel.ToString() + @" " + torqueDriveChannel.ToString() + @" +drive-halt");
+            bot.EvaluateScript(torqueDriveChannel.ToString() + @" " + torqueDriveSlave.ToString() + @" +drive-halt");
         }
 
         private void button10_Click(object sender, EventArgs e)
         {
             // 命令驅動器繼續運作
-            bot.EvaluateScript(torqueDriveChannel.ToString() + @" " + torqueDriveChannel.ToString() + @" -drive-halt");
+            bot.EvaluateScript(torqueDriveChannel.ToString() + @" " + torqueDriveSlave.ToString() + @" -drive-halt");
         }
 
         private void buttonPull_Click(object sender, EventArgs e)
@@ -883,7 +883,7 @@ namespace TorqueScope
             // drive-off 將驅動器 drive-off
             // kill-nc   移除 background task 內的工作
             // resume    resume background task
-            bot.EvaluateScript(@"ems-job " + torqueDriveChannel.ToString() + @" " + torqueDriveChannel.ToString() + @" drive-off kill-nc");
+            bot.EvaluateScript(@"ems-job " + torqueDriveChannel.ToString() + @" " + torqueDriveSlave.ToString() + @" drive-off kill-nc");
         }
 
         private void timer2_Tick(object sender, EventArgs e)
@@ -1021,13 +1021,13 @@ namespace TorqueScope
         private void button8_Click(object sender, EventArgs e)
         {
             // 驅動器 OFF
-            bot.EvaluateScript(torqueDriveChannel.ToString() + @" " + torqueDriveChannel.ToString() + @" drive-off");
+            bot.EvaluateScript(torqueDriveChannel.ToString() + @" " + torqueDriveSlave.ToString() + @" drive-off");
         }
 
         private void button14_Click(object sender, EventArgs e)
         {
             // 當驅動器發生異警時，要先清除異警
-            bot.EvaluateScript(torqueDriveChannel.ToString() + @" " + torqueDriveChannel.ToString() + @" reset-fault");
+            bot.EvaluateScript(torqueDriveChannel.ToString() + @" " + torqueDriveSlave.ToString() + @" reset-fault");
         }
 
         private void button15_Click(object sender, EventArgs e)
@@ -1047,7 +1047,7 @@ namespace TorqueScope
             // 設定回 Home 模式
             // textHomingMethod.Text = 1 : 往負方向運動，碰到極限開關後，反轉找第一個 pulse index
             // textHomingMethod.Text = 2 : 往正方向運動，碰到極限開關後，反轉找第一個 pulse index
-            bot.EvaluateScript(textHomingMethod.Text + @" " + torqueDriveChannel.ToString() + @" " + torqueDriveChannel.ToString() + @" homing-method!");
+            bot.EvaluateScript(textHomingMethod.Text + @" " + torqueDriveChannel.ToString() + @" " + torqueDriveSlave.ToString() + @" homing-method!");
             homingMethodAccessed = false;
         }
 
@@ -1055,7 +1055,7 @@ namespace TorqueScope
         private void textHomingSpeed1_Leave(object sender, EventArgs e)
         {
             // 設定回 Home 模式中找極限開關的速度，單位通常是 pulse/s，不同廠牌驅動器可能會不同
-            bot.EvaluateScript(textHomingSpeed1.Text + @" " + torqueDriveChannel.ToString() + @" " + torqueDriveChannel.ToString() + @" homing-v1!");
+            bot.EvaluateScript(textHomingSpeed1.Text + @" " + torqueDriveChannel.ToString() + @" " + torqueDriveSlave.ToString() + @" homing-v1!");
             homingSpeed1Accessed = false;
         }
 
@@ -1068,7 +1068,7 @@ namespace TorqueScope
         private void textHomingSpeed2_Leave(object sender, EventArgs e)
         {
             // 設定回 Home 模式中找 pulse index 的速度，單位通常是 pulse/s，不同廠牌驅動器可能會不同
-            bot.EvaluateScript(textHomingSpeed2.Text + @" " + torqueDriveChannel.ToString() + @" " + torqueDriveChannel.ToString() + @" homing-v2!");
+            bot.EvaluateScript(textHomingSpeed2.Text + @" " + torqueDriveChannel.ToString() + @" " + torqueDriveSlave.ToString() + @" homing-v2!");
             homingSpeed2Accessed = false;
         }
 
@@ -1081,7 +1081,7 @@ namespace TorqueScope
         private void textHomingAcc_Leave(object sender, EventArgs e)
         {
             // 設定回 Home 模式中的加速度，單位通常是 pulse/s^2，不同廠牌驅動器可能會不同
-            bot.EvaluateScript(textHomingAcc.Text + @" " + torqueDriveChannel.ToString() + @" " + torqueDriveChannel.ToString() + @" homing-a!");
+            bot.EvaluateScript(textHomingAcc.Text + @" " + torqueDriveChannel.ToString() + @" " + torqueDriveSlave.ToString() + @" homing-a!");
             homingAccAccessed = false;
         }
 

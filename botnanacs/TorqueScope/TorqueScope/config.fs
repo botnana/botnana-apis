@@ -21,7 +21,7 @@ variable group-no 1 group-no !
 
 \ 宣告正反器
 1 constant ff-system-ready-hl   1 ff-system-ready-hl ff-type!       \ system ready high-level trigger flip-flop
-    5000000 ff-system-ready-hl ff-hold!
+    5000000 ff-system-ready-hl ff-hold! ff-system-ready-hl reset-ff
     
 \ System Ready?
 : system-ready? ( -- t )
