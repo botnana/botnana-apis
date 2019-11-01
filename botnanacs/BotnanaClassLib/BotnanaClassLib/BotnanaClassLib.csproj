@@ -52,7 +52,7 @@
     <Compile Include="AxisControl.Designer.cs">
       <DependentUpon>AxisControl.cs</DependentUpon>
     </Compile>
-    <Compile Include="Class1.cs" />
+    <Compile Include="ParseCheck.cs" />
     <Compile Include="DriveControl.cs">
       <SubType>UserControl</SubType>
     </Compile>

@@ -42,47 +42,8 @@ namespace BotnanaClassLib
         private HandleTagNameMessage onAxisFollowingError;
         private UInt32 axisNumber = 1;
         private delegate void Deg();
-        private delegate bool ParseFunc<T1, T2>(T1 a, out T2 b);
 
-        private bool UIntTryParseNotZero(string str, out UInt32 n)
-        {
-            return (UInt32.TryParse(str, out n) && n != 0) ? true : false;
-        }
-
-        private bool IntTryParseNotZero(string str, out Int32 n)
-        {
-            return (Int32.TryParse(str, out n) && n != 0) ? true : false;
-        }
-
-        private bool DoubleTryParseNotNeg(string str, out double n)
-        {
-            return (Double.TryParse(str, out n) && n >= 0.0) ? true : false;
-        }
-
-        private bool DoubleTryParsePos(string str, out double n)
-        {
-            return (Double.TryParse(str, out n) && n > 0.0) ? true : false;
-        }
-
-        private void CheckTextBoxByParserUInt(object sender, ParseFunc<string, UInt32> parser)
-        {
-            TextBox tb = sender as TextBox;
-            if (parser(tb.Text, out _)) { tb.ForeColor = Color.Black; } else { tb.ForeColor = Color.Red; }
-        }
-
-        private void CheckTextBoxByParserInt(object sender, ParseFunc<string, Int32> parser)
-        {
-            TextBox tb = sender as TextBox;
-            if (parser(tb.Text, out _)) { tb.ForeColor = Color.Black; } else { tb.ForeColor = Color.Red; }
-        }
-
-        private void CheckTextBoxByParserDouble(object sender, ParseFunc<string, Double> parser)
-        {
-            TextBox tb = sender as TextBox;
-            if (parser(tb.Text, out _)) { tb.ForeColor = Color.Black; } else { tb.ForeColor = Color.Red; }
-        }
-        
-        private void StrSetParamByParserUInt(string value, string cmd, Action<uint, int> configset, ParseFunc<string, UInt32> parser)
+        private void StrSetParamByParserUInt(string value, string cmd, Action<uint, int> configset, ParseCheck.ParseFunc<string, UInt32> parser)
         {
             UInt32 val;
             if (parser(value, out val))
@@ -94,7 +55,7 @@ namespace BotnanaClassLib
             botnana.ConfigAxisGet(axisNumber);
         }
 
-        private void StrSetParamByParserInt(string value, string cmd, Action<uint, int> configset, ParseFunc<string, Int32> parser)
+        private void StrSetParamByParserInt(string value, string cmd, Action<uint, int> configset, ParseCheck.ParseFunc<string, Int32> parser)
         {
             Int32 val;
             if (parser(value, out val))
@@ -106,7 +67,7 @@ namespace BotnanaClassLib
             botnana.ConfigAxisGet(axisNumber);
         }
 
-        private void StrSetParamByParserDouble(string value, string cmd, Action<uint, double> configset, ParseFunc<string, Double> parser)
+        private void StrSetParamByParserDouble(string value, string cmd, Action<uint, double> configset, ParseCheck.ParseFunc<string, Double> parser)
         {
             Double val;
             if (parser(value, out val))
@@ -301,6 +262,13 @@ namespace BotnanaClassLib
         {
             timer1.Enabled = true;
             Reset();
+            UpdateConfig();
+        }
+
+        public void Sleep()
+        {
+            timer1.Enabled = false;
+            Reset();
         }
 
         private void UpdateConfig()
@@ -338,7 +306,6 @@ namespace BotnanaClassLib
             textBoxFeedbackPos.Text = "";
             textBoxFollowingError.Text = "";
             textBoxOutputPulse.Text = "";
-            UpdateConfig();
         }
 
         private void timer1_Tick(object sender, EventArgs e)
@@ -350,10 +317,11 @@ namespace BotnanaClassLib
         {
             TextBox tb = sender as TextBox;
             UInt32 n;
-            if (UIntTryParseNotZero(tb.Text, out n))
+            if (ParseCheck.UIntTryParseNotZero(tb.Text, out n))
             {
                 axisNumber = n;
                 Reset();
+                UpdateConfig();
             }
             else
             {
@@ -373,7 +341,7 @@ namespace BotnanaClassLib
 
         private void textBoxAxisNumber_TextChanged(object sender, EventArgs e)
         {
-            CheckTextBoxByParserUInt(sender, UIntTryParseNotZero);
+            ParseCheck.TextBoxCheckByParserUInt(sender, ParseCheck.UIntTryParseNotZero);
         }
 
         private void textBoxAxisName_KeyDown(object sender, KeyEventArgs e)
@@ -403,7 +371,7 @@ namespace BotnanaClassLib
 
         private void textBoxDriveAlias_TextChanged(object sender, EventArgs e)
         {
-            CheckTextBoxByParserUInt(sender, UInt32.TryParse);
+            ParseCheck.TextBoxCheckByParserUInt(sender, UInt32.TryParse);
         }
 
         private void textBoxDriveSlavePos_KeyDown(object sender, KeyEventArgs e)
@@ -418,7 +386,7 @@ namespace BotnanaClassLib
 
         private void textBoxDriveSlavePos_TextChanged(object sender, EventArgs e)
         {
-            CheckTextBoxByParserUInt(sender, UInt32.TryParse);
+            ParseCheck.TextBoxCheckByParserUInt(sender, UInt32.TryParse);
         }
 
         private void textBoxDriveChannel_KeyDown(object sender, KeyEventArgs e)
@@ -433,7 +401,7 @@ namespace BotnanaClassLib
 
         private void textBoxDriveChannel_TextChanged(object sender, EventArgs e)
         {
-            CheckTextBoxByParserUInt(sender, UInt32.TryParse);
+            ParseCheck.TextBoxCheckByParserUInt(sender, UInt32.TryParse);
         }
 
         private void textBoxHomeOffset_KeyDown(object sender, KeyEventArgs e)
@@ -448,7 +416,7 @@ namespace BotnanaClassLib
 
         private void textBoxHomeOffset_TextChanged(object sender, EventArgs e)
         {
-            CheckTextBoxByParserDouble(sender, Double.TryParse);
+            ParseCheck.TextBoxCheckByParserDouble(sender, Double.TryParse);
         }
 
         private void comboBoxEncoderUnit_SelectedIndexChanged(object sender, EventArgs e)
@@ -481,62 +449,62 @@ namespace BotnanaClassLib
 
         private void textBoxEncoderPPU_KeyDown(object sender, KeyEventArgs e)
         {
-            if (e.KeyCode == Keys.Enter) StrSetParamByParserDouble((sender as TextBox).Text, @"enc-ppu!", botnana.ConfigAxisSetEncoderPPU, DoubleTryParsePos);
+            if (e.KeyCode == Keys.Enter) StrSetParamByParserDouble((sender as TextBox).Text, @"enc-ppu!", botnana.ConfigAxisSetEncoderPPU, ParseCheck.DoubleTryParsePos);
         }
 
         private void textBoxEncoderPPU_Leave(object sender, EventArgs e)
         {
-            StrSetParamByParserDouble((sender as TextBox).Text, @"enc-ppu!", botnana.ConfigAxisSetEncoderPPU, DoubleTryParsePos);
+            StrSetParamByParserDouble((sender as TextBox).Text, @"enc-ppu!", botnana.ConfigAxisSetEncoderPPU, ParseCheck.DoubleTryParsePos);
         }
 
         private void textBoxEncoderPPU_TextChanged(object sender, EventArgs e)
         {
-            CheckTextBoxByParserDouble(sender, DoubleTryParsePos);
+            ParseCheck.TextBoxCheckByParserDouble(sender, ParseCheck.DoubleTryParsePos);
         }
 
         private void textBoxEncoderDirection_KeyDown(object sender, KeyEventArgs e)
         {
-            if (e.KeyCode == Keys.Enter) StrSetParamByParserInt((sender as TextBox).Text, @"enc-dir!", botnana.ConfigAxisSetEncoderDirection, IntTryParseNotZero);
+            if (e.KeyCode == Keys.Enter) StrSetParamByParserInt((sender as TextBox).Text, @"enc-dir!", botnana.ConfigAxisSetEncoderDirection, ParseCheck.IntTryParseNotZero);
         }
 
         private void textBoxEncoderDirection_Leave(object sender, EventArgs e)
         {
-            StrSetParamByParserInt((sender as TextBox).Text, @"enc-dir!", botnana.ConfigAxisSetEncoderDirection, IntTryParseNotZero);
+            StrSetParamByParserInt((sender as TextBox).Text, @"enc-dir!", botnana.ConfigAxisSetEncoderDirection, ParseCheck.IntTryParseNotZero);
         }
 
         private void textBoxEncoderDirection_TextChanged(object sender, EventArgs e)
         {
-            CheckTextBoxByParserInt(sender, IntTryParseNotZero);
+            ParseCheck.TextBoxCheckByParserInt(sender, ParseCheck.IntTryParseNotZero);
         }
 
         private void textBoxExtEncoderPPU_KeyDown(object sender, KeyEventArgs e)
         {
-            if (e.KeyCode == Keys.Enter) StrSetParamByParserDouble((sender as TextBox).Text, @"ext-enc-ppu!", botnana.ConfigAxisSetExtEncoderPPU, DoubleTryParsePos);
+            if (e.KeyCode == Keys.Enter) StrSetParamByParserDouble((sender as TextBox).Text, @"ext-enc-ppu!", botnana.ConfigAxisSetExtEncoderPPU, ParseCheck.DoubleTryParsePos);
         }
 
         private void textBoxExtEncoderPPU_Leave(object sender, EventArgs e)
         {
-            StrSetParamByParserDouble((sender as TextBox).Text, @"ext-enc-ppu!", botnana.ConfigAxisSetExtEncoderPPU, DoubleTryParsePos);
+            StrSetParamByParserDouble((sender as TextBox).Text, @"ext-enc-ppu!", botnana.ConfigAxisSetExtEncoderPPU, ParseCheck.DoubleTryParsePos);
         }
 
         private void textBoxExtEncoderPPU_TextChanged(object sender, EventArgs e)
         {
-            CheckTextBoxByParserDouble(sender, DoubleTryParsePos);
+            ParseCheck.TextBoxCheckByParserDouble(sender, ParseCheck.DoubleTryParsePos);
         }
 
         private void textBoxExtEncoderDirection_KeyDown(object sender, KeyEventArgs e)
         {
-            if (e.KeyCode == Keys.Enter) StrSetParamByParserInt((sender as TextBox).Text, @"ext-enc-dir!", botnana.ConfigAxisSetExtEncoderDirection, IntTryParseNotZero);
+            if (e.KeyCode == Keys.Enter) StrSetParamByParserInt((sender as TextBox).Text, @"ext-enc-dir!", botnana.ConfigAxisSetExtEncoderDirection, ParseCheck.IntTryParseNotZero);
         }
 
         private void textBoxExtEncoderDirection_Leave(object sender, EventArgs e)
         {
-            StrSetParamByParserInt((sender as TextBox).Text, @"ext-enc-dir!", botnana.ConfigAxisSetExtEncoderDirection, IntTryParseNotZero);
+            StrSetParamByParserInt((sender as TextBox).Text, @"ext-enc-dir!", botnana.ConfigAxisSetExtEncoderDirection, ParseCheck.IntTryParseNotZero);
         }
 
         private void textBoxExtEncoderDirection_TextChanged(object sender, EventArgs e)
         {
-            CheckTextBoxByParserInt(sender, IntTryParseNotZero);
+            ParseCheck.TextBoxCheckByParserInt(sender, ParseCheck.IntTryParseNotZero);
         }
 
         private void textBoxExtEncoderAlias_KeyDown(object sender, KeyEventArgs e)
@@ -551,7 +519,7 @@ namespace BotnanaClassLib
 
         private void textBoxExtEncoderAlias_TextChanged(object sender, EventArgs e)
         {
-            CheckTextBoxByParserUInt(sender, UInt32.TryParse);
+            ParseCheck.TextBoxCheckByParserUInt(sender, UInt32.TryParse);
         }
 
         private void textBoxExtEncoderSlavePos_KeyDown(object sender, KeyEventArgs e)
@@ -566,7 +534,7 @@ namespace BotnanaClassLib
 
         private void textBoxExtEncoderSlavePos_TextChanged(object sender, EventArgs e)
         {
-            CheckTextBoxByParserUInt(sender, UInt32.TryParse);
+            ParseCheck.TextBoxCheckByParserUInt(sender, UInt32.TryParse);
         }
 
         private void textBoxExtEncoderChannel_KeyDown(object sender, KeyEventArgs e)
@@ -581,37 +549,37 @@ namespace BotnanaClassLib
 
         private void textBoxExtEncoderChannel_TextChanged(object sender, EventArgs e)
         {
-            CheckTextBoxByParserUInt(sender, UInt32.TryParse);
+            ParseCheck.TextBoxCheckByParserUInt(sender, UInt32.TryParse);
         }
 
         private void textBoxCloseLoopFilter_KeyDown(object sender, KeyEventArgs e)
         {
-            if (e.KeyCode == Keys.Enter) StrSetParamByParserDouble((sender as TextBox).Text, @"cl-cutoff!", botnana.ConfigAxisSetClosedLoopFilter, DoubleTryParseNotNeg);
+            if (e.KeyCode == Keys.Enter) StrSetParamByParserDouble((sender as TextBox).Text, @"cl-cutoff!", botnana.ConfigAxisSetClosedLoopFilter, ParseCheck.DoubleTryParseNotNeg);
         }
 
         private void textBoxCloseLoopFilter_Leave(object sender, EventArgs e)
         {
-            StrSetParamByParserDouble((sender as TextBox).Text, @"cl-cutoff!", botnana.ConfigAxisSetClosedLoopFilter, DoubleTryParseNotNeg);
+            StrSetParamByParserDouble((sender as TextBox).Text, @"cl-cutoff!", botnana.ConfigAxisSetClosedLoopFilter, ParseCheck.DoubleTryParseNotNeg);
         }
 
         private void textBoxCloseLoopFilter_TextChanged(object sender, EventArgs e)
         {
-            CheckTextBoxByParserDouble(sender, DoubleTryParseNotNeg);
+            ParseCheck.TextBoxCheckByParserDouble(sender, ParseCheck.DoubleTryParseNotNeg);
         }
 
         private void textBoxMaxPosDeviation_KeyDown(object sender, KeyEventArgs e)
         {
-            if (e.KeyCode == Keys.Enter) StrSetParamByParserDouble((sender as TextBox).Text, @"max-pos-dev!", botnana.ConfigAxisSetMaxPositionDeviation, DoubleTryParseNotNeg);
+            if (e.KeyCode == Keys.Enter) StrSetParamByParserDouble((sender as TextBox).Text, @"max-pos-dev!", botnana.ConfigAxisSetMaxPositionDeviation, ParseCheck.DoubleTryParseNotNeg);
         }
 
         private void textBoxMaxPosDeviation_Leave(object sender, EventArgs e)
         {
-            StrSetParamByParserDouble((sender as TextBox).Text, @"max-pos-dev!", botnana.ConfigAxisSetMaxPositionDeviation, DoubleTryParseNotNeg);
+            StrSetParamByParserDouble((sender as TextBox).Text, @"max-pos-dev!", botnana.ConfigAxisSetMaxPositionDeviation, ParseCheck.DoubleTryParseNotNeg);
         }
 
         private void textBoxMaxPosDeviation_TextChanged(object sender, EventArgs e)
         {
-            CheckTextBoxByParserDouble(sender, DoubleTryParseNotNeg);
+            ParseCheck.TextBoxCheckByParserDouble(sender, ParseCheck.DoubleTryParseNotNeg);
         }
 
         private void textBoxIgnorableDistance_KeyDown(object sender, KeyEventArgs e)
@@ -633,37 +601,37 @@ namespace BotnanaClassLib
 
         private void textBoxIgnorableDistance_TextChanged(object sender, EventArgs e)
         {
-            CheckTextBoxByParserDouble(sender, DoubleTryParsePos);
+            ParseCheck.TextBoxCheckByParserDouble(sender, ParseCheck.DoubleTryParsePos);
         }
 
         private void textBoxVmax_KeyDown(object sender, KeyEventArgs e)
         {
-            if (e.KeyCode == Keys.Enter) StrSetParamByParserDouble((sender as TextBox).Text, @"axis-vmax!", botnana.ConfigAxisSetVmax, DoubleTryParsePos);
+            if (e.KeyCode == Keys.Enter) StrSetParamByParserDouble((sender as TextBox).Text, @"axis-vmax!", botnana.ConfigAxisSetVmax, ParseCheck.DoubleTryParsePos);
         }
 
         private void textBoxVmax_Leave(object sender, EventArgs e)
         {
-            StrSetParamByParserDouble((sender as TextBox).Text, @"axis-vmax!", botnana.ConfigAxisSetVmax, DoubleTryParsePos);
+            StrSetParamByParserDouble((sender as TextBox).Text, @"axis-vmax!", botnana.ConfigAxisSetVmax, ParseCheck.DoubleTryParsePos);
         }
 
         private void textBoxVmax_TextChanged(object sender, EventArgs e)
         {
-            CheckTextBoxByParserDouble(sender, DoubleTryParsePos);
+            ParseCheck.TextBoxCheckByParserDouble(sender, ParseCheck.DoubleTryParsePos);
         }
 
         private void textBoxAmax_KeyDown(object sender, KeyEventArgs e)
         {
-            if (e.KeyCode == Keys.Enter) StrSetParamByParserDouble((sender as TextBox).Text, @"axis-amax!", botnana.ConfigAxisSetAmax, DoubleTryParsePos);
+            if (e.KeyCode == Keys.Enter) StrSetParamByParserDouble((sender as TextBox).Text, @"axis-amax!", botnana.ConfigAxisSetAmax, ParseCheck.DoubleTryParsePos);
         }
 
         private void textBoxAmax_Leave(object sender, EventArgs e)
         {
-            StrSetParamByParserDouble((sender as TextBox).Text, @"axis-amax!", botnana.ConfigAxisSetAmax, DoubleTryParsePos);
+            StrSetParamByParserDouble((sender as TextBox).Text, @"axis-amax!", botnana.ConfigAxisSetAmax, ParseCheck.DoubleTryParsePos);
         }
 
         private void textBoxAmax_TextChanged(object sender, EventArgs e)
         {
-            CheckTextBoxByParserDouble(sender, DoubleTryParsePos);
+            ParseCheck.TextBoxCheckByParserDouble(sender, ParseCheck.DoubleTryParsePos);
         }
 
         private void textBoxVff_KeyDown(object sender, KeyEventArgs e)
@@ -685,7 +653,7 @@ namespace BotnanaClassLib
 
         private void textBoxVff_TextChanged(object sender, EventArgs e)
         {
-            CheckTextBoxByParserDouble(sender, Double.TryParse);
+            ParseCheck.TextBoxCheckByParserDouble(sender, Double.TryParse);
         }
 
         private void textBoxVfactor_KeyDown(object sender, KeyEventArgs e)
@@ -707,7 +675,7 @@ namespace BotnanaClassLib
 
         private void textBoxVfactor_TextChanged(object sender, EventArgs e)
         {
-            CheckTextBoxByParserDouble(sender, Double.TryParse);
+            ParseCheck.TextBoxCheckByParserDouble(sender, Double.TryParse);
         }
 
         private void textBoxAff_KeyDown(object sender, KeyEventArgs e)
@@ -729,7 +697,7 @@ namespace BotnanaClassLib
 
         private void textBoxAff_TextChanged(object sender, EventArgs e)
         {
-            CheckTextBoxByParserDouble(sender, Double.TryParse);
+            ParseCheck.TextBoxCheckByParserDouble(sender, Double.TryParse);
         }
 
         private void textBoxAfactor_KeyDown(object sender, KeyEventArgs e)
@@ -751,7 +719,7 @@ namespace BotnanaClassLib
 
         private void textBoxAfactor_TextChanged(object sender, EventArgs e)
         {
-            CheckTextBoxByParserDouble(sender, Double.TryParse);
+            ParseCheck.TextBoxCheckByParserDouble(sender, Double.TryParse);
         }
 
         private void buttonSave_Click(object sender, EventArgs e)
@@ -796,12 +764,12 @@ namespace BotnanaClassLib
 
         private void textBoxVelocityLimit_TextChanged(object sender, EventArgs e)
         {
-            CheckTextBoxByParserDouble(sender, Double.TryParse);
+            ParseCheck.TextBoxCheckByParserDouble(sender, Double.TryParse);
         }
 
         private void textBoxTargetPos_TextChanged(object sender, EventArgs e)
         {
-            CheckTextBoxByParserDouble(sender, Double.TryParse);
+            ParseCheck.TextBoxCheckByParserDouble(sender, Double.TryParse);
         }
     }
 }

@@ -37,7 +37,7 @@ namespace BotnanaClassLibTest
                 webSocketState = 2;
                 BeginInvoke(new Deg(() =>
                 {
-                    sdoControl1.UpdateData();
+                    sdoControl1.Awake();
                     driveControl1.Awake();
                     axisControl1.Awake();
                 }));
@@ -48,6 +48,12 @@ namespace BotnanaClassLibTest
             onWSError = new HandleMessage((IntPtr dataPtr, string str) =>
             {
                 webSocketState = 0;
+                BeginInvoke(new Deg(() =>
+                {
+                    sdoControl1.Sleep();
+                    driveControl1.Sleep();
+                    axisControl1.Sleep();
+                }));
                 Console.WriteLine("WS error : " + str);
             });
             bot.SetOnErrorCB(IntPtr.Zero, onWSError);

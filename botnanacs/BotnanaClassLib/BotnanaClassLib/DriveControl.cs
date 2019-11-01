@@ -42,24 +42,6 @@ namespace BotnanaClassLib
         private Int32 realPos = 0;
         private bool supportedOPModeUpdated = false;
         private delegate void Deg();
-        private delegate bool ParseFunc<T1, T2>(T1 a, out T2 b);
-
-        private bool UIntTryParseNotZero(string str, out UInt32 n)
-        {
-            return (UInt32.TryParse(str, out n) && n != 0) ? true : false;
-        }
-
-        private void CheckTextBoxByParserUInt(object sender, ParseFunc<string, UInt32> parser)
-        {
-            TextBox tb = sender as TextBox;
-            if (parser(tb.Text, out _)) { tb.ForeColor = Color.Black; } else { tb.ForeColor = Color.Red; }
-        }
-
-        private void CheckTextBoxByParserInt(object sender, ParseFunc<string, Int32> parser)
-        {
-            TextBox tb = sender as TextBox;
-            if (parser(tb.Text, out _)) { tb.ForeColor = Color.Black; } else { tb.ForeColor = Color.Red; }
-        }
 
         public DriveControl()
         {
@@ -263,8 +245,27 @@ namespace BotnanaClassLib
 
         public void Awake()
         {
-            Reset();
             timer1.Enabled = true;
+            Reset();
+            UpdateData();
+        }
+
+        public void Sleep()
+        {
+            timer1.Enabled = false;
+            Reset();
+        }
+
+        private void UpdateData()
+        {
+            if (slaveNumber != 0)
+            {
+                botnana.EvaluateScript(slaveNumber.ToString() + @" .slave");
+            }
+            else if (alias != 0)
+            {
+                botnana.EvaluateScript(alias.ToString() + @" ec-a>n .slave");
+            }
         }
 
         private void Reset()
@@ -289,14 +290,6 @@ namespace BotnanaClassLib
             textBoxProfileVelocity.Text = "";
             textBoxTargetTorque.Text = "";
             textBoxTorqueSlope.Text = "";
-            if (slaveNumber != 0)
-            {
-                botnana.EvaluateScript(slaveNumber.ToString() + @" .slave");
-            }
-            else if (alias != 0)
-            {
-                botnana.EvaluateScript(alias.ToString() + @" ec-a>n .slave");
-            }
         }
 
         private void TextBoxParaStore(object sender, string cmd)
@@ -344,7 +337,7 @@ namespace BotnanaClassLib
 
         private void textBoxAlias_TextChanged(object sender, EventArgs e)
         {
-            CheckTextBoxByParserUInt(sender, UInt32.TryParse);
+            ParseCheck.TextBoxCheckByParserUInt(sender, UInt32.TryParse);
         }
 
         private void textBoxAlias_Submit(object sender)
@@ -359,6 +352,7 @@ namespace BotnanaClassLib
                     textBoxSlavePos.Text = "0";
                     slaveNumber = 0;
                     Reset();
+                    UpdateData();
                 }
             } else
             {
@@ -378,17 +372,18 @@ namespace BotnanaClassLib
 
         private void textBoxSlavePos_TextChanged(object sender, EventArgs e)
         {
-            CheckTextBoxByParserUInt(sender, UIntTryParseNotZero);
+            ParseCheck.TextBoxCheckByParserUInt(sender, ParseCheck.UIntTryParseNotZero);
         }
 
         private void textBoxSlavePos_Submit(object sender)
         {
             TextBox tb = sender as TextBox;
             UInt32 n;
-            if (UIntTryParseNotZero(tb.Text, out n) && n != 0 && alias == 0)
+            if (ParseCheck.UIntTryParseNotZero(tb.Text, out n) && n != 0 && alias == 0)
             {
                 slaveNumber = n;
                 Reset();
+                UpdateData();
             } else
             {
                 tb.Text = slaveNumber.ToString();
@@ -407,17 +402,18 @@ namespace BotnanaClassLib
 
         private void textBoxChannel_TextChanged(object sender, EventArgs e)
         {
-            CheckTextBoxByParserUInt(sender, UIntTryParseNotZero);
+            ParseCheck.TextBoxCheckByParserUInt(sender, ParseCheck.UIntTryParseNotZero);
         }
 
         private void textBoxChannel_Submit(object sender)
         {
             TextBox tb = sender as TextBox;
             UInt32 n;
-            if (UIntTryParseNotZero(tb.Text, out n) && n != 0)
+            if (ParseCheck.UIntTryParseNotZero(tb.Text, out n) && n != 0)
             {
                 channelNumber = n;
                 Reset();
+                UpdateData();
             } else
             {
                 tb.Text = channelNumber.ToString();
@@ -436,7 +432,7 @@ namespace BotnanaClassLib
 
         private void textBoxTargetPosition_TextChanged(object sender, EventArgs e)
         {
-            CheckTextBoxByParserInt(sender, Int32.TryParse);
+            ParseCheck.TextBoxCheckByParserInt(sender, Int32.TryParse);
         }
 
         private void textBoxTargetPosition_KeyDown(object sender, KeyEventArgs e)
@@ -451,7 +447,7 @@ namespace BotnanaClassLib
 
         private void textBoxTargetVelocity_TextChanged(object sender, EventArgs e)
         {
-            CheckTextBoxByParserInt(sender, Int32.TryParse);
+            ParseCheck.TextBoxCheckByParserInt(sender, Int32.TryParse);
         }
 
         private void textBoxTargetVelocity_KeyDown(object sender, KeyEventArgs e)
@@ -466,7 +462,7 @@ namespace BotnanaClassLib
 
         private void textBoxTargetTorque_TextChanged(object sender, EventArgs e)
         {
-            CheckTextBoxByParserInt(sender, Int32.TryParse);
+            ParseCheck.TextBoxCheckByParserInt(sender, Int32.TryParse);
         }
 
         private void textBoxTargetTorque_KeyDown(object sender, KeyEventArgs e)
@@ -481,7 +477,7 @@ namespace BotnanaClassLib
 
         private void textBoxHMMethod_TextChanged(object sender, EventArgs e)
         {
-            CheckTextBoxByParserUInt(sender, UInt32.TryParse);
+            ParseCheck.TextBoxCheckByParserUInt(sender, UInt32.TryParse);
         }
 
         private void textBoxHMMethod_KeyDown(object sender, KeyEventArgs e)
@@ -496,7 +492,7 @@ namespace BotnanaClassLib
 
         private void textBoxHMSpeed1_TextChanged(object sender, EventArgs e)
         {
-            CheckTextBoxByParserUInt(sender, UIntTryParseNotZero);
+            ParseCheck.TextBoxCheckByParserUInt(sender, ParseCheck.UIntTryParseNotZero);
         }
 
         private void textBoxHMSpeed1_KeyDown(object sender, KeyEventArgs e)
@@ -511,7 +507,7 @@ namespace BotnanaClassLib
 
         private void textBoxHMSpeed2_TextChanged(object sender, EventArgs e)
         {
-            CheckTextBoxByParserUInt(sender, UIntTryParseNotZero);
+            ParseCheck.TextBoxCheckByParserUInt(sender, ParseCheck.UIntTryParseNotZero);
         }
 
         private void textBoxHMSpeed2_KeyDown(object sender, KeyEventArgs e)
@@ -526,7 +522,7 @@ namespace BotnanaClassLib
 
         private void textBoxHMAcceleration_TextChanged(object sender, EventArgs e)
         {
-            CheckTextBoxByParserUInt(sender, UInt32.TryParse);
+            ParseCheck.TextBoxCheckByParserUInt(sender, UInt32.TryParse);
         }
 
         private void textBoxHMAcceleration_KeyDown(object sender, KeyEventArgs e)
@@ -541,7 +537,7 @@ namespace BotnanaClassLib
 
         private void textBoxProfileVelocity_TextChanged(object sender, EventArgs e)
         {
-            CheckTextBoxByParserUInt(sender, UInt32.TryParse);
+            ParseCheck.TextBoxCheckByParserUInt(sender, UInt32.TryParse);
         }
 
         private void textBoxProfileVelocity_KeyDown(object sender, KeyEventArgs e)
@@ -556,7 +552,7 @@ namespace BotnanaClassLib
 
         private void textBoxProfileAcceleration_TextChanged(object sender, EventArgs e)
         {
-            CheckTextBoxByParserUInt(sender, UIntTryParseNotZero);
+            ParseCheck.TextBoxCheckByParserUInt(sender, ParseCheck.UIntTryParseNotZero);
         }
 
         private void textBoxProfileAcceleration_KeyDown(object sender, KeyEventArgs e)
@@ -571,7 +567,7 @@ namespace BotnanaClassLib
 
         private void textBoxProfileDeceleration_TextChanged(object sender, EventArgs e)
         {
-            CheckTextBoxByParserUInt(sender, UIntTryParseNotZero);
+            ParseCheck.TextBoxCheckByParserUInt(sender, ParseCheck.UIntTryParseNotZero);
         }
 
         private void textBoxProfileDeceleration_KeyDown(object sender, KeyEventArgs e)
@@ -586,7 +582,7 @@ namespace BotnanaClassLib
 
         private void textBoxTorqueSlope_TextChanged(object sender, EventArgs e)
         {
-            CheckTextBoxByParserUInt(sender, UIntTryParseNotZero);
+            ParseCheck.TextBoxCheckByParserUInt(sender, ParseCheck.UIntTryParseNotZero);
         }
 
         private void textBoxTorqueSlope_KeyDown(object sender, KeyEventArgs e)

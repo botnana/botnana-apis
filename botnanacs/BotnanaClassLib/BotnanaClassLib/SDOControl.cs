@@ -21,38 +21,6 @@ namespace BotnanaClassLib
         private HandleTagNameMessage onSDOData;
         private UInt32 slaveNumber = 1;
         private delegate void Deg();
-        private delegate bool ParseFunc<T1, T2>(T1 a, out T2 b);
-
-        private bool UIntTryParseNotZero(string str, out UInt32 n)
-        {
-            return (UInt32.TryParse(str, out n) && n != 0) ? true : false;
-        }
-
-        private void CheckTextBoxByParserUInt(object sender, ParseFunc<string, UInt32> parser)
-        {
-            TextBox tb = sender as TextBox;
-            if (parser(tb.Text, out _)) { tb.ForeColor = Color.Black; } else { tb.ForeColor = Color.Red; }
-        }
-
-        private void CheckTextBoxByParserInt(object sender, ParseFunc<string, Int32> parser)
-        {
-            TextBox tb = sender as TextBox;
-            if (parser(tb.Text, out _)) { tb.ForeColor = Color.Black; } else { tb.ForeColor = Color.Red; }
-        }
-
-        private void CheckTextBoxUIntHex(object sender)
-        {
-            TextBox tb = sender as TextBox;
-            try
-            {
-                Int32 _ = Convert.ToInt32(tb.Text, 16);
-                tb.ForeColor = Color.Black;
-            }
-            catch
-            {
-                tb.ForeColor = Color.Red;
-            }
-        }
 
         public SDOControl()
         {
@@ -94,7 +62,17 @@ namespace BotnanaClassLib
             botnana.SetTagNameCB(@"sdo_data", 0, IntPtr.Zero, onSDOData);
         }
 
-        public void UpdateData()
+        public void Awake()
+        {
+            UpdateData();
+        }
+
+        public void Sleep()
+        {
+            Reset();
+        }
+
+        private void UpdateData()
         {
             botnana.EvaluateScript(slaveNumber.ToString() + @" .sdo");
         }
@@ -165,34 +143,32 @@ namespace BotnanaClassLib
                 default:
                     return;
             }
-            try
+            UInt32 idx;
+            UInt32 subidx;
+            if (ParseCheck.UIntTryParseFromHex(textBoxSDOIndexC.Text, out idx) && ParseCheck.UIntTryParseFromHex(textBoxSDOSubIndexC.Text, out subidx))
             {
                 if (upload)
                 {
-                    botnana.EvaluateScript(Convert.ToInt32(textBoxSDOSubIndexC.Text, 16).ToString() + @" " + Convert.ToInt32(textBoxSDOIndexC.Text, 16).ToString() + @" " + slaveNumber.ToString() + @" " + cmd);
+                    botnana.EvaluateScript(subidx.ToString() + @" " + idx.ToString() + @" " + slaveNumber.ToString() + @" " + cmd);
                 }
                 else
                 {
-                    botnana.EvaluateScript(textBoxSDOValueC.Text + @" " + Convert.ToInt32(textBoxSDOSubIndexC.Text, 16).ToString() + @" " + Convert.ToInt32(textBoxSDOIndexC.Text, 16).ToString() + @" " + slaveNumber.ToString() + @" " + cmd);
+                    botnana.EvaluateScript(textBoxSDOValueC.Text + @" " + subidx.ToString() + @" " + idx.ToString() + @" " + slaveNumber.ToString() + @" " + cmd);
                 }
                 UpdateData();
-            }
-            catch (Exception exc)
-            {
-                Console.WriteLine(exc);
             }
         }
 
         private void textBoxSDOSlaveNumber_TextChanged(object sender, EventArgs e)
         {
-            CheckTextBoxByParserUInt(sender, UIntTryParseNotZero);
+            ParseCheck.TextBoxCheckByParserUInt(sender, ParseCheck.UIntTryParseNotZero);
         }
 
         private void textBoxSDOSlaveNumberSubmit(object sender)
         {
             TextBox tb = sender as TextBox;
             UInt32 n;
-            if (UIntTryParseNotZero(tb.Text, out n))
+            if (ParseCheck.UIntTryParseNotZero(tb.Text, out n))
             {
                 slaveNumber = n;
                 Reset();
@@ -215,17 +191,17 @@ namespace BotnanaClassLib
 
         private void textBoxSDOIndexC_TextChanged(object sender, EventArgs e)
         {
-            CheckTextBoxUIntHex(sender);
+            ParseCheck.TextBoxCheckByParserUInt(sender, ParseCheck.UIntTryParseFromHex);
         }
 
         private void textBoxSDOSubIndexC_TextChanged(object sender, EventArgs e)
         {
-            CheckTextBoxUIntHex(sender);
+            ParseCheck.TextBoxCheckByParserUInt(sender, ParseCheck.UIntTryParseFromHex);
         }
 
         private void textBoxSDOValueC_TextChanged(object sender, EventArgs e)
         {
-            CheckTextBoxByParserInt(sender, Int32.TryParse);
+            ParseCheck.TextBoxCheckByParserInt(sender, Int32.TryParse);
         }
 
         private void buttonECSave_Click(object sender, EventArgs e)
