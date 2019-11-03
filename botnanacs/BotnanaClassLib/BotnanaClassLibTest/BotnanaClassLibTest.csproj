@@ -33,11 +33,13 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="BotnanaClassLib">
+    <Reference Include="BotnanaClassLib, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
       <HintPath>..\BotnanaClassLib\bin\Release\BotnanaClassLib.dll</HintPath>
     </Reference>
-    <Reference Include="BotnanaLib">
-      <HintPath>..\..\botnana-apis\botnanacs\BotnanaLib\BotnanaLib\bin\Release\BotnanaLib.dll</HintPath>
+    <Reference Include="BotnanaLib, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\BotnanaLib\BotnanaLib\bin\Release\BotnanaLib.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
