@@ -23,6 +23,7 @@ botnanacs 為 C# 的範例程式，開發工具版本:
     |-----> SingleDrive
     |-----> TorqueScope
     |-----> TouchProbe
+    |-----> MultiApp
 
 * AIO: 類比輸入與輸出模組範例。
 * AxesMove: 兩個運動軸獨立運動的 SFC 範例，也以不需要接馬達驅動器，以虛擬軸即可執此範例。
@@ -39,6 +40,7 @@ botnanacs 為 C# 的範例程式，開發工具版本:
 * SingleDrive: 一個單軸馬達驅動器的測試範例。
 * TorqueScope: 即時監看馬扭力的應用範例。
 * TouchProbe: 馬達驅動器 Touch Probe Function 的測試範例。
+* MultiApp: 整合多個功能(TorqueScope + MoldFeeder + IAI_RCON_SYSTEM)的應用範例。
 ---
 
 # lib 與 dll

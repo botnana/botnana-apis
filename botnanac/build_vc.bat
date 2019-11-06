@@ -21,6 +21,7 @@ copy lib\BotnanaApi.dll ..\botnanacs\SingleDrive\SingleDrive\BotnanaApi.dll
 copy lib\BotnanaApi.dll ..\botnanacs\TorqueScope\TorqueScope\BotnanaApi.dll
 copy lib\BotnanaApi.dll ..\botnanacs\TouchProbe\TouchProbe\BotnanaApi.dll
 copy lib\BotnanaApi.dll ..\botnanacs\BotnanaClassLib\BotnanaClassLibTest\BotnanaApi.dll
+copy lib\BotnanaApi.dll ..\botnanacs\MultiApp\MultiApp\BotnanaApi.dll
 
 copy lib\BotnanaApiBCB.lib ..\botnanabcb\SingleDrive\BotnanaApiBCB.lib
 copy lib\BotnanaApi.dll ..\botnanabcb\SingleDrive\Win32\Release\BotnanaApi.dll
