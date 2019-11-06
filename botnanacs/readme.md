@@ -13,6 +13,7 @@ botnanacs 為 C# 的範例程式，開發工具版本:
     |-----> AxisGroup
     |-----> BotnanaApi
     |-----> BotnanaLib
+    |-----> BotnanaClassLib
     |-----> DIO
     |-----> Group2DAndMpg
     |-----> IAI_RCON_SYSTEM
@@ -29,6 +30,7 @@ botnanacs 為 C# 的範例程式，開發工具版本:
 * AxisGroup: 此範例結合 SFC 與 3D 運動軸組，可以作為 3 軸運動平台的基礎，包含回歸機械原點，軸移動，NC 程式運作。
 * BotnanaApi: 將 C 語言函式庫 `botnana.lib` 轉換為 C# 使用的動態連結檔 `BotnanaApi.dll` 。
 * BotnanaLib: 將 BotnanaApi 包裝成 C# class libraray。
+* BotnanaClassLib: 提供可以給其它 App 引用的數個 Botnana 控制項。
 * DIO: 數位輸入與輸出範例。
 * Group2DAndMpg: 2D 軸組與手輪範例。
 * IAI_RCON_SYSTEM: IAI RCON-GW-EC + RCON-PC/AC 多軸致動器控制與操作範例。
