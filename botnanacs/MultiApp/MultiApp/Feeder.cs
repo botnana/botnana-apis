@@ -362,7 +362,7 @@ namespace MultiApp
         {
             string cmd = "";
             if (driveDeviceSlave != 0 && driveDeviceChannel != 0) cmd += (driveDeviceSlave.ToString() + @" .slave-diff ");
-            if (cylinderDeviceSlave != 0 && cylinderDeviceChannel != 0) cmd += (cylinderDeviceSlave.ToString() + @".slave-diff ");
+            if (cylinderDeviceSlave != 0 && cylinderDeviceChannel != 0) cmd += (cylinderDeviceSlave.ToString() + @" .slave-diff ");
             if (feederReady) cmd += @".feeder ";
             if (!FormApp.stopPolling) FormApp.BotEvaluateScript(cmd);
         }
