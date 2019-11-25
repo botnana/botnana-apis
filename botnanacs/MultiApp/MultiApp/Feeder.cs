@@ -375,17 +375,17 @@ namespace MultiApp
 
         private void button1_Click(object sender, EventArgs e)
         {
-            FormApp.BotEvaluateScript(@"rotate-axis @ 0axis-ferr drive-device 2@ real-p@ drive-device 2@ target-p! csp drive-device 2@ op-mode! drive-device 2@ drive-on");
+            FormApp.BotEvaluateScript(@"rotate-axis @ 0axis-ferr rotate-drive 2@ real-p@ rotate-drive 2@ target-p! csp rotate-drive 2@ op-mode! rotate-drive 2@ drive-on");
         }
 
         private void button2_Click(object sender, EventArgs e)
         {
-            FormApp.BotEvaluateScript(@"drive-device 2@ drive-off");
+            FormApp.BotEvaluateScript(@"rotate-drive 2@ drive-off");
         }
 
         private void button3_Click(object sender, EventArgs e)
         {
-            FormApp.BotEvaluateScript(@"drive-device 2@ reset-fault");
+            FormApp.BotEvaluateScript(@"rotate-drive 2@ reset-fault");
         }
 
         private void buttonJogPositive_MouseDown(object sender, MouseEventArgs e)
@@ -410,12 +410,12 @@ namespace MultiApp
 
         private void buttonCylinderOn_Click(object sender, EventArgs e)
         {
-            FormApp.BotEvaluateScript(@"1 cylinder-device 2@ ec-dout!");
+            FormApp.BotEvaluateScript(@"1 cylinder-dout 2@ ec-dout!");
         }
 
         private void buttonCylinderOff_Click(object sender, EventArgs e)
         {
-            FormApp.BotEvaluateScript(@"0 cylinder-device 2@ ec-dout!");
+            FormApp.BotEvaluateScript(@"0 cylinder-dout 2@ ec-dout!");
         }
 
         private void textCylinderOnMs_Leave(object sender, EventArgs e)
