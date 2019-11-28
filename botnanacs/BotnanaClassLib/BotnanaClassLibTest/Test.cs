@@ -99,6 +99,16 @@ namespace BotnanaClassLibTest
             }
         }
 
+        private void buttonDisableCoordinator_Click(object sender, EventArgs e)
+        {
+            bot.EvaluateScript("-coordinator");
+        }
+
+        private void buttonEnableCoordinator_Click(object sender, EventArgs e)
+        {
+            bot.EvaluateScript("+coordinator");
+        }
+
         [System.Runtime.InteropServices.DllImport("kernel32.dll", SetLastError = true)]
         static extern bool AllocConsole();
 
