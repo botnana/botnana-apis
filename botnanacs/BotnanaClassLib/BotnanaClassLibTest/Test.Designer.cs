@@ -34,6 +34,8 @@
             this.sdoControl1 = new BotnanaClassLib.SDOControl();
             this.realTimeScriptControl1 = new BotnanaClassLib.RealTimeScriptControl();
             this.timer1 = new System.Windows.Forms.Timer(this.components);
+            this.buttonEnableCoordinator = new System.Windows.Forms.Button();
+            this.buttonDisableCoordinator = new System.Windows.Forms.Button();
             this.SuspendLayout();
             // 
             // driveControl1
@@ -60,7 +62,7 @@
             // realTimeScriptControl1
             // 
             this.realTimeScriptControl1.Font = new System.Drawing.Font("新細明體", 11.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(136)));
-            this.realTimeScriptControl1.Location = new System.Drawing.Point(434, 542);
+            this.realTimeScriptControl1.Location = new System.Drawing.Point(387, 542);
             this.realTimeScriptControl1.Margin = new System.Windows.Forms.Padding(4);
             this.realTimeScriptControl1.Name = "realTimeScriptControl1";
             this.realTimeScriptControl1.Size = new System.Drawing.Size(364, 197);
@@ -70,11 +72,33 @@
             // 
             this.timer1.Tick += new System.EventHandler(this.timer1_Tick);
             // 
+            // buttonEnableCoordinator
+            // 
+            this.buttonEnableCoordinator.Location = new System.Drawing.Point(800, 590);
+            this.buttonEnableCoordinator.Name = "buttonEnableCoordinator";
+            this.buttonEnableCoordinator.Size = new System.Drawing.Size(100, 25);
+            this.buttonEnableCoordinator.TabIndex = 4;
+            this.buttonEnableCoordinator.Text = "+Coordinator";
+            this.buttonEnableCoordinator.UseVisualStyleBackColor = true;
+            this.buttonEnableCoordinator.Click += new System.EventHandler(this.buttonEnableCoordinator_Click);
+            // 
+            // buttonDisableCoordinator
+            // 
+            this.buttonDisableCoordinator.Location = new System.Drawing.Point(800, 621);
+            this.buttonDisableCoordinator.Name = "buttonDisableCoordinator";
+            this.buttonDisableCoordinator.Size = new System.Drawing.Size(100, 25);
+            this.buttonDisableCoordinator.TabIndex = 5;
+            this.buttonDisableCoordinator.Text = "-Coordinator";
+            this.buttonDisableCoordinator.UseVisualStyleBackColor = true;
+            this.buttonDisableCoordinator.Click += new System.EventHandler(this.buttonDisableCoordinator_Click);
+            // 
             // Test
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 12F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(951, 768);
+            this.Controls.Add(this.buttonDisableCoordinator);
+            this.Controls.Add(this.buttonEnableCoordinator);
             this.Controls.Add(this.realTimeScriptControl1);
             this.Controls.Add(this.sdoControl1);
             this.Controls.Add(this.axisControl1);
@@ -93,6 +117,8 @@
         private BotnanaClassLib.SDOControl sdoControl1;
         private BotnanaClassLib.RealTimeScriptControl realTimeScriptControl1;
         private System.Windows.Forms.Timer timer1;
+        private System.Windows.Forms.Button buttonEnableCoordinator;
+        private System.Windows.Forms.Button buttonDisableCoordinator;
     }
 }
 
