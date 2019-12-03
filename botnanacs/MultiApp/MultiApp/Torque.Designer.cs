@@ -29,8 +29,8 @@
         private void InitializeComponent()
         {
             this.components = new System.ComponentModel.Container();
-            System.Windows.Forms.DataVisualization.Charting.ChartArea chartArea1 = new System.Windows.Forms.DataVisualization.Charting.ChartArea();
-            System.Windows.Forms.DataVisualization.Charting.Series series1 = new System.Windows.Forms.DataVisualization.Charting.Series();
+            System.Windows.Forms.DataVisualization.Charting.ChartArea chartArea2 = new System.Windows.Forms.DataVisualization.Charting.ChartArea();
+            System.Windows.Forms.DataVisualization.Charting.Series series2 = new System.Windows.Forms.DataVisualization.Charting.Series();
             this.timer1 = new System.Windows.Forms.Timer(this.components);
             this.button1 = new System.Windows.Forms.Button();
             this.button2 = new System.Windows.Forms.Button();
@@ -70,12 +70,15 @@
             this.label5 = new System.Windows.Forms.Label();
             this.label3 = new System.Windows.Forms.Label();
             this.groupBox4 = new System.Windows.Forms.GroupBox();
+            this.label6 = new System.Windows.Forms.Label();
+            this.label12 = new System.Windows.Forms.Label();
+            this.textTorqueLimit1 = new System.Windows.Forms.TextBox();
             this.label57 = new System.Windows.Forms.Label();
-            this.textSpeedChangeDistance = new System.Windows.Forms.TextBox();
+            this.textFollowingErrorLimit2 = new System.Windows.Forms.TextBox();
             this.label56 = new System.Windows.Forms.Label();
             this.label55 = new System.Windows.Forms.Label();
             this.label54 = new System.Windows.Forms.Label();
-            this.textTorqueThreshold = new System.Windows.Forms.TextBox();
+            this.textTorqueLimit2 = new System.Windows.Forms.TextBox();
             this.label53 = new System.Windows.Forms.Label();
             this.label52 = new System.Windows.Forms.Label();
             this.label51 = new System.Windows.Forms.Label();
@@ -143,6 +146,9 @@
             this.label45 = new System.Windows.Forms.Label();
             this.label21 = new System.Windows.Forms.Label();
             this.buttonTorqueReady = new System.Windows.Forms.Button();
+            this.label13 = new System.Windows.Forms.Label();
+            this.textFollowingErrorLimit1 = new System.Windows.Forms.TextBox();
+            this.label15 = new System.Windows.Forms.Label();
             ((System.ComponentModel.ISupportInitialize)(this.chartTorque)).BeginInit();
             this.groupBox1.SuspendLayout();
             this.groupBox2.SuspendLayout();
@@ -181,18 +187,18 @@
             // 
             // chartTorque
             // 
-            chartArea1.Name = "ChartArea1";
-            this.chartTorque.ChartAreas.Add(chartArea1);
+            chartArea2.Name = "ChartArea1";
+            this.chartTorque.ChartAreas.Add(chartArea2);
             this.chartTorque.Location = new System.Drawing.Point(17, 28);
             this.chartTorque.Margin = new System.Windows.Forms.Padding(4);
             this.chartTorque.Name = "chartTorque";
-            series1.ChartArea = "ChartArea1";
-            series1.ChartType = System.Windows.Forms.DataVisualization.Charting.SeriesChartType.Line;
-            series1.IsVisibleInLegend = false;
-            series1.Name = "Series1";
-            series1.XValueType = System.Windows.Forms.DataVisualization.Charting.ChartValueType.Int32;
-            series1.YValueType = System.Windows.Forms.DataVisualization.Charting.ChartValueType.Int32;
-            this.chartTorque.Series.Add(series1);
+            series2.ChartArea = "ChartArea1";
+            series2.ChartType = System.Windows.Forms.DataVisualization.Charting.SeriesChartType.Line;
+            series2.IsVisibleInLegend = false;
+            series2.Name = "Series1";
+            series2.XValueType = System.Windows.Forms.DataVisualization.Charting.ChartValueType.Int32;
+            series2.YValueType = System.Windows.Forms.DataVisualization.Charting.ChartValueType.Int32;
+            this.chartTorque.Series.Add(series2);
             this.chartTorque.Size = new System.Drawing.Size(423, 266);
             this.chartTorque.TabIndex = 6;
             this.chartTorque.Text = "chart1";
@@ -576,12 +582,18 @@
             // 
             // groupBox4
             // 
+            this.groupBox4.Controls.Add(this.label13);
+            this.groupBox4.Controls.Add(this.textFollowingErrorLimit1);
+            this.groupBox4.Controls.Add(this.label15);
+            this.groupBox4.Controls.Add(this.label6);
+            this.groupBox4.Controls.Add(this.label12);
+            this.groupBox4.Controls.Add(this.textTorqueLimit1);
             this.groupBox4.Controls.Add(this.label57);
-            this.groupBox4.Controls.Add(this.textSpeedChangeDistance);
+            this.groupBox4.Controls.Add(this.textFollowingErrorLimit2);
             this.groupBox4.Controls.Add(this.label56);
             this.groupBox4.Controls.Add(this.label55);
             this.groupBox4.Controls.Add(this.label54);
-            this.groupBox4.Controls.Add(this.textTorqueThreshold);
+            this.groupBox4.Controls.Add(this.textTorqueLimit2);
             this.groupBox4.Controls.Add(this.label53);
             this.groupBox4.Controls.Add(this.label52);
             this.groupBox4.Controls.Add(this.label51);
@@ -599,77 +611,107 @@
             this.groupBox4.Margin = new System.Windows.Forms.Padding(4);
             this.groupBox4.Name = "groupBox4";
             this.groupBox4.Padding = new System.Windows.Forms.Padding(4);
-            this.groupBox4.Size = new System.Drawing.Size(453, 236);
+            this.groupBox4.Size = new System.Drawing.Size(453, 296);
             this.groupBox4.TabIndex = 16;
             this.groupBox4.TabStop = false;
             this.groupBox4.Text = "Detect Torque Control";
             // 
+            // label6
+            // 
+            this.label6.AutoSize = true;
+            this.label6.Location = new System.Drawing.Point(25, 30);
+            this.label6.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
+            this.label6.Name = "label6";
+            this.label6.Size = new System.Drawing.Size(112, 16);
+            this.label6.TabIndex = 77;
+            this.label6.Text = "1st Torque Limit";
+            // 
+            // label12
+            // 
+            this.label12.AutoSize = true;
+            this.label12.Location = new System.Drawing.Point(298, 29);
+            this.label12.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
+            this.label12.Name = "label12";
+            this.label12.Size = new System.Drawing.Size(41, 16);
+            this.label12.TabIndex = 76;
+            this.label12.Text = "0.1%";
+            // 
+            // textTorqueLimit1
+            // 
+            this.textTorqueLimit1.Location = new System.Drawing.Point(190, 26);
+            this.textTorqueLimit1.Margin = new System.Windows.Forms.Padding(4);
+            this.textTorqueLimit1.Name = "textTorqueLimit1";
+            this.textTorqueLimit1.Size = new System.Drawing.Size(97, 27);
+            this.textTorqueLimit1.TabIndex = 75;
+            this.textTorqueLimit1.Text = "1000";
+            this.textTorqueLimit1.TextAlign = System.Windows.Forms.HorizontalAlignment.Right;
+            // 
             // label57
             // 
             this.label57.AutoSize = true;
-            this.label57.Location = new System.Drawing.Point(300, 61);
+            this.label57.Location = new System.Drawing.Point(326, 135);
             this.label57.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.label57.Name = "label57";
             this.label57.Size = new System.Drawing.Size(32, 16);
             this.label57.TabIndex = 74;
             this.label57.Text = "mm";
             // 
-            // textSpeedChangeDistance
+            // textFollowingErrorLimit2
             // 
-            this.textSpeedChangeDistance.Location = new System.Drawing.Point(190, 60);
-            this.textSpeedChangeDistance.Margin = new System.Windows.Forms.Padding(4);
-            this.textSpeedChangeDistance.Name = "textSpeedChangeDistance";
-            this.textSpeedChangeDistance.Size = new System.Drawing.Size(97, 27);
-            this.textSpeedChangeDistance.TabIndex = 73;
-            this.textSpeedChangeDistance.Text = "0.25";
-            this.textSpeedChangeDistance.TextAlign = System.Windows.Forms.HorizontalAlignment.Right;
-            this.textSpeedChangeDistance.Leave += new System.EventHandler(this.textSpeedChangeDistance_Leave);
+            this.textFollowingErrorLimit2.Location = new System.Drawing.Point(216, 134);
+            this.textFollowingErrorLimit2.Margin = new System.Windows.Forms.Padding(4);
+            this.textFollowingErrorLimit2.Name = "textFollowingErrorLimit2";
+            this.textFollowingErrorLimit2.Size = new System.Drawing.Size(97, 27);
+            this.textFollowingErrorLimit2.TabIndex = 73;
+            this.textFollowingErrorLimit2.Text = "0.25";
+            this.textFollowingErrorLimit2.TextAlign = System.Windows.Forms.HorizontalAlignment.Right;
+            this.textFollowingErrorLimit2.Leave += new System.EventHandler(this.textFollowingErrorLimit2_Leave);
             // 
             // label56
             // 
             this.label56.AutoSize = true;
-            this.label56.Location = new System.Drawing.Point(25, 63);
+            this.label56.Location = new System.Drawing.Point(25, 137);
             this.label56.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.label56.Name = "label56";
-            this.label56.Size = new System.Drawing.Size(156, 16);
+            this.label56.Size = new System.Drawing.Size(172, 16);
             this.label56.TabIndex = 72;
-            this.label56.Text = "Speed Change Distance";
+            this.label56.Text = "2nd Following Error Limit";
             // 
             // label55
             // 
             this.label55.AutoSize = true;
-            this.label55.Location = new System.Drawing.Point(25, 32);
+            this.label55.Location = new System.Drawing.Point(25, 65);
             this.label55.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.label55.Name = "label55";
-            this.label55.Size = new System.Drawing.Size(120, 16);
+            this.label55.Size = new System.Drawing.Size(118, 16);
             this.label55.TabIndex = 71;
-            this.label55.Text = "Torque Threshold";
+            this.label55.Text = "2nd Torque Limit";
             // 
             // label54
             // 
             this.label54.AutoSize = true;
-            this.label54.Location = new System.Drawing.Point(298, 31);
+            this.label54.Location = new System.Drawing.Point(298, 64);
             this.label54.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.label54.Name = "label54";
             this.label54.Size = new System.Drawing.Size(41, 16);
             this.label54.TabIndex = 70;
             this.label54.Text = "0.1%";
             // 
-            // textTorqueThreshold
+            // textTorqueLimit2
             // 
-            this.textTorqueThreshold.Location = new System.Drawing.Point(190, 28);
-            this.textTorqueThreshold.Margin = new System.Windows.Forms.Padding(4);
-            this.textTorqueThreshold.Name = "textTorqueThreshold";
-            this.textTorqueThreshold.Size = new System.Drawing.Size(97, 27);
-            this.textTorqueThreshold.TabIndex = 69;
-            this.textTorqueThreshold.Text = "100";
-            this.textTorqueThreshold.TextAlign = System.Windows.Forms.HorizontalAlignment.Right;
-            this.textTorqueThreshold.Leave += new System.EventHandler(this.textTorqueThreshold_Leave);
+            this.textTorqueLimit2.Location = new System.Drawing.Point(190, 61);
+            this.textTorqueLimit2.Margin = new System.Windows.Forms.Padding(4);
+            this.textTorqueLimit2.Name = "textTorqueLimit2";
+            this.textTorqueLimit2.Size = new System.Drawing.Size(97, 27);
+            this.textTorqueLimit2.TabIndex = 69;
+            this.textTorqueLimit2.Text = "100";
+            this.textTorqueLimit2.TextAlign = System.Windows.Forms.HorizontalAlignment.Right;
+            this.textTorqueLimit2.Leave += new System.EventHandler(this.textTorqueLimit2_Leave);
             // 
             // label53
             // 
             this.label53.AutoSize = true;
-            this.label53.Location = new System.Drawing.Point(364, 140);
+            this.label53.Location = new System.Drawing.Point(364, 213);
             this.label53.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.label53.Name = "label53";
             this.label53.Size = new System.Drawing.Size(60, 16);
@@ -679,7 +721,7 @@
             // label52
             // 
             this.label52.AutoSize = true;
-            this.label52.Location = new System.Drawing.Point(364, 106);
+            this.label52.Location = new System.Drawing.Point(364, 179);
             this.label52.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.label52.Name = "label52";
             this.label52.Size = new System.Drawing.Size(60, 16);
@@ -689,7 +731,7 @@
             // label51
             // 
             this.label51.AutoSize = true;
-            this.label51.Location = new System.Drawing.Point(211, 140);
+            this.label51.Location = new System.Drawing.Point(211, 213);
             this.label51.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.label51.Name = "label51";
             this.label51.Size = new System.Drawing.Size(32, 16);
@@ -699,7 +741,7 @@
             // label50
             // 
             this.label50.AutoSize = true;
-            this.label50.Location = new System.Drawing.Point(211, 106);
+            this.label50.Location = new System.Drawing.Point(211, 179);
             this.label50.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.label50.Name = "label50";
             this.label50.Size = new System.Drawing.Size(32, 16);
@@ -709,7 +751,7 @@
             // label49
             // 
             this.label49.AutoSize = true;
-            this.label49.Location = new System.Drawing.Point(26, 138);
+            this.label49.Location = new System.Drawing.Point(26, 211);
             this.label49.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.label49.Name = "label49";
             this.label49.Size = new System.Drawing.Size(71, 16);
@@ -719,7 +761,7 @@
             // label48
             // 
             this.label48.AutoSize = true;
-            this.label48.Location = new System.Drawing.Point(25, 106);
+            this.label48.Location = new System.Drawing.Point(25, 179);
             this.label48.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.label48.Name = "label48";
             this.label48.Size = new System.Drawing.Size(65, 16);
@@ -729,7 +771,7 @@
             // button11
             // 
             this.button11.Font = new System.Drawing.Font("新細明體", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.button11.Location = new System.Drawing.Point(152, 182);
+            this.button11.Location = new System.Drawing.Point(152, 255);
             this.button11.Margin = new System.Windows.Forms.Padding(4);
             this.button11.Name = "button11";
             this.button11.Size = new System.Drawing.Size(137, 31);
@@ -740,7 +782,7 @@
             // 
             // textPushV2
             // 
-            this.textPushV2.Location = new System.Drawing.Point(260, 135);
+            this.textPushV2.Location = new System.Drawing.Point(260, 208);
             this.textPushV2.Margin = new System.Windows.Forms.Padding(4);
             this.textPushV2.Name = "textPushV2";
             this.textPushV2.Size = new System.Drawing.Size(96, 27);
@@ -751,7 +793,7 @@
             // 
             // textPushP2
             // 
-            this.textPushP2.Location = new System.Drawing.Point(105, 135);
+            this.textPushP2.Location = new System.Drawing.Point(105, 208);
             this.textPushP2.Margin = new System.Windows.Forms.Padding(4);
             this.textPushP2.Name = "textPushP2";
             this.textPushP2.Size = new System.Drawing.Size(97, 27);
@@ -763,7 +805,7 @@
             // buttonPush
             // 
             this.buttonPush.Font = new System.Drawing.Font("新細明體", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.buttonPush.Location = new System.Drawing.Point(31, 182);
+            this.buttonPush.Location = new System.Drawing.Point(31, 255);
             this.buttonPush.Margin = new System.Windows.Forms.Padding(4);
             this.buttonPush.Name = "buttonPush";
             this.buttonPush.Size = new System.Drawing.Size(112, 31);
@@ -774,7 +816,7 @@
             // 
             // textPushV1
             // 
-            this.textPushV1.Location = new System.Drawing.Point(260, 102);
+            this.textPushV1.Location = new System.Drawing.Point(260, 175);
             this.textPushV1.Margin = new System.Windows.Forms.Padding(4);
             this.textPushV1.Name = "textPushV1";
             this.textPushV1.Size = new System.Drawing.Size(96, 27);
@@ -785,7 +827,7 @@
             // 
             // textPushP1
             // 
-            this.textPushP1.Location = new System.Drawing.Point(105, 103);
+            this.textPushP1.Location = new System.Drawing.Point(105, 176);
             this.textPushP1.Margin = new System.Windows.Forms.Padding(4);
             this.textPushP1.Name = "textPushP1";
             this.textPushP1.Size = new System.Drawing.Size(97, 27);
@@ -1423,6 +1465,36 @@
             this.buttonTorqueReady.Text = "Torque not ready";
             this.buttonTorqueReady.UseVisualStyleBackColor = false;
             // 
+            // label13
+            // 
+            this.label13.AutoSize = true;
+            this.label13.Location = new System.Drawing.Point(326, 100);
+            this.label13.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
+            this.label13.Name = "label13";
+            this.label13.Size = new System.Drawing.Size(32, 16);
+            this.label13.TabIndex = 80;
+            this.label13.Text = "mm";
+            // 
+            // textFollowingErrorLimit1
+            // 
+            this.textFollowingErrorLimit1.Location = new System.Drawing.Point(216, 99);
+            this.textFollowingErrorLimit1.Margin = new System.Windows.Forms.Padding(4);
+            this.textFollowingErrorLimit1.Name = "textFollowingErrorLimit1";
+            this.textFollowingErrorLimit1.Size = new System.Drawing.Size(97, 27);
+            this.textFollowingErrorLimit1.TabIndex = 79;
+            this.textFollowingErrorLimit1.Text = "1.0";
+            this.textFollowingErrorLimit1.TextAlign = System.Windows.Forms.HorizontalAlignment.Right;
+            // 
+            // label15
+            // 
+            this.label15.AutoSize = true;
+            this.label15.Location = new System.Drawing.Point(25, 102);
+            this.label15.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
+            this.label15.Name = "label15";
+            this.label15.Size = new System.Drawing.Size(166, 16);
+            this.label15.TabIndex = 78;
+            this.label15.Text = "1st Following Error Limit";
+            // 
             // FormTorque
             // 
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.None;
@@ -1555,7 +1627,7 @@
         private System.Windows.Forms.Label label47;
         private System.Windows.Forms.Label label46;
         private System.Windows.Forms.Label label54;
-        private System.Windows.Forms.TextBox textTorqueThreshold;
+        private System.Windows.Forms.TextBox textTorqueLimit2;
         private System.Windows.Forms.Label label53;
         private System.Windows.Forms.Label label52;
         private System.Windows.Forms.Label label51;
@@ -1564,12 +1636,18 @@
         private System.Windows.Forms.Label label48;
         private System.Windows.Forms.Label label55;
         private System.Windows.Forms.Label label57;
-        private System.Windows.Forms.TextBox textSpeedChangeDistance;
+        private System.Windows.Forms.TextBox textFollowingErrorLimit2;
         private System.Windows.Forms.Label label56;
         private System.Windows.Forms.Button button15;
         private System.Windows.Forms.Label label59;
         private System.Windows.Forms.TextBox textHomingAcc;
         private System.Windows.Forms.Label label58;
         private System.Windows.Forms.Button buttonTorqueReady;
+        private System.Windows.Forms.Label label6;
+        private System.Windows.Forms.Label label12;
+        private System.Windows.Forms.TextBox textTorqueLimit1;
+        private System.Windows.Forms.Label label13;
+        private System.Windows.Forms.TextBox textFollowingErrorLimit1;
+        private System.Windows.Forms.Label label15;
     }
 }

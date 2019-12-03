@@ -1,14 +1,33 @@
-variable tq-threshold 100 tq-threshold !
-fvariable speed-change-distance 0.25e mm speed-change-distance f!
+variable tq-limit1 1000 tq-limit1 !
+variable tq-limit2 100 tq-limit2 !
+fvariable tq-max-ferr1 1.0e mm tq-max-ferr1 f!
+fvariable tq-max-ferr2 0.25e mm tq-max-ferr2 f!
+fvariable tq-max-ferr-curr
 
-variable tq-stopping
+variable tq-go
+variable tq-busy
 variable tq-clock-start
+variable sdo-max-torque-busy
+variable sdo-max-torque-error
 fvariable tq-press-p1
 fvariable tq-press-p2
 fvariable tq-press-v1
 fvariable tq-press-v2
 fvariable tq-release-p
 fvariable tq-release-v
+
+: sdo-max-torque-cb ( sdo -- )
+	sdo.slv @ sdo-error? sdo-max-torque-error !
+	sdo-max-torque-busy off
+;
+
+: sdo-max-torque-init-cb ( sdo -- )
+	['] sdo-max-torque-cb over sdo.'cb !
+	sdo-as-download-u32
+;
+
+$0 $6072 torque-drive @ sdo sdo-max-torque sdo-as-upload-u32	\ 測試時發現 Panasonic A6B 在 EtherCAT 開始後第一次 SDO download 會失敗
+' sdo-max-torque-init-cb sdo-max-torque sdo.'cb !				\ 需先 SDO upload 一次後才會正常
 
 : tq-press-params! ( F: p1 p2 v1 v2 -- )
     tq-press-v2 f!
@@ -23,48 +42,13 @@ fvariable tq-release-v
 ;
 
 : tq-press-go ( F: p1 p2 v1 v2 -- )
+	0labels
+
 	system-ready?											\ system ready
 	torque-drive 2@ drive-on? and							\ 且該馬達驅動器 servo on
+	tq-busy @ not and 										\ 且 tq not busy
 	if
-		tq-press-params!                    					\ 將  p1 p2 v1 v2 存到變數
-
-		mtime tq-clock-start !              					\ 紀錄起始時間 [ms]    
-
-		torque-group @ group! +group 0path gstart  				\ 啟動軸組，清除路徑，啟動軸組加減速
-		tq-press-v1 f@ vcmd!                                	\ 設定 V1 為整個路徑的運動速度命令，實際速度會送到 path feedrate 與 group vmax 限制
-		tq-stopping off
-
-		mcs                                 					\ 以目前機械座標為運動起點
-
-		1 path-id!                                       		\ 設定 path id
-		tq-press-v1 f@ feedrate!                         		\ 設定 path feedrate V1
-		tq-press-p1 f@ speed-change-distance f@ f+ line1d		\ 插入第 1 個路徑，目標位置 P1 + speed-change-distance (P1 往上 speed-change-distance 的地方)
-
-		tq-press-v2 f@ feedrate!                            	\ 設定 path feedrate V2
-		tq-press-p1 f@ line1d                               	\ 插入第 2 個路徑，目標位置 P1，速度變化的地方，扭力會有急遽的變化，用此路徑緩衝
-
-		2 path-id!                                       		\ 設定 path id
-		tq-press-v2 f@ feedrate!                            	\ 設定 path feedrate V2  
-		tq-press-p2 f@ line1d                               	\ 插入第 3 個路徑，目標位置 P2
-
-		pause pause                                      		\ 將控制權交出等待下一個周期
-																\ 兩個周期不做事，讓加減速啟動進入運動狀態
-
-		begin
-			torque-group @ group! gstop? not 					\ 檢查該軸是否運動中
-		while
-			next-path-id@ 2 =                 					\ path id = 2
-			torque-drive 2@ real-tq@ tq-threshold @ < and       \ 且 real torque 的絕對值小於門檻值
-			tq-stopping @ not and                               \ 且 tq-stopping = false
-			if
-				gstop                                        	\ 命令該軸組依加減速停止 (停止後關閉軸組加減速)
-				tq-stopping on
-			then
-			pause                                               \ 將控制權交出等待下一個周期
-		repeat
-
-		gstop 0path -group                                      \ 關閉該軸組加減速，清除路徑，關閉軸組
-		." travel_time|" mtime tq-clock-start @ - . ." ms" cr   \ 計算經過時間，並送出資訊
+		tq-press-params!                    					\ 將堆疊上的參數存到變數
 	else
 		fdrop fdrop fdrop fdrop								\ 將堆疊上的資料丟掉
 		system-ready? not if
@@ -73,11 +57,110 @@ fvariable tq-release-v
 		torque-drive 2@ drive-on? not if
 			." error|Not servo on(tq-press-go)" cr
 		then
+		tq-busy @ if
+			." error|Tq busy(tq-press-go)" cr
+		then
+		exit
 	then
+
+	[ 100 ] call											\ 開始流程
+
+	tq-limit1 @ [ 1 ] call tq-go @ and not if				\ 設定 max torque 並等待指令完成
+		[ 101 ] call exit									\ 若 max torque 設定失敗或 tq-go 被關閉了就結束流程
+	then
+	
+	torque-group @ group! mcs								\ 以目前機械座標為運動起點
+	tq-press-p2 f@ line1d                               	\ 插入路徑，目標位置 P2
+
+	torque-cp @ 1 mcs-p@ tq-press-p1 f@ f- fabs cp-as-stop	\ 設定位於 P1 的 stop control point
+
+	tq-press-v1 f@ vcmd!                                	\ 設定運動速度為 V1
+	gstart													\ 啟動軸組加減速
+
+	tq-max-ferr1 f@ [ 10 ] call 							\ 等待至軸組運動停止
+	tq-go @ not if [ 101 ] call exit then 					\ 若 tq-go 關閉了就結束流程
+
+	tq-limit2 @ [ 1 ] call tq-go @ and not if				\ 設定 max torque 並等待指令完成
+		[ 101 ] call exit									\ 若 max torque 設定失敗或 tq-go 被關閉了就結束流程
+	then
+
+	torque-group @ group!
+	tq-press-v2 f@ vcmd!                                	\ 設定運動速度為 V2
+	gstart													\ 啟動軸組加減速
+
+	tq-max-ferr2 f@ [ 10 ] call 							\ 等待至軸組運動停止
+	[ 101 ] call											\ 結束流程
+	exit
+
+	\ 設定 Max Torque SDO 並等待指令完成
+	[ 1 ] label ( limit -- t )
+		sdo-max-torque ll-unlinked? if
+			sdo-max-torque sdo.value !
+			sdo-max-torque send-sdo-uncheck
+			sdo-max-torque-error off
+			sdo-max-torque-busy on
+
+			begin
+				sdo-max-torque-busy @
+			while
+				pause
+			repeat
+
+			sdo-max-torque-error @ if
+				." error|Set max torque failed. sdo-max-torque error." cr
+			then
+
+			sdo-max-torque-error @ not
+		else
+			drop
+			." error|Set max torque failed. sdo-max-torque has been send." cr
+			false
+		then
+	exit
+
+	\ 等待至軸組運動停止，過程中若 ferr 超過 max-ferr 就下出停止軸組的命令
+	[ 10 ] label ( F: max-ferr -- )
+		tq-max-ferr-curr f!
+
+		pause pause                                    	\ 將控制權交出等待下一個周期
+														\ 兩個周期不做事，讓加減速啟動進入運動狀態
+		begin
+			torque-group @ group! gstop? not				\ 若軸組還在運動中		
+		while
+			tq-go @											\ 若流程未進入離開階段
+			torque-axis @ axis-ferr@ fabs tq-max-ferr-curr f@ f> and if	\ 且 ferr 超過 max-ferr
+				gstop                                        	\ 命令該軸組依加減速停止 (停止後關閉軸組加減速)
+				tq-go off
+			then
+			pause
+		repeat
+	exit
+
+	\ 開始流程
+	[ 100 ] label ( -- )
+		tq-go on
+		tq-busy on
+		torque-group @ group! +group 0path 				\ 啟動軸組，清除路徑
+		mtime tq-clock-start !              			\ 紀錄起始時間 [ms]
+	exit
+
+	\ 結束流程
+	[ 101 ] label ( -- )
+		torque-group @ group! gstop 0path -group		\ 關閉該軸組加減速，清除路徑，關閉軸組
+
+		torque-axis @ 0axis-ferr						\ 清除軸的落後誤差
+		5 ms											\ 等待馬達整定
+		tq-limit1 @ [ 1 ] call drop						\ 設定 max torque 為 tq-limit1
+
+		tq-go off
+		tq-busy off
+		." travel_time|" mtime tq-clock-start @ - . ." ms" cr   \ 計算經過時間，並送出資訊
+	exit
 ;
 
 : tq-press-stop ( -- )
 	torque-group @ group! gstop
+	tq-go off
 ;
 
 : tq-release-go ( F: p v -- )
@@ -154,6 +237,7 @@ step torque-sfc
 : torque-init ( -- )
 	system-ready? if
 		\ you can do something here.
+		sdo-max-torque send-sdo			\ 先 SDO upload 一次
 		torque-ready on
 		torque-init-done on
 	then

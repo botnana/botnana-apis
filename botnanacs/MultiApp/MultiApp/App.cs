@@ -96,7 +96,7 @@ namespace MultiApp
             // On Message callback.
             onMessage = new HandleMessage((IntPtr dataPtr, string str) =>
             {
-                Console.WriteLine("OnMessage : " + str);
+                //Console.WriteLine("OnMessage : " + str);
             });
             bot.SetOnMessageCB(IntPtr.Zero, onMessage);
 
@@ -130,7 +130,6 @@ namespace MultiApp
                             // 清除SFC 邏輯，載入 SFC 時會造成 real time cycle overrun，所以要暫時 ignore-overrun
                             bot.EvaluateScript(@"ignore-overrun 0sfc -work marker -work");
                             bot.LoadSFC(@"config.fs");
-                            bot.LoadSFC(@"sdo.fs");
                             bot.LoadSFC(@"torque.fs");
                             bot.LoadSFC(@"feeder.fs");
                             bot.LoadSFC(@"rcon.fs");

@@ -118,9 +118,6 @@
     <None Include="rcon.fs">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Include="sdo.fs">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
     <None Include="torque.fs">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>

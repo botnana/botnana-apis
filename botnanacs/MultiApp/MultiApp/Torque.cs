@@ -658,17 +658,17 @@ namespace MultiApp
             double p2 = 0.0;
             double v1 = 0.0;
             double v2 = 0.0;
-            if (!int.TryParse(textTorqueThreshold.Text, out torqueThreshold))
+            if (!int.TryParse(textTorqueLimit2.Text, out torqueThreshold))
             {
-                textTorqueThreshold.Text = "Error";
-                textTorqueThreshold.ForeColor = Color.Red;
+                textTorqueLimit2.Text = "Error";
+                textTorqueLimit2.ForeColor = Color.Red;
                 pass = false;
             }
 
-            if (!double.TryParse(textSpeedChangeDistance.Text, out speedChangeDist) || speedChangeDist < 0.001)
+            if (!double.TryParse(textFollowingErrorLimit2.Text, out speedChangeDist) || speedChangeDist < 0.001)
             {
-                textSpeedChangeDistance.Text = "Error";
-                textSpeedChangeDistance.ForeColor = Color.Red;
+                textFollowingErrorLimit2.Text = "Error";
+                textFollowingErrorLimit2.ForeColor = Color.Red;
                 pass = false;
             }
 
@@ -704,7 +704,7 @@ namespace MultiApp
             // 如果不送到 NC Background task 執行，則此 user task 會沒有回應。
             if (pass)
             {
-                string cmd = textTorqueThreshold.Text + " tq-threshold ! " + textSpeedChangeDistance.Text + "e mm speed-change-distance f!";
+                string cmd = textTorqueLimit1.Text + " tq-limit1 ! " + textTorqueLimit2.Text + " tq-limit2 ! " + textFollowingErrorLimit1.Text + "e mm tq-max-ferr1 f! " + textFollowingErrorLimit2.Text + "e mm tq-max-ferr2 f!";
                 cmd += " deploy " + textPushP1.Text + @"e mm " + textPushP2.Text + @"e mm " + textPushV1.Text + @"e mm/min " + textPushV2.Text + @"e mm/min tq-press-go ;deploy";
                 FormApp.BotEvaluateScript(cmd);
             }
@@ -713,13 +713,13 @@ namespace MultiApp
         private void button11_Click(object sender, EventArgs e)
         {
             // 停止軸組運動指令
-            FormApp.BotEvaluateScript(@"stop-job");
+            FormApp.BotEvaluateScript(@"tq-press-stop");
         }
 
         private void button13_Click(object sender, EventArgs e)
         {
-            // 清除軸組落後誤差 (以實際位置修正目標位置)
-            FormApp.BotEvaluateScript(torqueGroupNumber.ToString() + @" 0axis-ferr");
+            // 清除軸落後誤差 (以實際位置修正目標位置)
+            FormApp.BotEvaluateScript(torqueAxisNumber.ToString() + @" 0axis-ferr");
         }
 
         private void button8_Click(object sender, EventArgs e)
@@ -831,14 +831,14 @@ namespace MultiApp
             FormApp.BotEvaluateScript(textGroupJmax.Text + @"e " + torqueGroupNumber.ToString() + @" gjmax! " + torqueGroupNumber.ToString() + @" .grpcfg");
         }
 
-        private void textTorqueThreshold_Leave(object sender, EventArgs e)
+        private void textTorqueLimit2_Leave(object sender, EventArgs e)
         {
-            textTorqueThreshold.ForeColor = Color.Black;
+            textTorqueLimit2.ForeColor = Color.Black;
         }
 
-        private void textSpeedChangeDistance_Leave(object sender, EventArgs e)
+        private void textFollowingErrorLimit2_Leave(object sender, EventArgs e)
         {
-            textSpeedChangeDistance.ForeColor = Color.Black;
+            textFollowingErrorLimit2.ForeColor = Color.Black;
         }
 
         private void textPushP1_Leave(object sender, EventArgs e)

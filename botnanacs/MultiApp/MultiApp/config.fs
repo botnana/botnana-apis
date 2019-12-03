@@ -23,6 +23,9 @@ variable rotate-axis 2 rotate-axis !                                \ 測平邊�
 \ 宣告紀錄軸組編號的變數
 variable torque-group 1 torque-group !                              \ 下壓測高軸組
 
+\ 宣告紀錄 group control point 編號的變數
+variable torque-cp 1 torque-cp !
+
 
 
 \ timers

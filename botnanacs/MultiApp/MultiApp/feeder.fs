@@ -83,31 +83,22 @@ variable feeder-ems-flag
     then
 ;
 
-\ 建造 touch probe status SDO request 資料結構
-sdo-request tp-status
+\ 建造 touch probe status SDO 資料結構
+$0 $60b9 rotate-drive @ sdo tp-status sdo-as-upload-u16
 
-\ touch probe status SDO request 命令
-: tp-status-cmd ( -- )
-    0 $60b9 tp-status sdo-request.slv-no @ sdo-upload-u16
-;
-
-\ touch probe status SDO request 成功後的處理
-: tp-status-success ( -- )
-    ." sdo_0_24761." tp-status sdo-request.slv-no @ dup 0 .r ." |" sdo-data@ 0 .r cr
-;
-
-\ touch probe status SDO request 失敗後的處理
-: tp-status-error ( -- )
-    ." sdo_0_24761." tp-status sdo-request.slv-no @ 0 .r ." |--" cr
-;
-
-\ 嘗試將 tp-status sdo-request 放入 sdo-reqs 佇列中
-: sdo-upload-tp-status ( -- )
-    system-ready?               \ 若 system ready
-    sdo-reqs-space@ 0> and      \ 且 sdo-reqs 佇列尚有空間
-    if
-        tp-status sdo-reqs-push-uncheck
+: tp-status-cb ( sdo -- )
+    sdo.slv @ dup sdo-error? if
+        ." sdo_0_24761." 0 .r ." |--" cr
+    else
+        ." sdo_0_24761." dup 0 .r ." |" sdo-data@ 0 .r cr
     then
+;
+
+' tp-status-cb tp-status sdo.'cb !
+
+\ 嘗試將 tp-status sdo 放入 sdo-loop 佇列中
+: sdo-upload-tp-status ( -- )
+    tp-status send-sdo
 ;
 
 \ 啟動供給機流程
@@ -262,10 +253,6 @@ step feeder-sfc
     system-ready? and
     if
         tp-func @ rotate-drive 2@ drive-tp!                         \ 設定轉盤馬達驅動器的 touch prob function
-        rotate-drive 2@ swap drop tp-status sdo-request.slv-no !    \ 設定 tp-status sdo-request 的欄位內容
-        ['] tp-status-cmd tp-status sdo-request.'cmd !
-        ['] tp-status-success tp-status sdo-request.'success !
-        ['] tp-status-error tp-status sdo-request.'error !
         feeder-init-done on
     then
 ;

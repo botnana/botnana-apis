@@ -27,7 +27,6 @@ step manager-init
 
 \ 啟動相關的 SFC
 : manager-activate-sfcs ( -- )
-    ['] sdo-init +step
     ['] torque-sfc +step
     ['] feeder-sfc +step
     ['] rcon-sfc +step
