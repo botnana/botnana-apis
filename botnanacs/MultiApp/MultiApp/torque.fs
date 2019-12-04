@@ -16,18 +16,14 @@ fvariable tq-press-v2
 fvariable tq-release-p
 fvariable tq-release-v
 
+$0 $6072 torque-drive @ sdo sdo-max-torque sdo-as-download-u16
+
 : sdo-max-torque-cb ( sdo -- )
 	sdo.slv @ sdo-error? sdo-max-torque-error !
 	sdo-max-torque-busy off
 ;
 
-: sdo-max-torque-init-cb ( sdo -- )
-	['] sdo-max-torque-cb over sdo.'cb !
-	sdo-as-download-u32
-;
-
-$0 $6072 torque-drive @ sdo sdo-max-torque sdo-as-upload-u32	\ 測試時發現 Panasonic A6B 在 EtherCAT 開始後第一次 SDO download 會失敗
-' sdo-max-torque-init-cb sdo-max-torque sdo.'cb !				\ 需先 SDO upload 一次後才會正常
+' sdo-max-torque-cb sdo-max-torque sdo.'cb !
 
 : tq-press-params! ( F: p1 p2 v1 v2 -- )
     tq-press-v2 f!
@@ -237,7 +233,7 @@ step torque-sfc
 : torque-init ( -- )
 	system-ready? if
 		\ you can do something here.
-		sdo-max-torque send-sdo			\ 先 SDO upload 一次
+
 		torque-ready on
 		torque-init-done on
 	then
@@ -275,3 +271,10 @@ transition torque-init-done?
 \ -------------------- links --------------------
 ' torque-sfc 	' torque-devices-ok?	--> ' torque-devices-ok?	' torque-init 	-->
 ' torque-init	' torque-init-done? 	--> ' torque-init-done? 	' torque-forth 	-->
+
+
+
+: -work ( -- )
+	sdo-max-torque withdraw-sdo
+	-work
+;
