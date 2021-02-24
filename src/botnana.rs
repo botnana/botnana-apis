@@ -1,18 +1,23 @@
-use data_pool::DataPool;
-use program::Program;
+use crate::data_pool::DataPool;
+use crate::program::Program;
 use serde_json;
-use std::{self,
-          boxed::Box,
-          collections::{HashMap, VecDeque},
-          ffi::CStr,
-          os::raw::{c_char, c_void},
-          str,
-          sync::{mpsc::{self, TryRecvError},
-                 Arc, Mutex},
-          thread};
+use std::{
+    self,
+    boxed::Box,
+    collections::{HashMap, VecDeque},
+    ffi::CStr,
+    os::raw::{c_char, c_void},
+    str,
+    sync::{
+        mpsc::{self, TryRecvError},
+        Arc, Mutex,
+    },
+    thread,
+};
 use url;
-use ws::{self, connect, util::Token, CloseCode, Error, ErrorKind, Handler, Handshake, Message,
-         Result};
+use ws::{
+    self, connect, util::Token, CloseCode, Error, ErrorKind, Handler, Handshake, Message, Result,
+};
 const WS_TIMEOUT_TOKEN: Token = Token(1);
 const WS_WATCHDOG_PERIOD_MS: u64 = 10_000;
 const VERSION: &'static str = env!("CARGO_PKG_VERSION");
@@ -149,8 +154,11 @@ impl Botnana {
     }
 
     /// Set on_open callback
-    pub fn set_on_open_cb(&mut self, pointer: *mut c_void, cb: extern "C" fn(*mut c_void, *const c_char))
-    {
+    pub fn set_on_open_cb(
+        &mut self,
+        pointer: *mut c_void,
+        cb: extern "C" fn(*mut c_void, *const c_char),
+    ) {
         *self.on_open_cb.lock().expect("set_on_open_cb") = Some(CallbackHandler {
             count: 0,
             pointer: pointer,
@@ -159,8 +167,11 @@ impl Botnana {
     }
 
     /// Set on_error callback
-    pub fn set_on_error_cb(&mut self, pointer: *mut c_void, cb: extern "C" fn(*mut c_void, *const c_char))
-    {
+    pub fn set_on_error_cb(
+        &mut self,
+        pointer: *mut c_void,
+        cb: extern "C" fn(*mut c_void, *const c_char),
+    ) {
         *self.on_error_cb.lock().expect("set_on_error_cb") = Some(CallbackHandler {
             count: 0,
             pointer: pointer,
@@ -600,8 +611,7 @@ impl Botnana {
         count: u32,
         pointer: *mut c_void,
         cb: extern "C" fn(*mut c_void, *const c_char),
-    )
-    {
+    ) {
         let mut tag_handlers = self.tag_handlers.lock().unwrap();
         let handler = tag_handlers.entry(tag.to_owned()).or_insert(Vec::new());
         handler.push(CallbackHandler {
@@ -622,8 +632,7 @@ impl Botnana {
         count: u32,
         pointer: *mut c_void,
         cb: extern "C" fn(*mut c_void, u32, u32, *const c_char),
-    )
-    {
+    ) {
         let mut tagname_handlers = self.tagname_handlers.lock().unwrap();
         let handler = tagname_handlers
             .entry(name.to_owned())
@@ -663,7 +672,9 @@ impl Botnana {
     /// Execute on_open callback
     fn execute_on_open_cb(&self) {
         if let Some(ref cb) = *self.on_open_cb.lock().expect("execute_on_open_cb") {
-            let mut temp_msg = String::from("Connect to ".to_owned() + &self.url() + " (" + VERSION+ ")").into_bytes();
+            let mut temp_msg =
+                String::from("Connect to ".to_owned() + &self.url() + " (" + VERSION + ")")
+                    .into_bytes();
             temp_msg.push(0);
             let msg = CStr::from_bytes_with_nul(temp_msg.as_slice())
                 .expect("toCstr")
@@ -684,8 +695,11 @@ impl Botnana {
         }
     }
 
-    pub fn set_on_send_cb(&mut self, pointer: *mut c_void, cb: extern "C" fn(*mut c_void, *const c_char))
-    {
+    pub fn set_on_send_cb(
+        &mut self,
+        pointer: *mut c_void,
+        cb: extern "C" fn(*mut c_void, *const c_char),
+    ) {
         *self.on_send_cb.lock().unwrap() = Some(CallbackHandler {
             count: 0,
             pointer: pointer,
@@ -693,8 +707,11 @@ impl Botnana {
         });
     }
 
-    pub fn set_on_message_cb(&mut self, pointer: *mut c_void, cb: extern "C" fn(*mut c_void, *const c_char))
-    {
+    pub fn set_on_message_cb(
+        &mut self,
+        pointer: *mut c_void,
+        cb: extern "C" fn(*mut c_void, *const c_char),
+    ) {
         *self.on_message_cb.lock().unwrap() = Some(CallbackHandler {
             count: 0,
             pointer: pointer,

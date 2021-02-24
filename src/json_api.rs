@@ -1,5 +1,5 @@
 extern crate libc;
-use botnana::Botnana;
+use crate::botnana::Botnana;
 use std::str;
 
 impl Botnana {

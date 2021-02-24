@@ -1,4 +1,4 @@
-use botnana::Botnana;
+use crate::botnana::Botnana;
 
 impl Botnana {
     /// Set drive operation mode

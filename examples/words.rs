@@ -1,8 +1,10 @@
 extern crate botnanars;
 use botnanars::Botnana;
-use std::{ffi::CStr,
-          os::raw::{c_char, c_void},
-          str, thread, time};
+use std::{
+    ffi::CStr,
+    os::raw::{c_char, c_void},
+    str, thread, time,
+};
 
 static mut IS_OPENED: bool = false;
 const NULL: *mut c_void = 0 as (*mut c_void);

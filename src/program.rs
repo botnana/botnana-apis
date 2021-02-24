@@ -1,6 +1,8 @@
 extern crate libc;
-use std::{str,
-          sync::{Arc, Mutex}};
+use std::{
+    str,
+    sync::{Arc, Mutex},
+};
 
 /// Program
 #[repr(C)]
