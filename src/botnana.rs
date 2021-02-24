@@ -24,7 +24,7 @@ struct CallbackHandler {
     /// 用來回傳指標給使用者
     pointer: *mut c_void,
     /// callback 函式指標
-    callback: Box<Fn(*mut c_void, *const c_char) + Send>,
+    callback: extern "C" fn(*mut c_void, *const c_char),
 }
 
 unsafe impl Send for CallbackHandler {}
@@ -40,7 +40,7 @@ struct TagCallbackHandler {
     /// u32: position
     /// u32: channel
     /// u32: value (string)
-    callback: Box<Fn(*mut c_void, u32, u32, *const c_char) + Send>,
+    callback: Box<dyn Fn(*mut c_void, u32, u32, *const c_char) + Send>,
 }
 
 unsafe impl Send for TagCallbackHandler {}
@@ -69,7 +69,7 @@ pub struct Botnana {
     on_message_cb: Arc<Mutex<Option<CallbackHandler>>>,
     pub data_pool: Arc<Mutex<DataPool>>,
     pub(crate) internal_handlers:
-        Arc<Mutex<HashMap<String, Box<Fn(&mut DataPool, usize, usize, &str) + Send>>>>,
+        Arc<Mutex<HashMap<String, Box<dyn Fn(&mut DataPool, usize, usize, &str) + Send>>>>,
     pub(crate) init_queries: Arc<Mutex<Vec<String>>>,
     pub(crate) cyclic_queries: Arc<Mutex<Vec<String>>>,
     last_query: Arc<Mutex<usize>>,
@@ -149,26 +149,22 @@ impl Botnana {
     }
 
     /// Set on_open callback
-    pub fn set_on_open_cb<F>(&mut self, pointer: *mut c_void, cb: F)
-    where
-        F: Fn(*mut c_void, *const c_char) + Send + 'static,
+    pub fn set_on_open_cb(&mut self, pointer: *mut c_void, cb: extern "C" fn(*mut c_void, *const c_char))
     {
         *self.on_open_cb.lock().expect("set_on_open_cb") = Some(CallbackHandler {
             count: 0,
             pointer: pointer,
-            callback: Box::new(cb),
+            callback: cb,
         });
     }
 
     /// Set on_error callback
-    pub fn set_on_error_cb<F>(&mut self, pointer: *mut c_void, cb: F)
-    where
-        F: Fn(*mut c_void, *const c_char) + Send + 'static,
+    pub fn set_on_error_cb(&mut self, pointer: *mut c_void, cb: extern "C" fn(*mut c_void, *const c_char))
     {
         *self.on_error_cb.lock().expect("set_on_error_cb") = Some(CallbackHandler {
             count: 0,
             pointer: pointer,
-            callback: Box::new(cb),
+            callback: cb,
         });
     }
 
@@ -603,16 +599,15 @@ impl Botnana {
         tag: &'static str,
         count: u32,
         pointer: *mut c_void,
-        cb: F,
-    ) where
-        F: Fn(*mut c_void, *const c_char) + Send + 'static,
+        cb: extern "C" fn(*mut c_void, *const c_char),
+    )
     {
         let mut tag_handlers = self.tag_handlers.lock().unwrap();
         let handler = tag_handlers.entry(tag.to_owned()).or_insert(Vec::new());
         handler.push(CallbackHandler {
             count: count,
             pointer: pointer,
-            callback: Box::new(cb),
+            callback: cb,
         });
     }
 
@@ -690,25 +685,21 @@ impl Botnana {
         }
     }
 
-    pub fn set_on_send_cb<F>(&mut self, pointer: *mut c_void, cb: F)
-    where
-        F: Fn(*mut c_void, *const c_char) + Send + 'static,
+    pub fn set_on_send_cb(&mut self, pointer: *mut c_void, cb: extern "C" fn(*mut c_void, *const c_char))
     {
         *self.on_send_cb.lock().unwrap() = Some(CallbackHandler {
             count: 0,
             pointer: pointer,
-            callback: Box::new(cb),
+            callback: cb,
         });
     }
 
-    pub fn set_on_message_cb<F>(&mut self, pointer: *mut c_void, cb: F)
-    where
-        F: Fn(*mut c_void, *const c_char) + Send + 'static,
+    pub fn set_on_message_cb(&mut self, pointer: *mut c_void, cb: extern "C" fn(*mut c_void, *const c_char))
     {
         *self.on_message_cb.lock().unwrap() = Some(CallbackHandler {
             count: 0,
             pointer: pointer,
-            callback: Box::new(cb),
+            callback: cb,
         });
     }
 
