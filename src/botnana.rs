@@ -594,7 +594,7 @@ impl Botnana {
     /// `count` is handler called times
     /// `pointer` is user data pointer
     /// `handler` is user function
-    pub fn set_tag_callback<F>(
+    pub fn set_tag_callback(
         &mut self,
         tag: &'static str,
         count: u32,
