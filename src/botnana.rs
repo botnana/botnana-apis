@@ -40,7 +40,7 @@ struct TagCallbackHandler {
     /// u32: position
     /// u32: channel
     /// u32: value (string)
-    callback: Box<dyn Fn(*mut c_void, u32, u32, *const c_char) + Send>,
+    callback: extern "C" fn(*mut c_void, u32, u32, *const c_char),
 }
 
 unsafe impl Send for TagCallbackHandler {}
@@ -616,14 +616,13 @@ impl Botnana {
     /// `count` is handler called times
     /// `pointer` is user data pointer
     /// `handler` is user function
-    pub fn set_tagname_callback<F>(
+    pub fn set_tagname_callback(
         &mut self,
         name: &'static str,
         count: u32,
         pointer: *mut c_void,
-        cb: F,
-    ) where
-        F: Fn(*mut c_void, u32, u32, *const c_char) + Send + 'static,
+        cb: extern "C" fn(*mut c_void, u32, u32, *const c_char),
+    )
     {
         let mut tagname_handlers = self.tagname_handlers.lock().unwrap();
         let handler = tagname_handlers
@@ -632,7 +631,7 @@ impl Botnana {
         handler.push(TagCallbackHandler {
             count: count,
             pointer: pointer,
-            callback: Box::new(cb),
+            callback: cb,
         });
     }
 
