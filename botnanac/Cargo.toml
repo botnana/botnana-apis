@@ -1,7 +1,8 @@
 [package]
 name = "botnanac"
-version ="0.3.7"
+version ="0.3.8"
 authors = ["Mapacode Inc."]
+edition = "2018"
 
 [dependencies]
 libc = "0.2"

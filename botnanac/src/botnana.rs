@@ -1,9 +1,11 @@
 extern crate botnanars;
 use botnanars::botnana::Botnana;
-use std::{boxed::Box,
-          ffi::{CStr, CString},
-          os::raw::{c_char, c_void},
-          str};
+use std::{
+    boxed::Box,
+    ffi::{CStr, CString},
+    os::raw::{c_char, c_void},
+    str,
+};
 
 const VERSION: &'static str = env!("CARGO_PKG_VERSION");
 
@@ -20,7 +22,6 @@ pub extern "C" fn library_version() -> *const c_char {
     let version = CString::new(VERSION).expect("library version");
     version.into_raw()
 }
-
 
 /// New Botnana
 /// `ip`: IP of botnana
@@ -151,7 +152,7 @@ pub extern "C" fn botnana_set_tagname_cb(
 pub extern "C" fn botnana_set_on_open_cb(
     botnana: Box<Botnana>,
     pointer: *mut c_void,
-    cb: extern fn(*mut c_void, *const c_char),
+    cb: extern "C" fn(*mut c_void, *const c_char),
 ) {
     let s = Box::into_raw(botnana);
     unsafe { (*s).set_on_open_cb(pointer, cb) };
