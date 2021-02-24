@@ -114,7 +114,7 @@ pub extern "C" fn botnana_set_tag_cb(
     tag: *const c_char,
     count: u32,
     pointer: *mut c_void,
-    cb: fn(*mut c_void, *const c_char),
+    cb: extern "C" fn(*mut c_void, *const c_char),
 ) -> i32 {
     if tag.is_null() {
         -1
@@ -134,7 +134,7 @@ pub extern "C" fn botnana_set_tagname_cb(
     name: *const c_char,
     count: u32,
     pointer: *mut c_void,
-    cb: fn(*mut c_void, u32, u32, *const c_char),
+    cb: extern "C" fn(*mut c_void, u32, u32, *const c_char),
 ) -> i32 {
     if name.is_null() {
         -1
@@ -151,7 +151,7 @@ pub extern "C" fn botnana_set_tagname_cb(
 pub extern "C" fn botnana_set_on_open_cb(
     botnana: Box<Botnana>,
     pointer: *mut c_void,
-    cb: fn(*mut c_void, *const c_char),
+    cb: extern fn(*mut c_void, *const c_char),
 ) {
     let s = Box::into_raw(botnana);
     unsafe { (*s).set_on_open_cb(pointer, cb) };
@@ -162,7 +162,7 @@ pub extern "C" fn botnana_set_on_open_cb(
 pub extern "C" fn botnana_set_on_error_cb(
     botnana: Box<Botnana>,
     pointer: *mut c_void,
-    cb: fn(*mut c_void, *const c_char),
+    cb: extern "C" fn(*mut c_void, *const c_char),
 ) {
     let s = Box::into_raw(botnana);
     unsafe { (*s).set_on_error_cb(pointer, cb) };
@@ -173,7 +173,7 @@ pub extern "C" fn botnana_set_on_error_cb(
 pub extern "C" fn botnana_set_on_message_cb(
     botnana: Box<Botnana>,
     pointer: *mut c_void,
-    cb: fn(*mut c_void, *const c_char),
+    cb: extern "C" fn(*mut c_void, *const c_char),
 ) {
     let s = Box::into_raw(botnana);
     unsafe { (*s).set_on_message_cb(pointer, cb) };
@@ -184,7 +184,7 @@ pub extern "C" fn botnana_set_on_message_cb(
 pub extern "C" fn botnana_set_on_send_cb(
     botnana: Box<Botnana>,
     pointer: *mut c_void,
-    cb: fn(*mut c_void, *const c_char),
+    cb: extern "C" fn(*mut c_void, *const c_char),
 ) {
     let s = Box::into_raw(botnana);
     unsafe { (*s).set_on_send_cb(pointer, cb) };
