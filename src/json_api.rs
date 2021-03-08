@@ -522,4 +522,25 @@ impl Botnana {
         let msg = r#"{"jsonrpc":"2.0","method":"system.reboot"}"#;
         self.send_message(msg);
     }
+
+    /// Subscribe slave
+    pub fn subscribe_slave(&mut self, alias: u32, position: u32) {
+        let msg = r#"{"jsonrpc":"2.0","method":"ec_slave.subscribe","params":{"alias":"#.to_owned()
+            + alias.to_string().as_str()
+            + r#","position":"#
+            + position.to_string().as_str()
+            + r#"}}"#;
+        self.send_message(&msg);
+    }
+
+    /// Unsubscribe slave
+    pub fn unsubscribe_slave(&mut self, alias: u32, position: u32) {
+        let msg = r#"{"jsonrpc":"2.0","method":"ec_slave.unsubscribe","params":{"alias":"#
+            .to_owned()
+            + alias.to_string().as_str()
+            + r#","position":"#
+            + position.to_string().as_str()
+            + r#"}}"#;
+        self.send_message(&msg);
+    }
 }
