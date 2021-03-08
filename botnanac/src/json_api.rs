@@ -676,3 +676,21 @@ pub extern "C" fn reboot(botnana: Box<Botnana>) {
     let s = Box::into_raw(botnana);
     unsafe { (*s).reboot() };
 }
+
+/// ec_slave.subscribe
+#[no_mangle]
+pub extern "C" fn subscribe_ec_slave(botnana: Box<Botnana>, alias: u32, position: u32) {
+    let s = Box::into_raw(botnana);
+    unsafe {
+        (*s).subscribe_ec_slave(alias, position);
+    }
+}
+
+/// ec_slave.unsubscribe
+#[no_mangle]
+pub extern "C" fn unsubscribe_ec_slave(botnana: Box<Botnana>, alias: u32, position: u32) {
+    let s = Box::into_raw(botnana);
+    unsafe {
+        (*s).unsubscribe_ec_slave(alias, position);
+    }
+}
