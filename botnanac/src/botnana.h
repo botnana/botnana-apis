@@ -601,6 +601,24 @@ void program_run(struct Botnana * desc, struct Program * pm);
 // desc: server descriptor
 void botnana_abort_program (struct Botnana * desc);
 
+// JSON-API: ec_slave.subscribe
+//
+// desc:     server descriptor
+// alias:    slave alias
+// position: slave position, start by 1
+void subscribe_ec_slave(struct Botnana * desc,
+                      uint32_t alias,
+                      uint32_t position);
+
+// JSON-API: ec_slave.unsubscribe
+//
+// desc:     server descriptor
+// alias:    slave alias
+// position: slave position, start by 1
+void unsubscribe_ec_slave(struct Botnana * desc,
+                      uint32_t alias,
+                      uint32_t position);
+
 #ifdef __cplusplus
 }
 #endif

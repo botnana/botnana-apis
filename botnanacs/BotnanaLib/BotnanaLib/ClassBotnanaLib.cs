@@ -721,10 +721,10 @@ namespace BotnanaLib
         private static extern void botnana_poweroff(IntPtr botnana);
 
         [DllImport(@"BotnanaApi.dll", CharSet = CharSet.Ansi, CallingConvention = CallingConvention.Cdecl)]
-        private static extern void subscribe_ec_slave(IntPtr botnana, UInt32 alias, UInt32 position);
+        private static extern void botnana_subscribe_ec_slave(IntPtr botnana, UInt32 alias, UInt32 position);
 
         [DllImport(@"BotnanaApi.dll", CharSet = CharSet.Ansi, CallingConvention = CallingConvention.Cdecl)]
-        private static extern void unsubscribe_ec_slave(IntPtr botnana, UInt32 alias, UInt32 position);
+        private static extern void botnana_unsubscribe_ec_slave(IntPtr botnana, UInt32 alias, UInt32 position);
 
     }
 }
