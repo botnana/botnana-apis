@@ -6,8 +6,15 @@
 
 C 語言函式庫下載：
 
-* 32 位元 Linux: [https://drive.google.com/drive/u/0/folders/1sGibKjsuhkt0SMJ1w7id1XlOnoYKyD_W](https://drive.google.com/drive/u/0/folders/1GhOABXGKu7SZCmRa1uPpun9YILrbSblQ)
-* 64 位元 Linux: [https://drive.google.com/drive/u/0/folders/10pD_OAfJw971P7gL64MwPdWdgk6dkYWd](https://drive.google.com/drive/u/0/folders/10pD_OAfJw971P7gL64MwPdWdgk6dkYWd)
+* [V0.3.9](https://github.com/botnana/botnana-apis/releases/tag/v0.3.9)
+
+Release 中的檔案說明如下：
+
+* libbotnana.so: Botnana C API for 32 位元 Linux
+* libbotnana_x86_64.so: Botnana C API for 64 位元 Linux
+
+TODO: Windows 及 arm linux 版尚未放上 github。
+
 * 32 位元 Windows: [https://drive.google.com/drive/u/0/folders/1Vmy9aWYeTMhvJDM3W7UwKuqG4SfyA_n7](https://drive.google.com/drive/u/0/folders/1Vmy9aWYeTMhvJDM3W7UwKuqG4SfyA_n7)
 * 64 位元 Windows: [https://drive.google.com/drive/u/0/folders/1sGibKjsuhkt0SMJ1w7id1XlOnoYKyD_W](https://drive.google.com/drive/u/0/folders/1sGibKjsuhkt0SMJ1w7id1XlOnoYKyD_W)
 * armv7-unknown-linux-gnueabihf: [https://drive.google.com/drive/u/0/folders/1Wi_s20ho5eYl8Ohr5JthpZ1nb6KGw79u](https://drive.google.com/drive/u/0/folders/1Wi_s20ho5eYl8Ohr5JthpZ1nb6KGw79u)
