@@ -1,4 +1,6 @@
-### 1. 前言
+# Botnana C API
+
+## 1. 前言
 
 提供 C 函式庫與 C 語言的範例  
 
@@ -68,9 +70,9 @@ Botnana-API 提供使用者一個包裝好的 WebSocket Client 的函式庫，�
 3. Poll Thread: 定期發送 motion.poll 指令。保持與 Botnana-Controll 的連線，
 避免沒有封包傳送時觸發 Botnana-Control Motion server 的 watchdog 的機制。
 
-### 2. 函式列表
+## 2. 函式列表
 
-#### 2.1 與 WebSocket 相關的
+### 2.1 與 WebSocket 相關的
 
 #### 2.1.1 `botnana_connect`
 
@@ -116,7 +118,6 @@ Botnana-API 提供使用者一個包裝好的 WebSocket Client 的函式庫，�
     
 * `desc` : 由函式 `botnana_connect` 取得的回傳指標。
 * `msg` : 傳送封包的字串指標。
-
 
 回傳值： `void`
 
@@ -200,7 +201,7 @@ Botnana-API 提供使用者一個包裝好的 WebSocket Client 的函式庫，�
     }    
 
 
-#### 2.2 接收 WebSocket Server 的回傳資料
+### 2.2 接收 WebSocket Server 的回傳資料
 
 由 WebSocket Server 傳送過來的封包格式如下：
 
@@ -249,7 +250,7 @@ Botnana-API 提供使用者一個包裝好的 WebSocket Client 的函式庫，�
     }       
 
 
-#### 2.3 送給 WebSocket Server 的指令格式
+### 2.3 送給 WebSocket Server 的指令格式
 
 #### 2.3.1 取得 Botnana-control 版本號碼 `version.get`
 
@@ -670,6 +671,7 @@ Botnana-API 提供使用者一個包裝好的 WebSocket Client 的函式庫，�
 
 可以使用的函式有：
 
+```
     // 建立新的 program
     struct Program * program_new (const char * name);
     
@@ -689,9 +691,11 @@ Botnana-API 提供使用者一個包裝好的 WebSocket Client 的函式庫，�
     
     // 停止目前在背景執行的工作 
     void botnana_abort_program (struct Botnana * desc);
-    
+```
+
 範例：
 
+```
     struct Botnana * botnana = botnana_connect("192.168.7.2", on_ws_error_cb);
     botnana_set_tag_cb(botnana, "end-of-program", 0, end_of_program);
     botnana_set_tag_cb(botnana, "deployed", 0, deployed_cb);    
@@ -719,9 +723,49 @@ Botnana-API 提供使用者一個包裝好的 WebSocket Client 的函式庫，�
     program_run(botnana, pm);
     
     // 等待 end-of-program|ok 訊息
+```
 
+#### 2.3.12 訂閱及退訂從站資訊
 
-### 3. 產生函式庫方法：
+使用 `ec_slave_subscribe` 可以訂閱從站的資訊，而 `ec_slave_unsubscribe` 則可以取消訂閱。
+當訂閱從站資訊，websocket server 會每 20ms 向 motion control 要被訂閱的從站的資訊。當從站
+的狀態有變化時，這些變化的資訊會透過 websocket server 回傳。
+
+處理從站資訊的方法則請見 2.2 節的說明。
+
+使用`ec_slave_subscribe` 和 `ec_slave_unsubscribe` 的好處是不必一直透過 2.1.2 節的 `botnana_send_message`
+函數送出 `.slave` 或是 `.slave-diff` 等要求從站訊息的指令，減少了封包數量。
+
+函式原型：
+
+```
+    void subscribe_ec_slave(struct Botnana * desc, uint32_t alias, uint32_t position);
+    void unsubscribe_ec_slave(struct Botnana * desc, uint32_t alias, uint32_t position);
+```
+
+參數說明：
+    
+* `desc` : 由函式 `botnana_connect` 取得的回傳指標。
+* `alias` : 從站別名。
+* `position` : 從站位置。當從站別名為 0 時，位置是從主站算起的位置。主站算起的第一個從站的位置是 1。當從站別名不為 0 時，是從別名指定的從站算起的位置。
+
+回傳值： `void`
+
+範例：
+
+    int main()
+    {
+        // connect to motion server
+        struct Botnana * botnana = botnana_connect("192.168.7.2", on_ws_error_cb);
+        subscribe_ec_slave(botnana, 0, 1);
+        .....       
+        unsubscribe_ec_slave(botnana, 0, 1);
+        .....       
+    }
+
+比較簡單的應用可以不必 `unsubscribe_ec_slave`。如果 websocket 結束連線會自動執行退訂。
+
+## 3. 產生函式庫方法：
 
 此 C 語言函式庫是由 Rust 進行開發，如果有自行修改的需求請安裝 Rust 開發工具。
 
@@ -730,7 +774,7 @@ Botnana-API 提供使用者一個包裝好的 WebSocket Client 的函式庫，�
 安裝好 Rust 開發工具後，執行 `cargo build --release` 指令就可以編譯出 `botnana.lib` 
 
 
-### 4. C++ 使用者
+## 4. C++ 使用者
  
 如果是以 C++ 呼叫 C 語言的函式庫，因為 C++ 有名稱修飾(Name Mangling) 而 C 沒有，在函式庫已經有處理，所以可以直接引用。
 
