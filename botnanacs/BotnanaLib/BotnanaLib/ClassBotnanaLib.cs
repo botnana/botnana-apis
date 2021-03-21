@@ -480,6 +480,18 @@ namespace BotnanaLib
             botnana_poweroff(innerBotnana);
         }
 
+        // JSON-API: ec_slave.subscdribe
+        public void SubscribeEcSlave(UInt32 alias, UInt32 position)
+        {
+            subscribe_ec_slave(innerBotnana, alias, position);
+        }
+
+        // JSON-API: ec_slave.unsubscdribe
+        public void UnsubscribeEcSlave(UInt32 alias, UInt32 position)
+        {
+            unsubscribe_ec_slave(innerBotnana, alias, position);
+        }
+
         private IntPtr innerBotnana;
         private IntPtr innerProgram;
 
@@ -707,5 +719,12 @@ namespace BotnanaLib
 
         [DllImport(@"BotnanaApi.dll", CharSet = CharSet.Ansi, CallingConvention = CallingConvention.Cdecl)]
         private static extern void botnana_poweroff(IntPtr botnana);
+
+        [DllImport(@"BotnanaApi.dll", CharSet = CharSet.Ansi, CallingConvention = CallingConvention.Cdecl)]
+        private static extern void botnana_subscribe_ec_slave(IntPtr botnana, UInt32 alias, UInt32 position);
+
+        [DllImport(@"BotnanaApi.dll", CharSet = CharSet.Ansi, CallingConvention = CallingConvention.Cdecl)]
+        private static extern void botnana_unsubscribe_ec_slave(IntPtr botnana, UInt32 alias, UInt32 position);
+
     }
 }
