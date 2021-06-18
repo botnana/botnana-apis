@@ -4,7 +4,7 @@
 
 ```
        ws://192.168.7.2:3012
-Host ----------------------------> user task --> queue --> NC task
+Host ----------------------------> user task --> position[] --> NC task
 ```
 
 上位控制器要求 NC task 執行 drive-pp 後，會使用命令 queue 傳新的位置給 user task，user task 將新的位置放進 positions 後。而 NC task 則從 positions 中取得新的
@@ -93,7 +93,8 @@ variable back#    0 back# !  \ queue 尾端的索引
 
 ## C 的主程式
 
-修改 examples/drive_pp.c，使其使用 program_from_file 從 `./drive-pp.fs` 讀取腳本。
+修改 examples/drive_pp.c，使其使用 program_new_from_file 從 `./drive-pp.fs` 讀取腳本，並且在 NC task 執行 `drive-pp` 這指令後透過 `evaluate-script`
+要求 user task 執行 `queue` 指令，放三組位置到 `position[]` 中。
 
 ```
 int main()
@@ -116,17 +117,15 @@ int main()
     botnana_set_tag_cb(botnana, "target_position.1.1", 0,  (void *) & target_position, target_position_cb);
     botnana_set_tag_cb(botnana, "log", 0, NULL, log_cb);
     botnana_set_tag_cb(botnana, "error", 0, NULL ,error_cb);
-    // new program
-    struct Program * pm = program_new("drive-pp");
+
+    // Create a new program from file ./drive-pp.fs
+    struct Program * pm = program_new_from_file("./drive-pp.fs");
 
     botnana_connect(botnana);
     while (ws_open == 0)
     {
         sleep(1);
     }
-
-    // Read program from file ./drive-pp.fs
-    program_from_file(pm, "./drive-pp.fs");
 
     // Deploy program to motion server
     botnana_abort_program(botnana);
