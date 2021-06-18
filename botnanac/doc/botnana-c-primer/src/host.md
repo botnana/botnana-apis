@@ -163,7 +163,7 @@ int main()
 1. `." log|full!" cr`
 2. `." log|homed\" cr`
 
-Forth 指令 `."` 會輸出之後到 `"` 的字串。而之後的 `cr` 會輸出一個換行。這些字串會傳回到上位控制器然後被解析。在這範例中我們只簡單印出這兩個訊息。因為原來的 drive-pp.c 中已經對 tag `log` 的 callback function。在此不作處理。不過要記得如果送位置送得太快超過了 `position[]` 的大小會導致那個位置被拋棄。這問題依需求的不同有不同的解法，因此在此不深入討論。
+Forth 指令 `."` 會輸出之後到 `"` 的字串。而之後的 `cr` 會輸出一個換行。這些字串會傳回到上位控制器然後被解析。在這範例中我們只簡單印出這兩個訊息。因為原來的 drive-pp.c 中已經設了 tag `log` 的 callback function。在此不作處理。不過要記得如果送位置送得太快超過了 `position[]` 的大小會導致那個位置被拋棄。這問題依需求的不同有不同的解法，因此在此不深入討論。
 
 另外，如果我們還需要取得極限開關的狀態，參考 Botnana Book 的 Real-time script API 中 EtherCAT 指令集一節中有關 `.slave` 和 `.slave-diff` 的說明，其中的 tag `digital_inputs` 就有極限開關的資訊。但這部份必須參考使用的驅動器的文件，才知道極限開關在哪一個 bits。以 Panasonic A6B 為例，
 
