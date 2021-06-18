@@ -136,7 +136,7 @@ int main()
     //wait PP request finished
     program_line(pm, "until-no-requests");
 
-    //set drive 1 target position to 250000 pulse count
+    //set drive 1 target position to 10000 pulse count
     program_line(pm, "10000 1  1 target-p!");
 
     // start drive 1 moving
