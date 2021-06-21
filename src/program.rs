@@ -1,5 +1,7 @@
 extern crate libc;
 use std::{
+    fs::File,
+    io::Read,
     str,
     sync::{Arc, Mutex},
 };
@@ -15,11 +17,38 @@ pub struct Program {
 impl Program {
     /// New
     pub fn new(name: &str) -> Program {
-        let mut line = String::new();
-        line.push_str(&(": user$".to_owned() + name + "\n"));
+        let mut contents = String::new();
+        contents.push_str(&(": user$".to_owned() + name + "\n"));
         Program {
             name: name.to_string(),
-            lines: Arc::new(Mutex::new(line)),
+            lines: Arc::new(Mutex::new(contents)),
+        }
+    }
+
+    /// New with a file which is a library of predefined Forth words.
+    pub fn new_with_file(name: &str, path: &str) -> Program {
+        let mut contents = String::new();
+        match File::open(path) {
+            Ok(mut file) => {
+                match file.read_to_string(&mut contents) {
+                    Ok(_) => {
+                        contents.push_str("\n");
+                    }
+                    Err(e) => {
+                        contents.clear();
+                        eprintln!("Cannot read file {}, {}", path, e);
+                    }
+                };
+            }
+            Err(e) => {
+                eprintln!("Cannot open file {}, {}", path, e);
+            }
+        }
+
+        contents.push_str(&(": user$".to_owned() + name + "\n"));
+        Program {
+            name: name.to_string(),
+            lines: Arc::new(Mutex::new(contents)),
         }
     }
 
