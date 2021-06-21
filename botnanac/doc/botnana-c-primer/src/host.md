@@ -118,14 +118,16 @@ int main()
     botnana_set_tag_cb(botnana, "log", 0, NULL, log_cb);
     botnana_set_tag_cb(botnana, "error", 0, NULL ,error_cb);
 
-    // Create a new program from file ./drive-pp.fs
-    struct Program * pm = program_new_from_file("./drive-pp.fs");
-
     botnana_connect(botnana);
     while (ws_open == 0)
     {
         sleep(1);
     }
+
+    // Create a new program with name 'main', using library from file ./drive-pp.fs.
+    struct Program * pm = program_new_from_file("main", "./drive-pp.fs");
+    // The main programe will execute drive-pp.
+    program_line(pm, "drive-pp");
 
     // Deploy program to motion server
     botnana_abort_program(botnana);
