@@ -125,7 +125,7 @@ int main()
     }
 
     // Create a new program with name 'main', using library from file ./drive-pp.fs.
-    struct Program * pm = program_new_from_file("main", "./drive-pp.fs");
+    struct Program * pm = program_new_with_file("main", "./drive-pp.fs");
     // The main programe will execute drive-pp.
     program_line(pm, "drive-pp");
 
