@@ -99,7 +99,7 @@ int main()
     // Create a new program with name 'main', using library from file ./drive-pp.fs.
     struct Program * pm = program_new_with_file("main", "./drive-pp.fs");
     // The main programe will execute drive-pp.
-    program_line(pm, "drive-pv");
+    program_line(pm, "drive-slave");
 
     // Deploy program to motion server
     botnana_abort_program(botnana);

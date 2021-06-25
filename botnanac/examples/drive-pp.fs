@@ -7,11 +7,13 @@
 : create-queue ( capacity -- )
     create 0 , 0 , cells allot ;
 \    does> ( n -- a ) swap 2 +  cells + ;
-10 constant #position        \ 陣列大小為 10
+100 constant #position        \ 陣列大小為 100
 #position create-queue pp[]   \ 定義陣列名稱為 position[]
 #position create-queue pv[]
 variable dequeue_front 0 dequeue_front !
 variable dequeue_back 0 dequeue_back !
+variable slave 0 slave !
+variable num 0 num !
 \ variable front#   0 front# ! \ queue 前端的索引
 \ variable back#    0 back# !  \ queue 尾端的索引
 
@@ -42,6 +44,13 @@ variable dequeue_back 0 dequeue_back !
     else
         ." log|full!" cr
     then ;
+
+: 2queue ( queue mode position -- )
+    -rot 2dup queue
+    drop swap queue ;
+
+: 4queue ( queue mode position slave n -- )
+    pp[] -rot 2queue 2queue ;
 
 \ 從 queue 中取出一個值。如果 queue 是空的，回傳的 f 值為 0 (false)，否則回傳那個值以及 -1 (true)。
 \ : dequeue ( -- position true | false)
@@ -83,11 +92,6 @@ variable dequeue_back 0 dequeue_back !
     1 1 drive-on
     1 1 until-drive-on
     1000 ms
-    hm  1 1 op-mode!
-    33  1 1 homing-method!
-    until-no-requests
-    1 1 go
-    1 1 until-target-reached
     ." log|homed" cr
     pp  1 1 op-mode!
     1000  1 1 profile-v!
@@ -137,3 +141,84 @@ variable dequeue_back 0 dequeue_back !
      again
 ;
 
+\ pp[] mode position/velocity 2queue
+: drive
+    1 1 reset-fault
+    1 1 until-no-fault
+    1 1 drive-on
+    1 1 until-drive-on
+    1000 ms 
+    ." log|homed" cr
+
+    begin 
+        
+        begin
+            pp[] dequeue not
+        while
+            pause 
+        repeat
+        pp[] dequeue drop swap
+        case 
+            pp of
+                pp  1 1 op-mode!
+                100000  1 1 profile-v!
+                until-no-requests
+                1 1 target-p!
+                1 1 go
+                1 1 until-target-reached
+            endof
+            pv of
+                pv  1 1 op-mode!
+                1 1 target-v!
+                until-no-requests
+            endof
+            drop 
+        endcase
+    again
+;
+
+\ pp[] mode position/velocity n slave 4queue
+: drive-slave
+    ." log|homed" cr
+
+    begin 
+        
+        begin
+            pp[] dequeue not
+        while
+            pause 
+        repeat
+        pp[] dequeue drop swap
+        slave !
+        num !
+        
+
+        pp[] dequeue drop
+        pp[] dequeue drop swap
+
+        case 
+            0 of
+                
+                num @ slave @ reset-fault
+                num @ slave @ until-no-fault
+                num @ slave @ drive-on
+                num @ slave @ until-drive-on
+                1000 ms 
+            endof
+            pp of
+                pp  num @ slave @ op-mode!
+                100000  num @ slave @ profile-v!
+                until-no-requests
+                num @ slave @ target-p!
+                num @ slave @ go
+                num @ slave @ until-target-reached
+            endof
+            pv of
+                pv  num @ slave @ op-mode!
+                num @ slave @ target-v!
+                until-no-requests
+            endof
+            drop 
+        endcase
+    again
+;
