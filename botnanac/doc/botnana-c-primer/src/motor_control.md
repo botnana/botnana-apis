@@ -220,17 +220,17 @@ variable num 0 num !          \ 儲存4queue裡面的channel
                 pp[] clear 							\ 清空queue
             endof
             haltslow of
-                1 0 $605D num @ sdo-download-i16
+                1 0 $605D num @ sdo-download-i16	\ 將0x605D設為1，表示為減速暫停
                 until-no-requests
                 num @ slave @ +drive-halt
             endof
             haltquick of
-                2 0 $605D num @ sdo-download-i16
+                2 0 $605D num @ sdo-download-i16	\ 將0x605D設為2，表示為直接暫停
                 until-no-requests
                 num @ slave @ +drive-halt
             endof
             haltend of
-                num @ slave @ -drive-halt
+                num @ slave @ -drive-halt			\ 將馬達的暫停狀態結束
             endof    
             drop 
         endcase
