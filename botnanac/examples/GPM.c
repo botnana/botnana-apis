@@ -58,6 +58,12 @@ void target_position_cb (void * data, const char * src)
     *pos = atoi(src);
 }
 
+void digital_inputs_cb (void * data, const char * src)
+{
+    int * pos = (int *) data;
+    *pos = atoi(src);
+}
+
 void log_cb (void * data, const char * src)
 {
     printf("log|%s\n", src);
@@ -76,6 +82,7 @@ int main()
     int deployed_ok = 0;
     int real_position = 0;
     int target_position = 0;
+    int digital_inputs = 0;
 
     // connect to motion server
     struct Botnana * botnana = botnana_new("192.168.7.2");
@@ -87,6 +94,7 @@ int main()
     botnana_set_tag_cb(botnana, "deployed", 0, (void *) & deployed_ok, deployed_cb);
     botnana_set_tag_cb(botnana, "real_position.1.1", 0,  (void *) & real_position, real_position_cb);
     botnana_set_tag_cb(botnana, "target_position.1.1", 0,  (void *) & target_position, target_position_cb);
+    botnana_set_tag_cb(botnana, "digital_inputs.1.1", 0,  (void *) & digital_inputs, digital_inputs_cb);
     botnana_set_tag_cb(botnana, "log", 0, NULL, log_cb);
     botnana_set_tag_cb(botnana, "error", 0, NULL ,error_cb);
 
@@ -99,7 +107,7 @@ int main()
     // Create a new program with name 'main', using library from file ./drive-pp.fs.
     struct Program * pm = program_new_with_file("main", "./drive-pp.fs");
     // The main programe will execute drive-pp.
-    program_line(pm, "drive-slave");
+    program_line(pm, "4drive");
 
     // Deploy program to motion server
     botnana_abort_program(botnana);
@@ -114,15 +122,41 @@ int main()
     // Run program
     program_run(botnana, pm);
 
-    // Request user task to push positions into queue
-    //script_evaluate(botnana, "10000 queue");
-    //script_evaluate(botnana, "-10000 queue");
-    //script_evaluate(botnana, "20000 queue");
+    // 指令為 pp[] mode 0/position/velocity/homing-method ch slave 4queue
+    // mode有五種，-1 0 pp pv hm
+    // 例：關第1從站第1馬達，輸入：pp[] -1 0 1 1 4queue
+    // 例：啟動第1從站第1馬達，輸入：pp[] 0 0 1 1 4queue
+    // 例：想指定第2從站第1馬達為pp模式，位置為10000，輸入 pp[] pp 10000 1 2 4queue
+    // 例：想指定第1從站第2馬達為pv模式，速度為10000，輸入 pp[] pv 10000 2 1 4queue
+    // 例：想指定第1從站第2馬達為hm模式，方式為 33，輸入 pp[] hm 33 2 1 4queue
+    // 輸入後，queue的內容為： | ch | slave | mode | 0/position/velocity/homing-method |
+    // mode有三種，pp pv 0
+    // 例：啟動第1從站第1管道馬達，輸入：pp[] 0 0 1 1 4queue
+    // 例：想指定第2從站第1管道馬達為pp模式，位置為10000，輸入 pp[] pp 10000 1 2 4queue
+    // 例：想指定第1從站第2管道馬達為pv模式，速度為10000，輸入 pp[] pv 10000 2 1 4queue
+
+    // 清除第一從站上的第二馬達的異警後，servo on，清除第二從站上第一馬達的異警後 servo on。 
+    // 其中，pp[] 是 queue 的名字，未來也許該改名。
+    //script_evaluate(botnana, "pp[] serveron 0 1 1 4queue   pp[] serveron 0 1 2 4queue");
+    // 第一從站上的第一馬達以 hm 方式模式 33 回原點。第二從站上的第一馬達以 hm 方式模式 33 回原點。
+    // 這裡的hm不需等待其他的馬達完成指令，故兩顆馬達可同時回原點。
+    //script_evaluate(botnana, "pp[] hm 33 1 1 4queue  pp[] hm 33 1 2 4queue");
+    //script_evaluate(botnana, "pp[] inpos 0 1 1 4queue pp[] inpos 0 1 2 4queue");
+    // 第一從站上的第一馬達以 pp 方式走到 10000 的位置。第二從站上的第一馬達以 pp 方式走到 20000 的位置。
+    // 這裡的pp不需等待其他的馬達完成指令，故兩顆馬達可同時轉動。
+    //script_evaluate(botnana, "pp[] pp 10000 1 1 4queue  pp[] pp 20000 1 2 4queue");
+    //script_evaluate(botnana, "pp[] inpos 0 1 1 4queue pp[] inpos 0 1 2 4queue");
+    // 第一從站上的第一馬達以 pv 模式走，目標速度為 30000。第二從站上的第一馬達以 pv 模式走，目標速度為 40000 的位置。
+    //script_evaluate(botnana, "pp[] pv 30000 1 1 4queue  pp[] pv 40000 1 2 4queue");
+    // 清除第一從站上的第二馬達的異警後，servo off，清除第二從站上第一馬達的異警後 servo off。 
+    //script_evaluate(botnana, "pp[] serveroff 0 1 1 4queue   pp[] serveroff 0 1 2 4queue");
+
+    subscribe_ec_slave(botnana,84,1);
 
     while (1)
     {
-        script_evaluate(botnana, "1 .slave");
-        printf("target position: %d, real position: %d, is_finished: %d\n",target_position, real_position, is_finished);
+        //script_evaluate(botnana, "1 .slave");
+        printf("target position: %d, real position: %d, is_finished: %d, digital_inputs: %d\n",target_position, real_position, is_finished, digital_inputs);
         sleep(1);
     }
     return 0;

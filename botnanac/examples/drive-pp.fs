@@ -8,6 +8,15 @@
     create 0 , 0 , cells allot ;
 \    does> ( n -- a ) swap 2 +  cells + ;
 100 constant #position        \ 陣列大小為 100
+-1 constant serveroff         \ 將關閉指令命名為serveroff並賦值-1
+0 constant serveron           \ 將開啟指令命名為serveron並賦值0
+-2 constant inpos             \ 將等待抵達指令命名為inpos並賦值-2
+-3 constant acc               \ 將指定加速度命令命名為acc並賦值-3
+-4 constant dec               \ 將指定減速度命令命名為dec並賦值-4
+-5 constant stop
+-6 constant haltslow
+-7 constant haltquick
+-8 constant haltend
 #position create-queue pp[]   \ 定義陣列名稱為 position[]
 #position create-queue pv[]
 variable dequeue_front 0 dequeue_front !
@@ -17,6 +26,7 @@ variable num 0 num !
 \ variable front#   0 front# ! \ queue 前端的索引
 \ variable back#    0 back# !  \ queue 尾端的索引
 
+\ 取得queue前端及尾端的索引
 : front@ ( queue -- front )  @ ;
 : back@ ( queue -- back )   cell+ @ ;
 
@@ -28,7 +38,7 @@ variable num 0 num !
 \ : full? ( -- f )   back# @  1 +  #position mod  front# @  = ;
 : full? ( queue -- f ) dup back@ 1 + #position mod swap front@ = ;
 
-\ 將 position 放進 queue 中。如果無法放進去，傳一訊息給上位控制器。
+
 \ : queue ( position -- )
 \    full? not if
 \        back# @  position[] !
@@ -36,6 +46,7 @@ variable num 0 num !
 \    else
 \        ." log|full!" cr
 \    then ;
+\ 將 position 放進 queue 中。如果無法放進去，傳一訊息給上位控制器。
 : queue ( queue position -- )
     swap dup 
     full? not if
@@ -45,10 +56,12 @@ variable num 0 num !
         ." log|full!" cr
     then ;
 
+\ 一次將兩個元素放進 queue 中。
 : 2queue ( queue mode position -- )
     -rot 2dup queue
     drop swap queue ;
 
+\ 一次將四個元素放進 queue 中。
 : 4queue ( queue mode position slave n -- )
     pp[] -rot 2queue 2queue ;
 
@@ -79,7 +92,9 @@ variable num 0 num !
     else
         drop false
     then ;
-    
+\ 清空queue，作法為將queue末端索引改為0即可
+: clear ( position -- )
+    0 swap cell+ ! ;
        
 
 
@@ -141,8 +156,14 @@ variable num 0 num !
      again
 ;
 
-\ pp[] mode position/velocity 2queue
-: drive
+
+\ 2drive
+\ 此指令為固定從站編號1第1管道的馬達的情況下，可以自由指定此馬達為pp/pv模式
+\ 指令為 pp[] mode position/velocity 2queue
+\ 例：想指定為pp模式，位置為10000，輸入 pp[] pp 10000 2queue
+\ 例：想指定為pv模式，速度為10000，輸入 pp[] pv 10000 2queue
+\ 輸入後，queue的內容為： | mode | position/velocity |
+: 2drive
     1 1 reset-fault
     1 1 until-no-fault
     1 1 drive-on
@@ -151,15 +172,14 @@ variable num 0 num !
     ." log|homed" cr
 
     begin 
-        
         begin
-            pp[] dequeue not
+            pp[] dequeue not                   \ 從queue裡取出mode，若queue為空則繼續重新dequeue
         while
             pause 
         repeat
-        pp[] dequeue drop swap
-        case 
-            pp of
+        pp[] dequeue drop swap                 \ 從queue裡取出position/velocity
+        case                                   
+            pp of                              
                 pp  1 1 op-mode!
                 100000  1 1 profile-v!
                 until-no-requests
@@ -177,47 +197,94 @@ variable num 0 num !
     again
 ;
 
-\ pp[] mode position/velocity n slave 4queue
-: drive-slave
-    ." log|homed" cr
 
+\ 4drive
+\ 此指令可以自由指定從站編號以及馬達管道編號的情況下，自由指定此馬達為pp/pv模式
+\ 指令為 pp[] mode 0/position/velocity/homing-method ch slave 4queue
+\ mode有五種，-1 0 pp pv hm
+\ 例：關第1從站第1馬達，輸入：pp[] -1 0 1 1 4queue
+\ 例：啟動第1從站第1馬達，輸入：pp[] 0 0 1 1 4queue
+\ 例：想指定第2從站第1馬達為pp模式，位置為10000，輸入 pp[] pp 10000 1 2 4queue
+\ 例：想指定第1從站第2馬達為pv模式，速度為10000，輸入 pp[] pv 10000 2 1 4queue
+\ 例：想指定第1從站第2馬達為hm模式，方式為 33，輸入 pp[] hm 33 2 1 4queue
+\ 輸入後，queue的內容為： | ch | slave | mode | position/velocity/homing-method |
+: 4drive
+    ." log|homed" cr
     begin 
         
         begin
-            pp[] dequeue not
+            pp[] dequeue not                        \ 從queue裡取出ch，若queue為空則繼續重新dequeue
         while
             pause 
         repeat
-        pp[] dequeue drop swap
-        slave !
+        pp[] dequeue drop swap                      \ 從queue裡取出slave
+        slave !                                     
         num !
         
 
-        pp[] dequeue drop
-        pp[] dequeue drop swap
+        pp[] dequeue drop                           \ 從queue裡取出mode
+        pp[] dequeue drop swap                      \ 從queue裡取出position
 
         case 
-            0 of
-                
+            serveroff of
+                num @ slave @ reset-fault           \ 清除馬達的異警
+                num @ slave @ until-no-fault        \ 等待直到馬達的異警被清除
+                num @ slave @ drive-off             \ 關閉馬達
+                100 ms 
+            endof
+            serveron of
                 num @ slave @ reset-fault
                 num @ slave @ until-no-fault
-                num @ slave @ drive-on
-                num @ slave @ until-drive-on
+                num @ slave @ drive-on              \ 將馬達致能 (servo on, operation enabled)
+                num @ slave @ until-drive-on        \ 等待從站一的第一顆馬達完成致能
                 1000 ms 
             endof
+            inpos of
+                num @ slave @ until-target-reached  \ 等待馬達到達指定位置
+            endof
+            acc of
+                num @ slave @ profile-a1!
+            endof
+            dec of
+                num @ slave @ profile-a2!
+            endof
             pp of
-                pp  num @ slave @ op-mode!
-                100000  num @ slave @ profile-v!
-                until-no-requests
-                num @ slave @ target-p!
-                num @ slave @ go
-                num @ slave @ until-target-reached
+                pp  num @ slave @ op-mode!          \ 設馬達的模式為點到點運動 (pp mode)
+                100000  num @ slave @ profile-v!    \ 設馬達的速度 (profile velocity) 為 100000
+                until-no-requests                   \ 等待之前的 SDO 設定完成
+                num @ slave @ target-p!             \ 設定馬達的目標位置 (target position)
+                num @ slave @ go                    \ 執行
             endof
             pv of
                 pv  num @ slave @ op-mode!
                 num @ slave @ target-v!
                 until-no-requests
             endof
+            hm of
+                hm  num @ slave @ op-mode!          \ 設馬達的模式為回原點 (hm mode)
+                33 num @ slave @ homing-method!     \ 設回原點的方式是第 33 號
+                until-no-requests
+                num @ slave @ go
+            endof
+            stop of
+                num @ slave @ drive-stop
+                pp[] clear 
+                num @ slave @ reset-fault
+                num @ slave @ until-no-fault
+            endof
+            haltslow of
+                1 0 $605D num @ sdo-download-i16
+                until-no-requests
+                num @ slave @ +drive-halt
+            endof
+            haltquick of
+                2 0 $605D num @ sdo-download-i16
+                until-no-requests
+                num @ slave @ +drive-halt
+            endof
+            haltend of
+                num @ slave @ -drive-halt
+            endof    
             drop 
         endcase
     again
