@@ -40,11 +40,13 @@ pp[] inpos 0 1 1 4queue
 \ 可以一次下多顆馬達的hm指令在下多顆馬達的inpos指令
 ```
 ```
-\ pp模式，假設馬達的目標位置為10000
+\ pp模式，假設馬達的目標位置為10000，並假設速度為100000
+pp[] pp-v 100000 1 1 4queue
 pp[] pp 10000 1 1 4queue
 pp[] inpos 0 1 1 4queue
 \ inpos指令的0可為任意數
 \ 下pp模式的命令後若下了inpos等待馬達到達定位的命令，則在到達定位之前不再接收其他指令
+\ 可以一次下多顆馬達的pp-v指令再下多顆馬達的pp指令
 \ 可以一次下多顆馬達的pp指令在下多顆馬達的inpos指令
 ```
 ```
@@ -96,9 +98,16 @@ pp[] serveron 0 1 1 4queue
 : create-queue ( capacity -- )
     create 0 , 0 , cells allot ;
 100 constant #position        \ 陣列大小為 100
--1 constant serveroff           \ 將關閉指令命名為serveroff並賦值-1
-0 constant serveron             \ 將開啟指令命名為serveron並賦值0
+-1 constant serveroff         \ 將關閉指令命名為serveroff並賦值-1
+0 constant serveron           \ 將開啟指令命名為serveron並賦值0
 -2 constant inpos             \ 將等待抵達指令命名為inpos並賦值-2
+-3 constant acc               \ 將指定加速度命令命名為acc並賦值-3
+-4 constant dec               \ 將指定減速度命令命名為dec並賦值-4
+-5 constant stop			  \ 將停止馬達命令命名為stop並賦值-5
+-6 constant haltslow		  \ 將減速停止命令命名為haltslow -6
+-7 constant haltquick		  \ 將直接停止命令命名為haltquick並賦值-7
+-8 constant haltend			  \ 將停止暫停命令命名為haltend並賦值-8
+-9 constant pp-v			  \ 將指定pp模式速度命令命名為pp-v並賦值-9
 #position create-queue pp[]   \ 定義陣列名稱為 pp[]
 variable dequeue_front 0 dequeue_front ! \ dequeue指令用的變數
 variable dequeue_back 0 dequeue_back !   \ dequeue指令用的變數
@@ -159,17 +168,18 @@ variable num 0 num !          \ 儲存4queue裡面的channel
 
 ```
 : 4drive
-    ." log|homed" cr
+    ." log|homed" cr        
     begin 
         
         begin
-            pp[] dequeue not					\ 從queue裡取出ch，若queue為空則繼續重新dequeue
+            pp[] dequeue not                        \ 從queue裡取出ch，若queue為空則繼續重新dequeue
         while
             pause 
         repeat
-        pp[] dequeue drop swap				   \ 從queue裡取出slave
-        slave !								   \ 將slave存入slave
-        num !								   \ 將channel存數num
+        pp[] dequeue drop swap                      \ 從queue裡取出slave
+        slave !                                     
+        num !
+        
 
         pp[] dequeue drop                           \ 從queue裡取出mode
         pp[] dequeue drop swap                      \ 從queue裡取出position
@@ -191,16 +201,20 @@ variable num 0 num !          \ 儲存4queue裡面的channel
             inpos of
                 num @ slave @ until-target-reached  \ 等待馬達到達指定位置
             endof
-			acc of
-                num @ slave @ profile-a1!			\ 設定加速度
+            acc of
+                num @ slave @ profile-a1!
             endof
             dec of
-                num @ slave @ profile-a2!			\ 設定減速度
+                num @ slave @ profile-a2!
+            endof
+            pp-v of
+                pp  num @ slave @ op-mode!          \ 設馬達的模式為點到點運動 (pp mode)
+                num @ slave @ profile-v!    \ 設馬達的速度 (profile velocity) 為 100000
+                until-no-requests                   \ 等待之前的 SDO 設定完成
             endof
             pp of
-                pp  num @ slave @ op-mode!          \ 設馬達的模式為點到點運動 (pp mode)
-                100000  num @ slave @ profile-v!    \ 設馬達的速度 (profile velocity) 為 100000
-                until-no-requests                   \ 等待之前的 SDO 設定完成
+                pp  num @ slave @ op-mode! 
+                until-no-requests 
                 num @ slave @ target-p!             \ 設定馬達的目標位置 (target position)
                 num @ slave @ go                    \ 執行
             endof
@@ -215,22 +229,24 @@ variable num 0 num !          \ 儲存4queue裡面的channel
                 until-no-requests
                 num @ slave @ go
             endof
-			stop of
-                num @ slave @ drive-stop			\ 停止馬達
-                pp[] clear 							\ 清空queue
+            stop of
+                num @ slave @ drive-stop
+                pp[] clear 
+                num @ slave @ reset-fault
+                num @ slave @ until-no-fault
             endof
             haltslow of
-                1 0 $605D num @ sdo-download-i16	\ 將0x605D設為1，表示為減速暫停
+                1 0 $605D num @ sdo-download-i16
                 until-no-requests
                 num @ slave @ +drive-halt
             endof
             haltquick of
-                2 0 $605D num @ sdo-download-i16	\ 將0x605D設為2，表示為直接暫停
+                2 0 $605D num @ sdo-download-i16
                 until-no-requests
                 num @ slave @ +drive-halt
             endof
             haltend of
-                num @ slave @ -drive-halt			\ 將馬達的暫停狀態結束
+                num @ slave @ -drive-halt
             endof    
             drop 
         endcase

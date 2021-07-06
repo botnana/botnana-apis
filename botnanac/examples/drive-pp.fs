@@ -13,10 +13,11 @@
 -2 constant inpos             \ 將等待抵達指令命名為inpos並賦值-2
 -3 constant acc               \ 將指定加速度命令命名為acc並賦值-3
 -4 constant dec               \ 將指定減速度命令命名為dec並賦值-4
--5 constant stop
--6 constant haltslow
--7 constant haltquick
--8 constant haltend
+-5 constant stop			  \ 將停止馬達命令命名為stop並賦值-5
+-6 constant haltslow		  \ 將減速停止命令命名為haltslow -6
+-7 constant haltquick		  \ 將直接停止命令命名為haltquick並賦值-7
+-8 constant haltend			  \ 將停止暫停命令命名為haltend並賦值-8
+-9 constant pp-v			  \ 將指定pp模式速度命令命名為pp-v並賦值-9
 #position create-queue pp[]   \ 定義陣列名稱為 position[]
 #position create-queue pv[]
 variable dequeue_front 0 dequeue_front !
@@ -95,7 +96,12 @@ variable num 0 num !
 \ 清空queue，作法為將queue末端索引改為0即可
 : clear ( position -- )
     0 swap cell+ ! ;
-       
+\ 使用SDO指令讀取數值
+: get-sdo ( subindex index position )
+    sdo-upload-i32 begin 1 sdo-busy? while pause repeat 1 .sdo ;
+\ 使用SDO指令寫入數值
+: set-sdo( data subindex index position )
+    sdo-download-i32 ;
 
 
 \
@@ -209,7 +215,7 @@ variable num 0 num !
 \ 例：想指定第1從站第2馬達為hm模式，方式為 33，輸入 pp[] hm 33 2 1 4queue
 \ 輸入後，queue的內容為： | ch | slave | mode | position/velocity/homing-method |
 : 4drive
-    ." log|homed" cr
+    ." log|homed" cr        
     begin 
         
         begin
@@ -248,10 +254,14 @@ variable num 0 num !
             dec of
                 num @ slave @ profile-a2!
             endof
-            pp of
+            pp-v of
                 pp  num @ slave @ op-mode!          \ 設馬達的模式為點到點運動 (pp mode)
-                100000  num @ slave @ profile-v!    \ 設馬達的速度 (profile velocity) 為 100000
+                num @ slave @ profile-v!    \ 設馬達的速度 (profile velocity) 為 100000
                 until-no-requests                   \ 等待之前的 SDO 設定完成
+            endof
+            pp of
+                pp  num @ slave @ op-mode! 
+                until-no-requests 
                 num @ slave @ target-p!             \ 設定馬達的目標位置 (target position)
                 num @ slave @ go                    \ 執行
             endof
@@ -263,6 +273,7 @@ variable num 0 num !
             hm of
                 hm  num @ slave @ op-mode!          \ 設馬達的模式為回原點 (hm mode)
                 33 num @ slave @ homing-method!     \ 設回原點的方式是第 33 號
+                num @ slave @ homing-a!
                 until-no-requests
                 num @ slave @ go
             endof

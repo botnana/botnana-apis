@@ -64,6 +64,30 @@ void digital_inputs_cb (void * data, const char * src)
     *pos = atoi(src);
 }
 
+void real_velocity_cb (void * data, const char * src)
+{
+    int * pos = (int *) data;
+    *pos = atoi(src);
+}
+
+void demand_velocity_cb (void * data, const char * src)
+{
+    int * pos = (int *) data;
+    *pos = atoi(src);
+}
+
+void demand_position_cb (void * data, const char * src)
+{
+    int * pos = (int *) data;
+    *pos = atoi(src);
+}
+
+void demand_torque_cb (void * data, const char * src)
+{
+    int * pos = (int *) data;
+    *pos = atoi(src);
+}
+
 void log_cb (void * data, const char * src)
 {
     printf("log|%s\n", src);
@@ -83,6 +107,10 @@ int main()
     int real_position = 0;
     int target_position = 0;
     int digital_inputs = 0;
+    int real_velocity = 0;
+    int demand_velocity = 0;
+    int demand_position = 0;
+    int demand_torque = 0;
 
     // connect to motion server
     struct Botnana * botnana = botnana_new("192.168.7.2");
@@ -95,6 +123,10 @@ int main()
     botnana_set_tag_cb(botnana, "real_position.1.1", 0,  (void *) & real_position, real_position_cb);
     botnana_set_tag_cb(botnana, "target_position.1.1", 0,  (void *) & target_position, target_position_cb);
     botnana_set_tag_cb(botnana, "digital_inputs.1.1", 0,  (void *) & digital_inputs, digital_inputs_cb);
+    botnana_set_tag_cb(botnana, "real_velocity.1.1", 0, (void *) & real_velocity, real_velocity_cb);
+    botnana_set_tag_cb(botnana, "demand_velocity.1.1", 0, (void *) & demand_velocity, demand_velocity_cb);
+    botnana_set_tag_cb(botnana, "demand_position.1.1", 0, (void *) & demand_position, demand_position_cb);
+    botnana_set_tag_cb(botnana, "demand_torque.1.1", 0, (void *) & demand_torque, demand_torque_cb);
     botnana_set_tag_cb(botnana, "log", 0, NULL, log_cb);
     botnana_set_tag_cb(botnana, "error", 0, NULL ,error_cb);
 
@@ -151,12 +183,15 @@ int main()
     // 清除第一從站上的第二馬達的異警後，servo off，清除第二從站上第一馬達的異警後 servo off。 
     //script_evaluate(botnana, "pp[] serveroff 0 1 1 4queue   pp[] serveroff 0 1 2 4queue");
 
-    subscribe_ec_slave(botnana,84,1);
+    subscribe_ec_slave(botnana,0,1);
 
     while (1)
     {
         //script_evaluate(botnana, "1 .slave");
-        printf("target position: %d, real position: %d, is_finished: %d, digital_inputs: %d\n",target_position, real_position, is_finished, digital_inputs);
+        printf("target position: %d, real position: %d, is_finished: %d, digital_inputs: %d, real_velocity: %d\n",
+                target_position, real_position, is_finished, digital_inputs, real_velocity);
+        printf("demand_velocity: %d, demand_position: %d, demand_torque: %d\n", 
+                demand_velocity, demand_position, demand_torque);
         sleep(1);
     }
     return 0;
