@@ -18,6 +18,9 @@
 -7 constant haltquick		  \ 將直接停止命令命名為haltquick並賦值-7
 -8 constant haltend			  \ 將停止暫停命令命名為haltend並賦值-8
 -9 constant pp-v			  \ 將指定pp模式速度命令命名為pp-v並賦值-9
+-10 constant get-sdo
+-11 constant set-sdo
+-12 constant station-no-set
 #position create-queue pp[]   \ 定義陣列名稱為 position[]
 #position create-queue pv[]
 variable dequeue_front 0 dequeue_front !
@@ -96,13 +99,6 @@ variable num 0 num !
 \ 清空queue，作法為將queue末端索引改為0即可
 : clear ( position -- )
     0 swap cell+ ! ;
-\ 使用SDO指令讀取數值
-: get-sdo ( subindex index position )
-    sdo-upload-i32 begin 1 sdo-busy? while pause repeat 1 .sdo ;
-\ 使用SDO指令寫入數值
-: set-sdo( data subindex index position )
-    sdo-download-i32 ;
-
 
 \
 \ NC task
@@ -223,7 +219,7 @@ variable num 0 num !
         while
             pause 
         repeat
-        pp[] dequeue drop swap                      \ 從queue裡取出slave
+        pp[] dequeue drop                           \ 從queue裡取出slave
         slave !                                     
         num !
         
@@ -255,7 +251,6 @@ variable num 0 num !
                 num @ slave @ profile-a2!
             endof
             pp-v of
-                pp  num @ slave @ op-mode!          \ 設馬達的模式為點到點運動 (pp mode)
                 num @ slave @ profile-v!    \ 設馬達的速度 (profile velocity) 為 100000
                 until-no-requests                   \ 等待之前的 SDO 設定完成
             endof
@@ -284,18 +279,27 @@ variable num 0 num !
                 num @ slave @ until-no-fault
             endof
             haltslow of
-                1 0 $605D num @ sdo-download-i16
+                1 0 $605D num @ sdo-download-i32
                 until-no-requests
                 num @ slave @ +drive-halt
             endof
             haltquick of
-                2 0 $605D num @ sdo-download-i16
+                2 0 $605D num @ sdo-download-i32
                 until-no-requests
                 num @ slave @ +drive-halt
             endof
             haltend of
                 num @ slave @ -drive-halt
-            endof    
+            endof
+            get-sdo ( subindex index position ) ( pp[] subindex index position 4queue ) of
+                num @ slave @ sdo-upload-i32 begin slave @ sdo-busy? while pause repeat slave @ .sdo until-no-requests
+            endof
+            set-sdo ( data subindex index position ) ( pp[] data index+subindex position 4queue ) of
+                num @ 16 mod num @ 16 / slave @ sdo-download-i32 until-no-requests 
+            endof
+            station-no-set of
+                slave @ ec-alias!
+            endof
             drop 
         endcase
     again

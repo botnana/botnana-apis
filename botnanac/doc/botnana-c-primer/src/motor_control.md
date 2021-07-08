@@ -9,7 +9,7 @@ queue_name  operation  parameter  channel  slave_num  4queue
 ```
 queue_name：queue的名字。
 
-operation：想對馬達操作的指令，總共有：啟動(serveron)、關閉(serveroff)、pp模式(pp)、pv模式(pv)、回歸原點模式(hm)、等待到達(inpos)、指定加速度(acc)、指定減速度(dec)、減速暫停馬達(haltslow)、直接暫停馬達(haltquick)、結束暫停(haltend)、停止馬達(stop)。
+operation：想對馬達操作的指令，總共有：啟動(serveron)、關閉(serveroff)、pp模式(pp)、pv模式(pv)、回歸原點模式(hm)、等待到達(inpos)、指定加速度(acc)、指定減速度(dec)、減速暫停馬達(haltslow)、直接暫停馬達(haltquick)、結束暫停(haltend)、停止馬達(stop)、設定從站alias(station-no-set)。
 
 parameter：配合operation指定的參數，適用於pp、pv，若是其他的operation則此欄位隨意填入數字即可。
 
@@ -21,26 +21,27 @@ slave_num：連結該馬達的從站編號。
 
 * 指令範例(以下範例都以編號1從站的編號1馬達進行示範，並且queue_name都為"pp[]")
 
+* 開啟馬達
 ```
-\ 開啟馬達
 pp[] serveron 0 1 1 4queue
 \ 此處的0可為任意數
 ```
+* 關閉馬達
 ```
-\ 關閉馬達
 pp[] serveroff 0 1 1 4queuue
 \ 此處的0可為任意數
 ```
+* 回歸原點模式
 ```
-\ 回歸原點模式
 pp[] hm 0 1 1 4queue
 pp[] inpos 0 1 1 4queue
 \ 此兩行指令的0皆可為任意數
 \ 下hm模式的命令後需要再下inpos等待馬達到達定位的命令
 \ 可以一次下多顆馬達的hm指令在下多顆馬達的inpos指令
 ```
+* pp模式
 ```
-\ pp模式，假設馬達的目標位置為10000，並假設速度為100000
+\ 假設馬達的目標位置為10000，並假設速度為100000
 pp[] pp-v 100000 1 1 4queue
 pp[] pp 10000 1 1 4queue
 pp[] inpos 0 1 1 4queue
@@ -49,43 +50,77 @@ pp[] inpos 0 1 1 4queue
 \ 可以一次下多顆馬達的pp-v指令再下多顆馬達的pp指令
 \ 可以一次下多顆馬達的pp指令在下多顆馬達的inpos指令
 ```
+* pv模式
 ```
-\ pv模式，假設馬達的速度為10000
+\ 假設馬達的速度為10000
 pp[] pv 10000 1 1 4queue
 ```
+* acc指定加速度
 ```
-\ acc指定加速度，假設加速度為10000
+\ 假設加速度為10000
 pp[] acc 10000 1 1 4queue
 ```
+* dec指定減速度
 ```
-\ dec指定減速度，假設減速度為10000
+\ 假設減速度為10000
 pp[] dec 10000 1 1 4queue
 ```
+* 以減速模式暫停馬達
 ```
-\ 以減速模式暫停馬達
 pp[] haltslow 0 1 1 4queue
 \ 此處的0可為任意數
 ```
+* 直接暫停馬達
 ```
-\ 直接暫停馬達
 pp[] haltquick 0 1 1 4queue
 \ 此處的0可為任意數
 ```
+* 結束馬達的暫停
 ```
-\ 結束馬達的暫停
 pp[] haltend 0 1 1 4queue
 \ 此處的0可為任意數
 \ 此指令用於馬達被haltslow或是haltquick指令暫停後，想從暫停狀態恢復時
 ```
+* 停止馬達
 ```
-\ 停止馬達
 pp[] stop 0 1 1 4queue
 pp[] serveron 0 1 1 4queue
 \ 此處的0可為任意數
 \ 下此指令後，當前執行的指令以及儲存在queue中的指令都會直接清除
 \ stop指令後需要執行serveron重新啟動馬達
 ```
-* queue的構成
+* 設定從站alias
+```
+pp[] station-no-set 0 1 1 4queue
+\ 此指令為把從站編號1的alias設為0
+\ 此處的馬達位置可為任意數
+```
+這個指令有幾點要注意
+1. alias 除了 0 以外，不可重複。
+2. 此設定命令是修改 SII EEPROM 對應的暫存器。如果是由硬體旋鈕控制的，就不需要由此命令設定。
+3. 不可以有重複的 alias。
+4. 此命令會造成 Real Time Cycle Overrun。要在所有驅動器 Servo OFF 情況執行。
+
+operation還有兩項指令，set-sdo以及get-sdo格式較為特別，故特別寫在這裡。
+
+* SDO讀取
+```
+\ 想要讀取從站編號1的index $605D subindex 0 
+\ 格式為 queue_name subindex index slave_num 4queue
+pp[] 0 $605D 1 4queue
+\ 可讀取出index、subindex以及資料
+```
+* SDO寫入
+```
+\ 想要對從站編號1的index $605D subindex 0 寫入資料 1
+\ 格式為 queue_name data index+subindex slave_num 4queue
+\ index+subindex比較特殊，礙於格式的關係，在寫入資料的時候，需要把index以及subindex寫在一起，以這裡的例子即為$605D0，也就是index $605D + subindex 0
+pp[] 1 $605D0 1 4queue
+\ 此指令可對指定位置寫入資料
+```
+
+
+# queue的構成
 
 ```
 \ queue的基本元素

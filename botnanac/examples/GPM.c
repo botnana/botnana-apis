@@ -2,7 +2,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include "botnana.h"
-
+char pds_state[100] = "unknown";
 // 處理主站傳回的資料
 void on_message_cb (void * data, const char * src)
 {
@@ -88,6 +88,37 @@ void demand_torque_cb (void * data, const char * src)
     *pos = atoi(src);
 }
 
+void pds_state_cb (void * data, const char * src)
+{
+    int i = 0;
+    while(src[i] != '\0'){
+        pds_state[i] = src[i];
+        i++;
+    }
+    pds_state[i] = '\0';
+}
+
+void sdo_index_cb (void * data, const char * src)
+{
+    int * pos = (int *) data;
+    *pos = (int)strtol(src, NULL, 0);
+    printf("\n sdo_index: 0x%08x | ", (int)strtol(src, NULL, 0));
+}
+
+void sdo_subindex_cb (void * data, const char * src)
+{
+    int * pos = (int *) data;
+    *pos = atoi(src);
+    printf("sdo_subindex: 0x%08x | ", (int)strtol(src, NULL, 0));
+}
+
+void sdo_data_cb (void * data, const char * src)
+{
+    int * pos = (int *) data;
+    *pos = atoi(src);
+    printf("sdo_data: 0x%08x\n\n", (int)strtol(src, NULL, 0));
+}
+
 void log_cb (void * data, const char * src)
 {
     printf("log|%s\n", src);
@@ -111,6 +142,11 @@ int main()
     int demand_velocity = 0;
     int demand_position = 0;
     int demand_torque = 0;
+    
+    int sdo_index = 0;
+    int sdo_subindex = 0;
+    int sdo_data = 0;
+
 
     // connect to motion server
     struct Botnana * botnana = botnana_new("192.168.7.2");
@@ -127,8 +163,13 @@ int main()
     botnana_set_tag_cb(botnana, "demand_velocity.1.1", 0, (void *) & demand_velocity, demand_velocity_cb);
     botnana_set_tag_cb(botnana, "demand_position.1.1", 0, (void *) & demand_position, demand_position_cb);
     botnana_set_tag_cb(botnana, "demand_torque.1.1", 0, (void *) & demand_torque, demand_torque_cb);
+    botnana_set_tag_cb(botnana, "pds_state.1.1", 0, (void *) & pds_state, pds_state_cb);
+    botnana_set_tag_cb(botnana, "sdo_index.1", 0, (void *) & sdo_index, sdo_index_cb);
+    botnana_set_tag_cb(botnana, "sdo_subindex.1", 0, (void *) & sdo_subindex, sdo_subindex_cb);
+    botnana_set_tag_cb(botnana, "sdo_data_hex.1", 0, (void *) & sdo_data, sdo_data_cb);
     botnana_set_tag_cb(botnana, "log", 0, NULL, log_cb);
     botnana_set_tag_cb(botnana, "error", 0, NULL ,error_cb);
+    
 
     botnana_connect(botnana);
     while (ws_open == 0)
@@ -190,8 +231,8 @@ int main()
         //script_evaluate(botnana, "1 .slave");
         printf("target position: %d, real position: %d, is_finished: %d, digital_inputs: %d, real_velocity: %d\n",
                 target_position, real_position, is_finished, digital_inputs, real_velocity);
-        printf("demand_velocity: %d, demand_position: %d, demand_torque: %d\n", 
-                demand_velocity, demand_position, demand_torque);
+        printf("demand_velocity: %d, demand_position: %d, demand_torque: %d, pds_state: %s\n", 
+                demand_velocity, demand_position, demand_torque, pds_state);
         sleep(1);
     }
     return 0;
