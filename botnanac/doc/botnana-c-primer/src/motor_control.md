@@ -9,7 +9,7 @@ queue_name  operation  parameter  channel  slave_num  4queue
 ```
 queue_name：queue的名字。
 
-operation：想對馬達操作的指令，總共有：啟動(serveron)、關閉(serveroff)、pp模式(pp)、pv模式(pv)、回歸原點模式(hm)、等待到達(inpos)、指定加速度(acc)、指定減速度(dec)、減速暫停馬達(haltslow)、直接暫停馬達(haltquick)、結束暫停(haltend)、停止馬達(stop)、設定從站alias(station-no-set)。
+operation：想對馬達操作的指令，總共有：啟動(serveron)、關閉(serveroff)、pp模式(pp)、pv模式(pv)、回歸原點模式(hm)、等待到達(inpos)、指定加速度(acc)、指定減速度(dec)、直接停止馬達(quickstop)、減速停止馬達(slowstop)、設定從站alias(station-no-set)。
 
 parameter：配合operation指定的參數，適用於pp、pv，若是其他的operation則此欄位隨意填入數字即可。
 
@@ -31,10 +31,13 @@ pp[] serveron 0 1 1 4queue
 pp[] serveroff 0 1 1 4queuue
 \ 此處的0可為任意數
 ```
-* 回歸原點模式
+* 回歸原點模式，並設定回歸原點的方式
 ```
-pp[] hm 0 1 1 4queue
+10000 1 1 homing-a!
+pp[] hm 33 1 1 4queue
 pp[] inpos 0 1 1 4queue
+\ 設定回歸原點加速度為10000
+\ 表示回歸原點的方式為33
 \ 此兩行指令的0皆可為任意數
 \ 下hm模式的命令後需要再下inpos等待馬達到達定位的命令
 \ 可以一次下多顆馬達的hm指令在下多顆馬達的inpos指令
@@ -65,29 +68,17 @@ pp[] acc 10000 1 1 4queue
 \ 假設減速度為10000
 pp[] dec 10000 1 1 4queue
 ```
-* 以減速模式暫停馬達
+* 直接停止馬達
 ```
-pp[] haltslow 0 1 1 4queue
-\ 此處的0可為任意數
-```
-* 直接暫停馬達
-```
-pp[] haltquick 0 1 1 4queue
-\ 此處的0可為任意數
-```
-* 結束馬達的暫停
-```
-pp[] haltend 0 1 1 4queue
-\ 此處的0可為任意數
-\ 此指令用於馬達被haltslow或是haltquick指令暫停後，想從暫停狀態恢復時
-```
-* 停止馬達
-```
-pp[] stop 0 1 1 4queue
-pp[] serveron 0 1 1 4queue
+pp[] quickstop 0 1 1 4queue
 \ 此處的0可為任意數
 \ 下此指令後，當前執行的指令以及儲存在queue中的指令都會直接清除
-\ stop指令後需要執行serveron重新啟動馬達
+```
+* 減速停止馬達
+```
+pp[] slowstop 10000 1 1 4queue
+\ 以減速度10000停止馬達
+\ 下此指令後，當前執行的指令以及儲存在queue中的指令都會直接清除
 ```
 * 設定從站alias
 ```
@@ -107,15 +98,15 @@ operation還有兩項指令，set-sdo以及get-sdo格式較為特別，故特別
 ```
 \ 想要讀取從站編號1的index $605D subindex 0 
 \ 格式為 queue_name subindex index slave_num 4queue
-pp[] 0 $605D 1 4queue
+pp[] get-sdo 0 $605D 1 4queue
 \ 可讀取出index、subindex以及資料
 ```
 * SDO寫入
 ```
-\ 想要對從站編號1的index $605D subindex 0 寫入資料 1
+\ 想要對從站編號1的index $605D subindex 0 寫入資料 100
 \ 格式為 queue_name data index+subindex slave_num 4queue
 \ index+subindex比較特殊，礙於格式的關係，在寫入資料的時候，需要把index以及subindex寫在一起，以這裡的例子即為$605D0，也就是index $605D + subindex 0
-pp[] 1 $605D0 1 4queue
+pp[] set-sdo 100 $605D0 1 4queue
 \ 此指令可對指定位置寫入資料
 ```
 
@@ -211,7 +202,7 @@ variable num 0 num !          \ 儲存4queue裡面的channel
         while
             pause 
         repeat
-        pp[] dequeue drop swap                      \ 從queue裡取出slave
+        pp[] dequeue drop                           \ 從queue裡取出slave
         slave !                                     
         num !
         
@@ -243,7 +234,6 @@ variable num 0 num !          \ 儲存4queue裡面的channel
                 num @ slave @ profile-a2!
             endof
             pp-v of
-                pp  num @ slave @ op-mode!          \ 設馬達的模式為點到點運動 (pp mode)
                 num @ slave @ profile-v!    \ 設馬達的速度 (profile velocity) 為 100000
                 until-no-requests                   \ 等待之前的 SDO 設定完成
             endof
@@ -260,29 +250,36 @@ variable num 0 num !          \ 儲存4queue裡面的channel
             endof
             hm of
                 hm  num @ slave @ op-mode!          \ 設馬達的模式為回原點 (hm mode)
-                33 num @ slave @ homing-method!     \ 設回原點的方式是第 33 號
+                num @ slave @ homing-method!     \ 設定為原典的方式
                 until-no-requests
                 num @ slave @ go
             endof
-            stop of
+            quickstop of
+                -1 0 $605A num @ sdo-download-i16
+                until-no-requests
                 num @ slave @ drive-stop
                 pp[] clear 
                 num @ slave @ reset-fault
                 num @ slave @ until-no-fault
             endof
-            haltslow of
-                1 0 $605D num @ sdo-download-i16
+            slowstop of
+                0 $6085 num @ sdo-download-i32
+                6 0 $605A num @ sdo-download-i16
                 until-no-requests
-                num @ slave @ +drive-halt
+                num @ slave @ drive-stop
+                pp[] clear 
+                num @ slave @ reset-fault
+                num @ slave @ until-no-fault
             endof
-            haltquick of
-                2 0 $605D num @ sdo-download-i16
-                until-no-requests
-                num @ slave @ +drive-halt
+            get-sdo ( subindex index position ) ( pp[] subindex index position 4queue ) of
+                num @ slave @ sdo-upload-i32 begin slave @ sdo-busy? while pause repeat slave @ .sdo until-no-requests
             endof
-            haltend of
-                num @ slave @ -drive-halt
-            endof    
+            set-sdo ( data subindex index position ) ( pp[] data index+subindex position 4queue ) of
+                num @ 16 mod num @ 16 / slave @ sdo-download-i32 until-no-requests 
+            endof
+            station-no-set of
+                slave @ ec-alias!
+            endof
             drop 
         endcase
     again

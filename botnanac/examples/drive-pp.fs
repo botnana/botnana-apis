@@ -13,10 +13,11 @@
 -2 constant inpos             \ 將等待抵達指令命名為inpos並賦值-2
 -3 constant acc               \ 將指定加速度命令命名為acc並賦值-3
 -4 constant dec               \ 將指定減速度命令命名為dec並賦值-4
--5 constant stop			  \ 將停止馬達命令命名為stop並賦值-5
--6 constant haltslow		  \ 將減速停止命令命名為haltslow -6
--7 constant haltquick		  \ 將直接停止命令命名為haltquick並賦值-7
--8 constant haltend			  \ 將停止暫停命令命名為haltend並賦值-8
+-5 constant quickstop		  \ 將停止馬達命令命名為quickstop並賦值-5
+-6 constant slowstop
+\ -6 constant haltslow		  \ 將減速停止命令命名為haltslow -6
+\ -7 constant haltquick		  \ 將直接停止命令命名為haltquick並賦值-7
+\ -8 constant haltend			  \ 將停止暫停命令命名為haltend並賦值-8
 -9 constant pp-v			  \ 將指定pp模式速度命令命名為pp-v並賦值-9
 -10 constant get-sdo
 -11 constant set-sdo
@@ -267,29 +268,26 @@ variable num 0 num !
             endof
             hm of
                 hm  num @ slave @ op-mode!          \ 設馬達的模式為回原點 (hm mode)
-                33 num @ slave @ homing-method!     \ 設回原點的方式是第 33 號
-                num @ slave @ homing-a!
+                num @ slave @ homing-method!     \ 設定為原典的方式
                 until-no-requests
                 num @ slave @ go
             endof
-            stop of
+            quickstop of
+                -1 0 $605A num @ sdo-download-i16
+                until-no-requests
                 num @ slave @ drive-stop
                 pp[] clear 
                 num @ slave @ reset-fault
                 num @ slave @ until-no-fault
             endof
-            haltslow of
-                1 0 $605D num @ sdo-download-i32
+            slowstop of
+                0 $6085 num @ sdo-download-i32
+                6 0 $605A num @ sdo-download-i16
                 until-no-requests
-                num @ slave @ +drive-halt
-            endof
-            haltquick of
-                2 0 $605D num @ sdo-download-i32
-                until-no-requests
-                num @ slave @ +drive-halt
-            endof
-            haltend of
-                num @ slave @ -drive-halt
+                num @ slave @ drive-stop
+                pp[] clear 
+                num @ slave @ reset-fault
+                num @ slave @ until-no-fault
             endof
             get-sdo ( subindex index position ) ( pp[] subindex index position 4queue ) of
                 num @ slave @ sdo-upload-i32 begin slave @ sdo-busy? while pause repeat slave @ .sdo until-no-requests
