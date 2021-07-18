@@ -80,6 +80,13 @@ pp[] slowstop 10000 1 1 4queue
 \ 以減速度10000停止馬達
 \ 下此指令後，當前執行的指令以及儲存在queue中的指令都會直接清除
 ```
+* 在inpos狀態下停止馬達
+```
+pp[] clear
+pp[] quickstop/slowstop 0/deceleration 1 1 4queue
+\ 這是在pp指令後下了inpos命令的狀態下停止馬達的指令
+\ 先使用pp[] clear清空queue，之後再用quickstop或slowstop指令停止馬達
+```
 * 設定從站alias
 ```
 pp[] station-no-set 0 1 1 4queue

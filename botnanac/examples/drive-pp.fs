@@ -28,6 +28,7 @@ variable dequeue_front 0 dequeue_front !
 variable dequeue_back 0 dequeue_back !
 variable slave 0 slave !
 variable num 0 num !
+variable end-inpos 0 end-inpos !
 \ variable front#   0 front# ! \ queue 前端的索引
 \ variable back#    0 back# !  \ queue 尾端的索引
 
@@ -220,6 +221,7 @@ variable num 0 num !
         while
             pause 
         repeat
+        ." log|dequeue successful " cr
         pp[] dequeue drop                           \ 從queue裡取出slave
         slave !                                     
         num !
@@ -243,7 +245,22 @@ variable num 0 num !
                 1000 ms 
             endof
             inpos of
-                num @ slave @ until-target-reached  \ 等待馬達到達指定位置
+                pause pause pause pause pause pause
+                -1 end-inpos !
+                begin
+                    num @ slave @ target-reached? not
+                    end-inpos @ and
+                while
+                    pp[] 4 cells + @ quickstop =  
+                    pp[] 4 cells + @ slowstop = or
+                    if
+                        ." log|quickslowstop " cr
+                        0 end-inpos !
+                    else
+                        pause
+                    then
+                repeat
+\                num @ slave @ until-target-reached  \ 等待馬達到達指定位置
             endof
             acc of
                 num @ slave @ profile-a1!
@@ -279,6 +296,9 @@ variable num 0 num !
                 pp[] clear 
                 num @ slave @ reset-fault
                 num @ slave @ until-no-fault
+                num @ slave @ drive-on              \ 將馬達致能 (servo on, operation enabled)
+                num @ slave @ until-drive-on        \ 等待從站一的第一顆馬達完成致能
+                1000 ms 
             endof
             slowstop of
                 0 $6085 num @ sdo-download-i32
@@ -288,6 +308,9 @@ variable num 0 num !
                 pp[] clear 
                 num @ slave @ reset-fault
                 num @ slave @ until-no-fault
+                num @ slave @ drive-on              \ 將馬達致能 (servo on, operation enabled)
+                num @ slave @ until-drive-on        \ 等待從站一的第一顆馬達完成致能
+                1000 ms 
             endof
             get-sdo ( subindex index position ) ( pp[] subindex index position 4queue ) of
                 num @ slave @ sdo-upload-i32 begin slave @ sdo-busy? while pause repeat slave @ .sdo until-no-requests

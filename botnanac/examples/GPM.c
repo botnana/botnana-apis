@@ -224,11 +224,12 @@ int main()
     // 清除第一從站上的第二馬達的異警後，servo off，清除第二從站上第一馬達的異警後 servo off。 
     //script_evaluate(botnana, "pp[] serveroff 0 1 1 4queue   pp[] serveroff 0 1 2 4queue");
 
-    subscribe_ec_slave(botnana,0,1);
+    subscribe_ec_slave(botnana,84,1);
 
     while (1)
     {
         //script_evaluate(botnana, "1 .slave");
+        printf("{:?}\n",botnana->is_connected.lock().expect(""));
         printf("target position: %d, real position: %d, is_finished: %d, digital_inputs: %d, real_velocity: %d\n",
                 target_position, real_position, is_finished, digital_inputs, real_velocity);
         printf("demand_velocity: %d, demand_position: %d, demand_torque: %d, pds_state: %s\n", 
