@@ -119,6 +119,13 @@ void sdo_data_cb (void * data, const char * src)
     printf("sdo_data: 0x%08x\n\n", (int)strtol(src, NULL, 0));
 }
 
+void alarm_code_cb (void * data, const char * src)
+{
+    int * pos = (int *) data;
+    *pos = atoi(src);
+}
+
+
 void log_cb (void * data, const char * src)
 {
     printf("log|%s\n", src);
@@ -142,6 +149,7 @@ int main()
     int demand_velocity = 0;
     int demand_position = 0;
     int demand_torque = 0;
+    int alarm_code = 0;
     
     int sdo_index = 0;
     int sdo_subindex = 0;
@@ -167,6 +175,7 @@ int main()
     botnana_set_tag_cb(botnana, "sdo_index.1", 0, (void *) & sdo_index, sdo_index_cb);
     botnana_set_tag_cb(botnana, "sdo_subindex.1", 0, (void *) & sdo_subindex, sdo_subindex_cb);
     botnana_set_tag_cb(botnana, "sdo_data_hex.1", 0, (void *) & sdo_data, sdo_data_cb);
+    botnana_set_tag_cb(botnana, "alarm_code.1.1", 0, (void *) & alarm_code, alarm_code_cb);
     botnana_set_tag_cb(botnana, "log", 0, NULL, log_cb);
     botnana_set_tag_cb(botnana, "error", 0, NULL ,error_cb);
     
@@ -229,11 +238,10 @@ int main()
     while (1)
     {
         //script_evaluate(botnana, "1 .slave");
-        printf("{:?}\n",botnana->is_connected.lock().expect(""));
         printf("target position: %d, real position: %d, is_finished: %d, digital_inputs: %d, real_velocity: %d\n",
                 target_position, real_position, is_finished, digital_inputs, real_velocity);
-        printf("demand_velocity: %d, demand_position: %d, demand_torque: %d, pds_state: %s\n", 
-                demand_velocity, demand_position, demand_torque, pds_state);
+        printf("demand_velocity: %d, demand_position: %d, demand_torque: %d, pds_state: %s, alarm_code: %d\n", 
+                demand_velocity, demand_position, demand_torque, pds_state, alarm_code);
         sleep(1);
     }
     return 0;

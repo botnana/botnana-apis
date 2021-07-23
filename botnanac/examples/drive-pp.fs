@@ -22,6 +22,7 @@
 -10 constant get-sdo
 -11 constant set-sdo
 -12 constant station-no-set
+-13 constant set-pos
 #position create-queue pp[]   \ 定義陣列名稱為 position[]
 #position create-queue pv[]
 variable dequeue_front 0 dequeue_front !
@@ -68,7 +69,7 @@ variable end-inpos 0 end-inpos !
     drop swap queue ;
 
 \ 一次將四個元素放進 queue 中。
-: 4queue ( queue mode position slave n -- )
+: 4queue ( queue mode position n slave -- )
     pp[] -rot 2queue 2queue ;
 
 \ 從 queue 中取出一個值。如果 queue 是空的，回傳的 f 值為 0 (false)，否則回傳那個值以及 -1 (true)。
