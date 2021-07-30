@@ -3,6 +3,7 @@
 #include <string.h>
 #include "botnana.h"
 char pds_state[100] = "unknown";
+int home_offset = 0;
 // 處理主站傳回的資料
 void on_message_cb (void * data, const char * src)
 {
@@ -125,6 +126,11 @@ void alarm_code_cb (void * data, const char * src)
     *pos = atoi(src);
 }
 
+void home_offset_cb (void * data, const char * src)
+{
+    int * pos = (int *) data;
+    *pos = atoi(src);
+}
 
 void log_cb (void * data, const char * src)
 {
@@ -151,6 +157,7 @@ int main()
     int demand_torque = 0;
     int alarm_code = 0;
     
+    
     int sdo_index = 0;
     int sdo_subindex = 0;
     int sdo_data = 0;
@@ -176,6 +183,7 @@ int main()
     botnana_set_tag_cb(botnana, "sdo_subindex.1", 0, (void *) & sdo_subindex, sdo_subindex_cb);
     botnana_set_tag_cb(botnana, "sdo_data_hex.1", 0, (void *) & sdo_data, sdo_data_cb);
     botnana_set_tag_cb(botnana, "alarm_code.1.1", 0, (void *) & alarm_code, alarm_code_cb);
+    botnana_set_tag_cb(botnana, "home_offset.1.1", 0, (void *) & home_offset, home_offset_cb);
     botnana_set_tag_cb(botnana, "log", 0, NULL, log_cb);
     botnana_set_tag_cb(botnana, "error", 0, NULL ,error_cb);
     
@@ -233,7 +241,7 @@ int main()
     // 清除第一從站上的第二馬達的異警後，servo off，清除第二從站上第一馬達的異警後 servo off。 
     //script_evaluate(botnana, "pp[] serveroff 0 1 1 4queue   pp[] serveroff 0 1 2 4queue");
 
-    subscribe_ec_slave(botnana,84,1);
+    subscribe_ec_slave(botnana,0,1);
 
     while (1)
     {

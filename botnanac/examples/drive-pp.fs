@@ -30,6 +30,7 @@ variable dequeue_back 0 dequeue_back !
 variable slave 0 slave !
 variable num 0 num !
 variable end-inpos 0 end-inpos !
+variable home_offset 0 home_offset !
 \ variable front#   0 front# ! \ queue 前端的索引
 \ variable back#    0 back# !  \ queue 尾端的索引
 
@@ -288,13 +289,11 @@ variable end-inpos 0 end-inpos !
                 hm  num @ slave @ op-mode!          \ 設馬達的模式為回原點 (hm mode)
                 num @ slave @ homing-method!     \ 設定為原典的方式
                 until-no-requests
-                num @ slave @ go
             endof
             quickstop of
                 -1 0 $605A num @ sdo-download-i16
                 until-no-requests
                 num @ slave @ drive-stop
-                pp[] clear 
                 num @ slave @ reset-fault
                 num @ slave @ until-no-fault
                 num @ slave @ drive-on              \ 將馬達致能 (servo on, operation enabled)
@@ -306,7 +305,6 @@ variable end-inpos 0 end-inpos !
                 6 0 $605A num @ sdo-download-i16
                 until-no-requests
                 num @ slave @ drive-stop
-                pp[] clear 
                 num @ slave @ reset-fault
                 num @ slave @ until-no-fault
                 num @ slave @ drive-on              \ 將馬達致能 (servo on, operation enabled)
@@ -321,6 +319,11 @@ variable end-inpos 0 end-inpos !
             endof
             station-no-set of
                 slave @ ec-alias!
+            endof
+            set-pos of
+                0 $607C num @ sdo-download-i32
+                until-no-requests
+                num @ slave @ go
             endof
             drop 
         endcase

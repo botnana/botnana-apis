@@ -9,7 +9,7 @@ queue_name  operation  parameter  channel  slave_num  4queue
 ```
 queue_name：queue的名字。
 
-operation：想對馬達操作的指令，總共有：啟動(serveron)、關閉(serveroff)、pp模式(pp)、pv模式(pv)、回歸原點模式(hm)、等待到達(inpos)、指定加速度(acc)、指定減速度(dec)、直接停止馬達(quickstop)、減速停止馬達(slowstop)、設定從站alias(station-no-set)。
+operation：想對馬達操作的指令，總共有：啟動(serveron)、關閉(serveroff)、pp模式(pp)、設定pp模式速度(pp-v)、pv模式(pv)、回歸原點模式(hm)、等待到達(inpos)、指定加速度(acc)、指定減速度(dec)、直接停止馬達(quickstop)、減速停止馬達(slowstop)、設定從站alias(station-no-set)、取得SDO數值(get-sdo)、寫入SDO數值(set-sdo)、設定原點座標(set-pos)。
 
 parameter：配合operation指定的參數，適用於pp、pv，若是其他的operation則此欄位隨意填入數字即可。
 
@@ -31,16 +31,18 @@ pp[] serveron 0 1 1 4queue
 pp[] serveroff 0 1 1 4queuue
 \ 此處的0可為任意數
 ```
-* 回歸原點模式，並設定回歸原點的方式
+* 回歸原點模式，設定回歸原點的方式、並設定原點的座標
 ```
 10000 1 1 homing-a!
 pp[] hm 33 1 1 4queue
+pp[] set-pos 5000 1 1 4queue
 pp[] inpos 0 1 1 4queue
 \ 設定回歸原點加速度為10000
 \ 表示回歸原點的方式為33
-\ 此兩行指令的0皆可為任意數
+\ 設定原點的座標為5000
 \ 下hm模式的命令後需要再下inpos等待馬達到達定位的命令
 \ 可以一次下多顆馬達的hm指令在下多顆馬達的inpos指令
+\ inpos指令的0可為任意數
 ```
 * pp模式
 ```
@@ -79,6 +81,8 @@ pp[] quickstop 0 1 1 4queue
 pp[] slowstop 10000 1 1 4queue
 \ 以減速度10000停止馬達
 \ 下此指令後，當前執行的指令以及儲存在queue中的指令都會直接清除
+\ 此處的參數10000不可為0
+\ 若此處的10000改為0，表示馬達會以減速度0進行減速，也就是永遠不會停止
 ```
 * 在inpos狀態下停止馬達
 ```
@@ -98,7 +102,7 @@ pp[] station-no-set 0 1 1 4queue
 2. 此設定命令是修改 SII EEPROM 對應的暫存器。如果是由硬體旋鈕控制的，就不需要由此命令設定。
 3. 不可以有重複的 alias。
 4. 此命令會造成 Real Time Cycle Overrun。要在所有驅動器 Servo OFF 情況執行。
-
+---
 operation還有兩項指令，set-sdo以及get-sdo格式較為特別，故特別寫在這裡。
 
 * SDO讀取
