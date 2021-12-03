@@ -3,11 +3,10 @@ use botnanars::Botnana;
 use std::{
     ffi::CStr,
     os::raw::{c_char, c_void},
-    str, thread, time,
+    ptr, str, thread, time,
 };
 
 static mut IS_OPENED: bool = false;
-const NULL: *mut c_void = 0 as (*mut c_void);
 
 /// On ws open
 extern "C" fn on_ws_open(_ptr: *mut c_void, msg: *const c_char) {
@@ -45,9 +44,9 @@ extern "C" fn on_ws_message(_ptr: *mut c_void, msg: *const c_char) {
 fn main() {
     let mut botnana = Botnana::new();
 
-    botnana.set_on_open_cb(NULL, on_ws_open);
-    botnana.set_on_error_cb(NULL, on_ws_error);
-    botnana.set_on_message_cb(NULL, on_ws_message);
+    botnana.set_on_open_cb(ptr::null_mut(), on_ws_open);
+    botnana.set_on_error_cb(ptr::null_mut(), on_ws_error);
+    botnana.set_on_message_cb(ptr::null_mut(), on_ws_message);
     botnana.connect();
     unsafe {
         while !IS_OPENED {
