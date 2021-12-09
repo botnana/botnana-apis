@@ -474,23 +474,21 @@ impl Botnana {
 
     /// Handle message
     /// 處理 server 送過來的訊息
-    fn handle_message(&mut self, message: &str) {
-        if message.len() > 0 {
+    fn handle_message(&mut self, msg: &str) {
+        if msg.len() > 0 {
             if let Some(ref cb) = *self.on_message_cb.lock().unwrap() {
-                let mut temp_msg = String::from(message).into_bytes();
+                let mut temp_msg = String::from(msg).into_bytes();
                 // 如果不是換行結束的,補上換行符號,如果沒有在 C 的輸出有問題
                 if temp_msg[temp_msg.len() - 1] != 10 {
                     temp_msg.push(10);
                 }
                 temp_msg.push(0);
-                let msg = CStr::from_bytes_with_nul(temp_msg.as_slice())
-                    .expect("toCstr")
-                    .as_ptr();
-                (cb.callback)(cb.pointer, msg);
+                let msg = CStr::from_bytes_with_nul(temp_msg.as_slice()).expect("toCstr");
+                (cb.callback)(cb.pointer, msg.as_ptr());
             }
         }
         {
-            let lines: Vec<&str> = message.split("\n").collect();
+            let lines: Vec<&str> = msg.split("\n").collect();
             let mut tagname_handlers = self.tagname_handlers.lock().expect("self.handlers.lock()");
             let mut tag_handlers = self.tag_handlers.lock().expect("self.handlers.lock()");
             let internal_handlers = self
@@ -571,13 +569,11 @@ impl Botnana {
                             // 轉換字串型態
                             let mut msg = String::from(e).into_bytes();
                             msg.push(0);
-                            let msg = CStr::from_bytes_with_nul(msg.as_slice())
-                                .expect("toCstr")
-                                .as_ptr();
+                            let msg = CStr::from_bytes_with_nul(msg.as_slice()).expect("toCstr");
                             // 執行對應的 callback function
                             // 使用 rev() 是為了 handler.remove，從後面刪除才不會影響 i 對應 vec 內的成員
                             for i in (0..handler.len()).rev() {
-                                (handler[i].callback)(handler[i].pointer, msg);
+                                (handler[i].callback)(handler[i].pointer, msg.as_ptr());
 
                                 if handler[i].count > 0 {
                                     handler[i].count -= 1;
@@ -662,10 +658,8 @@ impl Botnana {
         if let Some(ref cb) = *self.on_error_cb.lock().expect("execute_on_error_cb") {
             let mut temp_msg = String::from(msg).into_bytes();
             temp_msg.push(0);
-            let msg = CStr::from_bytes_with_nul(temp_msg.as_slice())
-                .expect("toCstr")
-                .as_ptr();
-            (cb.callback)(cb.pointer, msg);
+            let msg = CStr::from_bytes_with_nul(temp_msg.as_slice()).expect("toCstr");
+            (cb.callback)(cb.pointer, msg.as_ptr());
         }
     }
 
@@ -676,10 +670,8 @@ impl Botnana {
                 String::from("Connect to ".to_owned() + &self.url() + " (" + VERSION + ")")
                     .into_bytes();
             temp_msg.push(0);
-            let msg = CStr::from_bytes_with_nul(temp_msg.as_slice())
-                .expect("toCstr")
-                .as_ptr();
-            (cb.callback)(cb.pointer, msg);
+            let msg = CStr::from_bytes_with_nul(temp_msg.as_slice()).expect("toCstr");
+            (cb.callback)(cb.pointer, msg.as_ptr());
         }
     }
 
@@ -688,10 +680,8 @@ impl Botnana {
         if let Some(ref cb) = *self.on_send_cb.lock().expect("execute_on_send_cb") {
             let mut temp_msg = String::from(msg).into_bytes();
             temp_msg.push(0);
-            let msg = CStr::from_bytes_with_nul(temp_msg.as_slice())
-                .expect("toCstr")
-                .as_ptr();
-            (cb.callback)(cb.pointer, msg);
+            let msg = CStr::from_bytes_with_nul(temp_msg.as_slice()).expect("toCstr");
+            (cb.callback)(cb.pointer, msg.as_ptr());
         }
     }
 
@@ -762,10 +752,8 @@ impl Client {
         if let Some(ref cb) = *self.on_error_cb.lock().expect("execute_on_error_cb") {
             let mut temp_msg = String::from(msg).into_bytes();
             temp_msg.push(0);
-            let msg = CStr::from_bytes_with_nul(temp_msg.as_slice())
-                .expect("toCstr")
-                .as_ptr();
-            (cb.callback)(cb.pointer, msg);
+            let msg = CStr::from_bytes_with_nul(temp_msg.as_slice()).expect("toCstr");
+            (cb.callback)(cb.pointer, msg.as_ptr());
         }
     }
 }
