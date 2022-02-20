@@ -206,7 +206,7 @@ impl Botnana {
         position: u16,
         channel: u16,
         relative: bool,
-        target: u32,
+        target: i32,
     ) {
         let rel_cmd = if relative { "+pp-rel" } else { "-pp-rel" };
         self.send_script_to_buffer(&format!(
