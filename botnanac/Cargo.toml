@@ -6,7 +6,7 @@ edition = "2018"
 
 [dependencies]
 libc = "0.2"
-botnanars = { path="../../botnana-api-rs" }
+botnanars = { path="../botnana-api-rs" }
 
 [lib]
 name="botnana"

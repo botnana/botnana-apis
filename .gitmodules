@@ -1,0 +1,3 @@
+[submodule "botnana-api-rs"]
+	path = botnana-api-rs
+	url = git@github.com:botnana/botnana-api-rs.git
