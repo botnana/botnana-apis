@@ -1,0 +1,18 @@
+FROM ubuntu:xenial
+RUN apt-get update
+RUN apt-get install -y \
+wget xz-utils \
+build-essential \
+bc \
+sudo \
+gcc-4.9-arm-linux-gnueabihf g++-4.9-arm-linux-gnueabihf \
+autoconf libtool
+
+RUN sudo update-alternatives --install /usr/bin/arm-linux-gnueabihf-gcc arm-linux-gnueabihf-gcc /usr/bin/arm-linux-gnueabihf-gcc-4.9 10
+RUN sudo update-alternatives --install /usr/bin/arm-linux-gnueabihf-g++ arm-linux-gnueabihf-g++ /usr/bin/arm-linux-gnueabihf-g++-4.9 10
+
+RUN useradd -m docker && echo "docker:docker" | chpasswd && adduser docker sudo
+WORKDIR /home/docker
+USER docker
+
+CMD /bin/bash
