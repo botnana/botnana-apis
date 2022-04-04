@@ -9,6 +9,8 @@ ws = "0.8"
 libc = "0.2.41"
 url = "1.7.0"
 serde_json = "1.0.33"
+log = "0.4"
+env_logger = "0.9"
 
 [dev-dependencies]
 serde = "=1.0.60"

@@ -1,11 +1,13 @@
 use crate::data_pool::DataPool;
 use crate::program::Program;
+use log::{debug, info};
 use serde_json;
 use std::{
     self,
     boxed::Box,
     collections::{HashMap, VecDeque},
     ffi::CStr,
+    io::Write,
     os::raw::{c_char, c_void},
     str,
     sync::{
@@ -18,6 +20,7 @@ use url;
 use ws::{
     self, connect, util::Token, CloseCode, Error, ErrorKind, Handler, Handshake, Message, Result,
 };
+
 const WS_TIMEOUT_TOKEN: Token = Token(1);
 const WS_WATCHDOG_PERIOD_MS: u64 = 10_000;
 const VERSION: &'static str = env!("CARGO_PKG_VERSION");
@@ -84,6 +87,10 @@ pub struct Botnana {
 impl Botnana {
     /// New
     pub fn new() -> Botnana {
+        env_logger::builder()
+            .format_timestamp_millis()
+            .try_init()
+            .unwrap();
         Botnana {
             ip: Arc::new(Mutex::new("192.168.7.2".to_string())),
             port: Arc::new(Mutex::new(3012)),
@@ -566,6 +573,13 @@ impl Botnana {
 
                         remove_event = false;
                         if let Some(handler) = tag_handlers.get_mut(event) {
+                            debug!(
+                                "Handle event {}, value {}, handlers {}",
+                                event,
+                                e,
+                                handler.len()
+                            );
+                            // TODO: 不應一直產生 string。
                             // 轉換字串型態
                             let mut msg = String::from(e).into_bytes();
                             msg.push(0);
@@ -609,6 +623,7 @@ impl Botnana {
         cb: extern "C" fn(*mut c_void, *const c_char),
     ) {
         let mut tag_handlers = self.tag_handlers.lock().unwrap();
+        debug!("set {}'s callback", tag);
         let handler = tag_handlers.entry(tag.to_owned()).or_insert(Vec::new());
         handler.push(CallbackHandler {
             count: count,
