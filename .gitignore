@@ -17,4 +17,5 @@ botnanac/*.txt
 **/BotnanaApi.dll
 **/botnana.lib
 **/.readme.md.html
+Cargo.lock
 
