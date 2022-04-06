@@ -1,17 +1,17 @@
 [package]
 name = "botnanars"
-version = "0.3.9"
+version = "0.3.10"
 authors = ["Mapacode Inc."]
 edition = "2018"
 
 [dependencies]
-ws = "0.8"
+ws = "0.9"
 libc = "0.2.41"
-url = "1.7.0"
-serde_json = "1.0.33"
+url = "2.2.2"
+serde_json = "1.0.79"
 log = "0.4"
 env_logger = "0.9"
 
 [dev-dependencies]
-serde = "=1.0.60"
+serde = "1.0.136"
 
