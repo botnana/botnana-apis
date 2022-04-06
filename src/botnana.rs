@@ -7,7 +7,6 @@ use std::{
     boxed::Box,
     collections::{HashMap, VecDeque},
     ffi::CStr,
-    io::Write,
     os::raw::{c_char, c_void},
     str,
     sync::{

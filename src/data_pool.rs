@@ -59,8 +59,6 @@ impl Slave {
     }
 
     /// 依據 channel index 配置所以需要的記憶體
-    #[inline]
-    #[inline(always)]
     pub fn reserve_drives(&mut self, channel_index: usize) {
         for _i in self.drives.len()..channel_index + 1 {
             self.drives.push(Drive::new());
