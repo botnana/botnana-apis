@@ -43,19 +43,6 @@ void botnana_disconnect(struct Botnana * desc);
 // return : IP of motion server
 const char * botnana_set_ip(struct Botnana * desc, const char * ip);
 
-// Set Port
-// desc : motion server descriptor
-// port   : Port of motion server
-//
-// return : Port of motion server
-uint16_t botnana_set_port(struct Botnana * desc, uint16_t port);
-
-// URL of motion server
-// desc : motion server descriptor
-//
-// return : URl of motion server
-const char * botnana_url(struct Botnana * desc);
-
 // Set on_open callback function
 // desc: motion server descriptor
 // cb  : on_open callback function

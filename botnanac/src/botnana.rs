@@ -58,24 +58,6 @@ pub extern "C" fn botnana_set_ip(botnana: Box<Botnana>, ip: *const c_char) -> *c
     }
 }
 
-/// Set motion server port
-/// `port`: IP of botnana
-#[no_mangle]
-pub extern "C" fn botnana_set_port(botnana: Box<Botnana>, port: u16) -> u16 {
-    let s = Box::into_raw(botnana);
-    unsafe { (*s).set_port(port) }
-}
-
-/// Get URL of motion server
-#[no_mangle]
-pub extern "C" fn botnana_url(botnana: Box<Botnana>) -> *const c_char {
-    let s = Box::into_raw(botnana);
-    unsafe {
-        let url = CString::new((*s).url()).expect("botnana_url");
-        url.into_raw()
-    }
-}
-
 /// Connection
 /// `botnana`: Botnana descriptor
 #[no_mangle]
