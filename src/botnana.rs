@@ -378,6 +378,7 @@ impl Botnana {
                             .expect("Modbus connect");
                         match ctx.read_input_registers(10000, MB_BLOCK_SIZE as _).await {
                             Ok(inputs) => {
+                                // Replace the old Vec in triple buffer.
                                 input.write(inputs);
                             }
                             Err(e) => {
