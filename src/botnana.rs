@@ -121,22 +121,20 @@ impl Botnana {
     }
 
     /// Set IP
-    pub fn set_ip(&mut self, ip: &str) -> String {
+    pub fn set_ip(&mut self, ip: &str) {
         if let Ok(_) = url::Url::parse(&("ws://".to_owned() + ip + ":" + &self.port().to_string()))
         {
             *self.ip.lock().expect("") = ip.to_string();
         }
-        self.ip()
     }
 
     /// Set port
-    pub fn set_port(&mut self, port: u16) -> u16 {
+    pub fn set_port(&mut self, port: u16) {
         if let Ok(_) =
             url::Url::parse(&("ws://".to_owned() + self.ip().as_str() + ":" + &port.to_string()))
         {
             *self.port.lock().expect("") = port;
         }
-        self.port()
     }
 
     /// IP
