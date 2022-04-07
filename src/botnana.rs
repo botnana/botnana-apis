@@ -1,6 +1,7 @@
 use crate::data_pool::DataPool;
 use crate::program::Program;
 use log::{debug, error, info};
+use modbus::client::ClientTable as MbClientTable;
 use modbus::MB_BLOCK_SIZE;
 use serde_json;
 use std::{
@@ -83,10 +84,12 @@ pub struct Botnana {
     pub(crate) cyclic_queries: Arc<Mutex<Vec<String>>>,
     last_query: Arc<Mutex<usize>>,
     query_count: Arc<Mutex<usize>>,
-    // MOdbus input after triple buffer
-    mbin_output: Arc<triple_buffer::Output<Vec<u16>>>,
+    // Modbus client table
+    mb_table: MbClientTable,
     // MOdbus input before triple buffer
+    // Temporary variables
     mbin_input: Arc<Mutex<Option<triple_buffer::Input<Vec<u16>>>>>,
+    mbhd_output: Arc<Mutex<Option<triple_buffer::Output<Vec<u16>>>>>,
 }
 
 impl Botnana {
@@ -100,6 +103,7 @@ impl Botnana {
         let mut template = Vec::with_capacity(MB_BLOCK_SIZE as _);
         template.resize(MB_BLOCK_SIZE, 0);
         let (mbin_input, mbin_output) = triple_buffer::TripleBuffer::new(&template).split();
+        let (mbhd_input, mbhd_output) = triple_buffer::TripleBuffer::new(&template).split();
 
         Botnana {
             ip: Arc::new(Mutex::new("192.168.7.2".to_string())),
@@ -123,8 +127,14 @@ impl Botnana {
             cyclic_queries: Arc::new(Mutex::new(Vec::new())),
             last_query: Arc::new(Mutex::new(0)),
             query_count: Arc::new(Mutex::new(3)),
-            mbin_output: Arc::new(mbin_output),
+            mb_table: MbClientTable::new(
+                Arc::new(Mutex::new(mbin_output)),
+                Arc::new(Mutex::new(mbhd_input)),
+                modbus::MB_COIL_COUNT,
+                modbus::MB_DIN_COUNT,
+            ),
             mbin_input: Arc::new(Mutex::new(Some(mbin_input))),
+            mbhd_output: Arc::new(Mutex::new(Some(mbhd_output))),
         }
     }
 
@@ -800,6 +810,26 @@ impl Botnana {
     /// Version
     pub fn version() -> &'static str {
         VERSION
+    }
+
+    pub fn mb_bit(&mut self, addr: usize) -> std::result::Result<bool, modbus::Error> {
+        self.mb_table.bit(addr)
+    }
+
+    pub fn mb_i16(&mut self, addr: usize) -> std::result::Result<i16, modbus::Error> {
+        self.mb_table.i16(addr)
+    }
+
+    pub fn mb_u16(&mut self, addr: usize) -> std::result::Result<u16, modbus::Error> {
+        self.mb_table.u16(addr)
+    }
+
+    pub fn mb_i32(&mut self, addr: usize) -> std::result::Result<i32, modbus::Error> {
+        self.mb_table.i32(addr)
+    }
+
+    pub fn mb_u32(&mut self, addr: usize) -> std::result::Result<u32, modbus::Error> {
+        self.mb_table.u32(addr)
     }
 }
 
