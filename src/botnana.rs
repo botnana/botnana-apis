@@ -654,9 +654,13 @@ impl Botnana {
     }
 
     /// Set callback for tag
+    ///
     /// `tag` is tag
+    ///
     /// `count` is handler called times
+    ///
     /// `pointer` is user data pointer
+    ///
     /// `handler` is user function
     pub fn set_tag_callback(
         &mut self,
@@ -676,9 +680,13 @@ impl Botnana {
     }
 
     /// Set callback for name of tag
+    ///
     /// `name` is name of tag
+    ///
     /// `count` is handler called times
+    ///
     /// `pointer` is user data pointer
+    ///
     /// `handler` is user function
     pub fn set_tagname_callback(
         &mut self,
