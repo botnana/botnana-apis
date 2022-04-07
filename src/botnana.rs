@@ -1,6 +1,7 @@
 use crate::data_pool::DataPool;
 use crate::program::Program;
-use log::{debug, info};
+use log::{debug, error, info};
+use modbus::MB_BLOCK_SIZE;
 use serde_json;
 use std::{
     self,
@@ -15,6 +16,7 @@ use std::{
     },
     thread,
 };
+use tokio_modbus::prelude::Reader;
 use url;
 use ws::{
     self, connect, util::Token, CloseCode, Error, ErrorKind, Handler, Handshake, Message, Result,
@@ -81,6 +83,10 @@ pub struct Botnana {
     pub(crate) cyclic_queries: Arc<Mutex<Vec<String>>>,
     last_query: Arc<Mutex<usize>>,
     query_count: Arc<Mutex<usize>>,
+    // MOdbus input after triple buffer
+    mbin_output: Arc<triple_buffer::Output<Vec<u16>>>,
+    // MOdbus input before triple buffer
+    mbin_input: Arc<Mutex<Option<triple_buffer::Input<Vec<u16>>>>>,
 }
 
 impl Botnana {
@@ -90,6 +96,11 @@ impl Botnana {
             .format_timestamp_millis()
             .try_init()
             .unwrap();
+
+        let mut template = Vec::with_capacity(MB_BLOCK_SIZE as _);
+        template.resize(MB_BLOCK_SIZE, 0);
+        let (mbin_input, mbin_output) = triple_buffer::TripleBuffer::new(&template).split();
+
         Botnana {
             ip: Arc::new(Mutex::new("192.168.7.2".to_string())),
             port: Arc::new(Mutex::new(3012)),
@@ -112,6 +123,8 @@ impl Botnana {
             cyclic_queries: Arc::new(Mutex::new(Vec::new())),
             last_query: Arc::new(Mutex::new(0)),
             query_count: Arc::new(Mutex::new(3)),
+            mbin_output: Arc::new(mbin_output),
+            mbin_input: Arc::new(Mutex::new(Some(mbin_input))),
         }
     }
 
@@ -150,6 +163,11 @@ impl Botnana {
     /// URL
     pub fn url(&self) -> String {
         "ws://".to_owned() + self.ip().as_str() + ":" + &self.port().to_string()
+    }
+
+    /// Modbus url
+    pub fn mb_url(&self) -> String {
+        self.ip().to_owned() + ":502"
     }
 
     /// Is connected ?
@@ -207,6 +225,8 @@ impl Botnana {
         *self.user_sender.lock().expect("Set user sender") = Some(user_sender);
         let mut botnana = self.clone();
 
+        // Websocket
+        // TODO: use tokio-tungstenite to replace ws.
         thread::Builder::new()
             .name("Try Connection".to_string())
             .spawn(move || {
@@ -332,6 +352,32 @@ impl Botnana {
                 }
             })
             .expect("Create Try Connection Thread");
+
+        // Modbus thread
+        let bna = self.clone();
+
+        thread::Builder::new()
+            .name("Modbus Connection".to_string())
+            .spawn(move || {
+                let rt = tokio::runtime::Runtime::new().expect("Tokio runtime");
+                rt.block_on(async {
+                    if let Some(mut input) = bna.mbin_input.lock().expect("mbin_input").take() {
+                        let socket_addr = bna.mb_url().parse().expect("Modbus URL");
+                        let mut ctx = tokio_modbus::client::tcp::connect(socket_addr)
+                            .await
+                            .expect("Modbus connect");
+                        match ctx.read_input_registers(10000, MB_BLOCK_SIZE as _).await {
+                            Ok(inputs) => {
+                                input.write(inputs);
+                            }
+                            Err(e) => {
+                                error!("Read input registers failed, {}", e)
+                            }
+                        }
+                    }
+                })
+            })
+            .expect("Create Modbus thread");
     }
 
     /// Disconnect
