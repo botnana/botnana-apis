@@ -16,6 +16,7 @@ use std::{
         Arc, Mutex,
     },
     thread,
+    time::Duration,
 };
 use tokio_modbus::prelude::Reader;
 use url;
@@ -327,7 +328,7 @@ impl Botnana {
                                 loop {
                                     let interval =
                                         *bna.poll_interval_ms.lock().expect("poll thread");
-                                    thread::sleep(std::time::Duration::from_millis(interval));
+                                    thread::sleep(Duration::from_millis(interval));
                                     // 當 WS 連線有問題時，用來接收通知，正常時應該不會收到東西
                                     match poll_receiver.try_recv() {
                                         Ok(_) | Err(TryRecvError::Disconnected) => {
@@ -362,7 +363,9 @@ impl Botnana {
                 }
             })
             .expect("Create Try Connection Thread");
+    }
 
+    pub fn mb_connect(&mut self) {
         // Modbus thread
         let bna = self.clone();
 
@@ -376,13 +379,17 @@ impl Botnana {
                         let mut ctx = tokio_modbus::client::tcp::connect(socket_addr)
                             .await
                             .expect("Modbus connect");
-                        match ctx.read_input_registers(10000, MB_BLOCK_SIZE as _).await {
-                            Ok(inputs) => {
-                                // Replace the old Vec in triple buffer.
-                                input.write(inputs);
-                            }
-                            Err(e) => {
-                                error!("Read input registers failed, {}", e)
+                        let mut interval = tokio::time::interval(Duration::from_millis(15));
+                        loop {
+                            interval.tick().await;
+                            match ctx.read_input_registers(10000, MB_BLOCK_SIZE as _).await {
+                                Ok(inputs) => {
+                                    // Replace the old Vec in triple buffer.
+                                    input.write(inputs);
+                                }
+                                Err(e) => {
+                                    error!("Read input registers failed, {}", e)
+                                }
                             }
                         }
                     }
