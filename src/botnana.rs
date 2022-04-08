@@ -820,6 +820,10 @@ impl Botnana {
         VERSION
     }
 
+    pub fn mb_table(&mut self) -> &MbClientTable {
+        &self.mb_table
+    }
+
     pub fn mb_bit(&mut self, addr: usize) -> std::result::Result<bool, modbus::Error> {
         self.mb_table.bit(addr)
     }
