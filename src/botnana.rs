@@ -91,6 +91,7 @@ pub struct Botnana {
     // Temporary variables
     mbin_input: Arc<Mutex<Option<triple_buffer::Input<Vec<u16>>>>>,
     mbhd_output: Arc<Mutex<Option<triple_buffer::Output<Vec<u16>>>>>,
+    is_mb_connected: Arc<Mutex<bool>>,
 }
 
 impl Botnana {
@@ -136,6 +137,7 @@ impl Botnana {
             ),
             mbin_input: Arc::new(Mutex::new(Some(mbin_input))),
             mbhd_output: Arc::new(Mutex::new(Some(mbhd_output))),
+            is_mb_connected: Arc::new(Mutex::new(false)),
         }
     }
 
@@ -365,6 +367,10 @@ impl Botnana {
             .expect("Create Try Connection Thread");
     }
 
+    pub fn is_mb_connected(&self) -> bool {
+        *self.is_mb_connected.lock().expect("mb_connected")
+    }
+
     pub fn mb_connect(&mut self) {
         // Modbus thread
         let bna = self.clone();
@@ -375,11 +381,24 @@ impl Botnana {
                 let rt = tokio::runtime::Runtime::new().expect("Tokio runtime");
                 rt.block_on(async {
                     if let Some(mut input) = bna.mbin_input.lock().expect("mbin_input").take() {
-                        info!("connect to modbus server at {}", bna.mb_url());
+                        info!("Connecting to modbus server at {}...", bna.mb_url());
                         let socket_addr = bna.mb_url().parse().expect("Modbus URL");
-                        let mut ctx = tokio_modbus::client::tcp::connect(socket_addr)
-                            .await
-                            .expect("Modbus connect");
+                        let mut ctx;
+                        let mut connect_interval =
+                            tokio::time::interval(Duration::from_millis(150));
+                        loop {
+                            match tokio_modbus::client::tcp::connect(socket_addr).await {
+                                Ok(c) => {
+                                    info!("Modbus server at {} is connected.", bna.mb_url());
+                                    ctx = c;
+                                    break;
+                                }
+                                Err(_) => {
+                                    connect_interval.tick().await;
+                                }
+                            }
+                        }
+                        *bna.is_mb_connected.lock().expect("mb_connected") = true;
                         let mut interval = tokio::time::interval(Duration::from_millis(15));
                         loop {
                             interval.tick().await;
