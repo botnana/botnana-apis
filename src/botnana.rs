@@ -375,6 +375,7 @@ impl Botnana {
                 let rt = tokio::runtime::Runtime::new().expect("Tokio runtime");
                 rt.block_on(async {
                     if let Some(mut input) = bna.mbin_input.lock().expect("mbin_input").take() {
+                        info!("connect to modbus server at {}", bna.mb_url());
                         let socket_addr = bna.mb_url().parse().expect("Modbus URL");
                         let mut ctx = tokio_modbus::client::tcp::connect(socket_addr)
                             .await
@@ -382,15 +383,39 @@ impl Botnana {
                         let mut interval = tokio::time::interval(Duration::from_millis(15));
                         loop {
                             interval.tick().await;
-                            match ctx.read_input_registers(10000, MB_BLOCK_SIZE as _).await {
-                                Ok(inputs) => {
-                                    // Replace the old Vec in triple buffer.
-                                    input.write(inputs);
+                            // TODO: 因一次只能讀 125 words，如果 MB_BLOCK_SIZE = 384，需要讀四次。
+                            // 考慮是否修改 tokio-modbus 以取消每次只能讀 125 words 的限制。
+                            // 不過經觀察，read_input_registers 間只差 2ms。
+                            let mut left = MB_BLOCK_SIZE;
+                            let mut start: usize = 0;
+                            let mut cnt: usize;
+                            while left > 0 {
+                                // match ctx.read_input_registers(0, MB_BLOCK_SIZE as _).await {
+                                if left > 125 {
+                                    cnt = 125;
+                                    left -= 125;
+                                } else {
+                                    cnt = left;
+                                    left = 0;
                                 }
-                                Err(e) => {
-                                    error!("Read input registers failed, {}", e)
+                                match ctx.read_input_registers(start as _, cnt as _).await {
+                                    Ok(inputs) => {
+                                        // Replace the old Vec in triple buffer.
+                                        debug!("Modbus got {} inputs {:?}", inputs.len(), inputs);
+                                        input
+                                            .input_buffer()
+                                            .get_mut(start..start + cnt)
+                                            .expect("Input buffer size")
+                                            .copy_from_slice(&inputs);
+                                    }
+                                    Err(e) => {
+                                        error!("Read input registers failed, {:?}", e)
+                                    }
                                 }
+                                start += cnt;
                             }
+                            debug!("Modbus publish {:?}", input.input_buffer());
+                            input.publish();
                         }
                     }
                 })
