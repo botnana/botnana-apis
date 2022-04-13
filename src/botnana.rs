@@ -27,7 +27,7 @@ use ws::{
 const WS_TIMEOUT_TOKEN: Token = Token(1);
 const WS_WATCHDOG_PERIOD_MS: u64 = 10_000;
 const VERSION: &'static str = env!("CARGO_PKG_VERSION");
-
+const MB_HEART_BEAT_TIME_OUT: usize = 10;
 /// Callback Handler
 struct CallbackHandler {
     /// 執行次數
@@ -92,6 +92,7 @@ pub struct Botnana {
     mbin_input: Arc<Mutex<Option<triple_buffer::Input<Vec<u16>>>>>,
     mbhd_output: Arc<Mutex<Option<triple_buffer::Output<Vec<u16>>>>>,
     is_mb_connected: Arc<Mutex<bool>>,
+    mb_heart_beat_address: Arc<Mutex<Option<usize>>>,
 }
 
 impl Botnana {
@@ -822,14 +823,13 @@ impl Botnana {
                         }
                         *bna.is_mb_connected.lock().expect("mb_connected") = true;
                         let mut interval = tokio::time::interval(Duration::from_millis(15));
+                        let mut heart_beats = MB_HEART_BEAT_TIME_OUT;
+                        let mut last_heart_beat = false;
                         // TODO: handle disconnection.
                         // 計畫如下：使用 heart beat，當 heart beat 不來時，且要求檢查 heart
                         // beat時，就會斷線重連。
                         // Heart beat 是 modbus discrete input 中的一個位址，這位址可以指定。因此提
                         // 供以下函式：
-                        // fn check_heart_beat(Some(addr)); 當檢查 heart beat 時，會在 heart beat 不來
-                        // 時重新連線。
-                        // fn check_heart_beat(None); 不檢查 heart beat。
                         // fn mb_disconnect(); 斷線。
                         // 計畫在我們提供的 forth script 中都使用 modbus 的第一個 discrete input 10001
                         // 為 heart beat。
@@ -869,11 +869,44 @@ impl Botnana {
                             }
                             debug!("Modbus publish {:?}", input.input_buffer());
                             input.publish();
+
+                            // Check heart beat
+                            let heart_beat_address = *bna
+                                .mb_heart_beat_address
+                                .lock()
+                                .expect("mb heart beat address");
+                            match heart_beat_address {
+                                Some(addr) => {
+                                    let register = addr / 16;
+                                    let bit_mask = 1 << (addr % 16);
+                                    if last_heart_beat
+                                        != (input.input_buffer()[register] & bit_mask != 0)
+                                    {
+                                        last_heart_beat = !last_heart_beat;
+                                        heart_beats = MB_HEART_BEAT_TIME_OUT;
+                                    } else {
+                                        heart_beats -= 1;
+                                        if heart_beats == 0 {
+                                            break;
+                                        }
+                                    }
+                                }
+                                None => {}
+                            }
                         }
+                        *bna.is_mb_connected.lock().expect("mb_connected") = true;
                     }
                 })
             })
             .expect("Create Modbus thread");
+    }
+
+    /// Check modbus heart beat at coil or discrete input address `addr`.
+    pub fn mb_check_heart_beat(&mut self, addr: Option<usize>) {
+        *self
+            .mb_heart_beat_address
+            .lock()
+            .expect("modbus heart beat address") = addr;
     }
 
     pub fn mb_update(&self) {
