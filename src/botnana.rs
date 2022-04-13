@@ -876,6 +876,14 @@ impl Botnana {
         VERSION
     }
 
+    pub fn mb_update(&mut self) {
+        self.mb_table.update();
+    }
+
+    pub fn mb_table_mut(&mut self) -> &mut MbClientTable {
+        &mut self.mb_table
+    }
+
     pub fn mb_table(&mut self) -> &MbClientTable {
         &self.mb_table
     }
