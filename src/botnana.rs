@@ -371,7 +371,7 @@ impl Botnana {
         *self.is_mb_connected.lock().expect("mb_connected")
     }
 
-    pub fn mb_connect(&mut self) {
+    pub fn mb_connect(&self) {
         // Modbus thread
         let bna = self.clone();
 
@@ -876,35 +876,31 @@ impl Botnana {
         VERSION
     }
 
-    pub fn mb_update(&mut self) {
+    pub fn mb_update(&self) {
         self.mb_table.update();
-    }
-
-    pub fn mb_table_mut(&mut self) -> &mut MbClientTable {
-        &mut self.mb_table
     }
 
     pub fn mb_table(&mut self) -> &MbClientTable {
         &self.mb_table
     }
 
-    pub fn mb_bit(&mut self, addr: usize) -> std::result::Result<bool, modbus::Error> {
+    pub fn mb_bit(&self, addr: usize) -> std::result::Result<bool, modbus::Error> {
         self.mb_table.bit(addr)
     }
 
-    pub fn mb_i16(&mut self, addr: usize) -> std::result::Result<i16, modbus::Error> {
+    pub fn mb_i16(&self, addr: usize) -> std::result::Result<i16, modbus::Error> {
         self.mb_table.i16(addr)
     }
 
-    pub fn mb_u16(&mut self, addr: usize) -> std::result::Result<u16, modbus::Error> {
+    pub fn mb_u16(&self, addr: usize) -> std::result::Result<u16, modbus::Error> {
         self.mb_table.u16(addr)
     }
 
-    pub fn mb_i32(&mut self, addr: usize) -> std::result::Result<i32, modbus::Error> {
+    pub fn mb_i32(&self, addr: usize) -> std::result::Result<i32, modbus::Error> {
         self.mb_table.i32(addr)
     }
 
-    pub fn mb_u32(&mut self, addr: usize) -> std::result::Result<u32, modbus::Error> {
+    pub fn mb_u32(&self, addr: usize) -> std::result::Result<u32, modbus::Error> {
         self.mb_table.u32(addr)
     }
 }
