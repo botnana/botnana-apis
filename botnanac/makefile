@@ -9,6 +9,8 @@ i686:
 	cargo build --release --target=i686-unknown-linux-gnu
 	mkdir -p lib
 	rm -rf lib/libbotnana.*
+	cp target/i686-unknown-linux-gnu/release/libbotnana.so ./lib/libbotnana_i686.so
+	cp target/i686-unknown-linux-gnu/release/libbotnana.a ./lib/libbotnana_i686.a
 	cp target/i686-unknown-linux-gnu/release/libbotnana.so ./lib/libbotnana.so
 	cp target/i686-unknown-linux-gnu/release/libbotnana.a ./lib/libbotnana.a
 
@@ -18,6 +20,8 @@ x86_64:
 	rm -rf lib/libbotnana_x86_64.*
 	cp target/x86_64-unknown-linux-gnu/release/libbotnana.so ./lib/libbotnana_x86_64.so
 	cp target/x86_64-unknown-linux-gnu/release/libbotnana.a ./lib/libbotnana_x86_64.a
+	cp target/x86_64-unknown-linux-gnu/release/libbotnana.so ./lib/libbotnana.so
+	cp target/x86_64-unknown-linux-gnu/release/libbotnana.a ./lib/libbotnana.a
 
 	
 arm:
