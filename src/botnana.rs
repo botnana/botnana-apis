@@ -400,6 +400,18 @@ impl Botnana {
                         }
                         *bna.is_mb_connected.lock().expect("mb_connected") = true;
                         let mut interval = tokio::time::interval(Duration::from_millis(15));
+                        // TODO: handle disconnection.
+                        // 計畫如下：使用 heart beat，當 heart beat 不來時，且要求檢查 heart
+                        // beat時，就會斷線重連。
+                        // Heart beat 是 modbus discrete input 中的一個位址，這位址可以指定。因此提
+                        // 供以下函式：
+                        // fn check_heart_beat(Some(addr)); 當檢查 heart beat 時，會在 heart beat 不來
+                        // 時重新連線。
+                        // fn check_heart_beat(None); 不檢查 heart beat。
+                        // fn mb_disconnect(); 斷線。
+                        // 計畫在我們提供的 forth script 中都使用 modbus 的第一個 discrete input 10001
+                        // 為 heart beat。
+                        // 其他的 modbus client 則要自己處理 heart beat。
                         loop {
                             interval.tick().await;
                             // TODO: 因一次只能讀 125 words，如果 MB_BLOCK_SIZE = 384，需要讀四次。
