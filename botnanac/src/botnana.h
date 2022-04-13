@@ -606,6 +606,27 @@ void unsubscribe_ec_slave(struct Botnana * desc,
                       uint32_t alias,
                       uint32_t position);
 
+// Connect to modbus server
+void botnana_mb_connect(struct Botnana * desc);
+
+// Update modbus input registers
+void botnana_mb_update(struct Botnana * desc);
+
+// Get modbus coil or discrete input at address `addr`.
+int botnana_mb_bit(struct Botnana * desc, uint addr);
+
+// Get modbus i16 value from input register at `addr`.
+int16_t botnana_mb_i16(struct Botnana * desc, uint addr);
+
+// Get modbus u16 value from input register at `addr`.
+uint16_t botnana_mb_u16(struct Botnana * desc, uint addr);
+
+// Get modbus i32 value from input registers at `addr`.
+int32_t botnana_mb_i32(struct Botnana * desc, uint addr);
+
+// Get modbus u32 value from input registers at `addr`.
+uint32_t botnana_mb_u32(struct Botnana * desc, uint addr);
+
 #ifdef __cplusplus
 }
 #endif

@@ -68,6 +68,11 @@ target_reached: clean target_reached.o
 reboot: clean reboot.o
 	gcc -lpthread -o botnana $@.o $(LDFLAGS)
 
+
+tcp-modbus: clean tcp-modbus.o
+	gcc -o botnana $@.o $(LDFLAGS)
+	
+
 run:
 	./botnana
 	

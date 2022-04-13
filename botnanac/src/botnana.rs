@@ -225,6 +225,15 @@ pub extern "C" fn botnana_mb_connect(botnana: Box<Botnana>) {
     }
 }
 
+/// Update modbus input registers
+#[no_mangle]
+pub extern "C" fn botnana_mb_update(botnana: Box<Botnana>) {
+    let s = Box::into_raw(botnana);
+    unsafe {
+        (*s).mb_update();
+    }
+}
+
 /// Get modbus discrete input at `addr`.
 ///
 /// Return FALSE if `addr` is invalid.
