@@ -367,93 +367,6 @@ impl Botnana {
             .expect("Create Try Connection Thread");
     }
 
-    pub fn is_mb_connected(&self) -> bool {
-        *self.is_mb_connected.lock().expect("mb_connected")
-    }
-
-    pub fn mb_connect(&self) {
-        // Modbus thread
-        let bna = self.clone();
-
-        thread::Builder::new()
-            .name("Modbus Connection".to_string())
-            .spawn(move || {
-                let rt = tokio::runtime::Runtime::new().expect("Tokio runtime");
-                rt.block_on(async {
-                    if let Some(mut input) = bna.mbin_input.lock().expect("mbin_input").take() {
-                        info!("Connecting to modbus server at {}...", bna.mb_url());
-                        let socket_addr = bna.mb_url().parse().expect("Modbus URL");
-                        let mut ctx;
-                        let mut connect_interval =
-                            tokio::time::interval(Duration::from_millis(150));
-                        loop {
-                            match tokio_modbus::client::tcp::connect(socket_addr).await {
-                                Ok(c) => {
-                                    info!("Modbus server at {} is connected.", bna.mb_url());
-                                    ctx = c;
-                                    break;
-                                }
-                                Err(_) => {
-                                    connect_interval.tick().await;
-                                }
-                            }
-                        }
-                        *bna.is_mb_connected.lock().expect("mb_connected") = true;
-                        let mut interval = tokio::time::interval(Duration::from_millis(15));
-                        // TODO: handle disconnection.
-                        // 計畫如下：使用 heart beat，當 heart beat 不來時，且要求檢查 heart
-                        // beat時，就會斷線重連。
-                        // Heart beat 是 modbus discrete input 中的一個位址，這位址可以指定。因此提
-                        // 供以下函式：
-                        // fn check_heart_beat(Some(addr)); 當檢查 heart beat 時，會在 heart beat 不來
-                        // 時重新連線。
-                        // fn check_heart_beat(None); 不檢查 heart beat。
-                        // fn mb_disconnect(); 斷線。
-                        // 計畫在我們提供的 forth script 中都使用 modbus 的第一個 discrete input 10001
-                        // 為 heart beat。
-                        // 其他的 modbus client 則要自己處理 heart beat。
-                        loop {
-                            interval.tick().await;
-                            // TODO: 因一次只能讀 125 words，如果 MB_BLOCK_SIZE = 384，需要讀四次。
-                            // 考慮是否修改 tokio-modbus 以取消每次只能讀 125 words 的限制。
-                            // 不過經觀察，read_input_registers 間只差 2ms。
-                            let mut left = MB_BLOCK_SIZE;
-                            let mut start: usize = 0;
-                            let mut cnt: usize;
-                            while left > 0 {
-                                // match ctx.read_input_registers(0, MB_BLOCK_SIZE as _).await {
-                                if left > 125 {
-                                    cnt = 125;
-                                    left -= 125;
-                                } else {
-                                    cnt = left;
-                                    left = 0;
-                                }
-                                match ctx.read_input_registers(start as _, cnt as _).await {
-                                    Ok(inputs) => {
-                                        // Replace the old Vec in triple buffer.
-                                        debug!("Modbus got {} inputs {:?}", inputs.len(), inputs);
-                                        input
-                                            .input_buffer()
-                                            .get_mut(start..start + cnt)
-                                            .expect("Input buffer size")
-                                            .copy_from_slice(&inputs);
-                                    }
-                                    Err(e) => {
-                                        error!("Read input registers failed, {:?}", e)
-                                    }
-                                }
-                                start += cnt;
-                            }
-                            debug!("Modbus publish {:?}", input.input_buffer());
-                            input.publish();
-                        }
-                    }
-                })
-            })
-            .expect("Create Modbus thread");
-    }
-
     /// Disconnect
     pub fn disconnect(&mut self) {
         if let Some(ref mut ws_out) = *self.ws_out.lock().expect("disconnect") {
@@ -874,6 +787,93 @@ impl Botnana {
     /// Version
     pub fn version() -> &'static str {
         VERSION
+    }
+
+    pub fn is_mb_connected(&self) -> bool {
+        *self.is_mb_connected.lock().expect("mb_connected")
+    }
+
+    pub fn mb_connect(&self) {
+        // Modbus thread
+        let bna = self.clone();
+
+        thread::Builder::new()
+            .name("Modbus Connection".to_string())
+            .spawn(move || {
+                let rt = tokio::runtime::Runtime::new().expect("Tokio runtime");
+                rt.block_on(async {
+                    if let Some(mut input) = bna.mbin_input.lock().expect("mbin_input").take() {
+                        info!("Connecting to modbus server at {}...", bna.mb_url());
+                        let socket_addr = bna.mb_url().parse().expect("Modbus URL");
+                        let mut ctx;
+                        let mut connect_interval =
+                            tokio::time::interval(Duration::from_millis(150));
+                        loop {
+                            match tokio_modbus::client::tcp::connect(socket_addr).await {
+                                Ok(c) => {
+                                    info!("Modbus server at {} is connected.", bna.mb_url());
+                                    ctx = c;
+                                    break;
+                                }
+                                Err(_) => {
+                                    connect_interval.tick().await;
+                                }
+                            }
+                        }
+                        *bna.is_mb_connected.lock().expect("mb_connected") = true;
+                        let mut interval = tokio::time::interval(Duration::from_millis(15));
+                        // TODO: handle disconnection.
+                        // 計畫如下：使用 heart beat，當 heart beat 不來時，且要求檢查 heart
+                        // beat時，就會斷線重連。
+                        // Heart beat 是 modbus discrete input 中的一個位址，這位址可以指定。因此提
+                        // 供以下函式：
+                        // fn check_heart_beat(Some(addr)); 當檢查 heart beat 時，會在 heart beat 不來
+                        // 時重新連線。
+                        // fn check_heart_beat(None); 不檢查 heart beat。
+                        // fn mb_disconnect(); 斷線。
+                        // 計畫在我們提供的 forth script 中都使用 modbus 的第一個 discrete input 10001
+                        // 為 heart beat。
+                        // 其他的 modbus client 則要自己處理 heart beat。
+                        loop {
+                            interval.tick().await;
+                            // TODO: 因一次只能讀 125 words，如果 MB_BLOCK_SIZE = 384，需要讀四次。
+                            // 考慮是否修改 tokio-modbus 以取消每次只能讀 125 words 的限制。
+                            // 不過經觀察，read_input_registers 間只差 2ms。
+                            let mut left = MB_BLOCK_SIZE;
+                            let mut start: usize = 0;
+                            let mut cnt: usize;
+                            while left > 0 {
+                                // match ctx.read_input_registers(0, MB_BLOCK_SIZE as _).await {
+                                if left > 125 {
+                                    cnt = 125;
+                                    left -= 125;
+                                } else {
+                                    cnt = left;
+                                    left = 0;
+                                }
+                                match ctx.read_input_registers(start as _, cnt as _).await {
+                                    Ok(inputs) => {
+                                        // Replace the old Vec in triple buffer.
+                                        debug!("Modbus got {} inputs {:?}", inputs.len(), inputs);
+                                        input
+                                            .input_buffer()
+                                            .get_mut(start..start + cnt)
+                                            .expect("Input buffer size")
+                                            .copy_from_slice(&inputs);
+                                    }
+                                    Err(e) => {
+                                        error!("Read input registers failed, {:?}", e)
+                                    }
+                                }
+                                start += cnt;
+                            }
+                            debug!("Modbus publish {:?}", input.input_buffer());
+                            input.publish();
+                        }
+                    }
+                })
+            })
+            .expect("Create Modbus thread");
     }
 
     pub fn mb_update(&self) {
