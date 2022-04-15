@@ -4,7 +4,9 @@ use log::info;
 use std::time::Duration;
 
 fn main() {
-    let rt = tokio::runtime::Runtime::new().expect("Tokio runtime");
+    let rt = tokio::runtime::Builder::new_current_thread()
+        .build()
+        .expect("Tokio runtime");
     let mut botnana = Botnana::new();
     botnana.mb_connect();
     rt.block_on(async {

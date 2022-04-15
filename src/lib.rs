@@ -22,6 +22,7 @@ pub mod data_pool;
 pub mod drive_api;
 pub mod ethercat_api;
 pub mod json_api;
+pub mod modbus;
 pub mod program;
 
 pub use botnana::Botnana;

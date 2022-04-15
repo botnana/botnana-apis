@@ -3,16 +3,20 @@ use std::{net::SocketAddr, time::Duration};
 
 use tokio_modbus::prelude::*;
 
-#[tokio::main(flavor = "current_thread")]
-pub async fn main() -> Result<(), Box<dyn std::error::Error>> {
+pub fn main() -> Result<(), Box<dyn std::error::Error>> {
     let mut builder = env_logger::Builder::from_default_env();
     builder.format_timestamp_millis().init();
 
     let socket_addr = "192.168.7.2:502".parse().unwrap();
 
-    tokio::select! {
-        _ = client_context(socket_addr) => info!("Exiting"),
-    }
+    let rt = tokio::runtime::Builder::new_current_thread()
+        .build()
+        .expect("Runtime");
+    rt.block_on(async {
+        tokio::select! {
+            _ = client_context(socket_addr) => info!("Exiting"),
+        }
+    });
 
     Ok(())
 }

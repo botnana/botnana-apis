@@ -1,8 +1,7 @@
 use crate::data_pool::DataPool;
+use crate::modbus::{self, ClientTable as MbClientTable, MB_BLOCK_SIZE};
 use crate::program::Program;
 use log::{debug, error, info};
-use modbus::client::ClientTable as MbClientTable;
-use modbus::MB_BLOCK_SIZE;
 use serde_json;
 use std::{
     self,
@@ -133,8 +132,6 @@ impl Botnana {
             mb_table: MbClientTable::new(
                 Arc::new(Mutex::new(mbin_output)),
                 Arc::new(Mutex::new(mbhd_input)),
-                modbus::MB_COIL_COUNT,
-                modbus::MB_DIN_COUNT,
             ),
             mbin_input: Arc::new(Mutex::new(Some(mbin_input))),
             mbhd_output: Arc::new(Mutex::new(Some(mbhd_output))),
@@ -802,7 +799,9 @@ impl Botnana {
         thread::Builder::new()
             .name("Modbus Connection".to_string())
             .spawn(move || {
-                let rt = tokio::runtime::Runtime::new().expect("Tokio runtime");
+                let rt = tokio::runtime::Builder::new_current_thread()
+                    .build()
+                    .expect("Tokio runtime");
                 rt.block_on(async {
                     if let Some(mut input) = bna.mbin_input.lock().expect("mbin_input").take() {
                         info!("Connecting to modbus server at {}...", bna.mb_url());
