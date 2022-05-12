@@ -819,10 +819,9 @@ impl Botnana {
                                         // 考慮是否修改 tokio-modbus 以取消每次只能讀 125 words 的限制。
                                         // 不過經觀察，read_input_registers 間只差 2ms。
                                         let mut left = MB_BLOCK_SIZE;
-                                        let mut start: usize = 0;
+                                        let mut start: usize = 30001;
                                         let mut cnt: usize;
                                         while left > 0 {
-                                            // match ctx.read_input_registers(0, MB_BLOCK_SIZE as _).await {
                                             if left > 125 {
                                                 cnt = 125;
                                                 left -= 125;
