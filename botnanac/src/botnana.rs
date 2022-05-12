@@ -234,7 +234,7 @@ pub extern "C" fn botnana_mb_update(botnana: Box<Botnana>) {
     }
 }
 
-/// Get modbus discrete input at `addr`.
+/// Get modbus coil or discrete input at `addr`.
 ///
 /// Return FALSE if `addr` is invalid.
 #[no_mangle]
@@ -246,7 +246,7 @@ pub extern "C" fn botnana_mb_bit(botnana: Box<Botnana>, addr: usize) -> bool {
     }
 }
 
-/// Get modbus signed 16bit integer at input register `addr`.
+/// Get modbus signed 16bit integer at input or holding register `addr`.
 ///
 /// Return 0 if `addr` is invalid.
 #[no_mangle]
@@ -258,7 +258,7 @@ pub extern "C" fn botnana_mb_i16(botnana: Box<Botnana>, addr: usize) -> i16 {
     }
 }
 
-/// Get modbus unsigned 16bit integer at input register `addr`.
+/// Get modbus unsigned 16bit integer at input or holding register `addr`.
 ///
 /// Return 0 if `addr` is invalid.
 #[no_mangle]
@@ -270,7 +270,7 @@ pub extern "C" fn botnana_mb_u16(botnana: Box<Botnana>, addr: usize) -> u16 {
     }
 }
 
-/// Get modbus signed 32bit integer at input register `addr`.
+/// Get modbus signed 32bit integer at input or holding register `addr` and `addr+1` .
 ///
 /// Return 0 if `addr` is invalid.
 #[no_mangle]
@@ -282,7 +282,7 @@ pub extern "C" fn botnana_mb_i32(botnana: Box<Botnana>, addr: usize) -> i32 {
     }
 }
 
-/// Get modbus unsigned 32bit integer at input register `addr`.
+/// Get modbus unsigned 32bit integer at input or holding registers `addr` and `addr+1`.
 ///
 /// Return 0 if `addr` is invalid.
 #[no_mangle]
@@ -291,5 +291,61 @@ pub extern "C" fn botnana_mb_u32(botnana: Box<Botnana>, addr: usize) -> u32 {
     match unsafe { (*s).mb_u32(addr) } {
         Ok(value) => value,
         Err(_) => 0,
+    }
+}
+
+/// Publish modbus holding registers
+#[no_mangle]
+pub extern "C" fn botnana_mb_publish(botnana: Box<Botnana>) {
+    let s = Box::into_raw(botnana);
+    unsafe {
+        (*s).mb_publish();
+    }
+}
+
+/// Set modbus coil or discrete input at `addr`.
+///
+/// Return FALSE if `addr` is invalid.
+#[no_mangle]
+pub extern "C" fn botnana_mb_set_bit(botnana: Box<Botnana>, addr: usize, value: bool) {
+    let s = Box::into_raw(botnana);
+    unsafe {
+        let _ = (*s).mb_set_bit(addr, value);
+    }
+}
+
+/// Set modbus signed 16bit integer at holding register `addr`.
+#[no_mangle]
+pub extern "C" fn botnana_mb_set_i16(botnana: Box<Botnana>, addr: usize, value: i16) {
+    let s = Box::into_raw(botnana);
+    unsafe {
+        let _ = (*s).mb_set_i16(addr, value);
+    }
+}
+
+/// Set modbus unsigned 16bit integer at holding register `addr`.
+#[no_mangle]
+pub extern "C" fn botnana_mb_set_u16(botnana: Box<Botnana>, addr: usize, value: u16) {
+    let s = Box::into_raw(botnana);
+    unsafe {
+        let _ = (*s).mb_set_u16(addr, value);
+    }
+}
+
+/// Set modbus signed 32bit integer at holding register `addr`.
+#[no_mangle]
+pub extern "C" fn botnana_mb_set_i32(botnana: Box<Botnana>, addr: usize, value: i32) {
+    let s = Box::into_raw(botnana);
+    unsafe {
+        let _ = (*s).mb_set_i32(addr, value);
+    }
+}
+
+/// Set modbus unsigned 32bit integer at holding register `addr`.
+#[no_mangle]
+pub extern "C" fn botnana_mb_set_u32(botnana: Box<Botnana>, addr: usize, value: u32) {
+    let s = Box::into_raw(botnana);
+    unsafe {
+        let _ = (*s).mb_set_u32(addr, value);
     }
 }
