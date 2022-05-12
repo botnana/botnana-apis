@@ -855,6 +855,7 @@ impl Botnana {
                                         debug!("Modbus publish {:?}", input.input_buffer());
                                         input.publish();
                                     }
+                                    // TODO: disconnect
                                     debug!("Modbus server at {} is disconnected.", bna.mb_url());
                                     *bna.is_mb_connected.lock().expect("mb_connected") = false;
                                     break;
@@ -870,12 +871,12 @@ impl Botnana {
             .expect("Create Modbus thread");
     }
 
-    pub fn mb_update(&self) {
-        self.mb_table.update();
-    }
-
     pub fn mb_table(&mut self) -> &MbClientTable {
         &self.mb_table
+    }
+
+    pub fn mb_update(&self) {
+        self.mb_table.update();
     }
 
     pub fn mb_bit(&self, addr: usize) -> std::result::Result<bool, modbus::Error> {
@@ -896,6 +897,30 @@ impl Botnana {
 
     pub fn mb_u32(&self, addr: usize) -> std::result::Result<u32, modbus::Error> {
         self.mb_table.u32(addr)
+    }
+
+    pub fn mb_publish(&self) {
+        self.mb_table.publish();
+    }
+
+    pub fn mb_set_bit(&self, addr: usize, value: bool) -> std::result::Result<(), modbus::Error> {
+        self.mb_table.set_bit(addr, value)
+    }
+
+    pub fn mb_set_i16(&self, addr: usize, value: i16) -> std::result::Result<(), modbus::Error> {
+        self.mb_table.set_i16(addr, value)
+    }
+
+    pub fn mb_set_u16(&self, addr: usize, value: u16) -> std::result::Result<(), modbus::Error> {
+        self.mb_table.set_u16(addr, value)
+    }
+
+    pub fn mb_set_i32(&self, addr: usize, value: i32) -> std::result::Result<(), modbus::Error> {
+        self.mb_table.set_i32(addr, value)
+    }
+
+    pub fn mb_set_u32(&self, addr: usize, value: u32) -> std::result::Result<(), modbus::Error> {
+        self.mb_table.set_u32(addr, value)
     }
 }
 
