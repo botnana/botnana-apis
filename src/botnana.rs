@@ -26,7 +26,6 @@ use ws::{
 const WS_TIMEOUT_TOKEN: Token = Token(1);
 const WS_WATCHDOG_PERIOD_MS: u64 = 10_000;
 const VERSION: &'static str = env!("CARGO_PKG_VERSION");
-const MB_HEART_BEAT_TIME_OUT: usize = 10;
 /// Callback Handler
 struct CallbackHandler {
     /// 執行次數
@@ -91,7 +90,6 @@ pub struct Botnana {
     mbin_input: Arc<Mutex<Option<triple_buffer::Input<Vec<u16>>>>>,
     mbhd_output: Arc<Mutex<Option<triple_buffer::Output<Vec<u16>>>>>,
     is_mb_connected: Arc<Mutex<bool>>,
-    mb_heart_beat_address: Arc<Mutex<Option<usize>>>,
 }
 
 impl Botnana {
@@ -136,7 +134,6 @@ impl Botnana {
             mbin_input: Arc::new(Mutex::new(Some(mbin_input))),
             mbhd_output: Arc::new(Mutex::new(Some(mbhd_output))),
             is_mb_connected: Arc::new(Mutex::new(false)),
-            mb_heart_beat_address: Arc::new(Mutex::new(None)),
         }
     }
 
@@ -816,8 +813,6 @@ impl Botnana {
                                     *bna.is_mb_connected.lock().expect("mb_connected") = true;
                                     let mut interval =
                                         tokio::time::interval(Duration::from_millis(15));
-                                    let mut heart_beats = MB_HEART_BEAT_TIME_OUT;
-                                    let mut last_heart_beat = false;
                                     loop {
                                         interval.tick().await;
                                         // TODO: 因一次只能讀 125 words，如果 MB_BLOCK_SIZE = 384，需要讀四次。
@@ -860,31 +855,6 @@ impl Botnana {
                                         }
                                         debug!("Modbus publish {:?}", input.input_buffer());
                                         input.publish();
-
-                                        // Check heart beat
-                                        let heart_beat_address = *bna
-                                            .mb_heart_beat_address
-                                            .lock()
-                                            .expect("mb heart beat address");
-                                        match heart_beat_address {
-                                            Some(addr) => {
-                                                let register = addr / 16;
-                                                let bit_mask = 1 << (addr % 16);
-                                                if last_heart_beat
-                                                    != (input.input_buffer()[register] & bit_mask
-                                                        != 0)
-                                                {
-                                                    last_heart_beat = !last_heart_beat;
-                                                    heart_beats = MB_HEART_BEAT_TIME_OUT;
-                                                } else {
-                                                    heart_beats -= 1;
-                                                    if heart_beats == 0 {
-                                                        break;
-                                                    }
-                                                }
-                                            }
-                                            None => {}
-                                        }
                                     }
                                     debug!("Modbus server at {} is disconnected.", bna.mb_url());
                                     *bna.is_mb_connected.lock().expect("mb_connected") = false;
@@ -899,14 +869,6 @@ impl Botnana {
                 })
             })
             .expect("Create Modbus thread");
-    }
-
-    /// Check modbus heart beat at coil or discrete input address `addr`.
-    pub fn mb_check_heart_beat(&mut self, addr: Option<usize>) {
-        *self
-            .mb_heart_beat_address
-            .lock()
-            .expect("modbus heart beat address") = addr;
     }
 
     pub fn mb_update(&self) {
