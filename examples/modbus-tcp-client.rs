@@ -5,6 +5,7 @@ use std::time::Duration;
 
 fn main() {
     let rt = tokio::runtime::Builder::new_current_thread()
+        .enable_time()
         .build()
         .expect("Tokio runtime");
     let mut botnana = Botnana::new();

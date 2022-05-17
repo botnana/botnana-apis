@@ -797,6 +797,8 @@ impl Botnana {
             .name("Modbus Connection".to_string())
             .spawn(move || {
                 let rt = tokio::runtime::Builder::new_current_thread()
+                    .enable_time()
+                    .enable_io()
                     .build()
                     .expect("Tokio runtime");
                 rt.block_on(async {
