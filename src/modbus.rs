@@ -11,8 +11,6 @@ pub enum Error {
 
 #[derive(Clone)]
 pub struct ClientTable {
-    coil_count: usize,
-    din_count: usize,
     // Input registers
     // TODO: 改 Vec<u16> 為 ByteMut
     pub inputs: Arc<Mutex<Output<Vec<u16>>>>,
@@ -22,20 +20,11 @@ pub struct ClientTable {
 
 impl ClientTable {
     /// Create a modbus table with a input block of 16-bit words and a holding block of 16-bit words.
-    /// With first `coil_size` 16-bit words of holding block for coils and first `din_size` 16-bit words of input block for
-    /// discrete inputs.
     pub fn new(
         inputs: Arc<Mutex<Output<Vec<u16>>>>,
         holdings: Arc<Mutex<Input<Vec<u16>>>>,
     ) -> ClientTable {
-        let coil_count = holdings.lock().expect("Mb holdings").input_buffer().len();
-        let din_count = inputs.lock().expect("Mb inputs").output_buffer().len();
-        ClientTable {
-            coil_count,
-            din_count,
-            inputs,
-            holdings,
-        }
+        ClientTable { inputs, holdings }
     }
 
     /// Publish holdings
@@ -50,12 +39,12 @@ impl ClientTable {
 
     /// Bit at address `a`
     pub fn bit(&self, a: usize) -> Result<bool, Error> {
-        if 00001 <= a && a < 00001 + self.coil_count {
+        if 00001 <= a && a < 00001 + MB_BLOCK_SIZE * 16 {
             let p = a - 00001;
             let i = p / 16;
             let mask = 1 << (p % 16);
             Ok(self.holdings.lock().expect("Mb holdings").input_buffer()[i] & mask == mask)
-        } else if 10001 <= a && a < 10001 + self.din_count {
+        } else if 10001 <= a && a < 10001 + MB_BLOCK_SIZE * 16 {
             let p = a - 10001;
             let i = p / 16;
             let mask = 1 << (p % 16);
@@ -67,7 +56,7 @@ impl ClientTable {
 
     /// Set bit at address `a`.
     pub fn set_bit(&self, a: usize, flag: bool) -> Result<(), Error> {
-        if 00001 <= a && a < 00001 + self.coil_count {
+        if 00001 <= a && a < 00001 + MB_BLOCK_SIZE * 16 {
             let p = a - 00001;
             let i = p / 16;
             let mask = 1 << (p % 16);
@@ -77,7 +66,7 @@ impl ClientTable {
                 self.holdings.lock().expect("Mb holdings").input_buffer()[i] &= !mask;
             }
             Ok(())
-        } else if 10001 <= a && a < 10001 + self.din_count {
+        } else if 10001 <= a && a < 10001 + MB_BLOCK_SIZE * 16 {
             let p = a - 10001;
             let i = p / 16;
             let mask = 1 << (p % 16);

@@ -844,7 +844,7 @@ impl Botnana {
                                                     );
                                                     input
                                                         .input_buffer()
-                                                        .get_mut(start..start + cnt)
+                                                        .get_mut(0..cnt)
                                                         .expect("Input buffer size")
                                                         .copy_from_slice(&inputs);
                                                 }
