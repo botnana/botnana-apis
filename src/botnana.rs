@@ -192,7 +192,7 @@ impl Botnana {
     ) {
         *self.on_open_cb.lock().expect("set_on_open_cb") = Some(CallbackHandler {
             count: 0,
-            pointer: pointer,
+            pointer,
             callback: cb,
         });
     }
@@ -205,7 +205,7 @@ impl Botnana {
     ) {
         *self.on_error_cb.lock().expect("set_on_error_cb") = Some(CallbackHandler {
             count: 0,
-            pointer: pointer,
+            pointer,
             callback: cb,
         });
     }
@@ -656,8 +656,8 @@ impl Botnana {
         debug!("set {}'s callback", tag);
         let handler = tag_handlers.entry(tag.to_owned()).or_insert(Vec::new());
         handler.push(CallbackHandler {
-            count: count,
-            pointer: pointer,
+            count,
+            pointer,
             callback: cb,
         });
     }
@@ -683,8 +683,8 @@ impl Botnana {
             .entry(name.to_owned())
             .or_insert(Vec::new());
         handler.push(TagCallbackHandler {
-            count: count,
-            pointer: pointer,
+            count,
+            pointer,
             callback: cb,
         });
     }
@@ -741,7 +741,7 @@ impl Botnana {
     ) {
         *self.on_send_cb.lock().unwrap() = Some(CallbackHandler {
             count: 0,
-            pointer: pointer,
+            pointer,
             callback: cb,
         });
     }
@@ -753,7 +753,7 @@ impl Botnana {
     ) {
         *self.on_message_cb.lock().unwrap() = Some(CallbackHandler {
             count: 0,
-            pointer: pointer,
+            pointer,
             callback: cb,
         });
     }
@@ -802,69 +802,91 @@ impl Botnana {
                     .build()
                     .expect("Tokio runtime");
                 rt.block_on(async {
-                    if let Some(mut input) = bna.mbin_input.lock().expect("mbin_input").take() {
-                        info!("Connecting to modbus server at {}...", bna.mb_url());
-                        let socket_addr = bna.mb_url().parse().expect("Modbus URL");
-                        let mut connect_interval =
-                            tokio::time::interval(Duration::from_millis(150));
-                        loop {
-                            match tokio_modbus::client::tcp::connect(socket_addr).await {
-                                Ok(mut ctx) => {
-                                    debug!("Modbus server at {} is connected.", bna.mb_url());
-
-                                    *bna.is_mb_connected.lock().expect("mb_connected") = true;
-                                    let mut interval =
-                                        tokio::time::interval(Duration::from_millis(15));
-                                    loop {
-                                        interval.tick().await;
-                                        // TODO: 因一次只能讀 125 words，如果 MB_BLOCK_SIZE = 384，需要讀四次。
-                                        // 考慮是否修改 tokio-modbus 以取消每次只能讀 125 words 的限制。
-                                        // 不過經觀察，read_input_registers 間只差 2ms。
-                                        let mut left = MB_BLOCK_SIZE;
-                                        let mut start: usize = 30001;
-                                        let mut cnt: usize;
-                                        while left > 0 {
-                                            if left > 125 {
-                                                cnt = 125;
-                                                left -= 125;
-                                            } else {
-                                                cnt = left;
-                                                left = 0;
-                                            }
-                                            match ctx
-                                                .read_input_registers(start as _, cnt as _)
-                                                .await
-                                            {
-                                                Ok(inputs) => {
-                                                    // Replace the old Vec in triple buffer.
-                                                    debug!(
-                                                        "Modbus got {} inputs {:?}",
-                                                        inputs.len(),
-                                                        inputs
-                                                    );
-                                                    input
-                                                        .input_buffer()
-                                                        .get_mut(0..cnt)
-                                                        .expect("Input buffer size")
-                                                        .copy_from_slice(&inputs);
-                                                }
-                                                Err(e) => {
-                                                    error!("Read input registers failed, {:?}", e)
-                                                }
-                                            }
-                                            start += cnt;
-                                        }
-                                        debug!("Modbus publish {:?}", input.input_buffer());
-                                        input.publish();
+                    let mut input = bna
+                        .mbin_input
+                        .lock()
+                        .expect("mbin_input")
+                        .take()
+                        .expect("input taken");
+                    let mut holding = bna
+                        .mbhd_output
+                        .lock()
+                        .expect("mbhd_output")
+                        .take()
+                        .expect("holding taken");
+                    let socket_addr = bna.mb_url().parse().expect("Modbus URL");
+                    let mut connect_interval = tokio::time::interval(Duration::from_millis(1500));
+                    loop {
+                        match tokio_modbus::client::tcp::connect(socket_addr).await {
+                            Ok(mut ctx) => {
+                                {
+                                    let mut mb_connected =
+                                        bna.is_mb_connected.lock().expect("mb_connected");
+                                    if !*mb_connected {
+                                        info!("Modbus server at {} is connected.", bna.mb_url());
+                                        *mb_connected = true;
                                     }
-                                    // TODO: disconnect
-                                    debug!("Modbus server at {} is disconnected.", bna.mb_url());
-                                    *bna.is_mb_connected.lock().expect("mb_connected") = false;
-                                    break;
                                 }
-                                Err(_) => {
-                                    connect_interval.tick().await;
+                                let mut interval = tokio::time::interval(Duration::from_millis(15));
+                                loop {
+                                    interval.tick().await;
+                                    // 因一次只能讀最多 125 words，寫 121 words，如果 MB_BLOCK_SIZE = 384，需要四次。
+                                    // 統一一次讀寫 121 words。
+                                    let mut left = MB_BLOCK_SIZE;
+                                    let mut start: usize = 0;
+                                    let mut cnt: usize;
+                                    holding.update();
+                                    debug!(
+                                        "holding registers: {:?}",
+                                        &holding.output_buffer()[0..8]
+                                    );
+                                    while left > 0 {
+                                        if left > 121 {
+                                            cnt = 121;
+                                            left -= 121;
+                                        } else {
+                                            cnt = left;
+                                            left = 0;
+                                        }
+                                        match ctx
+                                            .read_write_multiple_registers(
+                                                30001 + start as u16,
+                                                cnt as _,
+                                                40001 + start as u16,
+                                                &holding.output_buffer()[start..start + cnt],
+                                            )
+                                            .await
+                                        {
+                                            Ok(inputs) => {
+                                                // Replace the old Vec in triple buffer.
+                                                let len = inputs.len();
+                                                debug!(
+                                                    "Modbus got {} inputs {:?}",
+                                                    len,
+                                                    &inputs[0..8.min(len)]
+                                                );
+                                                input
+                                                    .input_buffer()
+                                                    .get_mut(0..cnt)
+                                                    .expect("Input buffer size")
+                                                    .copy_from_slice(&inputs);
+                                            }
+                                            Err(e) => {
+                                                error!("Read input registers failed, {:?}", e)
+                                            }
+                                        }
+                                        start += cnt;
+                                    }
+                                    debug!("Modbus publish {:?}", input.input_buffer());
+                                    input.publish();
                                 }
+                                // TODO: disconnect
+                                // debug!("Modbus server at {} is disconnected.", bna.mb_url());
+                                // *bna.is_mb_connected.lock().expect("mb_connected") = false;
+                                // break;
+                            }
+                            Err(_) => {
+                                connect_interval.tick().await;
                             }
                         }
                     }
