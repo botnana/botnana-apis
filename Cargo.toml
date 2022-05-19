@@ -2,6 +2,7 @@
 name = "botnanars"
 version = "0.3.9"
 authors = ["Mapacode Inc."]
+license = "LicenseRef-Mapacode-Proprietary"
 edition = "2018"
 
 [dependencies]
