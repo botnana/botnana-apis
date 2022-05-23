@@ -50,6 +50,29 @@ impl Botnana {
         self.send_message(&msg);
     }
 
+    /// config.slave.set
+    fn config_slave_set_string(
+        &mut self,
+        alias: u32,
+        position: u32,
+        channel: u32,
+        param: &str,
+        value: String,
+    ) {
+        let msg = r#"{"jsonrpc":"2.0","method":"config.slave.set","params":{"alias":"#.to_owned()
+            + alias.to_string().as_str()
+            + r#","position":"#
+            + position.to_string().as_str()
+            + r#","channel":"#
+            + channel.to_string().as_str()
+            + r#",""#
+            + param
+            + r#"":"#
+            + value.as_str()
+            + r#"}}"#;
+        self.send_message(&msg);
+    }
+
     /// config.slave.set (homing_method)
     pub fn config_slave_set_homing_method(
         &mut self,
@@ -213,6 +236,61 @@ impl Botnana {
         value: i32,
     ) {
         self.config_slave_set(alias, position, channel, "pdo_real_torque", value);
+    }
+
+    /// config.slave.set (drive_rpdo1_name)
+    pub fn config_slave_set_drive_rpdo1_name(
+        &mut self,
+        alias: u32,
+        position: u32,
+        channel: u32,
+        value: String,
+    ) {
+        self.config_slave_set_string(alias, position, channel, "drive_rpdo1_name", value);
+    }
+
+    /// config.slave.set (drive_rpdo1_enabled)
+    pub fn config_slave_set_drive_rpdo1_enabled(
+        &mut self,
+        alias: u32,
+        position: u32,
+        channel: u32,
+        value: i32,
+    ) {
+        self.config_slave_set(alias, position, channel, "drive_rpdo1_enabled", value);
+    }
+
+    /// config.slave.set (drive_rpdo1_index)
+    pub fn config_slave_set_drive_rpdo1_index(
+        &mut self,
+        alias: u32,
+        position: u32,
+        channel: u32,
+        value: i32,
+    ) {
+        self.config_slave_set(alias, position, channel, "drive_rpdo1_index", value);
+    }
+
+    /// config.slave.set (drive_rpdo1_subindex)
+    pub fn config_slave_set_drive_rpdo1_subindex(
+        &mut self,
+        alias: u32,
+        position: u32,
+        channel: u32,
+        value: i32,
+    ) {
+        self.config_slave_set(alias, position, channel, "drive_rpdo1_subindex", value);
+    }
+
+    /// config.slave.set (drive_rpdo1_type)
+    pub fn config_slave_set_drive_rpdo1_type(
+        &mut self,
+        alias: u32,
+        position: u32,
+        channel: u32,
+        value: String,
+    ) {
+        self.config_slave_set_string(alias, position, channel, "drive_rpdo1_type", value);
     }
 
     /// config.slave.get
