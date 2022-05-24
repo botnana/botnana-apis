@@ -238,6 +238,83 @@ impl Botnana {
         self.config_slave_set(alias, position, channel, "pdo_real_torque", value);
     }
 
+    /// config.slave.set (baud_rate)
+    pub fn config_slave_set_baud_rate(
+        &mut self,
+        alias: u32,
+        position: u32,
+        channel: u32,
+        value: i32,
+    ) {
+        self.config_slave_set(alias, position, channel, "baud_rate", value);
+    }
+
+    /// config.slave.set (data_frame)
+    pub fn config_slave_set_data_frame(
+        &mut self,
+        alias: u32,
+        position: u32,
+        channel: u32,
+        value: i32,
+    ) {
+        self.config_slave_set(alias, position, channel, "data_frame", value);
+    }
+
+    /// config.slave.set (encoder_offset)
+    pub fn config_slave_set_encoder_offset(
+        &mut self,
+        alias: u32,
+        position: u32,
+        channel: u32,
+        value: i32,
+    ) {
+        self.config_slave_set(alias, position, channel, "encoder_offset", value);
+    }
+
+    /// config.slave.set (encoder_reversed)
+    pub fn config_slave_set_encoder_reversed(
+        &mut self,
+        alias: u32,
+        position: u32,
+        channel: u32,
+        value: i32,
+    ) {
+        self.config_slave_set(alias, position, channel, "encoder_reversed", value);
+    }
+
+    /// config.slave.set (half_duplex)
+    pub fn config_slave_set_half_duplex(
+        &mut self,
+        alias: u32,
+        position: u32,
+        channel: u32,
+        value: i32,
+    ) {
+        self.config_slave_set(alias, position, channel, "half_duplex", value);
+    }
+
+    /// config.slave.set (tx_optimization)
+    pub fn config_slave_set_tx_optimization(
+        &mut self,
+        alias: u32,
+        position: u32,
+        channel: u32,
+        value: i32,
+    ) {
+        self.config_slave_set(alias, position, channel, "tx_optimization", value);
+    }
+
+    /// config.slave.set (uart_p2p)
+    pub fn config_slave_set_uart_p2p(
+        &mut self,
+        alias: u32,
+        position: u32,
+        channel: u32,
+        value: i32,
+    ) {
+        self.config_slave_set(alias, position, channel, "uart_p2p", value);
+    }
+
     /// config.slave.set (drive_rpdo1_name)
     /// r_or_w = 1 is read or = 0 is write
     pub fn config_slave_set_drive_pdo_name(
