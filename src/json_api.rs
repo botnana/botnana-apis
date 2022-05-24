@@ -239,58 +239,104 @@ impl Botnana {
     }
 
     /// config.slave.set (drive_rpdo1_name)
-    pub fn config_slave_set_drive_rpdo1_name(
+    /// r_or_w = 1 is read or = 0 is write
+    pub fn config_slave_set_drive_pdo_name(
         &mut self,
         alias: u32,
         position: u32,
         channel: u32,
         value: String,
+        r_or_w: u32,
+        pdo_position: u32,
     ) {
-        self.config_slave_set_string(alias, position, channel, "drive_rpdo1_name", value);
+        if r_or_w == 0 {
+            let parameter = &format!("drive_{}pdo{}_name", "r", pdo_position.to_string());
+            self.config_slave_set_string(alias, position, channel, parameter, value);
+        }
+        else {
+            let parameter = &format!("drive_{}pdo{}_name", "w", pdo_position.to_string());
+            self.config_slave_set_string(alias, position, channel, parameter, value);
+        }
     }
 
     /// config.slave.set (drive_rpdo1_enabled)
-    pub fn config_slave_set_drive_rpdo1_enabled(
+    pub fn config_slave_set_drive_pdo_enabled(
         &mut self,
         alias: u32,
         position: u32,
         channel: u32,
         value: i32,
+        r_or_w: u32,
+        pdo_position: u32,
     ) {
-        self.config_slave_set(alias, position, channel, "drive_rpdo1_enabled", value);
+        if r_or_w == 0 {
+            let parameter = &format!("drive_{}pdo{}_enabled", "r", pdo_position.to_string());
+            self.config_slave_set(alias, position, channel, parameter, value);
+        }
+        else {
+            let parameter = &format!("drive_{}pdo{}_enabled", "w", pdo_position.to_string());
+            self.config_slave_set(alias, position, channel, parameter, value);
+        }
     }
 
     /// config.slave.set (drive_rpdo1_index)
-    pub fn config_slave_set_drive_rpdo1_index(
+    pub fn config_slave_set_drive_pdo_index(
         &mut self,
         alias: u32,
         position: u32,
         channel: u32,
         value: i32,
+        r_or_w: u32,
+        pdo_position: u32,
     ) {
-        self.config_slave_set(alias, position, channel, "drive_rpdo1_index", value);
+        if r_or_w == 0 {
+            let parameter = &format!("drive_{}pdo{}_index", "r", pdo_position.to_string());
+            self.config_slave_set(alias, position, channel, parameter, value);
+        }
+        else {
+            let parameter = &format!("drive_{}pdo{}_index", "w", pdo_position.to_string());
+            self.config_slave_set(alias, position, channel, parameter, value);
+        }
     }
 
     /// config.slave.set (drive_rpdo1_subindex)
-    pub fn config_slave_set_drive_rpdo1_subindex(
+    pub fn config_slave_set_drive_pdo_subindex(
         &mut self,
         alias: u32,
         position: u32,
         channel: u32,
         value: i32,
+        r_or_w: u32,
+        pdo_position: u32,
     ) {
-        self.config_slave_set(alias, position, channel, "drive_rpdo1_subindex", value);
+        if r_or_w == 0 {
+            let parameter = &format!("drive_{}pdo{}_subindex", "r", pdo_position.to_string());
+            self.config_slave_set(alias, position, channel, parameter, value);
+        }
+        else {
+            let parameter = &format!("drive_{}pdo{}_subindex", "w", pdo_position.to_string());
+            self.config_slave_set(alias, position, channel, parameter, value);
+        }
     }
 
     /// config.slave.set (drive_rpdo1_type)
-    pub fn config_slave_set_drive_rpdo1_type(
+    pub fn config_slave_set_drive_pdo_type(
         &mut self,
         alias: u32,
         position: u32,
         channel: u32,
         value: String,
+        r_or_w: u32,
+        pdo_position: u32,
     ) {
-        self.config_slave_set_string(alias, position, channel, "drive_rpdo1_type", value);
+        if r_or_w == 0 {
+            let parameter = &format!("drive_{}pdo{}_type", "r", pdo_position.to_string());
+            self.config_slave_set_string(alias, position, channel, parameter, value);
+        }
+        else {
+            let parameter = &format!("drive_{}pdo{}_type", "w", pdo_position.to_string());
+            self.config_slave_set_string(alias, position, channel, parameter, value);
+        }
     }
 
     /// config.slave.get
