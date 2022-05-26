@@ -107,6 +107,17 @@ impl Botnana {
     }
 
     /// config.slave.set (homing_acceleration)
+    pub fn config_slave_set_home_offset(
+        &mut self,
+        alias: u32,
+        position: u32,
+        channel: u32,
+        value: i32,
+    ) {
+        self.config_slave_set(alias, position, channel, "home_offset", value);
+    }
+
+    /// config.slave.set (homing_acceleration)
     pub fn config_slave_set_homing_acceleration(
         &mut self,
         alias: u32,
