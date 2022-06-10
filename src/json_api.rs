@@ -27,6 +27,17 @@ impl Botnana {
         self.send_message(msg);
     }
 
+    /// slave.server.set
+    pub fn set_new_ip(
+        &mut self,
+        address: &str
+    ) {
+        let msg = r#"{"jsonrpc":"2.0","method":"config.server.set","params":{"address":""#.to_owned()
+            + address   
+            + r#""}}"#;
+        self.send_message(&msg);
+    }
+
     /// config.slave.set
     fn config_slave_set(
         &mut self,
