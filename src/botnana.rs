@@ -12,7 +12,7 @@ use std::{
     str,
     sync::{
         mpsc::{self, TryRecvError},
-        Arc, Mutex,
+        Arc, Mutex, Once,
     },
     thread,
     time::Duration,
@@ -22,6 +22,8 @@ use url;
 use ws::{
     self, connect, util::Token, CloseCode, Error, ErrorKind, Handler, Handshake, Message, Result,
 };
+
+static START: Once = Once::new();
 
 const WS_TIMEOUT_TOKEN: Token = Token(1);
 const WS_WATCHDOG_PERIOD_MS: u64 = 10_000;
@@ -95,11 +97,9 @@ pub struct Botnana {
 impl Botnana {
     /// New
     pub fn new() -> Botnana {
-        env_logger::builder()
-            .format_timestamp_millis()
-            .try_init()
-            .unwrap();
-
+        START.call_once(|| {
+            env_logger::builder().format_timestamp_millis().init();
+        });
         let mut template = Vec::with_capacity(MB_BLOCK_SIZE as _);
         template.resize(MB_BLOCK_SIZE, 0);
         let (mbin_input, mbin_output) = triple_buffer::TripleBuffer::new(&template).split();
