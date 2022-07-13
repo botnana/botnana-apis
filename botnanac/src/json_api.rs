@@ -231,21 +231,6 @@ pub extern "C" fn config_slave_set_pdo_demand_velocity(
     }
 }
 
-/// config.slave.set (pdo_demand_torque)
-#[no_mangle]
-pub extern "C" fn config_slave_set_pdo_demand_torque(
-    botnana: Box<Botnana>,
-    alias: u32,
-    position: u32,
-    channel: u32,
-    value: i32,
-) {
-    let s = Box::into_raw(botnana);
-    unsafe {
-        (*s).config_slave_set_pdo_demand_torque(alias, position, channel, value);
-    }
-}
-
 /// config.slave.set (pdo_real_velocity)
 #[no_mangle]
 pub extern "C" fn config_slave_set_pdo_real_velocity(

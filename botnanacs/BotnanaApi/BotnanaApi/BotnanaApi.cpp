@@ -338,17 +338,6 @@ extern "C"
 		config_slave_set_pdo_demand_velocity(botnana, alias, position, channel, value);
 	}
 
-	// JSON-API: config.slave.set : pdo_demand_torque
-	__declspec(dllexport) void configure_slave_set_pdo_demand_torque(
-		struct Botnana *botnana,
-		uint32_t alias,
-		uint32_t position,
-		uint32_t channel,
-		int32_t value)
-	{
-		config_slave_set_pdo_demand_torque(botnana, alias, position, channel, value);
-	}
-
 	// JSON-API: config.slave.set : pdo_real_velocity
 	__declspec(dllexport) void configure_slave_set_pdo_real_velocity(
 		struct Botnana *botnana,

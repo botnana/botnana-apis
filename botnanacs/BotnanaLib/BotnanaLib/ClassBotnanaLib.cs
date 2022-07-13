@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -242,12 +242,6 @@ namespace BotnanaLib
         public void ConfigSlaveSetPdoDemandVelocity(UInt32 alias, UInt32 position, UInt32 channel, Int32 value)
         {
             configure_slave_set_pdo_demand_velocity(innerBotnana, alias, position, channel, value);
-        }
-
-        // JSON-API: pdo_demand_torque of config.slave.set
-        public void ConfigSlaveSetPdoDemandTorque(UInt32 alias, UInt32 position, UInt32 channel, Int32 value)
-        {
-            configure_slave_set_pdo_demand_torque(innerBotnana, alias, position, channel, value);
         }
 
         // JSON-API: pdo_real_velocity of config.slave.set
@@ -602,9 +596,6 @@ namespace BotnanaLib
 
         [DllImport(@"BotnanaApi.dll", CharSet = CharSet.Ansi, CallingConvention = CallingConvention.Cdecl)]
         private static extern void configure_slave_set_pdo_demand_velocity(IntPtr botnana, UInt32 alias, UInt32 position, UInt32 channel, Int32 value);
-
-        [DllImport(@"BotnanaApi.dll", CharSet = CharSet.Ansi, CallingConvention = CallingConvention.Cdecl)]
-        private static extern void configure_slave_set_pdo_demand_torque(IntPtr botnana, UInt32 alias, UInt32 position, UInt32 channel, Int32 value);
 
         [DllImport(@"BotnanaApi.dll", CharSet = CharSet.Ansi, CallingConvention = CallingConvention.Cdecl)]
         private static extern void configure_slave_set_pdo_real_velocity(IntPtr botnana, UInt32 alias, UInt32 position, UInt32 channel, Int32 value);

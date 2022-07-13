@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 #include <stdint.h>
 extern "C"
 {
@@ -239,14 +239,6 @@ extern "C"
 
 	// JSON-API: config.slave.set : pdo_demand_velocity
 	__declspec(dllexport) void configure_slave_set_pdo_demand_velocity(
-		struct Botnana * botnana,
-		uint32_t alias,
-		uint32_t position,
-		uint32_t channel,
-		int32_t value);
-
-	// JSON-API: config.slave.set : pdo_demand_torque
-	__declspec(dllexport) void configure_slave_set_pdo_demand_torque(
 		struct Botnana * botnana,
 		uint32_t alias,
 		uint32_t position,

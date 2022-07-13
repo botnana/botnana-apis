@@ -63,7 +63,6 @@ int main()
     config_slave_set_pdo_digital_inputs(botnana, 0, 1, 1, 0);
     config_slave_set_pdo_demand_position(botnana, 0, 1, 1, 1);
     config_slave_set_pdo_demand_velocity(botnana, 0, 1, 1, 1);
-    config_slave_set_pdo_demand_torque(botnana, 0, 1, 1, 1);
     config_slave_set_pdo_real_velocity(botnana, 0, 1, 1, 1);
     config_slave_set_pdo_real_torque(botnana, 0, 1, 1, 1);
     // get slave information
@@ -88,7 +87,6 @@ int main()
     config_slave_set_pdo_digital_inputs(botnana, 0, 1, 1, 1);
     config_slave_set_pdo_demand_position(botnana, 0, 1, 1, 0);
     config_slave_set_pdo_demand_velocity(botnana, 0, 1, 1, 0);
-    config_slave_set_pdo_demand_torque(botnana, 0, 1, 1, 0);
     config_slave_set_pdo_real_velocity(botnana, 0, 1, 1, 0);
     config_slave_set_pdo_real_torque(botnana, 0, 1, 1, 0);
     //config_slave_get

@@ -260,17 +260,6 @@ extern "C"
                                                   uint32_t channel,
                                                   int32_t value);
 
-        // JSON-API: pdo_demand_torque of config.slave.set
-        // botnana:  Botnana motion server descriptor
-        // position: slave position, start by 1
-        // channel:  device channel, start by 1
-        // value != 0 : enable of pdo_demand_torque in PDO Mapping
-        void config_slave_set_pdo_demand_torque(struct Botnana *botnana,
-                                                uint32_t alias,
-                                                uint32_t position,
-                                                uint32_t channel,
-                                                int32_t value);
-
         // JSON-API: pdo_real_velocity of config.slave.set
         // botnana:  Botnana motion server descriptor
         // position: slave position, start by 1
