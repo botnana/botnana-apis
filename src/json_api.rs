@@ -138,17 +138,6 @@ impl Botnana {
         self.config_slave_set(alias, position, channel, "pdo_velocity_offset", value);
     }
 
-    /// config.slave.set (pdo_torque_offset)
-    pub fn config_slave_set_pdo_torque_offset(
-        &mut self,
-        alias: u32,
-        position: u32,
-        channel: u32,
-        value: i32,
-    ) {
-        self.config_slave_set(alias, position, channel, "pdo_torque_offset", value);
-    }
-
     /// config.slave.set (pdo_digital_inputs)
     pub fn config_slave_set_pdo_digital_inputs(
         &mut self,
