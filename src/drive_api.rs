@@ -292,24 +292,4 @@ impl Botnana {
             slave_position!(alias, position),
         ));
     }
-
-    /// Set Target Torque (在 TQ 模式下會開始運動，SDO)
-    /// @alias    : slave alias
-    /// @position : slave position
-    /// @channel  : channel
-    /// @torque : velocity ([0.1%])
-    pub fn set_drive_target_torque(
-        &mut self,
-        alias: u16,
-        position: u16,
-        channel: u16,
-        torque: i16,
-    ) {
-        self.send_script_to_buffer(&format!(
-            "{} {} {} target-tq!",
-            torque,
-            channel,
-            slave_position!(alias, position),
-        ));
-    }
 }
