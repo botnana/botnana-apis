@@ -171,21 +171,6 @@ pub extern "C" fn config_slave_set_pdo_velocity_offset(
     }
 }
 
-/// config.slave.set (pdo_torque_offset)
-#[no_mangle]
-pub extern "C" fn config_slave_set_pdo_torque_offset(
-    botnana: Box<Botnana>,
-    alias: u32,
-    position: u32,
-    channel: u32,
-    value: i32,
-) {
-    let s = Box::into_raw(botnana);
-    unsafe {
-        (*s).config_slave_set_pdo_torque_offset(alias, position, channel, value);
-    }
-}
-
 /// config.slave.set (pdo_digital_inputs)
 #[no_mangle]
 pub extern "C" fn config_slave_set_pdo_digital_inputs(
