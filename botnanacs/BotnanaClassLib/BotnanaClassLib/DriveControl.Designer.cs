@@ -1,4 +1,4 @@
-﻿namespace BotnanaClassLib
+namespace BotnanaClassLib
 {
     partial class DriveControl
     {
@@ -50,7 +50,6 @@
             this.label9 = new System.Windows.Forms.Label();
             this.buttonGo = new System.Windows.Forms.Button();
             this.buttonDriveHaltOff = new System.Windows.Forms.Button();
-            this.textBoxTargetTorque = new System.Windows.Forms.TextBox();
             this.buttonDriveHaltOn = new System.Windows.Forms.Button();
             this.label17 = new System.Windows.Forms.Label();
             this.buttonResetFault = new System.Windows.Forms.Button();
@@ -113,7 +112,6 @@
             this.groupBox3.Controls.Add(this.panel1);
             this.groupBox3.Controls.Add(this.buttonGo);
             this.groupBox3.Controls.Add(this.buttonDriveHaltOff);
-            this.groupBox3.Controls.Add(this.textBoxTargetTorque);
             this.groupBox3.Controls.Add(this.buttonDriveHaltOn);
             this.groupBox3.Controls.Add(this.label17);
             this.groupBox3.Controls.Add(this.buttonResetFault);
@@ -356,18 +354,6 @@
             this.buttonDriveHaltOff.Text = "-Drive Halt";
             this.buttonDriveHaltOff.UseVisualStyleBackColor = true;
             this.buttonDriveHaltOff.Click += new System.EventHandler(this.buttonDriveHaltOff_Click);
-            // 
-            // textBoxTargetTorque
-            // 
-            this.textBoxTargetTorque.Font = new System.Drawing.Font("微軟正黑體", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(136)));
-            this.textBoxTargetTorque.Location = new System.Drawing.Point(160, 119);
-            this.textBoxTargetTorque.Name = "textBoxTargetTorque";
-            this.textBoxTargetTorque.Size = new System.Drawing.Size(100, 25);
-            this.textBoxTargetTorque.TabIndex = 42;
-            this.textBoxTargetTorque.Text = "--";
-            this.textBoxTargetTorque.TextChanged += new System.EventHandler(this.textBoxTargetTorque_TextChanged);
-            this.textBoxTargetTorque.KeyDown += new System.Windows.Forms.KeyEventHandler(this.textBoxTargetTorque_KeyDown);
-            this.textBoxTargetTorque.Leave += new System.EventHandler(this.textBoxTargetTorque_Leave);
             // 
             // buttonDriveHaltOn
             // 
@@ -766,7 +752,6 @@
         private System.Windows.Forms.Label label10;
         private System.Windows.Forms.Button buttonGo;
         private System.Windows.Forms.Button buttonDriveHaltOff;
-        private System.Windows.Forms.TextBox textBoxTargetTorque;
         private System.Windows.Forms.Button buttonDriveHaltOn;
         private System.Windows.Forms.Label label17;
         private System.Windows.Forms.Button buttonResetFault;

@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Drawing;
@@ -33,7 +33,6 @@ namespace BotnanaClassLib
         private HandleTagNameMessage onProfileVelocity;
         private HandleTagNameMessage onProfileAcceleration;
         private HandleTagNameMessage onProfileDeceleration;
-        private HandleTagNameMessage onTargetTorque;
         private HandleTagNameMessage onTorqueSlope;
         private UInt32 alias = 0;
         private UInt32 slaveNumber = 1;
@@ -223,12 +222,6 @@ namespace BotnanaClassLib
             });
             botnana.SetTagNameCB(@"profile_deceleration", 0, IntPtr.Zero, onProfileDeceleration);
 
-            onTargetTorque = new HandleTagNameMessage((IntPtr _, UInt32 slv, UInt32 ch, string str) =>
-            {
-                if (slv == slaveNumber && ch == channelNumber) BeginInvoke(new Deg(() => textBoxTargetTorque.Text = str));
-            });
-            botnana.SetTagNameCB(@"target_torque", 0, IntPtr.Zero, onTargetTorque);
-
             onTorqueSlope = new HandleTagNameMessage((IntPtr _, UInt32 slv, UInt32 ch, string str) =>
             {
                 if (slv == slaveNumber && ch == channelNumber) BeginInvoke(new Deg(() => textBoxTorqueSlope.Text = str));
@@ -288,7 +281,6 @@ namespace BotnanaClassLib
             textBoxProfileAcceleration.Text = "";
             textBoxProfileDeceleration.Text = "";
             textBoxProfileVelocity.Text = "";
-            textBoxTargetTorque.Text = "";
             textBoxTorqueSlope.Text = "";
         }
 
@@ -458,21 +450,6 @@ namespace BotnanaClassLib
         private void textBoxTargetVelocity_Leave(object sender, EventArgs e)
         {
             TextBoxParaStore(sender, @"target-v!");
-        }
-
-        private void textBoxTargetTorque_TextChanged(object sender, EventArgs e)
-        {
-            ParseCheck.TextBoxCheckByParserInt(sender, Int32.TryParse);
-        }
-
-        private void textBoxTargetTorque_KeyDown(object sender, KeyEventArgs e)
-        {
-            if (e.KeyCode == Keys.Enter) TextBoxParaStore(sender, @"target-tq!");
-        }
-
-        private void textBoxTargetTorque_Leave(object sender, EventArgs e)
-        {
-            TextBoxParaStore(sender, @"target-tq!");
         }
 
         private void textBoxHMMethod_TextChanged(object sender, EventArgs e)
