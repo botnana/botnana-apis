@@ -182,17 +182,6 @@ impl Botnana {
         self.config_slave_set(alias, position, channel, "pdo_demand_velocity", value);
     }
 
-    /// config.slave.set (pdo_demand_torque)
-    pub fn config_slave_set_pdo_demand_torque(
-        &mut self,
-        alias: u32,
-        position: u32,
-        channel: u32,
-        value: i32,
-    ) {
-        self.config_slave_set(alias, position, channel, "pdo_demand_torque", value);
-    }
-
     /// config.slave.set (pdo_real_velocity)
     pub fn config_slave_set_pdo_real_velocity(
         &mut self,
