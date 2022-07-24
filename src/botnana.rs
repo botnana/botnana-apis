@@ -95,7 +95,7 @@ pub struct Botnana {
 }
 
 impl Botnana {
-    /// New
+    /// Create a botnana with IP address at 192.168.7.2.
     pub fn new() -> Botnana {
         START.call_once(|| {
             env_logger::builder().format_timestamp_millis().init();
@@ -137,12 +137,12 @@ impl Botnana {
         }
     }
 
-    /// Clone
+    /// Clone a botnana.
     pub fn clone(botnana: Botnana) -> Botnana {
         botnana.clone()
     }
 
-    /// Set IP
+    /// Set IP address.
     pub fn set_ip(&mut self, ip: &str) {
         if let Ok(_) = url::Url::parse(&("ws://".to_owned() + ip + ":" + &self.port().to_string()))
         {
@@ -151,7 +151,7 @@ impl Botnana {
     }
 
     /// Set port
-    pub fn set_port(&mut self, port: u16) {
+    fn set_port(&mut self, port: u16) {
         if let Ok(_) =
             url::Url::parse(&("ws://".to_owned() + self.ip().as_str() + ":" + &port.to_string()))
         {
@@ -165,17 +165,17 @@ impl Botnana {
     }
 
     /// Port
-    pub fn port(&self) -> u16 {
+    fn port(&self) -> u16 {
         *self.port.lock().expect("")
     }
 
     /// URL
-    pub fn url(&self) -> String {
+    fn url(&self) -> String {
         "ws://".to_owned() + self.ip().as_str() + ":" + &self.port().to_string()
     }
 
     /// Modbus url
-    pub fn mb_url(&self) -> String {
+    fn mb_url(&self) -> String {
         self.ip().to_owned() + ":502"
     }
 
@@ -210,7 +210,9 @@ impl Botnana {
         });
     }
 
-    /// Connect to botnana
+    /// Connect to botnana.
+    ///
+    /// Protocol used is WebSocket.
     pub fn connect(&mut self) {
         // 如果已經在等待連線就跳出
         if *self.is_connecting.lock().expect("connecting") {
@@ -785,10 +787,14 @@ impl Botnana {
         VERSION
     }
 
+    /// Is Modbus-connected to botnana?
     pub fn is_mb_connected(&self) -> bool {
         *self.is_mb_connected.lock().expect("mb_connected")
     }
 
+    /// Connect to botnana.
+    ///
+    /// Protocol used is Mobdus TCP.
     pub fn mb_connect(&self) {
         // Modbus thread
         let bna = self.clone();
@@ -899,6 +905,9 @@ impl Botnana {
         &self.mb_table
     }
 
+    /// Update modbus inputs.
+    ///
+    /// This function updates the modbus inputs only if there are new inputs.
     pub fn mb_update(&self) {
         self.mb_table.update();
     }

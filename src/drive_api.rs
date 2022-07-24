@@ -1,3 +1,5 @@
+//! Botnana Drive API
+
 use crate::botnana::Botnana;
 
 impl Botnana {
