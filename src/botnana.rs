@@ -87,7 +87,7 @@ pub struct Botnana {
     query_count: Arc<Mutex<usize>>,
     // Modbus client table
     mb_table: MbClientTable,
-    // MOdbus input before triple buffer
+    // Modbus input before triple buffer
     // Temporary variables
     mbin_input: Arc<Mutex<Option<triple_buffer::Input<Vec<u16>>>>>,
     mbhd_output: Arc<Mutex<Option<triple_buffer::Output<Vec<u16>>>>>,
@@ -147,15 +147,6 @@ impl Botnana {
         if let Ok(_) = url::Url::parse(&("ws://".to_owned() + ip + ":" + &self.port().to_string()))
         {
             *self.ip.lock().expect("") = ip.to_string();
-        }
-    }
-
-    /// Set port
-    fn set_port(&mut self, port: u16) {
-        if let Ok(_) =
-            url::Url::parse(&("ws://".to_owned() + self.ip().as_str() + ":" + &port.to_string()))
-        {
-            *self.port.lock().expect("") = port;
         }
     }
 
@@ -867,13 +858,14 @@ impl Botnana {
                                                 // Replace the old Vec in triple buffer.
                                                 let len = inputs.len();
                                                 debug!(
-                                                    "Modbus got {} inputs {:?}",
+                                                    "Modbus got from {} {} inputs {:?}",
+                                                    30001 + start as u16,
                                                     len,
-                                                    &inputs[0..8.min(len)]
+                                                    &inputs
                                                 );
                                                 input
                                                     .input_buffer()
-                                                    .get_mut(0..cnt)
+                                                    .get_mut(start..(start + cnt))
                                                     .expect("Input buffer size")
                                                     .copy_from_slice(&inputs);
                                             }

@@ -4,7 +4,7 @@ use triple_buffer::{Input, Output};
 // Size of modbus input and holding block in 16bit words.
 pub const MB_BLOCK_SIZE: usize = 384;
 
-#[derive(Debug)]
+#[derive(PartialEq, Debug)]
 pub enum Error {
     InvalidAddr,
 }
