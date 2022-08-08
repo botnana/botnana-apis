@@ -22,11 +22,6 @@ void BotnanaLib::SetWsIP(const char *ip)
 	botnana_set_ip_dll(innerBotnana, ip);
 }
 
-void BotnanaLib::SetWsPort(unsigned short port)
-{
-	botnana_set_port_dll(innerBotnana, port);
-}
-
 void BotnanaLib::Connect()
 {
 	botnana_connect_dll(innerBotnana);

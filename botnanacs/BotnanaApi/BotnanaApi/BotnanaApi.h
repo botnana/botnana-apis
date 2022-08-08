@@ -39,11 +39,6 @@ extern "C"
 	// @ip: IP of Motion Server 
 	__declspec(dllexport) const char * botnana_set_ip_dll(struct Botnana *botnana, const char * ip);
 
-	// Set Port
-	// @botnana: Botnana Control descriptor
-	// @port: Port of Motion Server 
-	__declspec(dllexport) uint16_t botnana_set_port_dll(struct Botnana *botnana, uint16_t port);
-
 	// URL of motion server
 	// @botnana: Botnana Control descriptor
 	__declspec(dllexport) const char * botnana_url_dll(struct Botnana *botnana);

@@ -52,12 +52,6 @@ namespace BotnanaLib
             return botnana_set_ip_dll(innerBotnana, ip);
         }
 
-        // Set Port
-        public UInt16 set_port(UInt16 port)
-        {
-            return botnana_set_port_dll(innerBotnana, port);
-        }
-
         // URL
         public string url()
         {
@@ -503,9 +497,6 @@ namespace BotnanaLib
 
         [DllImport(@"BotnanaApi.dll", CharSet = CharSet.Ansi, CallingConvention = CallingConvention.Cdecl)]
         private static extern string botnana_set_ip_dll(IntPtr desc, string ip);
-
-        [DllImport(@"BotnanaApi.dll", CharSet = CharSet.Ansi, CallingConvention = CallingConvention.Cdecl)]
-        private static extern UInt16 botnana_set_port_dll(IntPtr desc, UInt16 port);
 
         [DllImport(@"BotnanaApi.dll", CharSet = CharSet.Ansi, CallingConvention = CallingConvention.Cdecl)]
         private static extern string botnana_url_dll(IntPtr desc);
