@@ -47,7 +47,7 @@ int main()
         sleep(1);
     }
     while (fgets(buf, 1000, fp) != NULL){
-        printf("%s\n", buf);
+        //printf("%s\n", buf);
         script_evaluate(botnana, buf);
     }
     script_evaluate(botnana, "start-task1");
@@ -64,26 +64,38 @@ int main()
     script_evaluate(botnana, "1 1 drive-on");
     sleep(1);
     botnana_mb_update(botnana);
+    script_evaluate(botnana, "1 2 reset-fault");
+    sleep(1);
+    botnana_mb_update(botnana);
+    script_evaluate(botnana, "1 2 drive-off");
+    sleep(1);
+    botnana_mb_update(botnana);
+    script_evaluate(botnana, "1 2 drive-on");
+    sleep(1);
+    botnana_mb_update(botnana);
 
-    script_evaluate(botnana, "2 mb-heart-beat-watchdog-dur!");
+    botnana_mb_set_u16(botnana, 40045, 2000);
+    sleep(1);
+    botnana_mb_publish(botnana);
     script_evaluate(botnana, "1 mb-heart-beat!");
     sleep(1);
     botnana_mb_update(botnana);
     script_evaluate(botnana, "2 mb-heart-beat!");
-    sleep(1);
+    sleep(3);
     botnana_mb_update(botnana);
 
     // 等待連線成功
     while (1)
     {
+        //script_evaluate(botnana, "1 mb-heart-beat!");
         botnana_mb_update(botnana);
         printf("bit[10001]: %d, i16[30001]: %d, u16[30001]: %d, i32[30002]: %d, u32[30002]: %u\n",
             botnana_mb_bit(botnana, 10001),
             botnana_mb_i16(botnana, 30001),
-            botnana_mb_u16(botnana, 30001),
+            botnana_mb_u16(botnana, 30045),
             botnana_mb_i32(botnana, 30002),
             botnana_mb_u32(botnana, 30002));
-        sleep(2);
+        sleep(1);
     }
 
     return 0;
