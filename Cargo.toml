@@ -2,6 +2,7 @@
 name = "botnanars"
 version = "1.13.44"
 authors = ["Mapacode Inc."]
+license = "LicenseRef-Mapacode-Proprietary"
 edition = "2018"
 
 [dependencies]
@@ -16,5 +17,5 @@ tokio = { version = "1.17.0", features = ["macros", "rt", "time"] }
 triple_buffer = "6.0.0"
 
 [dev-dependencies]
-serde = "1.0.136"
+serde = "=1.0.136"
 
