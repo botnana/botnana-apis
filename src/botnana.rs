@@ -640,7 +640,7 @@ impl Botnana {
     /// `handler` is user function
     pub fn set_tag_callback(
         &mut self,
-        tag: &'static str,
+        tag: &str,
         count: u32,
         pointer: *mut c_void,
         cb: extern "C" fn(*mut c_void, *const c_char),

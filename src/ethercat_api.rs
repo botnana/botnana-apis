@@ -17,6 +17,6 @@ impl Botnana {
     /// @alias    : slave alias
     /// @position : slave position
     pub fn request_ec_slave_info_diff(&mut self, alias: u16, position: u16) {
-        self.evaluate(&format!("{} .slave_diff", slave_position!(alias, position)));
+        self.evaluate(&format!("{} .slave-diff", slave_position!(alias, position)));
     }
 }

@@ -27,6 +27,17 @@ impl Botnana {
         self.send_message(msg);
     }
 
+    /// slave.server.set
+    pub fn set_new_ip(
+        &mut self,
+        address: &str
+    ) {
+        let msg = r#"{"jsonrpc":"2.0","method":"config.server.set","params":{"address":""#.to_owned()
+            + address   
+            + r#""}}"#;
+        self.send_message(&msg);
+    }
+
     /// config.slave.set
     fn config_slave_set(
         &mut self,
@@ -46,6 +57,29 @@ impl Botnana {
             + param
             + r#"":"#
             + value.to_string().as_str()
+            + r#"}}"#;
+        self.send_message(&msg);
+    }
+
+    /// config.slave.set
+    fn config_slave_set_string(
+        &mut self,
+        alias: u32,
+        position: u32,
+        channel: u32,
+        param: &str,
+        value: String,
+    ) {
+        let msg = r#"{"jsonrpc":"2.0","method":"config.slave.set","params":{"alias":"#.to_owned()
+            + alias.to_string().as_str()
+            + r#","position":"#
+            + position.to_string().as_str()
+            + r#","channel":"#
+            + channel.to_string().as_str()
+            + r#",""#
+            + param
+            + r#"":"#
+            + value.as_str()
             + r#"}}"#;
         self.send_message(&msg);
     }
@@ -81,6 +115,17 @@ impl Botnana {
         value: i32,
     ) {
         self.config_slave_set(alias, position, channel, "homing_speed_2", value);
+    }
+
+    /// config.slave.set (homing_acceleration)
+    pub fn config_slave_set_home_offset(
+        &mut self,
+        alias: u32,
+        position: u32,
+        channel: u32,
+        value: i32,
+    ) {
+        self.config_slave_set(alias, position, channel, "home_offset", value);
     }
 
     /// config.slave.set (homing_acceleration)
@@ -191,6 +236,184 @@ impl Botnana {
         value: i32,
     ) {
         self.config_slave_set(alias, position, channel, "pdo_real_torque", value);
+    }
+
+    /// config.slave.set (baud_rate)
+    pub fn config_slave_set_baud_rate(
+        &mut self,
+        alias: u32,
+        position: u32,
+        channel: u32,
+        value: i32,
+    ) {
+        self.config_slave_set(alias, position, channel, "baud_rate", value);
+    }
+
+    /// config.slave.set (data_frame)
+    pub fn config_slave_set_data_frame(
+        &mut self,
+        alias: u32,
+        position: u32,
+        channel: u32,
+        value: i32,
+    ) {
+        self.config_slave_set(alias, position, channel, "data_frame", value);
+    }
+
+    /// config.slave.set (encoder_offset)
+    pub fn config_slave_set_encoder_offset(
+        &mut self,
+        alias: u32,
+        position: u32,
+        channel: u32,
+        value: i32,
+    ) {
+        self.config_slave_set(alias, position, channel, "encoder_offset", value);
+    }
+
+    /// config.slave.set (encoder_reversed)
+    pub fn config_slave_set_encoder_reversed(
+        &mut self,
+        alias: u32,
+        position: u32,
+        channel: u32,
+        value: i32,
+    ) {
+        self.config_slave_set(alias, position, channel, "encoder_reversed", value);
+    }
+
+    /// config.slave.set (half_duplex)
+    pub fn config_slave_set_half_duplex(
+        &mut self,
+        alias: u32,
+        position: u32,
+        channel: u32,
+        value: i32,
+    ) {
+        self.config_slave_set(alias, position, channel, "half_duplex", value);
+    }
+
+    /// config.slave.set (tx_optimization)
+    pub fn config_slave_set_tx_optimization(
+        &mut self,
+        alias: u32,
+        position: u32,
+        channel: u32,
+        value: i32,
+    ) {
+        self.config_slave_set(alias, position, channel, "tx_optimization", value);
+    }
+
+    /// config.slave.set (uart_p2p)
+    pub fn config_slave_set_uart_p2p(
+        &mut self,
+        alias: u32,
+        position: u32,
+        channel: u32,
+        value: i32,
+    ) {
+        self.config_slave_set(alias, position, channel, "uart_p2p", value);
+    }
+
+    /// config.slave.set (drive_rpdo1_name)
+    /// r_or_w = 1 is read or = 0 is write
+    pub fn config_slave_set_drive_pdo_name(
+        &mut self,
+        alias: u32,
+        position: u32,
+        channel: u32,
+        value: String,
+        r_or_w: u32,
+        pdo_position: u32,
+    ) {
+        if r_or_w == 0 {
+            let parameter = &format!("drive_{}pdo{}_name", "r", pdo_position.to_string());
+            self.config_slave_set_string(alias, position, channel, parameter, value);
+        }
+        else {
+            let parameter = &format!("drive_{}pdo{}_name", "w", pdo_position.to_string());
+            self.config_slave_set_string(alias, position, channel, parameter, value);
+        }
+    }
+
+    /// config.slave.set (drive_rpdo1_enabled)
+    pub fn config_slave_set_drive_pdo_enabled(
+        &mut self,
+        alias: u32,
+        position: u32,
+        channel: u32,
+        value: i32,
+        r_or_w: u32,
+        pdo_position: u32,
+    ) {
+        if r_or_w == 0 {
+            let parameter = &format!("drive_{}pdo{}_enabled", "r", pdo_position.to_string());
+            self.config_slave_set(alias, position, channel, parameter, value);
+        }
+        else {
+            let parameter = &format!("drive_{}pdo{}_enabled", "w", pdo_position.to_string());
+            self.config_slave_set(alias, position, channel, parameter, value);
+        }
+    }
+
+    /// config.slave.set (drive_rpdo1_index)
+    pub fn config_slave_set_drive_pdo_index(
+        &mut self,
+        alias: u32,
+        position: u32,
+        channel: u32,
+        value: i32,
+        r_or_w: u32,
+        pdo_position: u32,
+    ) {
+        if r_or_w == 0 {
+            let parameter = &format!("drive_{}pdo{}_index", "r", pdo_position.to_string());
+            self.config_slave_set(alias, position, channel, parameter, value);
+        }
+        else {
+            let parameter = &format!("drive_{}pdo{}_index", "w", pdo_position.to_string());
+            self.config_slave_set(alias, position, channel, parameter, value);
+        }
+    }
+
+    /// config.slave.set (drive_rpdo1_subindex)
+    pub fn config_slave_set_drive_pdo_subindex(
+        &mut self,
+        alias: u32,
+        position: u32,
+        channel: u32,
+        value: i32,
+        r_or_w: u32,
+        pdo_position: u32,
+    ) {
+        if r_or_w == 0 {
+            let parameter = &format!("drive_{}pdo{}_subindex", "r", pdo_position.to_string());
+            self.config_slave_set(alias, position, channel, parameter, value);
+        }
+        else {
+            let parameter = &format!("drive_{}pdo{}_subindex", "w", pdo_position.to_string());
+            self.config_slave_set(alias, position, channel, parameter, value);
+        }
+    }
+
+    /// config.slave.set (drive_rpdo1_type)
+    pub fn config_slave_set_drive_pdo_type(
+        &mut self,
+        alias: u32,
+        position: u32,
+        channel: u32,
+        value: String,
+        r_or_w: u32,
+        pdo_position: u32,
+    ) {
+        if r_or_w == 0 {
+            let parameter = &format!("drive_{}pdo{}_type", "r", pdo_position.to_string());
+            self.config_slave_set_string(alias, position, channel, parameter, value);
+        }
+        else {
+            let parameter = &format!("drive_{}pdo{}_type", "w", pdo_position.to_string());
+            self.config_slave_set_string(alias, position, channel, parameter, value);
+        }
     }
 
     /// config.slave.get
