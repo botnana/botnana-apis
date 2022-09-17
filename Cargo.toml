@@ -1,6 +1,6 @@
 [package]
 name = "botnanars"
-version = "1.13.44"
+version = "1.13.45"
 authors = ["Mapacode Inc."]
 edition = "2018"
 
