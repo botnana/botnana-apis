@@ -4,3 +4,7 @@ language = "en"
 multilingual = false
 src = "src"
 title = "Botnana C Primer"
+
+[output.html]
+
+[output.pdf]
