@@ -1,0 +1,21 @@
+[package]
+name = "botnanars"
+version = "1.13.45"
+authors = ["Mapacode Inc."]
+license = "LicenseRef-Mapacode-Proprietary"
+edition = "2018"
+
+[dependencies]
+ws = "0.9"
+libc = "0.2.41"
+url = "2.2.2"
+serde_json = "1.0.79"
+log = "0.4"
+env_logger = "0.9"
+tokio-modbus = "0.5.2"
+tokio = { version = "1.17.0", features = ["macros", "rt", "time"] }
+triple_buffer = "6.0.0"
+
+[dev-dependencies]
+serde = "=1.0.136"
+
