@@ -20,12 +20,12 @@ x86_64:
 	cp target/x86_64-unknown-linux-gnu/release/libbotnana.a ./lib/libbotnana_x86_64.a
 
 	
-arm:
-	cargo build --release --target=armv7-unknown-linux-gnueabihf
+arm64:
+	cargo build --release --target=aarch64-unknown-linux-gnu
 	mkdir -p lib
-	rm -rf lib/libbotnana_armv7.*
-	cp target/armv7-unknown-linux-gnueabihf/release/libbotnana.so ./lib/libbotnana_armv7.so
-	cp target/armv7-unknown-linux-gnueabihf/release/libbotnana.a ./lib/libbotnana_armv7.a
+	rm -rf lib/libbotnana_arm64.*
+	cp target/aarch64-unknown-linux-gnu/release/libbotnana.so ./lib/libbotnana_arm64.so
+	cp target/aarch64-unknown-linux-gnu/release/libbotnana.a ./lib/libbotnana_arm64.a
 
 %.o: 
 	gcc $(CFLAGS) -O2 -c ./examples/$*.c -o $@ 	
