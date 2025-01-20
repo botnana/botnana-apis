@@ -1,3 +1,26 @@
+# Botnana control C API
+
+## Build the library
+
+Install rust compiler, see https://rustup.rs/ .
+After the installation, login again so that the rustup/cargo command can be found.
+
+Install the arm64 toolchain:
+
+```
+rustup target add aarch64-unknown-linux-gnu
+```
+
+Ather the toolchain is installed, execute the following commands to build the library.
+
+```
+make arm64
+```
+
+---
+以下是舊資料，更新中。
+---
+
 ### 1. 前言
 
 提供 C 函式庫與 C 語言的範例  
