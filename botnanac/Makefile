@@ -1,17 +1,6 @@
 CFLAGS = -Isrc
 LDFLAGS = ./lib/libbotnana.a -ldl -pthread -lssl -lcrypto -O2 -lm
 
-fmt:
-	cargo fmt
-	astyle --style=allman -r "*.c" "*.h"
-
-i686:
-	cargo build --release --target=i686-unknown-linux-gnu
-	mkdir -p lib
-	rm -rf lib/libbotnana.*
-	cp target/i686-unknown-linux-gnu/release/libbotnana.so ./lib/libbotnana.so
-	cp target/i686-unknown-linux-gnu/release/libbotnana.a ./lib/libbotnana.a
-
 x86_64:
 	cargo build --release --target=x86_64-unknown-linux-gnu
 	mkdir -p lib
