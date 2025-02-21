@@ -17,6 +17,24 @@ Ather the toolchain is installed, execute the following commands to build the li
 make arm64
 ```
 
+## Test the library
+
+Under x86_64,
+
+```
+make x86_64
+make words
+./botnana
+```
+
+Under arm64,
+
+```
+make arm64
+make words
+./botnana
+```
+
 ---
 以下是舊資料，更新中。
 ---
