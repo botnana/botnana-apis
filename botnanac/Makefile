@@ -1,5 +1,5 @@
 CFLAGS = -Isrc
-LDFLAGS = ./lib/libbotnana.a -ldl -pthread -lssl -lcrypto -O2 -lm
+LDFLAGS = ./lib/libbotnana.a -ldl -pthread -O2 -lm
 
 x86_64:
 	cargo build --release --target=x86_64-unknown-linux-gnu
