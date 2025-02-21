@@ -1,0 +1,35 @@
+name: CI with self-hosted runner
+run-name: ${{ github.actor }} is testing branch ${{ github.ref }}
+on: [workflow_dispatch, push]
+jobs:
+  build-and-test:
+    runs-on: self-hosted
+    steps:
+      - run: echo "Triggered by a ${{ github.event_name }} event."
+      - run: echo "Running on a self-hosted ${{ runner.os }} server!"
+      - run: echo "Branch is ${{ github.ref }}, repository is ${{ github.repository }}."
+      - name: Check out repository code
+        uses: actions/checkout@v4
+      - run: echo "💡 The ${{ github.repository }} repository has been cloned to the runner."
+      - run: echo "🖥️ The workflow is now ready to test code on the runner."
+      - run: echo "workspace is $USER@$HOSTNAME:$PWD" 
+      - name: List files in the repository
+        run: |
+          ls ${{ github.workspace }}
+      - name: Make aarch64
+        working-directory: botnanac
+        run: |
+          make aarch64
+      - name: Make x86_64
+        working-directory: botnanac
+        run: |
+          make x86_64
+      - name: Make words
+        working-directory: botnanac
+        run: |
+          make words
+      - name: Test words
+        working-directory: botnanac
+        run: |
+          ./words
+      - run: echo "🍏 This job's status is ${{ job.status }}."
