@@ -16,10 +16,10 @@ jobs:
       - name: List files in the repository
         run: |
           ls ${{ github.workspace }}
-      - name: Make aarch64
+      - name: Make arm64
         working-directory: botnanac
         run: |
-          make aarch64
+          make arm64
       - name: Make x86_64
         working-directory: botnanac
         run: |
