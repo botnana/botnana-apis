@@ -3,27 +3,27 @@
 #include "botnana.h"
 
 // 處理主站傳回的資料
-void on_message_cb (void * data, const char * src)
+void on_message_cb(void *data, const char *src)
 {
     printf("on_message:  %s\n", src);
 }
 
 // 處理 WebSocket on_open
-void on_ws_open_cb (void * data, const char * src)
+void on_ws_open_cb(void *data, const char *src)
 {
-    int * open = (int *) data;
+    int *open = (int *)data;
     *open = 2;
 }
 
 // 處理 WebSocket 連線異常
-void on_ws_error_cb (void * data, const char * src)
+void on_ws_error_cb(void *data, const char *src)
 {
-    int * open = (int *) data;
+    int *open = (int *)data;
     *open = 0;
     printf("WS client error: %s\n", src);
 }
 
-void on_send_cb (void * data, const char * src)
+void on_send_cb(void *data, const char *src)
 {
     printf("on_send: %s\n", src);
 }
@@ -33,10 +33,11 @@ int main()
     int ws_open = 0;
 
     // connect to motion server
-    struct Botnana * botnana = botnana_new("192.168.7.2");
+    printf("Create a client for a Botnana control at 192.168.7.2:3012\n");
+    struct Botnana *botnana = botnana_new("192.168.7.2");
 
-    botnana_set_on_open_cb(botnana, (void *)& ws_open, on_ws_open_cb);
-    botnana_set_on_error_cb(botnana, (void *)& ws_open, on_ws_error_cb);
+    botnana_set_on_open_cb(botnana, (void *)&ws_open, on_ws_open_cb);
+    botnana_set_on_error_cb(botnana, (void *)&ws_open, on_ws_error_cb);
     botnana_set_on_message_cb(botnana, NULL, on_message_cb);
     botnana_set_on_send_cb(botnana, NULL, on_send_cb);
 
@@ -46,25 +47,28 @@ int main()
         // 如果連線失敗，重新嘗試連線
         if (ws_open == 0)
         {
+            printf("Connecting to the server\n");
             botnana_connect(botnana);
             ws_open = 1;
         }
         sleep(2);
     }
     // send `words` of real time script
+    printf("Evaluate words\n");
     script_evaluate(botnana, "words");
 
     // 新增指令 test1, test2
+    printf("Adding new instructions test1 and test2\n");
     script_evaluate(botnana, ": test1 3 ;");
     script_evaluate(botnana, ": test2 4 ;");
     script_evaluate(botnana, "words");
     sleep(1);
 
     // 將test1, test2 從字典中移除
+    printf("Remove test1 and test2\n");
     script_evaluate(botnana, "-work marker -work");
     script_evaluate(botnana, "words");
     sleep(1);
 
     return 0;
-
 }

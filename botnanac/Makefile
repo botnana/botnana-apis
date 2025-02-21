@@ -7,6 +7,7 @@ x86_64:
 	rm -rf lib/libbotnana_x86_64.*
 	cp target/x86_64-unknown-linux-gnu/release/libbotnana.so ./lib/libbotnana_x86_64.so
 	cp target/x86_64-unknown-linux-gnu/release/libbotnana.a ./lib/libbotnana_x86_64.a
+	cp ./lib/libbotnana_x86_64.a ./lib/libbotnana.a
 
 	
 arm64:
@@ -15,6 +16,7 @@ arm64:
 	rm -rf lib/libbotnana_arm64.*
 	cp target/aarch64-unknown-linux-gnu/release/libbotnana.so ./lib/libbotnana_arm64.so
 	cp target/aarch64-unknown-linux-gnu/release/libbotnana.a ./lib/libbotnana_arm64.a
+	cp ./lib/libbotnana_arm64.a ./lib/libbotnana.a
 
 %.o: 
 	gcc $(CFLAGS) -O2 -c ./examples/$*.c -o $@ 	

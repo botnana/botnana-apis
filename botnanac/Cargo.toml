@@ -6,7 +6,7 @@ edition = "2018"
 
 [dependencies]
 libc = "0.2"
-botnanars = {git="https://github.com/botnana/botnana-api-rs.git"}
+botnanars = { path = "../botnanars" }
 
 [lib]
 name="botnana"
