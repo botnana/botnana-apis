@@ -19,11 +19,11 @@ jobs:
       - name: Make arm64
         working-directory: botnanac
         run: |
-          make arm64
+          make ./lib/libbotnanac_arm64.a
       - name: Make x86_64
         working-directory: botnanac
         run: |
-          make x86_64
+          make ./lib/libbotnanac_x86_64.a
       - name: Make words
         working-directory: botnanac
         run: |
@@ -31,5 +31,5 @@ jobs:
       - name: Test words
         working-directory: botnanac
         run: |
-          ./words
+          ./target/bin/words
       - run: echo "🍏 This job's status is ${{ job.status }}."
