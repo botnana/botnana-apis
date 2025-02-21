@@ -21,48 +21,48 @@ LDFLAGS = ./lib/libbotnana.a -ldl -pthread -O2 -lm
 %.o: 
 	gcc $(CFLAGS) -O2 -c ./examples/$*.c -o $@ 	
 
-words: ./lib/libbotnana_arm64.a ./libbotnana_x86_64.a words.o
+words: ./lib/libbotnana_arm64.a ./lib/libbotnana_x86_64.a words.o
 	mkdir -p target/bin
 	gcc -o target/bin/$@ $@.o $(LDFLAGS)
 
-config_slave: ./lib/libbotnana_arm64.a ./libbotnana_x86_64.a config_slave.o
+config_slave: ./lib/libbotnana_arm64.a ./lib/libbotnana_x86_64.a config_slave.o
 	mkdir -p target/bin
 	gcc -o $@ $@.o $(LDFLAGS)
 
-config_motion: ./lib/libbotnana_arm64.a ./libbotnana_x86_64.a config_motion.o
+config_motion: ./lib/libbotnana_arm64.a ./lib/libbotnana_x86_64.a config_motion.o
 	mkdir -p target/bin
 	gcc -o $@ $@.o $(LDFLAGS)
 
-config_group: ./lib/libbotnana_arm64.a ./libbotnana_x86_64.a config_group.o
+config_group: ./lib/libbotnana_arm64.a ./lib/libbotnana_x86_64.a config_group.o
 	mkdir -p target/bin
 	gcc -o $@ $@.o $(LDFLAGS)
 	
-config_axis: ./lib/libbotnana_arm64.a ./libbotnana_x86_64.a config_axis.o
+config_axis: ./lib/libbotnana_arm64.a ./lib/libbotnana_x86_64.a config_axis.o
 	mkdir -p target/bin
 	gcc -o $@ $@.o $(LDFLAGS)
 
-group1d: ./lib/libbotnana_arm64.a ./libbotnana_x86_64.a group1d.o
+group1d: ./lib/libbotnana_arm64.a ./lib/libbotnana_x86_64.a group1d.o
 	mkdir -p target/bin
 	gcc -o $@ $@.o $(LDFLAGS)
 	
-version: ./lib/libbotnana_arm64.a ./libbotnana_x86_64.a version.o
+version: ./lib/libbotnana_arm64.a ./lib/libbotnana_x86_64.a version.o
 	mkdir -p target/bin
 	gcc -o $@ $@.o $(LDFLAGS)
 
-drive_pp: ./lib/libbotnana_arm64.a ./libbotnana_x86_64.a drive_pp.o
+drive_pp: ./lib/libbotnana_arm64.a ./lib/libbotnana_x86_64.a drive_pp.o
 	mkdir -p target/bin
 	gcc -o $@ $@.o $(LDFLAGS)
 	
 
-recorder: ./lib/libbotnana_arm64.a ./libbotnana_x86_64.a recorder.o
+recorder: ./lib/libbotnana_arm64.a ./lib/libbotnana_x86_64.a recorder.o
 	mkdir -p target/bin
 	gcc -lpthread -o $@ $@.o $(LDFLAGS)
 	
-target_reached: ./lib/libbotnana_arm64.a ./libbotnana_x86_64.a target_reached.o
+target_reached: ./lib/libbotnana_arm64.a ./lib/libbotnana_x86_64.a target_reached.o
 	mkdir -p target/bin
 	gcc -lpthread -o $@ $@.o $(LDFLAGS)
 	
-reboot: ./lib/libbotnana_arm64.a ./libbotnana_x86_64.a reboot.o
+reboot: ./lib/libbotnana_arm64.a ./lib/libbotnana_x86_64.a reboot.o
 	mkdir -p target/bin
 	gcc -lpthread -o $@ $@.o $(LDFLAGS)
 
