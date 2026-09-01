@@ -56,7 +56,6 @@
             this.textBoxDemandPos = new System.Windows.Forms.TextBox();
             this.label24 = new System.Windows.Forms.Label();
             this.tabPageAxisConfig = new System.Windows.Forms.TabPage();
-            this.buttonSave = new System.Windows.Forms.Button();
             this.textBoxAxisName = new System.Windows.Forms.TextBox();
             this.label1 = new System.Windows.Forms.Label();
             this.comboBoxEncoderUnit = new System.Windows.Forms.ComboBox();
@@ -405,7 +404,6 @@
             // 
             this.tabPageAxisConfig.AutoScroll = true;
             this.tabPageAxisConfig.AutoScrollMargin = new System.Drawing.Size(0, 25);
-            this.tabPageAxisConfig.Controls.Add(this.buttonSave);
             this.tabPageAxisConfig.Controls.Add(this.textBoxAxisName);
             this.tabPageAxisConfig.Controls.Add(this.label1);
             this.tabPageAxisConfig.Controls.Add(this.comboBoxEncoderUnit);
@@ -458,17 +456,6 @@
             this.tabPageAxisConfig.Text = "Config";
             this.tabPageAxisConfig.UseVisualStyleBackColor = true;
             // 
-            // buttonSave
-            // 
-            this.buttonSave.Font = new System.Drawing.Font("微軟正黑體", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(136)));
-            this.buttonSave.Location = new System.Drawing.Point(178, 14);
-            this.buttonSave.Name = "buttonSave";
-            this.buttonSave.Size = new System.Drawing.Size(100, 25);
-            this.buttonSave.TabIndex = 52;
-            this.buttonSave.Text = "Save";
-            this.buttonSave.UseVisualStyleBackColor = true;
-            this.buttonSave.Click += new System.EventHandler(this.buttonSave_Click);
-            // 
             // textBoxAxisName
             // 
             this.textBoxAxisName.Font = new System.Drawing.Font("微軟正黑體", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(136)));
@@ -477,8 +464,6 @@
             this.textBoxAxisName.Size = new System.Drawing.Size(100, 25);
             this.textBoxAxisName.TabIndex = 8;
             this.textBoxAxisName.Text = "--";
-            this.textBoxAxisName.KeyDown += new System.Windows.Forms.KeyEventHandler(this.textBoxAxisName_KeyDown);
-            this.textBoxAxisName.Leave += new System.EventHandler(this.textBoxAxisName_Leave);
             // 
             // label1
             // 
@@ -504,7 +489,6 @@
             this.comboBoxEncoderUnit.Size = new System.Drawing.Size(100, 25);
             this.comboBoxEncoderUnit.TabIndex = 51;
             this.comboBoxEncoderUnit.Text = "--";
-            this.comboBoxEncoderUnit.SelectedIndexChanged += new System.EventHandler(this.comboBoxEncoderUnit_SelectedIndexChanged);
             // 
             // textBoxAfactor
             // 
@@ -514,9 +498,6 @@
             this.textBoxAfactor.Size = new System.Drawing.Size(100, 25);
             this.textBoxAfactor.TabIndex = 50;
             this.textBoxAfactor.Text = "--";
-            this.textBoxAfactor.TextChanged += new System.EventHandler(this.textBoxAfactor_TextChanged);
-            this.textBoxAfactor.KeyDown += new System.Windows.Forms.KeyEventHandler(this.textBoxAfactor_KeyDown);
-            this.textBoxAfactor.Leave += new System.EventHandler(this.textBoxAfactor_Leave);
             // 
             // textBoxVmax
             // 
@@ -526,9 +507,6 @@
             this.textBoxVmax.Size = new System.Drawing.Size(100, 25);
             this.textBoxVmax.TabIndex = 40;
             this.textBoxVmax.Text = "--";
-            this.textBoxVmax.TextChanged += new System.EventHandler(this.textBoxVmax_TextChanged);
-            this.textBoxVmax.KeyDown += new System.Windows.Forms.KeyEventHandler(this.textBoxVmax_KeyDown);
-            this.textBoxVmax.Leave += new System.EventHandler(this.textBoxVmax_Leave);
             // 
             // label18
             // 
@@ -559,9 +537,6 @@
             this.textBoxAff.Size = new System.Drawing.Size(100, 25);
             this.textBoxAff.TabIndex = 48;
             this.textBoxAff.Text = "--";
-            this.textBoxAff.TextChanged += new System.EventHandler(this.textBoxAff_TextChanged);
-            this.textBoxAff.KeyDown += new System.Windows.Forms.KeyEventHandler(this.textBoxAff_KeyDown);
-            this.textBoxAff.Leave += new System.EventHandler(this.textBoxAff_Leave);
             // 
             // label19
             // 
@@ -591,9 +566,6 @@
             this.textBoxIgnorableDistance.Size = new System.Drawing.Size(100, 25);
             this.textBoxIgnorableDistance.TabIndex = 42;
             this.textBoxIgnorableDistance.Text = "--";
-            this.textBoxIgnorableDistance.TextChanged += new System.EventHandler(this.textBoxIgnorableDistance_TextChanged);
-            this.textBoxIgnorableDistance.KeyDown += new System.Windows.Forms.KeyEventHandler(this.textBoxIgnorableDistance_KeyDown);
-            this.textBoxIgnorableDistance.Leave += new System.EventHandler(this.textBoxIgnorableDistance_Leave);
             // 
             // label10
             // 
@@ -613,9 +585,6 @@
             this.textBoxCloseLoopFilter.Size = new System.Drawing.Size(100, 25);
             this.textBoxCloseLoopFilter.TabIndex = 22;
             this.textBoxCloseLoopFilter.Text = "--";
-            this.textBoxCloseLoopFilter.TextChanged += new System.EventHandler(this.textBoxCloseLoopFilter_TextChanged);
-            this.textBoxCloseLoopFilter.KeyDown += new System.Windows.Forms.KeyEventHandler(this.textBoxCloseLoopFilter_KeyDown);
-            this.textBoxCloseLoopFilter.Leave += new System.EventHandler(this.textBoxCloseLoopFilter_Leave);
             // 
             // label9
             // 
@@ -635,9 +604,6 @@
             this.textBoxDriveAlias.Size = new System.Drawing.Size(100, 25);
             this.textBoxDriveAlias.TabIndex = 26;
             this.textBoxDriveAlias.Text = "--";
-            this.textBoxDriveAlias.TextChanged += new System.EventHandler(this.textBoxDriveAlias_TextChanged);
-            this.textBoxDriveAlias.KeyDown += new System.Windows.Forms.KeyEventHandler(this.textBoxDriveAlias_KeyDown);
-            this.textBoxDriveAlias.Leave += new System.EventHandler(this.textBoxDriveAlias_Leave);
             // 
             // textBoxMaxPosDeviation
             // 
@@ -647,9 +613,6 @@
             this.textBoxMaxPosDeviation.Size = new System.Drawing.Size(100, 25);
             this.textBoxMaxPosDeviation.TabIndex = 24;
             this.textBoxMaxPosDeviation.Text = "--";
-            this.textBoxMaxPosDeviation.TextChanged += new System.EventHandler(this.textBoxMaxPosDeviation_TextChanged);
-            this.textBoxMaxPosDeviation.KeyDown += new System.Windows.Forms.KeyEventHandler(this.textBoxMaxPosDeviation_KeyDown);
-            this.textBoxMaxPosDeviation.Leave += new System.EventHandler(this.textBoxMaxPosDeviation_Leave);
             // 
             // label23
             // 
@@ -679,9 +642,6 @@
             this.textBoxVfactor.Size = new System.Drawing.Size(100, 25);
             this.textBoxVfactor.TabIndex = 46;
             this.textBoxVfactor.Text = "--";
-            this.textBoxVfactor.TextChanged += new System.EventHandler(this.textBoxVfactor_TextChanged);
-            this.textBoxVfactor.KeyDown += new System.Windows.Forms.KeyEventHandler(this.textBoxVfactor_KeyDown);
-            this.textBoxVfactor.Leave += new System.EventHandler(this.textBoxVfactor_Leave);
             // 
             // textBoxDriveSlavePos
             // 
@@ -691,9 +651,6 @@
             this.textBoxDriveSlavePos.Size = new System.Drawing.Size(100, 25);
             this.textBoxDriveSlavePos.TabIndex = 28;
             this.textBoxDriveSlavePos.Text = "--";
-            this.textBoxDriveSlavePos.TextChanged += new System.EventHandler(this.textBoxDriveSlavePos_TextChanged);
-            this.textBoxDriveSlavePos.KeyDown += new System.Windows.Forms.KeyEventHandler(this.textBoxDriveSlavePos_KeyDown);
-            this.textBoxDriveSlavePos.Leave += new System.EventHandler(this.textBoxDriveSlavePos_Leave);
             // 
             // label21
             // 
@@ -724,9 +681,6 @@
             this.textBoxVff.Size = new System.Drawing.Size(100, 25);
             this.textBoxVff.TabIndex = 44;
             this.textBoxVff.Text = "--";
-            this.textBoxVff.TextChanged += new System.EventHandler(this.textBoxVff_TextChanged);
-            this.textBoxVff.KeyDown += new System.Windows.Forms.KeyEventHandler(this.textBoxVff_KeyDown);
-            this.textBoxVff.Leave += new System.EventHandler(this.textBoxVff_Leave);
             // 
             // textBoxDriveChannel
             // 
@@ -736,9 +690,6 @@
             this.textBoxDriveChannel.Size = new System.Drawing.Size(100, 25);
             this.textBoxDriveChannel.TabIndex = 30;
             this.textBoxDriveChannel.Text = "--";
-            this.textBoxDriveChannel.TextChanged += new System.EventHandler(this.textBoxDriveChannel_TextChanged);
-            this.textBoxDriveChannel.KeyDown += new System.Windows.Forms.KeyEventHandler(this.textBoxDriveChannel_KeyDown);
-            this.textBoxDriveChannel.Leave += new System.EventHandler(this.textBoxDriveChannel_Leave);
             // 
             // label20
             // 
@@ -758,9 +709,6 @@
             this.textBoxAmax.Size = new System.Drawing.Size(100, 25);
             this.textBoxAmax.TabIndex = 38;
             this.textBoxAmax.Text = "--";
-            this.textBoxAmax.TextChanged += new System.EventHandler(this.textBoxAmax_TextChanged);
-            this.textBoxAmax.KeyDown += new System.Windows.Forms.KeyEventHandler(this.textBoxAmax_KeyDown);
-            this.textBoxAmax.Leave += new System.EventHandler(this.textBoxAmax_Leave);
             // 
             // label17
             // 
@@ -780,9 +728,6 @@
             this.textBoxExtEncoderChannel.Size = new System.Drawing.Size(100, 25);
             this.textBoxExtEncoderChannel.TabIndex = 36;
             this.textBoxExtEncoderChannel.Text = "--";
-            this.textBoxExtEncoderChannel.TextChanged += new System.EventHandler(this.textBoxExtEncoderChannel_TextChanged);
-            this.textBoxExtEncoderChannel.KeyDown += new System.Windows.Forms.KeyEventHandler(this.textBoxExtEncoderChannel_KeyDown);
-            this.textBoxExtEncoderChannel.Leave += new System.EventHandler(this.textBoxExtEncoderChannel_Leave);
             // 
             // label16
             // 
@@ -802,9 +747,6 @@
             this.textBoxExtEncoderSlavePos.Size = new System.Drawing.Size(100, 25);
             this.textBoxExtEncoderSlavePos.TabIndex = 34;
             this.textBoxExtEncoderSlavePos.Text = "--";
-            this.textBoxExtEncoderSlavePos.TextChanged += new System.EventHandler(this.textBoxExtEncoderSlavePos_TextChanged);
-            this.textBoxExtEncoderSlavePos.KeyDown += new System.Windows.Forms.KeyEventHandler(this.textBoxExtEncoderSlavePos_KeyDown);
-            this.textBoxExtEncoderSlavePos.Leave += new System.EventHandler(this.textBoxExtEncoderSlavePos_Leave);
             // 
             // label15
             // 
@@ -824,9 +766,6 @@
             this.textBoxExtEncoderAlias.Size = new System.Drawing.Size(100, 25);
             this.textBoxExtEncoderAlias.TabIndex = 32;
             this.textBoxExtEncoderAlias.Text = "--";
-            this.textBoxExtEncoderAlias.TextChanged += new System.EventHandler(this.textBoxExtEncoderAlias_TextChanged);
-            this.textBoxExtEncoderAlias.KeyDown += new System.Windows.Forms.KeyEventHandler(this.textBoxExtEncoderAlias_KeyDown);
-            this.textBoxExtEncoderAlias.Leave += new System.EventHandler(this.textBoxExtEncoderAlias_Leave);
             // 
             // label13
             // 
@@ -846,9 +785,6 @@
             this.textBoxExtEncoderDirection.Size = new System.Drawing.Size(100, 25);
             this.textBoxExtEncoderDirection.TabIndex = 20;
             this.textBoxExtEncoderDirection.Text = "--";
-            this.textBoxExtEncoderDirection.TextChanged += new System.EventHandler(this.textBoxExtEncoderDirection_TextChanged);
-            this.textBoxExtEncoderDirection.KeyDown += new System.Windows.Forms.KeyEventHandler(this.textBoxExtEncoderDirection_KeyDown);
-            this.textBoxExtEncoderDirection.Leave += new System.EventHandler(this.textBoxExtEncoderDirection_Leave);
             // 
             // label7
             // 
@@ -868,9 +804,6 @@
             this.textBoxEncoderPPU.Size = new System.Drawing.Size(100, 25);
             this.textBoxEncoderPPU.TabIndex = 18;
             this.textBoxEncoderPPU.Text = "--";
-            this.textBoxEncoderPPU.TextChanged += new System.EventHandler(this.textBoxEncoderPPU_TextChanged);
-            this.textBoxEncoderPPU.KeyDown += new System.Windows.Forms.KeyEventHandler(this.textBoxEncoderPPU_KeyDown);
-            this.textBoxEncoderPPU.Leave += new System.EventHandler(this.textBoxEncoderPPU_Leave);
             // 
             // label6
             // 
@@ -890,9 +823,6 @@
             this.textBoxEncoderDirection.Size = new System.Drawing.Size(100, 25);
             this.textBoxEncoderDirection.TabIndex = 16;
             this.textBoxEncoderDirection.Text = "--";
-            this.textBoxEncoderDirection.TextChanged += new System.EventHandler(this.textBoxEncoderDirection_TextChanged);
-            this.textBoxEncoderDirection.KeyDown += new System.Windows.Forms.KeyEventHandler(this.textBoxEncoderDirection_KeyDown);
-            this.textBoxEncoderDirection.Leave += new System.EventHandler(this.textBoxEncoderDirection_Leave);
             // 
             // label5
             // 
@@ -912,9 +842,6 @@
             this.textBoxExtEncoderPPU.Size = new System.Drawing.Size(100, 25);
             this.textBoxExtEncoderPPU.TabIndex = 14;
             this.textBoxExtEncoderPPU.Text = "--";
-            this.textBoxExtEncoderPPU.TextChanged += new System.EventHandler(this.textBoxExtEncoderPPU_TextChanged);
-            this.textBoxExtEncoderPPU.KeyDown += new System.Windows.Forms.KeyEventHandler(this.textBoxExtEncoderPPU_KeyDown);
-            this.textBoxExtEncoderPPU.Leave += new System.EventHandler(this.textBoxExtEncoderPPU_Leave);
             // 
             // label4
             // 
@@ -944,9 +871,6 @@
             this.textBoxHomeOffset.Size = new System.Drawing.Size(100, 25);
             this.textBoxHomeOffset.TabIndex = 10;
             this.textBoxHomeOffset.Text = "--";
-            this.textBoxHomeOffset.TextChanged += new System.EventHandler(this.textBoxHomeOffset_TextChanged);
-            this.textBoxHomeOffset.KeyDown += new System.Windows.Forms.KeyEventHandler(this.textBoxHomeOffset_KeyDown);
-            this.textBoxHomeOffset.Leave += new System.EventHandler(this.textBoxHomeOffset_Leave);
             // 
             // label2
             // 
@@ -1038,7 +962,6 @@
         private System.Windows.Forms.Label label16;
         private System.Windows.Forms.Timer timer1;
         private System.Windows.Forms.ComboBox comboBoxEncoderUnit;
-        private System.Windows.Forms.Button buttonSave;
         private System.Windows.Forms.TextBox textBoxOutputPulse;
         private System.Windows.Forms.Label label29;
         private System.Windows.Forms.TextBox textBoxFollowingError;

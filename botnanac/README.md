@@ -56,10 +56,10 @@ C 語言函式庫下載：
     botnana-apis
     |-----> botnanac
             |--------> examples          C 語言範例
-            |         |----> config_axis.c     運動軸參數設定
-            |         |----> config_group.c    軸組參數設定
-            |         |----> config_motion.c   運動參數設定
-            |         |----> config_slave.c    EtherCAT Slave 參數設定
+            |         |----> config_axis.c     讀取運動軸參數
+            |         |----> config_group.c    讀取軸組參數
+            |         |----> config_motion.c   讀取運動參數
+            |         |----> config_slave.c    讀取 EtherCAT Slave 參數
             |         |----> drive_pp.c        驅動器 PP 模式測試
             |         |----> group1d.c         1D 軸組測試
             |         |----> recorder.c        資料擷取範例 
@@ -322,386 +322,44 @@ Botnana-API 提供使用者一個包裝好的 WebSocket Client 的函式庫，�
         .....       
     }       
 
-#### 2.3.2 設定 EtherCAT Slave 參數 `config.slave.set`
+#### 2.3.2 取得 EtherCAT Slave 參數 `config.slave.get`
 
-使用 `config_slave_set` 會送出以下封包：
-
-    {
-      "jsonrpc": "2.0",
-      "method": "config.slave.set",
-      "params": {
-        "position": position,
-        "channel": channel,
-        "param" : value,
-      }
-    } 
-
-函式原型：
-
-    int32_t config_slave_set(
-            struct Botnana * desc,
-            uint32_t        position,
-            uint32_t        channel,
-            const char *    param,
-            int32_t         value);
-
-參數說明：
-    
-* `desc` : 由函式 `botnana_connect` 取得的回傳指標。
-* `position` : EtherCAT Slave Position。 1 表示第 1 個 slave。
-* `channel` : 在 EtherCAT Slave 上的第 `channel` 個裝置。 表示第 1 個裝置 。
-* `param` : 參數名稱。
-* `value` : 設定值。 
-
-回傳值：
-
-* `int32_t` ： -1 表示 `param` 為空指標。0 表示正常。
-
-範例：
-
-    // 設定  Slave 1 Channel 1 的參數 homing_speed_1 為 1000
-    .....    
-    int main()
-    {
-        // connect to motion server
-        struct Botnana * botnana = botnana_connect("192.168.7.2", on_ws_error_cb);
-        config_slave_set(botnana, 1, 1, "homing_speed_1", 10000);
-        .....       
-    }  
-
-#### 2.3.3 取得 EtherCAT Slave 參數 `config.slave.get`
-
-使用 `config_slave_get` 會送出以下封包：
-
-    {
-      "jsonrpc": "2.0",
-      "method": "config.slave.get",
-      "params": {
-        "position": position,
-        "channel": channel,
-      }
-    } 
-
-函式原型：
+`config_slave_get` 讀取一個 EtherCAT Slave 通道的設定。
 
     void config_slave_get(
             struct Botnana * desc,
+            uint32_t        alias,
             uint32_t        position,
             uint32_t        channel);
 
-參數說明：
-    
-* `desc` : 由函式 `botnana_connect` 取得的回傳指標。
-* `position` : EtherCAT Slave Position。 1 表示第 1 個 slave。
-* `channel` : 在 EtherCAT Slave 上的第 `channel` 個裝置。 表示第 1 個裝置 。
+`alias` 為 0 時，`position` 指定 Slave 位置。`channel` 從 1 開始。
 
-回傳值： `void`
+#### 2.3.3 取得 motion 參數 `config.motion.get`
 
-範例：
+`config_motion_get` 讀取 motion 設定。
 
-    // 取得 Slave 1 Channel 1 的參數
-    .....    
-    int main()
-    {
-        // connect to motion server
-        struct Botnana * botnana = botnana_connect("192.168.7.2", on_ws_error_cb);
-        config_slave_get(botnana, 1, 1);
-        .....       
-    }  
+    void config_motion_get(struct Botnana * desc);
 
-#### 2.3.4 設定 motion 參數 `config.motion.set`
+#### 2.3.4 取得 Group 參數 `config.group.get`
 
-使用 `config_motion_set` 會送出以下封包：
-
-    {
-      "jsonrpc": "2.0",
-      "method": "config.motion.set",
-      "params": {
-        "param" : value
-      }
-    } 
-
-函式原型：
-
-    int32_t config_motion_set(
-            struct Botnana * desc,
-            const char *    param,
-            int32_t         value);
-
-參數說明：
-    
-* `desc` : 由函式 `botnana_connect` 取得的回傳指標。
-* `param` : 參數名稱。
-* `value` : 設定值。 
-
-回傳值：
-
-* `int32_t` ： -1 表示 `param` 為空指標。0 表示正常。
-
-範例：
-
-    // 設定 period_us 參數 為 2000
-    .....    
-    int main()
-    {
-        // connect to motion server
-        struct Botnana * botnana = botnana_connect("192.168.7.2", on_ws_error_cb);
-        config_motion_set(botnana, "period_us", 2000);
-        .....       
-    }  
-
-#### 2.3.5 取得 motion 參數 `config.motion.get`
-
-使用 `config_motion_get` 會送出以下封包：
-
-    {
-      "jsonrpc": "2.0",
-      "method": "config.motion.get",
-    } 
-
-函式原型：
-
-    void config_motion_get(
-            struct Botnana * desc);
-
-參數說明：
-    
-* `desc` : 由函式 `botnana_connect` 取得的回傳指標。
-
-回傳值： `void`
-
-範例：
-
-    .....    
-    int main()
-    {
-        // connect to motion server
-        struct Botnana * botnana = botnana_connect("192.168.7.2", on_ws_error_cb);
-        config_motion_get(botnana);
-        .....       
-    }  
-
-#### 2.3.6 設定 Group 參數 `config.group.set`
-
-使用 `config_group_set_*` 會送出以下封包：
-
-    {
-      "jsonrpc": "2.0",
-      "method": "config.group.set",
-      "params": {
-        "position": position,
-        "param" : value,
-      }
-    } 
-
-函式原型：
-
-因為 param 的資料型態有 3 種，所以提供 3 個函式。 
-
-    int32_t config_group_set_string(
-            struct Botnana * desc,
-            uint32_t position,
-            const char * param,
-            const char *  value);
-
-    int32_t config_group_set_mapping(
-            struct Botnana * desc,
-            uint32_t position,
-            const char *  value);
-
-    int32_t config_group_set_double(
-            struct Botnana * desc,
-            uint32_t position,
-            const char * param,
-            double value);
-
-參數說明：
-    
-* `desc` : 由函式 `botnana_connect` 取得的回傳指標。
-* `position` : Group Index。1 為第 1 個軸組
-* `param` : 參數名稱。
-* `value` : 設定值。 
-
-回傳值：
-
-* `int32_t` ： -1 表示 `param` 為空指標。0 表示正常。
-
-範例：
-
-    .....    
-    int main()
-    {
-        // connect to motion server
-        struct Botnana * botnana = botnana_connect("192.168.7.2", on_ws_error_cb);
-        config_group_set_string(botnana, 1, "gtype", "2D");
-        config_group_set_double(botnana, 1, "jmax", 80.0);
-        config_group_set_mapping(botnana, 1, "3,2");
-        .....       
-    }  
-
-#### 2.3.7 取得 Group 參數 `config.group.get`
-
-使用 `config_group_get` 會送出以下封包：
-
-    {
-      "jsonrpc": "2.0",
-      "method": "config.group.get",
-      "params": {
-        "position" : position
-      }
-    } 
-
-函式原型：
+`config_group_get` 讀取指定 Group 的設定。`position` 從 1 開始。
 
     void config_group_get(
-            struct Botnana * desc
+            struct Botnana * desc,
             uint32_t        position);
 
-參數說明：
-    
-* `desc` : 由函式 `botnana_connect` 取得的回傳指標。
-* `position` : Group Index。1 為第 1 個軸組
+#### 2.3.5 取得 Axis 參數 `config.axis.get`
 
-回傳值： `void`
-
-範例：
-
-    .....    
-    int main()
-    {
-        // connect to motion server
-        struct Botnana * botnana = botnana_connect("192.168.7.2", on_ws_error_cb);
-        config_group_get(botnana, 1);
-        .....       
-    }  
-
-#### 2.3.8 設定 Axis 參數 `config.axis.set`
-
-使用 `config_axis_set_*` 會送出以下封包：
-
-    {
-      "jsonrpc": "2.0",
-      "method": "config.axis.set",
-      "params": {
-        "position": position,
-        "param" : value,
-      }
-    } 
-
-函式原型：
-
-因為 param 的資料型態有 3 種，所以提供 3 個函式。 
-
-    int32_t config_axis_set_string(
-            struct Botnana * desc,
-            uint32_t position,
-            const char * param,
-            const char * value);
-
-    int32_t config_axis_set_integer(
-            struct Botnana * desc,
-            uint32_t position,
-            const char * param,
-            int32_t  value);
-
-    int32_t config_axis_set_double(
-            struct Botnana * desc,
-            uint32_t position,
-            const char * param,
-            double value);
-
-參數說明：
-    
-* `desc` : 由函式 `botnana_connect` 取得的回傳指標。
-* `position` : Axis Index。1 為第 1 個運動軸。
-* `param` : 參數名稱。
-* `value` : 設定值。 
-
-回傳值：
-
-* `int32_t` ： -1 表示 `param` 為空指標。0 表示正常。
-
-範例：
-
-    .....    
-    int main()
-    {
-        // connect to motion server
-        struct Botnana * botnana = botnana_connect("192.168.7.2", on_ws_error_cb);
-        config_axis_set_string(botnana, 1, "name","A1");
-        config_axis_set_double(botnana, 1, "home_offset" ,0.5);
-        config_axis_set_integer(botnana, 1, "encoder_direction",-1);
-        .....       
-    }  
-
-#### 2.3.9 取得 Axis 參數 `config.axis.get`
-
-使用 `config_axis_get` 會送出以下封包：
-
-    {
-      "jsonrpc": "2.0",
-      "method": "config.axis.get",
-      "params": {
-        "position" : position
-      }
-    } 
-
-函式原型：
+`config_axis_get` 讀取指定 Axis 的設定。`position` 從 1 開始。
 
     void config_axis_get(
-            struct Botnana * desc
+            struct Botnana * desc,
             uint32_t        position);
 
-參數說明：
-    
-* `desc` : 由函式 `botnana_connect` 取得的回傳指標。
-* `position` : Axis Index。1 為第 1 個運動軸。
+Botnana API 不提供機器設定的修改或儲存函式。請使用 Botnana Control HMI 修改機器設定。
 
-回傳值： `void`
+#### 2.3.6 背景程式執行
 
-範例：
-
-    .....    
-    int main()
-    {
-        // connect to motion server
-        struct Botnana * botnana = botnana_connect("192.168.7.2", on_ws_error_cb);
-        config_group_get(botnana, 1);
-        .....       
-    }  
-
-
-#### 2.3.10  儲存參數檔 `config.save`
-
-使用 `config_save` 會送出以下封包：
-
-    {
-      "jsonrpc": "2.0",
-      "method": "config.save",
-    } 
-
-函式原型：
-
-    void config_save(struct Botnana * desc);
-
-參數說明：
-    
-* `desc` : 由函式 `botnana_connect` 取得的回傳指標。
-
-回傳值： `void`
-
-範例：
-
-    .....    
-    int main()
-    {
-        // connect to motion server
-        struct Botnana * botnana = botnana_connect("192.168.7.2", on_ws_error_cb);
-        config_save(botnana);
-        .....       
-    }  
-
-#### 2.3.11 背景程式執行 
 
 使用背景程式執行主要是
 

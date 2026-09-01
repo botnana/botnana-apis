@@ -12,3 +12,8 @@
 Botnana-Control Server 同時間只允許 2 個 WebSocket Client 連線，如果測試有收到 `Cannot aquire real-time task` 訊息，表示連線數已經多於 2 個了。
 
 C# 與 C++ Builder 範例皆使用 C 語言的函式庫。
+
+The libraries expose configuration reads for diagnostics. They do not expose
+configuration mutation or save helpers. Use the Botnana Control HMI to change
+machine configuration. The raw message transport remains available for
+application-specific protocols.

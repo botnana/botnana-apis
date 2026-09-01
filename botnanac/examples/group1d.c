@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <unistd.h>
 #include "botnana.h"
 
 // 處理主站傳回的資料
@@ -143,13 +144,8 @@ int main()
     }
     if (has_params != 0xFF)
     {
-        config_group_set_type_as_1d(botnana, 1, 1);
-        config_axis_set_drive_alias(botnana, 1, 0);
-        config_axis_set_drive_slave_position(botnana, 1, 1);
-        config_axis_set_drive_channel(botnana, 1, 1);
-        config_save(botnana);
-        printf("Change parameters and reboot Botnana-control !!\n");
-        sleep(1);
+        fprintf(stderr,
+                "Configure group 1 and axis 1 with the Botnana Control HMI before running this example.\n");
         exit(1);
     }
 
