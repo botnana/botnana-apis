@@ -3,6 +3,7 @@ use program::Program;
 use serde_json;
 use std::{
     self,
+    borrow::Borrow,
     boxed::Box,
     collections::{HashMap, VecDeque},
     ffi::CStr,
@@ -15,12 +16,36 @@ use std::{
     thread,
 };
 use url;
-use ws::{
-    self, connect, util::Token, CloseCode, Error, ErrorKind, Handler, Handshake, Message, Result,
-};
+use ws::{self, util::Token, CloseCode, Error, ErrorKind, Handler, Handshake, Message, Result};
 const WS_TIMEOUT_TOKEN: Token = Token(1);
 const WS_WATCHDOG_PERIOD_MS: u64 = 25_000;
 const VERSION: &'static str = env!("CARGO_PKG_VERSION");
+
+fn websocket_settings() -> ws::Settings {
+    ws::Settings {
+        tcp_nodelay: true,
+        ..ws::Settings::default()
+    }
+}
+
+#[allow(clippy::result_large_err)]
+fn connect_with_settings<U, F, H>(url: U, factory: F, settings: ws::Settings) -> Result<()>
+where
+    U: Borrow<str>,
+    F: FnMut(ws::Sender) -> H,
+    H: Handler,
+{
+    let mut websocket = ws::Builder::new().with_settings(settings).build(factory)?;
+    let parsed = url::Url::parse(url.borrow()).map_err(|err| {
+        Error::new(
+            ErrorKind::Internal,
+            format!("Unable to parse {} as url due to {:?}", url.borrow(), err),
+        )
+    })?;
+    websocket.connect(parsed)?;
+    websocket.run()?;
+    Ok(())
+}
 
 /// Callback Handler
 struct CallbackHandler {
@@ -211,13 +236,17 @@ impl Botnana {
                         .name("WS_CLIENT".to_string())
                         .spawn(move || {
                             // connect ws server
-                            let _ = connect(bna.url(), |sender| Client {
-                                ws_out: sender,
-                                sender: client_sender.clone(),
-                                thread_tx: thread_tx.clone(),
-                                on_error_cb: bna.on_error_cb.clone(),
-                                is_watchdog_refreshed: false,
-                            });
+                            let _ = connect_with_settings(
+                                bna.url(),
+                                |sender| Client {
+                                    ws_out: sender,
+                                    sender: client_sender.clone(),
+                                    thread_tx: thread_tx.clone(),
+                                    on_error_cb: bna.on_error_cb.clone(),
+                                    is_watchdog_refreshed: false,
+                                },
+                                websocket_settings(),
+                            );
                             // 直到 WS Client Event loop 結束， 才會執行以下程式。
                             *bna.user_sender.lock().expect("Exit WS Event Loop") = None;
                             *bna.ws_out.lock().expect("Exit WS Event Loop") = None;
@@ -822,5 +851,15 @@ impl Handler for Client {
             self.is_watchdog_refreshed = false;
             self.ws_out.timeout(WS_WATCHDOG_PERIOD_MS, WS_TIMEOUT_TOKEN)
         }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::websocket_settings;
+
+    #[test]
+    fn websocket_settings_disable_nagles_algorithm() {
+        assert!(websocket_settings().tcp_nodelay);
     }
 }
