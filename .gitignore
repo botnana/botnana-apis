@@ -2,6 +2,7 @@
 **/node_modules
 **/_book
 **/target
+**/__pycache__
 **/*.exe
 .project
 botnanac/*.o
