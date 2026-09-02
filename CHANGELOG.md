@@ -1,6 +1,17 @@
 # Changelog
 
-## [0.4.0] - Unreleased
+## [0.4.1] - 2026-09-03
+
+### Changed
+
+- Updated the Rust and C library package versions to 0.4.1. This release does
+  not change API or runtime behavior.
+
+### Fixed
+
+- Recorded the release date for version 0.4.0.
+
+## [0.4.0] - 2026-09-02
 
 ### Removed
 
