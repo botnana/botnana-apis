@@ -118,6 +118,11 @@ class PublicApiSurfaceTest(unittest.TestCase):
         self.assertIn('#ifdef __cplusplus\n}\n#endif', header)
         self.assertRegex(
             project,
+            r"(?s)<ItemDefinitionGroup Condition=\"'\$\(Configuration\)\|\$\(Platform\)'=='Release\|x64'\">.*?<AdditionalDependencies>[^<]*Ntdll\.lib",
+            "The Win64 release link step must include Ntdll.lib for Rust's Windows runtime imports.",
+        )
+        self.assertRegex(
+            project,
             r"(?s)Release\|x64.*?<PlatformToolset>v143</PlatformToolset>",
             "The published Win64 DLL must use the supported hosted-runner toolset.",
         )

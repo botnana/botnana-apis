@@ -79,7 +79,7 @@ config.sfc 必須要第一個載入，manager.sfc 必須是最後載入，其它
 
 # Botnana API
 
-BotnanaAPI 專案還需要 `Ws2_32.lib` 與 `Userenv.lib` 函式庫，在此專案的設定檔中已將這兩個函式庫的連結設置完成，如果有自行轉換函式庫的需求，要增加這兩個函式庫的連結設定，設定的方式可以參考 `botnanac/readme.md`。
+BotnanaAPI 專案還需要 `Ws2_32.lib`、`Userenv.lib` 與 `Ntdll.lib` 函式庫，在此專案的設定檔中已將這些函式庫的連結設置完成，如果有自行轉換函式庫的需求，要增加這些函式庫的連結設定，設定的方式可以參考 `botnanac/readme.md`。
 
 ---
 
