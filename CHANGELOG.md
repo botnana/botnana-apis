@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.4.3] - 2026-09-03
+
+### Fixed
+
+- Generated release checksums no longer include `SHA256SUMS` itself, so each
+  published checksum file verifies successfully.
+
 ## [0.4.2] - 2026-09-03
 
 ### Added
