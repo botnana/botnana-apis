@@ -40,8 +40,15 @@ jobs:
           if (-not (Test-Path -LiteralPath $vswhere -PathType Leaf)) {
             throw "Could not locate vswhere.exe in the Visual Studio installation."
           }
-          $msbuild = & $vswhere -latest -products * -requires Microsoft.Component.MSBuild -find "MSBuild\**\Bin\MSBuild.exe" | Select-Object -First 1
-          if ($LASTEXITCODE -ne 0 -or -not $msbuild -or -not (Test-Path -LiteralPath $msbuild -PathType Leaf)) {
+          $msbuildCandidates = & $vswhere -latest -products * -requires Microsoft.Component.MSBuild -find "MSBuild\**\MSBuild.exe"
+          if ($LASTEXITCODE -ne 0 -or -not $msbuildCandidates) {
+            throw "Could not locate MSBuild in the Visual Studio installation."
+          }
+          $msbuild = $msbuildCandidates | Where-Object { $_ -like "*\amd64\MSBuild.exe" } | Select-Object -First 1
+          if (-not $msbuild) {
+            $msbuild = $msbuildCandidates | Select-Object -First 1
+          }
+          if (-not (Test-Path -LiteralPath $msbuild -PathType Leaf)) {
             throw "Could not locate MSBuild in the Visual Studio installation."
           }
           & $msbuild botnanacs/BotnanaApi/BotnanaApi.sln /t:Clean,Build /p:Configuration=Release /p:Platform=x64

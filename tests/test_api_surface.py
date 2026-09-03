@@ -102,6 +102,8 @@ class PublicApiSurfaceTest(unittest.TestCase):
         self.assertIn("vswhere.exe", win64_workflow)
         self.assertIn("Test-Path -LiteralPath $vswhere -PathType Leaf", win64_workflow)
         self.assertIn("Could not locate vswhere.exe", win64_workflow)
+        self.assertIn('"MSBuild\\**\\MSBuild.exe"', win64_workflow)
+        self.assertIn("$msbuildCandidates", win64_workflow)
         self.assertIn("Test-Path -LiteralPath $msbuild -PathType Leaf", win64_workflow)
         self.assertIn("& $msbuild", win64_workflow)
         self.assertIn("/p:Configuration=Release /p:Platform=x64", win64_workflow)
