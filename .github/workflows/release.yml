@@ -97,7 +97,7 @@ jobs:
       - name: Generate checksums
         working-directory: release-assets
         run: |
-          find . -maxdepth 1 -type f -printf '%f\n' | sort | xargs sha256sum > SHA256SUMS
+          find . -maxdepth 1 -type f ! -name SHA256SUMS -printf '%f\n' | sort | xargs sha256sum > SHA256SUMS
       - name: Refuse to alter an existing release
         env:
           GH_TOKEN: ${{ github.token }}

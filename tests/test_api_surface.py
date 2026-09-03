@@ -110,6 +110,7 @@ class PublicApiSurfaceTest(unittest.TestCase):
         self.assertIn("BotnanaApi_x86_64.dll", win64_workflow)
         self.assertIn("BotnanaApi.h", win64_workflow)
         self.assertIn("SHA256SUMS", release_workflow)
+        self.assertIn('! -name SHA256SUMS', release_workflow)
         self.assertIn('gh release view "$GITHUB_REF_NAME"', release_workflow)
         self.assertIn('gh release create "$GITHUB_REF_NAME"', release_workflow)
         self.assertIn("contents: read", release_workflow)
