@@ -1,4 +1,5 @@
 import re
+import tomllib
 import unittest
 from pathlib import Path
 
@@ -67,6 +68,52 @@ class PublicApiSurfaceTest(unittest.TestCase):
         # Assert
         self.assertIn('tabPageAxisConfig.Text = "Configuration (read only)"', control)
         self.assertEqual(set(), wired_handlers - declared_handlers)
+
+    def test_release_workflow_builds_and_publishes_the_win64_cplusplusbuilder_package(self):
+        # Arrange
+        release_workflow_path = REPOSITORY_ROOT / ".github/workflows/release.yml"
+        win64_workflow_path = REPOSITORY_ROOT / ".github/workflows/build-win64.yml"
+        main_workflow_path = REPOSITORY_ROOT / ".github/workflows/main.yml"
+        project_path = REPOSITORY_ROOT / "botnanacs/BotnanaApi/BotnanaApi/BotnanaApi.vcxproj"
+        header_path = REPOSITORY_ROOT / "botnanacs/BotnanaApi/BotnanaApi/BotnanaApi.h"
+        c_manifest_path = REPOSITORY_ROOT / "botnanac/Cargo.toml"
+        rust_manifest_path = REPOSITORY_ROOT / "botnanars/Cargo.toml"
+        rust_lock_path = REPOSITORY_ROOT / "botnanars/Cargo.lock"
+
+        # Act
+        release_workflow = release_workflow_path.read_text()
+        win64_workflow = win64_workflow_path.read_text()
+        main_workflow = main_workflow_path.read_text()
+        project = project_path.read_text()
+        header = header_path.read_text()
+        c_version = tomllib.loads(c_manifest_path.read_text())["package"]["version"]
+        rust_version = tomllib.loads(rust_manifest_path.read_text())["package"]["version"]
+        rust_lock = rust_lock_path.read_text()
+
+        # Assert
+        self.assertEqual(c_version, rust_version)
+        self.assertRegex(rust_lock, rf'name = "botnanars"\nversion = "{re.escape(rust_version)}"')
+        self.assertIn("tomllib", release_workflow)
+        self.assertIn("cargo test --locked", release_workflow)
+        self.assertIn("uses: ./.github/workflows/build-win64.yml", release_workflow)
+        self.assertIn("uses: ./.github/workflows/build-win64.yml", main_workflow)
+        self.assertIn("windows-2022", win64_workflow)
+        self.assertIn("x86_64-pc-windows-msvc", win64_workflow)
+        self.assertIn("/p:Configuration=Release /p:Platform=x64", win64_workflow)
+        self.assertIn("BotnanaApi_x86_64.dll", win64_workflow)
+        self.assertIn("BotnanaApi.h", win64_workflow)
+        self.assertIn("SHA256SUMS", release_workflow)
+        self.assertIn('gh release view "$GITHUB_REF_NAME"', release_workflow)
+        self.assertIn('gh release create "$GITHUB_REF_NAME"', release_workflow)
+        self.assertIn("contents: read", release_workflow)
+        self.assertNotIn("CARGO_HTTP_CHECK_REVOKE", win64_workflow)
+        self.assertIn('#ifdef __cplusplus\nextern "C" {\n#endif', header)
+        self.assertIn('#ifdef __cplusplus\n}\n#endif', header)
+        self.assertRegex(
+            project,
+            r"(?s)Release\|x64.*?<PlatformToolset>v143</PlatformToolset>",
+            "The published Win64 DLL must use the supported hosted-runner toolset.",
+        )
 
 
 if __name__ == "__main__":

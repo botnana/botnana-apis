@@ -1,6 +1,14 @@
 name: CI
 run-name: ${{ github.actor }} is building branch ${{ github.ref }}
-on: [workflow_dispatch, push]
+on:
+  workflow_dispatch:
+  pull_request:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -9,11 +17,16 @@ jobs:
       - run: echo "Running on a GitHub-hosted ${{ runner.os }} server!"
       - run: echo "Branch is ${{ github.ref }}, repository is ${{ github.repository }}."
       - name: Check out repository code
-        uses: actions/checkout@v4
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          persist-credentials: false
       - run: echo "💡 The ${{ github.repository }} repository has been cloned to the runner."
       - run: echo "🖥️ The workflow is now ready to build code on the runner."
       - name: Check public API surface
         run: python3 -m unittest discover -s tests -v
+      - name: Run Rust tests
+        working-directory: botnanars
+        run: cargo test --locked
       - run: echo "workspace is $USER@$HOSTNAME:$PWD" 
       - name: List files in the repository
         run: |
@@ -36,3 +49,8 @@ jobs:
         run: |
           make words
       - run: echo "✅ This job's status is ${{ job.status }}."
+
+  build-win64:
+    uses: ./.github/workflows/build-win64.yml
+    with:
+      artifact-name: win64-cplusplusbuilder-package-ci

@@ -1,0 +1,73 @@
+name: Build Win64 BotnanaApi package
+
+on:
+  workflow_call:
+    inputs:
+      artifact-name:
+        description: Name of the uploaded C++Builder package artifact.
+        required: true
+        type: string
+
+permissions:
+  contents: read
+
+jobs:
+  build-win64:
+    name: Build C++Builder Win64 package
+    runs-on: windows-2022
+    env:
+      RUSTUP_TOOLCHAIN: "1.93.1"
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          persist-credentials: false
+      - name: Install the Rust Windows target
+        shell: pwsh
+        run: |
+          rustup toolchain install 1.93.1 --profile minimal
+          rustup target add --toolchain 1.93.1 x86_64-pc-windows-msvc
+      - name: Build the Botnana static library
+        working-directory: botnanac
+        shell: pwsh
+        run: |
+          cargo build --locked --release --target x86_64-pc-windows-msvc
+          New-Item -ItemType Directory -Force -Path lib | Out-Null
+          Copy-Item target/x86_64-pc-windows-msvc/release/botnana.lib lib/botnana_x86_64.lib
+      - name: Build the Win64 DLL
+        shell: pwsh
+        run: |
+          msbuild botnanacs/BotnanaApi/BotnanaApi.sln /t:Clean,Build /p:Configuration=Release /p:Platform=x64
+      - name: Package and verify the C++Builder files
+        shell: pwsh
+        run: |
+          $package = Join-Path $env:RUNNER_TEMP "BotnanaApi-win64"
+          New-Item -ItemType Directory -Force -Path $package | Out-Null
+          Copy-Item botnanacs/BotnanaApi/x64/Release/BotnanaApi_x86_64.dll $package/
+          Copy-Item botnanacs/BotnanaApi/BotnanaApi/BotnanaApi.h $package/
+          Copy-Item botnanabcb/BotnanaApi-win64-README.txt "$package/README.txt"
+
+          New-Item -ItemType Directory -Force -Path release-assets | Out-Null
+          $archive = "release-assets/BotnanaApi-win64.zip"
+          Compress-Archive -Path $package -DestinationPath $archive
+
+          $unpacked = Join-Path $env:RUNNER_TEMP "BotnanaApi-win64-verified"
+          Expand-Archive -Path $archive -DestinationPath $unpacked
+          $verifiedPackage = Join-Path $unpacked "BotnanaApi-win64"
+          foreach ($file in "BotnanaApi_x86_64.dll", "BotnanaApi.h", "README.txt") {
+            if (-not (Test-Path (Join-Path $verifiedPackage $file))) {
+              throw "The Win64 package is missing $file."
+            }
+          }
+
+          $dll = Join-Path $verifiedPackage "BotnanaApi_x86_64.dll"
+          $bytes = [System.IO.File]::ReadAllBytes($dll)
+          $peOffset = [System.BitConverter]::ToInt32($bytes, 0x3c)
+          $machine = [System.BitConverter]::ToUInt16($bytes, $peOffset + 4)
+          if ($machine -ne 0x8664) {
+            throw "Expected an x86-64 DLL, found PE machine value 0x$($machine.ToString('X4'))."
+          }
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: ${{ inputs.artifact-name }}
+          path: release-assets/BotnanaApi-win64.zip
+          if-no-files-found: error

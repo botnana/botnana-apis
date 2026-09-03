@@ -9,7 +9,7 @@ botnanabcb 為 C++ Builder 的範例程式，開發工具式採用 Embarcadero®
     
 * SingleDrive: 一個單軸馬達驅動器的測試範例。
 
-C++ builder 範例需要引用三個檔案 `BotnanaApi.h`、`BotnanaApi.dll` 與 `BotnanaApiBCB.lib`   
+`SingleDrive` 是舊版 Win32 範例，需要引用三個檔案 `BotnanaApi.h`、`BotnanaApi.dll` 與 `BotnanaApiBCB.lib`。目前發佈的 Win64 套件可依以下步驟供新的 C++Builder 專案使用。
 
 **BotnanaApi.h**
 
@@ -17,20 +17,20 @@ C++ builder 範例需要引用三個檔案 `BotnanaApi.h`、`BotnanaApi.dll` 與
 
 **BotnanaApi.dll**:
 
-參考 `botnana-api/botnanacs/readme.md` 或是在以下網址取得
+目前的 64 位元 C++Builder 套件可以從 [GitHub Releases](https://github.com/botnana/botnana-apis/releases) 下載 `BotnanaApi-win64.zip`。套件包含 `BotnanaApi_x86_64.dll`、`BotnanaApi.h` 和使用說明。
 
-* 32 位元 Windows: [https://drive.google.com/drive/u/0/folders/1MAZg9XcLLQ8UlemvOaPnnRXnui_YJEMV](https://drive.google.com/drive/u/0/folders/1MAZg9XcLLQ8UlemvOaPnnRXnui_YJEMV)
-* 64 位元 Windows: [https://drive.google.com/drive/u/0/folders/1IZZ1QGJf2xVUvhGGWILW0t5WpiyTczz6](https://drive.google.com/drive/u/0/folders/1IZZ1QGJf2xVUvhGGWILW0t5WpiyTczz6)
+* 32 位元 Windows 舊版: [https://drive.google.com/drive/u/0/folders/1MAZg9XcLLQ8UlemvOaPnnRXnui_YJEMV](https://drive.google.com/drive/u/0/folders/1MAZg9XcLLQ8UlemvOaPnnRXnui_YJEMV)
+* 64 位元 Windows 舊版: [https://drive.google.com/drive/u/0/folders/1IZZ1QGJf2xVUvhGGWILW0t5WpiyTczz6](https://drive.google.com/drive/u/0/folders/1IZZ1QGJf2xVUvhGGWILW0t5WpiyTczz6)
 
-此檔案要放到與範例執行檔的同一目錄下，另外則是要用來產生 `BotnanaApiBCB.lib`。
+DLL 必須放在與應用程式執行檔相同的目錄，並且用來產生 C++Builder 的匯入函式庫。
 
 **BotnanaApiBCB.lib**:
 
-利用 C++ Builder 工具 implib 來轉換函式庫格式，其命令如下:
+利用 C++Builder 工具 `implib` 產生對應架構的匯入函式庫。64 位元套件使用:
 
-    implib -a BotnanaApiBCB.lib BotnanaApi.dll
+    implib -a BotnanaApiBCB_x86_64.lib BotnanaApi_x86_64.dll
 
-產出 `BotnanaApiBCB.lib` 後，要將 `BotnanaApiBCB.lib` 放到範例的目錄中。 
+產出 `BotnanaApiBCB_x86_64.lib` 後，要將它加入 C++Builder 專案。
 
 
 # Single Drive

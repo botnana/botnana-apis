@@ -1,5 +1,18 @@
 # Changelog
 
+## [0.4.2] - 2026-09-03
+
+### Added
+
+- Published a Win64 `BotnanaApi` package for C++Builder applications. The
+  package contains the native DLL, C-compatible header, and import-library
+  generation instructions.
+
+### Changed
+
+- Updated the Rust and C library package versions to 0.4.2. No API or runtime
+  behavior changed.
+
 ## [0.4.1] - 2026-09-03
 
 ### Changed

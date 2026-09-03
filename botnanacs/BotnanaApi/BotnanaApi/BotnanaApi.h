@@ -1,7 +1,9 @@
 ﻿#pragma once
 #include <stdint.h>
-extern "C"
-{
+
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 	// 定義 callback function 的形態
 	// @ pointer: 回傳使用者設定的指標
@@ -182,4 +184,6 @@ extern "C"
 	// JSON-API: poweroff
 	__declspec(dllexport) void botnana_poweroff(struct Botnana *botnana);
 
+#ifdef __cplusplus
 }
+#endif

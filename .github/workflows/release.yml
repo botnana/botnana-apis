@@ -1,0 +1,117 @@
+name: Release
+run-name: ${{ github.ref_name }} release
+
+on:
+  push:
+    tags:
+      - "v*"
+
+permissions:
+  contents: read
+
+jobs:
+  validate-version:
+    name: Validate release version
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          persist-credentials: false
+      - name: Require matching semantic versions
+        run: |
+          python3 - <<'PY'
+          import os
+          import re
+          import tomllib
+          from pathlib import Path
+
+          tag = os.environ["GITHUB_REF_NAME"]
+          if not re.fullmatch(r"v[0-9]+\.[0-9]+\.[0-9]+", tag):
+              raise SystemExit(f"Expected a vMAJOR.MINOR.PATCH tag, got: {tag}")
+
+          expected_version = tag.removeprefix("v")
+          for manifest_path in (Path("botnanac/Cargo.toml"), Path("botnanars/Cargo.toml")):
+              version = tomllib.loads(manifest_path.read_text())["package"]["version"]
+              if version != expected_version:
+                  raise SystemExit(
+                      f"{manifest_path} has version {version}; expected {expected_version} for {tag}"
+                  )
+          PY
+
+  build-linux:
+    name: Build Linux libraries
+    needs: validate-version
+    runs-on: ubuntu-24.04
+    env:
+      RUSTUP_TOOLCHAIN: "1.93.1"
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          persist-credentials: false
+      - name: Install the release toolchain and ARM64 build tools
+        run: |
+          sudo apt-get update
+          sudo apt-get install --yes gcc-aarch64-linux-gnu
+          rustup toolchain install 1.93.1 --profile minimal
+          rustup target add --toolchain 1.93.1 aarch64-unknown-linux-gnu x86_64-unknown-linux-gnu
+      - name: Build release libraries
+        working-directory: botnanac
+        run: |
+          cargo build --locked --release --target aarch64-unknown-linux-gnu
+          cargo build --locked --release --target x86_64-unknown-linux-gnu
+      - name: Run Rust tests
+        working-directory: botnanars
+        run: cargo test --locked
+      - name: Verify public API surface
+        run: python3 -m unittest discover -s tests -v
+      - name: Collect Linux release assets
+        run: |
+          mkdir release-assets
+          cp botnanac/target/aarch64-unknown-linux-gnu/release/libbotnana.a release-assets/libbotnana_arm64.a
+          cp botnanac/target/aarch64-unknown-linux-gnu/release/libbotnana.so release-assets/libbotnana_arm64.so
+          cp botnanac/target/x86_64-unknown-linux-gnu/release/libbotnana.a release-assets/libbotnana_x86_64.a
+          cp botnanac/target/x86_64-unknown-linux-gnu/release/libbotnana.so release-assets/libbotnana_x86_64.so
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: linux-release-assets
+          path: release-assets/
+          if-no-files-found: error
+
+  build-win64:
+    needs: validate-version
+    uses: ./.github/workflows/build-win64.yml
+    with:
+      artifact-name: win64-cplusplusbuilder-package
+
+  publish:
+    name: Publish release assets
+    needs: [build-linux, build-win64]
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093
+        with:
+          path: release-assets
+          merge-multiple: true
+      - name: Generate checksums
+        working-directory: release-assets
+        run: |
+          find . -maxdepth 1 -type f -printf '%f\n' | sort | xargs sha256sum > SHA256SUMS
+      - name: Refuse to alter an existing release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          if gh release view "$GITHUB_REF_NAME" --repo "$GITHUB_REPOSITORY" >/dev/null 2>&1; then
+            echo "A release already exists for $GITHUB_REF_NAME; refusing to replace its assets." >&2
+            exit 1
+          fi
+      - name: Create GitHub release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release create "$GITHUB_REF_NAME" release-assets/* \
+            --repo "$GITHUB_REPOSITORY" \
+            --title "$GITHUB_REF_NAME" \
+            --generate-notes \
+            --notes "Adds the current Win64 C++Builder package alongside the existing Linux libraries."
